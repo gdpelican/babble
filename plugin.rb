@@ -18,29 +18,67 @@ after_initialize do
     end
   end
 
-  class ::Babble::Controller < ActionController::Base
+  Babble::Engine.routes.draw do
+    get "/topic" => "topic#show"
+    post "/post" => "post#create"
+  end
+
+  Discourse::Application.routes.append do
+    mount ::Babble::Engine, at: "/babble"
+  end
+
+  require_dependency "application_controller"
+  class ::Babble::TopicController < ::ApplicationController
+    requires_plugin PLUGIN_NAME
+    before_filter :ensure_logged_in
+
     def show
-      format.json do
-        render_json_dump(TopicViewSerializer.new(TopicView.new(Babble::Topic.find_or_create.id, system_guardian), 
-                                                 scope: system_guardian,
-                                                 root: false))
+      begin
+        Babble::Topic.ensure_existence
+        @topic = TopicView.new(BABBLE_TOPIC_ID, current_user)
+        render json: TopicViewSerializer.new(@topic, scope: Guardian.new(current_user), root: false).as_json
+      rescue StandardError => e
+        render_json_error e.message
       end
     end
+  end
 
-    private
+  class ::Babble::PostsController < ::ApplicationController
+    requires_plugin PLUGIN_NAME
+    before_filter :ensure_logged_in
 
-    def system_guardian
-      @system_guardian ||= Guardian.new Discourse.system_user
+    def create
+      @post = Babble::PostCreator.new(current_user, params[:post])
+    end
+  end
+
+  class ::Babble::PostCreator < ::PostCreator
+    def valid?
+      @topic = Topic.unscoped.find_by id: BABBLE_TOPIC_ID
+      setup_post
+    end
+
+    def guardian
+      Guardian.new(Discourse.system_user)
     end
   end
 
   class ::Babble::Topic
-    def self.find_or_create
-      Topic.unscoped.find_by(id: BABBLE_TOPIC_ID) ||
+    def self.ensure_existence
+      current_chat_topic ||
       Topic.create!(id: BABBLE_TOPIC_ID, 
                     user: Discourse.system_user,
                     title: BABBLE_TOPIC_TITLE,
                     deleted_at: Time.now)
     end
+
+    def self.current_chat_topic
+      Topic.unscoped.find_by id: BABBLE_TOPIC_ID
+    end
+
+    def self.recreate
+      current_chat_topic.destroy && ensure_existence
+    end
   end
+
 end

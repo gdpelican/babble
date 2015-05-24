@@ -1,12 +1,12 @@
 require "spec_helper"
 
-describe ::Babble::Controller do
+describe ::Babble::TopicController do
   routes { ::Babble::Engine.routes }
 
   describe "show" do
 
     it "returns the babble topic when it exists" do
-      Babble::Topic.find_or_create
+      Babble::Topic.ensure_existence
       xhr :get, :show
 
       expect(response).to be_success

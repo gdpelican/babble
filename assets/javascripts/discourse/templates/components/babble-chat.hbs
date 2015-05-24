@@ -1,1 +1,15 @@
-The topic title is {{topicTitle}}
+<section class="babble-chat">
+
+  <div class="babble-posts-title">{{topicTitle}}</div>
+  <ul class="babble-posts">
+    {{conditional-loading-spinner condition=model.postStream.loadingAbove}}
+
+    {{#unless postStream.loadingFilter}}
+      {{#each post in model.postStream.posts}}
+        {{babble-post post=post stream=postStream}}
+      {{/each}}
+    {{/unless}}
+
+    {{conditional-loading-spinner condition=model.postStream.loadingBelow}}
+  </ul>
+</section>
