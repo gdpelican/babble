@@ -79,3 +79,10 @@
   position: static;
   display: inline-block;
 }
+
+.babble-post-composer textarea {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 5px;
+  margin: 0;
+}
