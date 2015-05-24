@@ -1,0 +1,35 @@
+.sidebar{
+  width: 22%;
+  float: left;
+}
+.container.list-container.with-sidebar{
+  float: left;
+  margin: 0 2.7%;
+  width: 70%;
+}
+.sidebar-content{
+  height: 200px;
+}
+@media all and (min-width: 1000px) and (max-width: 1139px){
+  .container{
+    width: 70%;
+  }
+  .full-width {
+    width: 100%;
+  }
+  .container.list-container.with-sidebar{
+    margin: 0 0.7%;
+  }
+}
+
+@media all and (min-width: 0) and (max-width: 800px) and (min-device-width: 0) and (max-device-width: 800px){
+  .sidebar{
+    display: none;
+  }
+  .container.list-container.with-sidebar{
+    width: 100%;
+    max-width: 1110px;
+    margin-right: auto;
+    margin-left: auto;
+  }
+}
