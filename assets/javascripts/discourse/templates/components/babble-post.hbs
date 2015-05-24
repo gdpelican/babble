@@ -1,28 +1,19 @@
 {{post-gap post=post postStream=postStream before="true"}}
 
 <article {{bind-attr class=":boxed via_email" id="postElementId" data-post-id="id" data-user-id="user_id"}}>
-  <div class='row'>
+  <div class='row babble-post'>
 
-    <div class='topic-avatar'>
+    <div class='babble-post-avatar'>
       <div class="contents">
         {{#if userDeleted}}
           <i class="fa fa-trash-o deleted-user-avatar"></i>
         {{else}}
-          {{raw "post/poster-avatar" post=this classNames="main-avatar"}}
+          {{raw "post/poster-avatar" post=post classNames="main-avatar"}}
         {{/if}}
       </div>
     </div>
 
-    <div class='topic-body'>
-      <div class='topic-meta-data'>
-        {{poster-name post=post}}
-        <div class='post-info'>
-          <a class='post-date' {{bind-attr href="shareUrl" data-share-url="shareUrl" data-post-number="post_number"}}>{{age-with-tooltip post.created_at}}</a>
-        </div>
-        <div {{bind-attr class=":read-state read"}} title="{{i18n 'post.unread'}}">{{fa-icon "circle"}}</div>
-      </div>
-
-      <!-- keep the classes here in sync with composer.hbs -->
+    <div class='babble-post-body'>
       <div {{bind-attr class="showUserReplyTab:avoid-tab view.repliesShown::contents :regular view.extraClass"}}>
         <div class='cooked'>
           {{{post.cooked}}}
@@ -31,9 +22,15 @@
           <a href {{action "expandHidden" this}}>{{i18n 'post.show_hidden'}}</a>
         {{/if}}
       </div>
-
-      {{discourse-action-history post=post}}
     </div>
+
+    <div class='babble-post-meta-data'>
+      <div class='post-info'>
+        <a class='post-date' {{bind-attr href="shareUrl" data-share-url="shareUrl" data-post-number="post_number"}}>{{age-with-tooltip post.created_at}}</a>
+      </div>
+      <div {{bind-attr class=":read-state read"}} title="{{i18n 'post.unread'}}">{{fa-icon "circle"}}</div>
+    </div>
+
   </div>
 
 </article>

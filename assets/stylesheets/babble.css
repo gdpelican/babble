@@ -1,3 +1,4 @@
+/* Sidebar styles */
 .sidebar{
   width: 22%;
   float: left;
@@ -16,7 +17,7 @@
   }
   .full-width {
     width: 100%;
-  }
+  };
   .container.list-container.with-sidebar{
     margin: 0 0.7%;
   }
@@ -32,4 +33,49 @@
     margin-right: auto;
     margin-left: auto;
   }
+}
+
+/* Post styles */
+.babble-post {
+  position: relative;
+}
+
+.babble-post-avatar {
+  float: left;
+}
+
+.babble-post-avatar img {
+  float: left;
+  width: 20px;
+  height: 20px;
+  margin-right: 5px;
+}
+
+.babble-post-body {
+  padding-top: 5px;
+  float: left;
+}
+
+.babble-post-info {
+  padding-top: 5px;
+  float: left;
+}
+
+.babble-post-meta-data {
+  position: absolute;
+  right: 5px;
+  line-height: 30px;
+}
+
+.babble-post .post-info {
+  display: inline-block;
+}
+
+.babble-post .post-date {
+  padding: 5px 0 0 0;
+}
+
+.babble-post .read-state {
+  position: static;
+  display: inline-block;
 }

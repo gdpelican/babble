@@ -4,7 +4,7 @@
 # authors: James Kiesel (gdpelican)
 # url: https://github.com/gdpelican/babble
 
-register_asset "stylesheets/babble_sidebar.css"
+register_asset "stylesheets/babble.css"
 
 PLUGIN_NAME ||= "babble".freeze
 BABBLE_TOPIC_ID ||= -1
