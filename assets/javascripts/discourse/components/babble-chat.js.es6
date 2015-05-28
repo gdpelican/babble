@@ -19,6 +19,10 @@ export default Ember.Component.extend({
   setupTopic: function() {
     this.set('model',            Discourse.Babble.topic)
     this.set('model.postStream', Discourse.Babble.postStream)
+    Discourse.MessageBus.subscribe('/babble', function(data) {
+      console.log('success!')
+      console.log(data)
+    })
   }
 
 });

@@ -49,7 +49,9 @@ after_initialize do
 
     def create
       begin
-        Babble::PostCreator.create(current_user, post_creator_params)
+        @post = Babble::PostCreator.create(current_user, post_creator_params)
+        byebug
+        MessageBus.publish "/babble", serialized_post.merge!(type: :created)
         head :ok
       rescue StandardError => e
         render_json_error e.message
@@ -63,6 +65,10 @@ after_initialize do
         raw:              params[:raw],
         skip_validations: true
       }
+    end
+
+    def serialized_post
+      ::PostSerializer.new(@post, scope: Guardian.new(current_user), root: false).as_json
     end
   end
 
