@@ -31,7 +31,9 @@
 </div>
 
 <!-- plugin content -->
-<div class='sidebar babble-sidebar'>
-  {{babble-chat}}
-</div>
+  {{#if currentUser}}
+    <div class='sidebar babble-sidebar'>
+      {{babble-chat}}
+    </div>
+  {{/if}}
 <!-- /plugin content -->

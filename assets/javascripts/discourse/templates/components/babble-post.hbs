@@ -3,7 +3,7 @@
 <article {{bind-attr class=":boxed via_email" id="postElementId" data-post-id="id" data-user-id="user_id"}}>
   <div class='row babble-post'>
 
-    <div class='babble-post-avatar'>
+    <div class='babble-post-avatar babble-post-content'>
       <div class="contents">
         {{#if userDeleted}}
           <i class="fa fa-trash-o deleted-user-avatar"></i>
@@ -13,7 +13,7 @@
       </div>
     </div>
 
-    <div class='babble-post-body'>
+    <div class='babble-post-body babble-post-content'>
       <div {{bind-attr class="showUserReplyTab:avoid-tab view.repliesShown::contents :regular view.extraClass"}}>
         <div class='cooked'>
           {{{post.cooked}}}
@@ -24,11 +24,11 @@
       </div>
     </div>
 
-    <div class='babble-post-meta-data'>
+    <div class='babble-post-meta-data babble-post-content'>
       <div class='post-info'>
         <a class='post-date' {{bind-attr href="shareUrl" data-share-url="shareUrl" data-post-number="post_number"}}>{{age-with-tooltip post.created_at}}</a>
       </div>
-      <div {{bind-attr class=":read-state read"}} title="{{i18n 'post.unread'}}">{{fa-icon "circle"}}</div>
+      <div {{bind-attr class=":read-state post.read"}} title="{{i18n 'post.unread'}}">{{fa-icon "circle"}}</div>
     </div>
 
   </div>

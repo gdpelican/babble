@@ -7,6 +7,8 @@ export default Ember.Component.extend({
   
   setupPost: function() {
     this.set('post', Discourse.Post.create(this.post));
+    var post = this.get('post')
+    if (!post.read) { post.set("read", true) }
   }.on('init')
 
 });

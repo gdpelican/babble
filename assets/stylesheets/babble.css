@@ -23,6 +23,10 @@
   }
 }
 
+.sidebar .babble-post-avatar {
+  padding: 8px 0;
+}
+
 @media all and (min-width: 0) and (max-width: 800px) and (min-device-width: 0) and (max-device-width: 800px){
   .sidebar{
     display: none;
@@ -36,12 +40,23 @@
 }
 
 /* Post styles */
-.babble-post {
-  position: relative;
+.babble-post .babble-post-avatar a,
+.babble-post .post-date {
+  background-color: transparent !important; /* sorry mom. */
 }
 
-.babble-post-avatar {
-  float: left;
+.babble-post {
+  position: relative;
+  list-style-type: none;
+}
+
+.babble-post:hover {
+  background-color: #f8f8ff;
+}
+
+.babble-post-content {
+  display: table-cell;
+  vertical-align: top;
 }
 
 .babble-post-avatar img {
@@ -53,18 +68,15 @@
 
 .babble-post-body {
   padding-top: 5px;
-  float: left;
+  width: 100%;
 }
 
 .babble-post-info {
   padding-top: 5px;
-  float: left;
 }
 
 .babble-post-meta-data {
-  position: absolute;
-  right: 5px;
-  line-height: 30px;
+  padding-top: 5px;
 }
 
 .babble-post .post-info {
