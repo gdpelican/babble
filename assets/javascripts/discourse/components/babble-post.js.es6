@@ -7,10 +7,6 @@ export default Ember.Component.extend({
   
   setupPost: function() {
     this.set('post', Discourse.Post.create(this.post));
-  }.on('init'),
-
-  actions: {
-    expandHidden: function() { return false; }
-  }
+  }.on('init')
 
 });
