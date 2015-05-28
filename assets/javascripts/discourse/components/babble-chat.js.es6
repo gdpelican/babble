@@ -1,14 +1,24 @@
 
 export default Ember.Component.extend({
 
-  setupTopic: function() {
-    var _this = this;
-    this.set('loadingBabble', true)
-    Discourse.ajax(Discourse.getURL("/babble/topic.json")).then(function(topic) {
-      _this.set('loadingBabble', false)
-      _this.set('model', Discourse.Topic.create(topic))
-      _this.set('model.postStream', Em.Object.create(topic.post_stream))
-    });
+  fetchOrSetTopic: function() {
+    if (Discourse.Babble == null) {
+      var _this = this
+      Discourse.ajax('/babble/topic.json').then(function(topic) {
+        Discourse.Babble = {
+          topic: Discourse.Topic.create(topic),
+          postStream: Em.Object.create(topic.post_stream)
+        }
+        _this.setupTopic()
+      })
+    } else { this.setupTopic() }
   }.on('init'),
+
+  loading: Ember.computed.empty('model'),
+
+  setupTopic: function() {
+    this.set('model',            Discourse.Babble.topic)
+    this.set('model.postStream', Discourse.Babble.postStream)
+  }
 
 });

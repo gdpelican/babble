@@ -1,5 +1,5 @@
 <section class="babble-chat">
-  {{#conditional-loading-spinner condition=loadingBabble}}
+  {{#conditional-loading-spinner condition=loading}}
     <ul class="babble-posts">
       {{conditional-loading-spinner condition=model.postStream.loadingAbove}}
       {{#each post in model.postStream.posts}}

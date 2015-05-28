@@ -40,6 +40,11 @@
 }
 
 /* Post styles */
+.babble-posts {
+  max-height: 300px;
+  overflow: auto;
+}
+
 .babble-post .babble-post-avatar a,
 .babble-post .post-date {
   background-color: transparent !important; /* sorry mom. */
