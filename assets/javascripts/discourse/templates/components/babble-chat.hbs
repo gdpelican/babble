@@ -1,11 +1,11 @@
 <section class="babble-chat">
   {{#conditional-loading-spinner condition=loading}}
     <ul class="babble-posts">
-      {{conditional-loading-spinner condition=model.postStream.loadingAbove}}
-      {{#each post in model.postStream.posts}}
+      {{conditional-loading-spinner condition=topic.postStream.loadingAbove}}
+      {{#each post in topic.postStream.posts}}
         {{babble-post post=post stream=postStream}}
       {{/each}}
-      {{conditional-loading-spinner condition=model.postStream.loadingBelow}}
+      {{conditional-loading-spinner condition=topic.postStream.loadingBelow}}
     </ul>
     {{babble-composer}}
   {{/conditional-loading-spinner}}

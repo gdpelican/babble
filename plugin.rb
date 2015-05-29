@@ -49,9 +49,7 @@ after_initialize do
 
     def create
       begin
-        @post = Babble::PostCreator.create(current_user, post_creator_params)
-        byebug
-        MessageBus.publish "/babble", serialized_post.merge!(type: :created)
+        Babble::PostCreator.create(current_user, post_creator_params)
         head :ok
       rescue StandardError => e
         render_json_error e.message
@@ -63,12 +61,9 @@ after_initialize do
     def post_creator_params
       {
         raw:              params[:raw],
-        skip_validations: true
+        skip_validations: true,
+        auto_track:       false
       }
-    end
-
-    def serialized_post
-      ::PostSerializer.new(@post, scope: Guardian.new(current_user), root: false).as_json
     end
   end
 
@@ -83,8 +78,19 @@ after_initialize do
       @topic = @post.topic = Babble::Topic.ensure_existence
     end
 
-    def guardian
-      Guardian.new(Discourse.system_user)
+    def enqueue_jobs
+      return "Stubbed for #{BABBLE_TOPIC_TITLE}"
+    end
+
+    def trigger_after_events(post)
+      super
+      MessageBus.publish "/babble", serialized_post.merge!(type: :created)
+    end
+
+    private
+
+    def serialized_post
+      ::PostSerializer.new(@post, scope: guardian, root: false).as_json
     end
   end
 
