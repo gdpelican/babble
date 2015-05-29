@@ -100,7 +100,7 @@ after_initialize do
       Topic.create!(id: BABBLE_TOPIC_ID, 
                     user: Discourse.system_user,
                     title: BABBLE_TOPIC_TITLE,
-                    deleted_at: Time.now)
+                    visible: false)
     end
 
     def self.current_chat_topic
