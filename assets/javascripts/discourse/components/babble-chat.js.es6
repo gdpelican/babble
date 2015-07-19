@@ -13,6 +13,7 @@ export default Ember.Component.extend({
         var topic = Discourse.Topic.create(topic)
         var postStream = Discourse.PostStream.create(topic.post_stream)
         postStream.posts = topic.post_stream.posts
+        postStream.topic = topic
         Discourse.Babble = { topic: topic, postStream: postStream }
         _this.setupTopic()
       })
@@ -28,7 +29,7 @@ export default Ember.Component.extend({
   },
 
   setupMessageBus: function() {
-    var _this = this
+    const _this = this
     const messageBus = Discourse.__container__.lookup('message-bus:main')
     messageBus.subscribe('/babble', function(data) {
       var post = Discourse.Post.create(data)
