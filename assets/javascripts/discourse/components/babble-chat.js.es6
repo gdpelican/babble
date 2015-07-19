@@ -1,6 +1,11 @@
 
 export default Ember.Component.extend({
 
+  unreadCount: Ember.computed('topic', function() {
+    var topic = this.get('topic');
+    return topic.highest_post_number - topic.last_read_post_number;
+  }),
+
   fetchOrSetTopic: function() {
     if (Discourse.Babble == null) {
       var _this = this

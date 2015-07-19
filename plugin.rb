@@ -35,8 +35,9 @@ after_initialize do
     def show
       begin
         Babble::Topic.ensure_existence
-        @topic = TopicView.new(BABBLE_TOPIC_ID, current_user)
-        render json: TopicViewSerializer.new(@topic, scope: Guardian.new(current_user), root: false).as_json
+        @topic_view = TopicView.new(BABBLE_TOPIC_ID, current_user)
+        TopicUser.create! user: current_user, topic: @topic_view.topic unless TopicUser.get(current_user, @topic_view.topic)
+        render json: TopicViewSerializer.new(@topic_view, scope: Guardian.new(current_user), root: false).as_json
       rescue StandardError => e
         render_json_error e.message
       end

@@ -1,5 +1,6 @@
 <section class="babble-chat">
   {{#conditional-loading-spinner condition=loading}}
+    {{unreadCount}}
     <ul class="babble-posts">
       {{conditional-loading-spinner condition=topic.postStream.loadingAbove}}
       {{#each post in topic.postStream.posts}}
