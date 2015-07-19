@@ -1,4 +1,4 @@
 <div class="babble-composer">
   {{textarea value=text}}
-  <button {{action 'submit'}} class="btn btn-primary pull-right">Send</button>
+  <button {{action 'submit'}} {{bind-attr disabled="submitDisabled"}} class="btn btn-primary pull-right">Send</button>
 </div>
