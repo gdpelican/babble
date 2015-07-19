@@ -28,6 +28,10 @@
   vertical-align: top;
 }
 
+li.babble-post .babble-post-content a.mention {
+  display: inline;
+}
+
 .babble-post-avatar img {
   float: left;
   width: 20px;
