@@ -1,9 +1,13 @@
 
 export default Ember.Component.extend({
 
+  layoutName: Ember.computed(function() { return 'components/' + this.get('template'); }),
+
+  loading: Ember.computed.empty('topic'),
   unreadCount: Ember.computed('topic', function() {
-    var topic = this.get('topic');
-    return topic.highest_post_number - topic.last_read_post_number;
+    const topic = this.get('topic');
+    if (topic) { return topic.highest_post_number - topic.last_read_post_number; }
+    else { return 0; }
   }),
 
   fetchOrSetTopic: function() {
@@ -19,8 +23,6 @@ export default Ember.Component.extend({
       })
     } else { this.setupTopic() }
   }.on('init'),
-
-  loading: Ember.computed.empty('topic'),
 
   setupTopic: function() {
     this.set('topic',            Discourse.Babble.topic)

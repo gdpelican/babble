@@ -13,15 +13,7 @@
       <ul class='icons clearfix' role='navigation'>
         {{#if currentUser}}
           <!-- plugin content -->
-          <li class="babble">
-             <a class='icon' 
-                href
-                data-dropdown="babble-dropdown"
-                id='babble-notifications' 
-                title='{{i18n 'babble.title'}}'>
-                {{fa-icon "bullhorn" label="babble.title"}}
-              </a>
-          </li>
+          {{babble-chat tagName="li" template="babble-icon"}}
           <!-- /plugin content -->
           <li class='notifications'>
             <a class='icon' href {{action "showNotifications" target="view"}} data-notifications="notifications-dropdown" id='user-notifications' title='{{i18n 'notifications.title'}}'>
