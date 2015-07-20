@@ -28,6 +28,13 @@
   vertical-align: top;
 }
 
+.babble-last-read-post-message {
+  font-size: 8px;
+  float: right;
+  line-height: 28px;
+  padding-left: 5px;
+}
+
 li.babble-post .babble-post-content a.mention {
   display: inline;
 }

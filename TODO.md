@@ -10,6 +10,5 @@
 
 ## Nice to have
 - Editing posts
-- Smileys / emoticons
-- Open / close sidebar dock
-- Site settings for displaying dropdown / sidebar chats
+- New messages line (DONE)
+- Smileys / emoticons (DONE)

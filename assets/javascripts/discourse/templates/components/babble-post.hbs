@@ -28,11 +28,13 @@
       <div class='post-info'>
         <a class='post-date' {{bind-attr href="shareUrl" data-share-url="shareUrl" data-post-number="post_number"}}>{{age-with-tooltip post.created_at}}</a>
       </div>
-      <div {{bind-attr class=":read-state post.read"}} title="{{i18n 'post.unread'}}">{{fa-icon "circle"}}</div>
     </div>
-
   </div>
-
 </article>
 
 {{post-gap post=post postStream=postStream before="false"}}
+
+{{#if isLastRead}}
+  <div class="babble-last-read-post-message">NEW MESSAGES</div>
+  <hr class="babble-last-read-post-line"/>
+{{/if}}

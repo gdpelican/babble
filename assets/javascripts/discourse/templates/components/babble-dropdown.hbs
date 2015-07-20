@@ -2,10 +2,7 @@
   {{#conditional-loading-spinner condition=loading}}
     <ul class="babble-posts">
       {{#each post in topic.postStream.posts}}
-        {{babble-post post=post stream=postStream}}
-        {{#if post.isLastRead}}
-          HI I'M UNREAD!
-        {{/if}}
+        {{babble-post post=post topic=topic}}
       {{/each}}
       {{conditional-loading-spinner condition=topic.postStream.loadingBelow}}
     </ul>
