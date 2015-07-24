@@ -42,22 +42,40 @@ export default Ember.Component.extend({
     })
   },
 
-  // Sorry Discourse.scrolling, you force me to use document and window
-  // for my scrolly elements and that's no good here.
   _inserted: function() {
     var self = this
-    var containerElement = $(self.element).find('ul.babble-posts')
-    var lastSeenPost = function() {
-      var lastReadPostNumber = _.max(_.map(containerElement.find('.babble-post-container'), function(post) {
-        var postElement = $(post)
-        if (self.isElementInScrollableDiv(postElement.parent(), containerElement)) { return postElement.data('post-number') }
-      }))
-      if (lastReadPostNumber > self.get('topic.last_read_post_number')) {
-        console.log(lastReadPostNumber)
+    var scrollContainer = $(this.element).find('ul.babble-posts')
+    if (!scrollContainer.length) { return }
+
+    var readVisiblePosts = function() {
+      var lastVisiblePostNumber = self.getLastVisiblePostNumber(scrollContainer)
+      if (lastVisiblePostNumber > self.get('topic.last_read_post_number')) {
+        console.log(lastVisiblePostNumber)
       }
     }
-    lastSeenPost = Discourse.debounce(lastSeenPost, 500)
-    containerElement.on('scroll', lastSeenPost)
-    lastSeenPost()
-  }.on('didInsertElement')
+    scrollContainer.on('scroll', Discourse.debounce(readVisiblePosts, 500))
+    Ember.run.next(this, this._rendered)
+  }.on('didInsertElement'),
+
+  _rendered: function() {
+    var scrollContainer = $(this.element).find('ul.babble-posts')
+    scrollContainer.animate({ scrollTop: this.getLastReadLinePosition(scrollContainer) })
+  },
+
+  getLastReadLinePosition: function(scrollContainer) {
+    var lastReadLine = scrollContainer.find('.babble-last-read-post-line')
+    if (lastReadLine.length) {
+      return lastReadLine.position().top + 45
+    } else {
+      return scrollContainer.height()
+    }
+  },
+
+  getLastVisiblePostNumber: function(container) {
+    var self = this
+    return _.max(_.map(container.find('.babble-post-container'), function(post) {
+      var postElement = $(post)
+      if (self.isElementInScrollableDiv(postElement.parent(), container)) { return postElement.data('post-number') }
+    }))
+  }
 });
