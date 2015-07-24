@@ -34,9 +34,9 @@ after_initialize do
 
     def show
       begin
-        Babble::Topic.ensure_existence
-        @topic_view = TopicView.new(BABBLE_TOPIC_ID, current_user)
-        TopicUser.find_or_create_by user: current_user, topic: @topic_view.topic
+        topic = Babble::Topic.ensure_existence
+        TopicUser.find_or_create_by(user: current_user, topic: topic)
+        @topic_view = TopicView.new(topic.id, current_user, post_number: topic.highest_post_number)
         render json: TopicViewSerializer.new(@topic_view, scope: Guardian.new(current_user), root: false).as_json
       rescue StandardError => e
         render_json_error e.message
@@ -54,7 +54,7 @@ after_initialize do
         head :ok
       rescue StandardError => e
         render_json_error e.message
-      end  
+      end
     end
 
     private
@@ -98,7 +98,7 @@ after_initialize do
   class ::Babble::Topic
     def self.ensure_existence
       current_chat_topic ||
-      Topic.create!(id: BABBLE_TOPIC_ID, 
+      Topic.create!(id: BABBLE_TOPIC_ID,
                     user: Discourse.system_user,
                     title: BABBLE_TOPIC_TITLE,
                     visible: false)

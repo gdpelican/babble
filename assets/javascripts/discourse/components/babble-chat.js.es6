@@ -4,6 +4,7 @@ export default Ember.Component.extend({
 
   isElementInScrollableDiv: isElementInScrollableDiv,
   layoutName: Ember.computed(function() { return 'components/' + this.get('template'); }),
+  scrollContainer: Ember.computed(function() { return $(this.element).find('ul.babble-posts') }),
 
   loading: Ember.computed.empty('topic'),
   unreadCount: Ember.computed('topic', function() {
@@ -27,52 +28,57 @@ export default Ember.Component.extend({
   }.on('init'),
 
   setupTopic: function() {
+    this.set('initialScroll',    true)
     this.set('topic',            Discourse.Babble.topic)
     this.set('topic.postStream', Discourse.Babble.postStream)
     this.setupMessageBus()
   },
 
   setupMessageBus: function() {
-    const _this = this
+    const self = this
     const messageBus = Discourse.__container__.lookup('message-bus:main')
     messageBus.subscribe('/babble', function(data) {
       var post = Discourse.Post.create(data)
-      post.set('topic', _this.get('topic'))
-      _this.get('topic.postStream').appendPost(post)
+      post.set('topic', self.get('topic'))
+      self.get('topic.postStream').appendPost(post)
+      self._rendered()
     })
   },
 
   _inserted: function() {
-    var self = this
-    var scrollContainer = $(this.element).find('ul.babble-posts')
-    if (!scrollContainer.length) { return }
+    if (!this.get('scrollContainer').length) { return }
 
+    var self = this
     var readVisiblePosts = function() {
-      var lastVisiblePostNumber = self.getLastVisiblePostNumber(scrollContainer)
+      var lastVisiblePostNumber = self.getLastVisiblePostNumber()
       if (lastVisiblePostNumber > self.get('topic.last_read_post_number')) {
         console.log(lastVisiblePostNumber)
       }
     }
-    scrollContainer.on('scroll', Discourse.debounce(readVisiblePosts, 500))
+    this.get('scrollContainer').on('scroll', Discourse.debounce(readVisiblePosts, 500))
     Ember.run.next(this, this._rendered)
   }.on('didInsertElement'),
 
   _rendered: function() {
-    var scrollContainer = $(this.element).find('ul.babble-posts')
-    scrollContainer.animate({ scrollTop: this.getLastReadLinePosition(scrollContainer) })
+    if (!this.get('scrollContainer').length) { return }
+
+    this.get('scrollContainer').animate({ scrollTop: this.getLastReadLinePosition() })
+    this.set('initialScroll', false)
   },
 
-  getLastReadLinePosition: function(scrollContainer) {
-    var lastReadLine = scrollContainer.find('.babble-last-read-post-line')
-    if (lastReadLine.length) {
-      return lastReadLine.offset().top - scrollContainer.offset().top - 10
+  getLastReadLinePosition: function(initial) {
+    var container = this.get('scrollContainer')
+    var lastReadLine = container.find('.babble-last-read-post-line')
+    if (this.get('initialScroll') && lastReadLine.length) {
+      return lastReadLine.offset().top - container.offset().top - 10
     } else {
-      return scrollContainer.get(0).scrollHeight
+      return container.get(0).scrollHeight
     }
   },
 
   getLastVisiblePostNumber: function(container) {
     var self = this
+    var container = this.get('scrollContainer')
     return _.max(_.map(container.find('.babble-post-container'), function(post) {
       var postElement = $(post)
       if (self.isElementInScrollableDiv(postElement.parent(), container)) { return postElement.data('post-number') }
