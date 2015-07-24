@@ -65,9 +65,9 @@ export default Ember.Component.extend({
   getLastReadLinePosition: function(scrollContainer) {
     var lastReadLine = scrollContainer.find('.babble-last-read-post-line')
     if (lastReadLine.length) {
-      return lastReadLine.position().top + 45
+      return lastReadLine.offset().top - scrollContainer.offset().top - 10
     } else {
-      return scrollContainer.height()
+      return scrollContainer.get(0).scrollHeight
     }
   },
 

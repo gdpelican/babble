@@ -4,7 +4,7 @@
 - Listening to messages on component (DONE)
 - Validate that text is not empty (DONE)
 - Notifications on chat icon (DONE)
-- scroll to bottom of chat window when opened / adding a chat message
+- scroll to bottom of chat window when opened / adding a chat message (DONE)
 - Handle reading posts when they're on the screen
 - Add endpoint to mark a chat post as read
 - Write README

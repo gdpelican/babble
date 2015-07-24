@@ -8,7 +8,8 @@ export default Ember.Component.extend({
   setupPost: function() {
     this.set('post', Discourse.Post.create(this.post))
     this.set('post.topic', Discourse.Topic.create(this.topic))
-    this.set('isLastRead', this.get('post.post_number') === this.get('post.topic.last_read_post_number'))
+    this.set('isLastRead', this.get('post.post_number') <   this.get('post.topic.highest_post_number') &&
+                           this.get('post.post_number') === this.get('post.topic.last_read_post_number'))
   }.on('init')
 
 });
