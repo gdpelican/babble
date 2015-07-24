@@ -1,6 +1,8 @@
+import isElementInScrollableDiv from "../lib/is-element-in-scrollable-div";
 
 export default Ember.Component.extend({
 
+  isElementInScrollableDiv: isElementInScrollableDiv,
   layoutName: Ember.computed(function() { return 'components/' + this.get('template'); }),
 
   loading: Ember.computed.empty('topic'),
@@ -38,6 +40,24 @@ export default Ember.Component.extend({
       post.set('topic', _this.get('topic'))
       _this.get('topic.postStream').appendPost(post)
     })
-  }
+  },
 
+  // Sorry Discourse.scrolling, you force me to use document and window
+  // for my scrolly elements and that's no good here.
+  _inserted: function() {
+    var self = this
+    var containerElement = $(self.element).find('ul.babble-posts')
+    var lastSeenPost = function() {
+      var lastReadPostNumber = _.max(_.map(containerElement.find('.babble-post-container'), function(post) {
+        var postElement = $(post)
+        if (self.isElementInScrollableDiv(postElement.parent(), containerElement)) { return postElement.data('post-number') }
+      }))
+      if (lastReadPostNumber > self.get('topic.last_read_post_number')) {
+        console.log(lastReadPostNumber)
+      }
+    }
+    lastSeenPost = Discourse.debounce(lastSeenPost, 500)
+    containerElement.on('scroll', lastSeenPost)
+    lastSeenPost()
+  }.on('didInsertElement')
 });
