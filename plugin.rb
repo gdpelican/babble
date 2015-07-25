@@ -34,13 +34,20 @@ after_initialize do
 
     def show
       begin
-        topic = Babble::Topic.ensure_existence
         TopicUser.find_or_create_by(user: current_user, topic: topic)
-        @topic_view = TopicView.new(topic.id, current_user, post_number: topic.highest_post_number)
-        render json: TopicViewSerializer.new(@topic_view, scope: Guardian.new(current_user), root: false).as_json
+        render json: TopicViewSerializer.new(topic_view, scope: Guardian.new(current_user), root: false).as_json
       rescue StandardError => e
         render_json_error e.message
       end
+    end
+
+    def topic
+      @topic ||= Babble::Topic.ensure_existence
+    end
+
+    def topic_view
+      opts = { post_number: topic.highest_post_number } if topic.highest_post_number > 0
+      @topic_view ||= TopicView.new(topic.id, current_user, opts || {})
     end
   end
 
@@ -85,13 +92,18 @@ after_initialize do
 
     def trigger_after_events(post)
       super
-      MessageBus.publish "/babble", serialized_post.merge!(type: :created)
+      MessageBus.publish "/babble/topic", serialized_topic
+      MessageBus.publish "/babble/post", serialized_post.merge!(type: :created)
     end
 
     private
 
+    def serialized_topic
+      TopicViewSerializer.new(TopicView.new(@topic.id, @user), scope: Guardian.new(@user), root: false).as_json
+    end
+
     def serialized_post
-      ::PostSerializer.new(@post, scope: guardian, root: false).as_json
+      PostSerializer.new(@post, scope: guardian, root: false).as_json
     end
   end
 

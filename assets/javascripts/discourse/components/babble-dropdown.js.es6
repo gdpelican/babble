@@ -6,17 +6,9 @@ export default Ember.Component.extend({
   isElementInScrollableDiv: isElementInScrollableDiv,
   isElementScrolledToBottom: isElementScrolledToBottom,
 
-  layoutName: Ember.computed(function() { return 'components/' + this.get('template'); }),
-
   scrollContainer: Ember.computed(function() { return $(this.element).find('ul.babble-posts') }),
-  hasScrollContainer: Ember.computed.notEmpty('scrollContainer'),
 
   loading: Ember.computed.empty('topic'),
-  unreadCount: Ember.computed('topic', function() {
-    const topic = this.get('topic');
-    if (topic) { return topic.highest_post_number - topic.last_read_post_number; }
-    else { return 0; }
-  }),
 
   fetchOrSetTopic: function() {
     if (Discourse.Babble == null) {
@@ -45,9 +37,9 @@ export default Ember.Component.extend({
   setupMessageBus: function() {
     const self = this
     const messageBus = Discourse.__container__.lookup('message-bus:main')
-    messageBus.subscribe('/babble', function(data) {
+    messageBus.subscribe('/babble/post', function(data) {
       var post = Discourse.Post.create(data)
-      var scrolledToBottom = self.get('hasScrollContainer') && self.isElementScrolledToBottom(self.get('scrollContainer'))
+      var scrolledToBottom = self.isElementScrolledToBottom(self.get('scrollContainer'))
       post.set('topic', self.get('topic'))
       self.get('topic.postStream').appendPost(post)
       if (scrolledToBottom || Discourse.User.current().id == post.user_id) {
@@ -57,8 +49,6 @@ export default Ember.Component.extend({
   },
 
   scroll: function() {
-    if (!this.get('hasScrollContainer')) { return }
-
     var scrollSpeed = this.get('initialScroll') ? 0 : 750 // Scroll immediately on initial scroll
     this.get('scrollContainer').animate({ scrollTop: this.getLastReadLinePosition() }, scrollSpeed)
     this.set('initialScroll', false)
