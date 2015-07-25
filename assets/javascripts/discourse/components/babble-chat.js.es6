@@ -31,7 +31,10 @@ export default Ember.Component.extend({
     this.set('initialScroll',    true)
     this.set('topic',            Discourse.Babble.topic)
     this.set('topic.postStream', Discourse.Babble.postStream)
+    this.set('reader',           new Discourse.ScreenTrack)
+    this.get('reader').start(this.get('topic.id'))
     this.setupMessageBus()
+    Ember.run.next(this, this.scroll)
   },
 
   setupMessageBus: function() {
@@ -41,32 +44,19 @@ export default Ember.Component.extend({
       var post = Discourse.Post.create(data)
       post.set('topic', self.get('topic'))
       self.get('topic.postStream').appendPost(post)
-      self._rendered()
+      if(Discourse.User.current().id == post.user_id) { self.scroll() }
     })
   },
 
-  _inserted: function() {
-    if (!this.get('scrollContainer').length) { return }
+  scroll: function() {
+    var container = this.get('scrollContainer')
+    if (!container.length) { return }
 
-    var self = this
-    var readVisiblePosts = function() {
-      var lastVisiblePostNumber = self.getLastVisiblePostNumber()
-      if (lastVisiblePostNumber > self.get('topic.last_read_post_number')) {
-        console.log(lastVisiblePostNumber)
-      }
-    }
-    this.get('scrollContainer').on('scroll', Discourse.debounce(readVisiblePosts, 500))
-    Ember.run.next(this, this._rendered)
-  }.on('didInsertElement'),
-
-  _rendered: function() {
-    if (!this.get('scrollContainer').length) { return }
-
-    this.get('scrollContainer').animate({ scrollTop: this.getLastReadLinePosition() })
+    container.animate({ scrollTop: this.getLastReadLinePosition() })
     this.set('initialScroll', false)
   },
 
-  getLastReadLinePosition: function(initial) {
+  getLastReadLinePosition: function() {
     var container = this.get('scrollContainer')
     var lastReadLine = container.find('.babble-last-read-post-line')
     if (this.get('initialScroll') && lastReadLine.length) {
@@ -74,14 +64,5 @@ export default Ember.Component.extend({
     } else {
       return container.get(0).scrollHeight
     }
-  },
-
-  getLastVisiblePostNumber: function(container) {
-    var self = this
-    var container = this.get('scrollContainer')
-    return _.max(_.map(container.find('.babble-post-container'), function(post) {
-      var postElement = $(post)
-      if (self.isElementInScrollableDiv(postElement.parent(), container)) { return postElement.data('post-number') }
-    }))
   }
 });

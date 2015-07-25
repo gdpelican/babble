@@ -10,9 +10,10 @@
 - Write README
 
 ## Nice to have / next up
+- Strengthen test coverage
 - Deal with fallout from having weird topic (admin sees topic, user post counts, etc.)
-- handle postStream window and loading previous messages
 - Generalize Babble::Topic to be able to allow for multiple chat channels.
+- handle postStream window and loading previous messages
 - Editing posts
 - New messages line (DONE)
 - Smileys / emoticons (DONE)
