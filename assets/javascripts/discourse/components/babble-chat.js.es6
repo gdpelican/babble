@@ -47,7 +47,7 @@ export default Ember.Component.extend({
     const messageBus = Discourse.__container__.lookup('message-bus:main')
     messageBus.subscribe('/babble', function(data) {
       var post = Discourse.Post.create(data)
-      var scrolledToBottom = self.isElementScrolledToBottom(self.get('scrollContainer'))
+      var scrolledToBottom = self.get('hasScrollContainer') && self.isElementScrolledToBottom(self.get('scrollContainer'))
       post.set('topic', self.get('topic'))
       self.get('topic.postStream').appendPost(post)
       if (scrolledToBottom || Discourse.User.current().id == post.user_id) {

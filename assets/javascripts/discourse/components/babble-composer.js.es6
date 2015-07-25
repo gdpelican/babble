@@ -3,6 +3,13 @@ import Presence from 'discourse/mixins/presence';
 export default Ember.Component.extend(Presence, {
   classNames: ['babble-post-composer'],
 
+  keyDown: function(event) {
+    if (event.keyCode == 13) {
+      this._actions.submit(this) // submit on enter
+      return false
+    }
+  },
+
   textValidation: function() {
     var validation = { ok: true };
     if (this.blank('text')) {
@@ -17,13 +24,13 @@ export default Ember.Component.extend(Presence, {
   }.property('textValidation'),
 
   actions: {
-    submit: function() {
-      var _this = this;
+    submit: function(context) {
+      var self = context || this;
       Discourse.ajax("/babble/posts", {
         type: 'POST',
-        data: { raw: this.get('text') }
+        data: { raw: self.get('text') }
       }).then(function() {
-        _this.set('text', '')
+        self.set('text', '')
       });
     }
   }
