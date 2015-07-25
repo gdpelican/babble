@@ -59,7 +59,8 @@ export default Ember.Component.extend({
   scroll: function() {
     if (!this.get('hasScrollContainer')) { return }
 
-    this.get('scrollContainer').animate({ scrollTop: this.getLastReadLinePosition() })
+    var scrollSpeed = this.get('initialScroll') ? 0 : 750 // Scroll immediately on initial scroll
+    this.get('scrollContainer').animate({ scrollTop: this.getLastReadLinePosition() }, scrollSpeed)
     this.set('initialScroll', false)
   },
 
