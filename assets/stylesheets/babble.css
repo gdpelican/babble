@@ -28,6 +28,11 @@
   vertical-align: top;
 }
 
+.babble-post-content .post-info {
+  width: 40px;
+  text-align: right;
+}
+
 .babble-last-read-post-message {
   font-size: 8px;
   float: right;
