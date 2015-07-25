@@ -1,10 +1,15 @@
 import isElementInScrollableDiv from "../lib/is-element-in-scrollable-div";
+import isElementScrolledToBottom from "../lib/is-element-scrolled-to-bottom";
 
 export default Ember.Component.extend({
 
   isElementInScrollableDiv: isElementInScrollableDiv,
+  isElementScrolledToBottom: isElementScrolledToBottom,
+
   layoutName: Ember.computed(function() { return 'components/' + this.get('template'); }),
+
   scrollContainer: Ember.computed(function() { return $(this.element).find('ul.babble-posts') }),
+  hasScrollContainer: Ember.computed.notEmpty('scrollContainer'),
 
   loading: Ember.computed.empty('topic'),
   unreadCount: Ember.computed('topic', function() {
@@ -15,14 +20,14 @@ export default Ember.Component.extend({
 
   fetchOrSetTopic: function() {
     if (Discourse.Babble == null) {
-      var _this = this
+      var self = this
       Discourse.ajax('/babble/topic.json').then(function(topic) {
         var topic = Discourse.Topic.create(topic)
         var postStream = Discourse.PostStream.create(topic.post_stream)
         postStream.posts = topic.post_stream.posts
         postStream.topic = topic
         Discourse.Babble = { topic: topic, postStream: postStream }
-        _this.setupTopic()
+        self.setupTopic()
       })
     } else { this.setupTopic() }
   }.on('init'),
@@ -42,17 +47,19 @@ export default Ember.Component.extend({
     const messageBus = Discourse.__container__.lookup('message-bus:main')
     messageBus.subscribe('/babble', function(data) {
       var post = Discourse.Post.create(data)
+      var scrolledToBottom = self.isElementScrolledToBottom(self.get('scrollContainer'))
       post.set('topic', self.get('topic'))
       self.get('topic.postStream').appendPost(post)
-      if(Discourse.User.current().id == post.user_id) { self.scroll() }
+      if (scrolledToBottom || Discourse.User.current().id == post.user_id) {
+        self.scroll()
+      }
     })
   },
 
   scroll: function() {
-    var container = this.get('scrollContainer')
-    if (!container.length) { return }
+    if (!this.get('hasScrollContainer')) { return }
 
-    container.animate({ scrollTop: this.getLastReadLinePosition() })
+    this.get('scrollContainer').animate({ scrollTop: this.getLastReadLinePosition() })
     this.set('initialScroll', false)
   },
 
