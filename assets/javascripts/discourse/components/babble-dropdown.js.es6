@@ -43,14 +43,7 @@ export default Ember.Component.extend({
     var readOnScroll = function() {
       var lastReadPostNumber = self.lastVisiblePostInScrollableDiv(self.get('scrollContainer'))
       if (lastReadPostNumber > self.get('topic.last_read_post_number')) {
-        Discourse.ajax('/babble/topic/read/' + lastReadPostNumber + '.json').then(function(topic) {
-          var topic = Discourse.Topic.create(topic)
-          var postStream = Discourse.PostStream.create(topic.post_stream)
-          postStream.posts = topic.post_stream.posts
-          postStream.topic = topic
-          Discourse.Babble = { topic: topic, postStream: postStream }
-          self.setupTopic()
-        })
+        Discourse.ajax('/babble/topic/read/' + lastReadPostNumber + '.json').then(Discourse.Babble.refresh)
       }
     }
 
