@@ -11,6 +11,7 @@ Things that work great:
 
 Things that work not-great:
 - Live updating the unread counter when posts are read
+- The new messages line currently moves as you read messages, which makes it a bit worthless
 - Need to identify which stats are being updated (post count etc.), and which stats should be updated
 - Likely other things; let me know!
 

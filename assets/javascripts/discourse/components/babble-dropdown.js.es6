@@ -12,6 +12,9 @@ export default Ember.Component.extend({
 
   _init: function() {
     this.set('initialScroll',    true)
+  }.on('init'),
+
+  setupTopic: function() {
     this.set('topic',            Discourse.Babble.topic)
     this.set('topic.postStream', Discourse.Babble.postStream)
   }.on('init'),
@@ -46,7 +49,7 @@ export default Ember.Component.extend({
           postStream.posts = topic.post_stream.posts
           postStream.topic = topic
           Discourse.Babble = { topic: topic, postStream: postStream }
-          self._init()
+          self.setupTopic()
         })
       }
     }
