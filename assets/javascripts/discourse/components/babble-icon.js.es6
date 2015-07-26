@@ -13,20 +13,24 @@ export default Ember.Component.extend({
   _init: function() {
     const self = this
     const messageBus = Discourse.__container__.lookup('message-bus:main')
+    
+    if (!Discourse.Babble) {
+      Discourse.Babble = {}
+      Discourse.Babble.refresh = function(data) {
+        var topic = Discourse.Topic.create(data)
+        var postStream = Discourse.PostStream.create(topic.post_stream)
 
-    var refresh = function(data) {
-      var topic = Discourse.Topic.create(data)
-      var postStream = Discourse.PostStream.create(topic.post_stream)
+        topic.unread_count = data.highest_post_number - data.last_read_post_number
+        postStream.posts = topic.post_stream.posts
+        postStream.topic = topic
 
-      topic.unread_count = data.highest_post_number - data.last_read_post_number
-      postStream.posts = topic.post_stream.posts
-      postStream.topic = topic
-
-      Discourse.Babble = { topic: topic, postStream: postStream }
-      self.set('topicVersion', self.get('topicVersion') + 1)
+        Discourse.Babble.topic = topic
+        Discourse.Babble.postStream = postStream
+        self.set('topicVersion', self.get('topicVersion') + 1)
+      }
     }
 
-    Discourse.ajax('/babble/topic.json').then(refresh)
-    messageBus.subscribe('/babble/topic', refresh)
+    Discourse.ajax('/babble/topic.json').then(Discourse.Babble.refresh)
+    messageBus.subscribe('/babble/topic', Discourse.Babble.refresh)
   }.on('init')
 });

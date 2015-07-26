@@ -1,42 +1,24 @@
-import isElementInScrollableDiv from "../lib/is-element-in-scrollable-div";
-import isElementScrolledToBottom from "../lib/is-element-scrolled-to-bottom";
+import isElementScrolledToBottom from "../lib/is-element-scrolled-to-bottom"
+import lastVisiblePostInScrollableDiv from "../lib/last-visible-post-in-scrollable-div"
 
 export default Ember.Component.extend({
 
-  isElementInScrollableDiv: isElementInScrollableDiv,
   isElementScrolledToBottom: isElementScrolledToBottom,
+  lastVisiblePostInScrollableDiv: lastVisiblePostInScrollableDiv,
 
   scrollContainer: Ember.computed(function() { return $(this.element).find('ul.babble-posts') }),
 
   loading: Ember.computed.empty('topic'),
 
-  fetchOrSetTopic: function() {
-    if (Discourse.Babble == null) {
-      var self = this
-      Discourse.ajax('/babble/topic.json').then(function(topic) {
-        var topic = Discourse.Topic.create(topic)
-        var postStream = Discourse.PostStream.create(topic.post_stream)
-        postStream.posts = topic.post_stream.posts
-        postStream.topic = topic
-        Discourse.Babble = { topic: topic, postStream: postStream }
-        self.setupTopic()
-      })
-    } else { this.setupTopic() }
-  }.on('init'),
-
-  setupTopic: function() {
+  _init: function() {
     this.set('initialScroll',    true)
     this.set('topic',            Discourse.Babble.topic)
     this.set('topic.postStream', Discourse.Babble.postStream)
-    this.set('reader',           new Discourse.ScreenTrack)
-    this.get('reader').start(this.get('topic.id'))
-    this.setupMessageBus()
-    Ember.run.next(this, this.scroll)
-  },
+  }.on('init'),
 
   setupMessageBus: function() {
     const self = this
-    const messageBus = Discourse.__container__.lookup('message-bus:main')
+    var messageBus = Discourse.__container__.lookup('message-bus:main')
     messageBus.subscribe('/babble/post', function(data) {
       var post = Discourse.Post.create(data)
       var scrolledToBottom = self.isElementScrolledToBottom(self.get('scrollContainer'))
@@ -46,7 +28,31 @@ export default Ember.Component.extend({
         self.scroll()
       }
     })
-  },
+  }.on('init'),
+
+  _inserted: function() {
+    this.set('scrollContainer', $(this.element).find('.babble-posts'))
+    Ember.run.next(this, this.scroll)
+  }.on('didInsertElement'),
+
+  setupTracking: function() {
+    const self = this
+    var readOnScroll = function() {
+      var lastReadPostNumber = self.lastVisiblePostInScrollableDiv(self.get('scrollContainer'))
+      if (lastReadPostNumber > self.get('topic.last_read_post_number')) {
+        Discourse.ajax('/babble/topic/read/' + lastReadPostNumber + '.json').then(function(topic) {
+          var topic = Discourse.Topic.create(topic)
+          var postStream = Discourse.PostStream.create(topic.post_stream)
+          postStream.posts = topic.post_stream.posts
+          postStream.topic = topic
+          Discourse.Babble = { topic: topic, postStream: postStream }
+          self._init()
+        })
+      }
+    }
+
+    self.get('scrollContainer').on('scroll', Discourse.debounce(readOnScroll, 500))
+  }.on('didInsertElement'),
 
   scroll: function() {
     var scrollSpeed = this.get('initialScroll') ? 0 : 750 // Scroll immediately on initial scroll
