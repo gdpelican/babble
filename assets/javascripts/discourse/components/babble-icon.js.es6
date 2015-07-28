@@ -20,7 +20,9 @@ export default Ember.Component.extend({
         var topic = Discourse.Topic.create(data)
         var postStream = Discourse.PostStream.create(topic.post_stream)
 
-        topic.unread_count = data.highest_post_number - data.last_read_post_number
+        topic.last_read_post_number = data.last_read_post_number || Discourse.Babble.topic.last_read_post_number
+        topic.unread_count = data.highest_post_number - topic.last_read_post_number
+
         postStream.posts = topic.post_stream.posts
         postStream.topic = topic
 

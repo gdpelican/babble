@@ -7,14 +7,11 @@ export default Ember.Component.extend({
   lastVisiblePostInScrollableDiv: lastVisiblePostInScrollableDiv,
 
   scrollContainer: Ember.computed(function() { return $(this.element).find('ul.babble-posts') }),
+  lastReadLine: Ember.computed(function() { return this.get('scrollContainer').find('.babble-last-read-post-line') }),
 
   loading: Ember.computed.empty('topic'),
 
   _init: function() {
-    this.set('initialScroll',    true)
-  }.on('init'),
-
-  setupTopic: function() {
     this.set('topic',            Discourse.Babble.topic)
     this.set('topic.postStream', Discourse.Babble.postStream)
   }.on('init'),
@@ -34,7 +31,7 @@ export default Ember.Component.extend({
   }.on('init'),
 
   _inserted: function() {
-    this.set('scrollContainer', $(this.element).find('.babble-posts'))
+    this.set('initialScroll', true)
     Ember.run.next(this, this.scroll)
   }.on('didInsertElement'),
 
@@ -58,7 +55,7 @@ export default Ember.Component.extend({
 
   getLastReadLinePosition: function() {
     var container = this.get('scrollContainer')
-    var lastReadLine = container.find('.babble-last-read-post-line')
+    var lastReadLine = this.get('lastReadLine')
     if (this.get('initialScroll') && lastReadLine.length) {
       return lastReadLine.offset().top - container.offset().top - 10
     } else {

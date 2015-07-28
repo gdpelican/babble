@@ -118,7 +118,7 @@ after_initialize do
     private
 
     def serialized_topic
-      TopicViewSerializer.new(TopicView.new(@topic.id, @user), scope: Guardian.new(@user), root: false).as_json
+      TopicViewSerializer.new(TopicView.new(@topic.id), scope: Guardian.new(@user), root: false).as_json
     end
 
     def serialized_post
