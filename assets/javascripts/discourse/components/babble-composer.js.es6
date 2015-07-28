@@ -26,7 +26,7 @@ export default Ember.Component.extend(Presence, {
   actions: {
     submit: function(context) {
       var self = context || this;
-      Discourse.ajax("/babble/posts", {
+      Discourse.ajax("/babble/topic/post", {
         type: 'POST',
         data: { raw: self.get('text') }
       }).then(function() {
