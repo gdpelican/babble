@@ -7,8 +7,9 @@
 register_asset "stylesheets/babble.css"
 
 BABBLE_PLUGIN_NAME ||= "babble".freeze
-BABBLE_TOPIC_ID ||= -1
-BABBLE_TOPIC_TITLE ||= "Title for Babble Topic"
+BABBLE_UNIQUE_EMAIL ||= "noreply@chattykathy.com"
+BABBLE_UNIQUE_USERNAME ||= "chattykathy"
+BABBLE_USER_ID ||= -2
 
 after_initialize do
   module ::Babble
@@ -36,8 +37,12 @@ after_initialize do
     rescue_from 'StandardError' do |e| render_json_error e.message end
 
     def show
-      TopicUser.find_or_create_by(user: current_user, topic: topic)
-      respond_with_topic_view
+      if topic
+        TopicUser.find_or_create_by(user: current_user, topic: topic)
+        respond_with_topic_view
+      else
+        render json: { errors: 'No chat topics are available!' }
+      end
     end
 
     def read
@@ -49,8 +54,8 @@ after_initialize do
     end
 
     def post
-      Babble::PostCreator.new(current_user, post_creator_params)
-      respond_with_topic_view
+      Babble::PostCreator.create(current_user, post_creator_params)
+      head :ok
     end
 
     private
@@ -62,7 +67,7 @@ after_initialize do
     # should be able to replace this with Babble::Topic.find(id) of some kind
     # once we make to move to multiple chat channels
     def topic
-      @topic ||= Babble::Topic.ensure_existence
+      @topic ||= Babble::Topic.default_topic
     end
 
     def topic_view
@@ -73,8 +78,7 @@ after_initialize do
     def post_creator_params
       {
         raw:              params[:raw],
-        skip_validations: true,
-        auto_track:       false
+        skip_validations: true
       }
     end
   end
@@ -87,11 +91,11 @@ after_initialize do
 
     def valid?
       setup_post
-      @topic = @post.topic = Babble::Topic.ensure_existence
+      @topic = @post.topic = Babble::Topic.default_topic
     end
 
     def enqueue_jobs
-      return "Stubbed for #{BABBLE_TOPIC_TITLE}"
+      return false
     end
 
     def trigger_after_events(post)
@@ -111,22 +115,30 @@ after_initialize do
     end
   end
 
+  class ::Babble::User
+    def self.find_or_create
+      User.find_or_initialize_by(id:       BABBLE_USER_ID,
+                                 email:    BABBLE_UNIQUE_EMAIL,
+                                 username: BABBLE_UNIQUE_USERNAME).tap(&:save)
+    end
+  end
+
   class ::Babble::Topic
-    def self.ensure_existence
-      current_chat_topic ||
-      Topic.create!(id: BABBLE_TOPIC_ID,
-                    user: Discourse.system_user,
-                    title: BABBLE_TOPIC_TITLE,
-                    visible: false)
+
+    def self.create_topic(title)
+      Topic.create! user: Babble::User.find_or_create,
+                    title: title,
+                    visible: false
     end
 
-    def self.current_chat_topic
-      Topic.unscoped.find_by id: BABBLE_TOPIC_ID
+    def self.default_topic
+      available_topics.first
     end
 
-    def self.recreate
-      current_chat_topic.destroy && ensure_existence
+    def self.available_topics
+      Babble::User.find_or_create.topics
     end
+
   end
 
 end

@@ -8,13 +8,18 @@
 - Notify when new post has come in (DONE)
 - Handle reading posts when they're on the screen (DONE)
 - Write README (DONE)
-- Live update reading of posts (need to revisit)
+- Live update reading of posts (DONE)
+- Errors for non-admin users (DONE)
+- Show 'no chat messages yet' message when no posts have been made
 
 ## Nice to have / next up
 - New messages line (DONE)
 - Smileys / emoticons (DONE)
+- Generalize Babble::Topic to be able to allow for multiple chat channels. (DONE)
+- Prevent 1 unread from showing up when posting a chat message
+- Allow switching between chat topics
 - Strengthen test coverage
-- Deal with fallout from having weird topic (admin sees topic, user post counts, etc.) [need to write some test scenarios for this]
-- Generalize Babble::Topic to be able to allow for multiple chat channels.
+- Deal with fallout from having weird topic
+- Deal with fallout from having weird user
 - handle postStream window and loading previous messages
 - Editing posts
