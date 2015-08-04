@@ -6,6 +6,16 @@
 - Push to the branch (git push origin my-new-feature)
 - Create a new Pull Request
 
+## Testing
+
+I'm going for a well-tested plugin on the backend here, as there will be some somewhat complicated logic and overridden behaviour going on in places.
+
+To run the tests, navigate to the root of your Discourse fork, and run the tests from there
+
+```
+rspec plugins/babble/spec
+```
+
 ## Setup
 
 Currently, installing this plugin on its own will not create a topic for chat.
