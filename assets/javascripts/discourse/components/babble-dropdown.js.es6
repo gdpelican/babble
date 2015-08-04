@@ -12,8 +12,10 @@ export default Ember.Component.extend({
   loading: Ember.computed.empty('topic'),
 
   _init: function() {
+    if (!Discourse.Babble || !Discourse.Babble.topic) { return }
     this.set('topic',            Discourse.Babble.topic)
     this.set('topic.postStream', Discourse.Babble.postStream)
+    this.setupMessageBus()
   }.on('init'),
 
   setupMessageBus: function() {
@@ -28,11 +30,13 @@ export default Ember.Component.extend({
         self.scroll()
       }
     })
-  }.on('init'),
+  },
 
   _inserted: function() {
+    if (!Discourse.Babble || !Discourse.Babble.topic) { return }
     this.set('initialScroll', true)
     Ember.run.next(this, this.scroll)
+    this.setupTracking()
   }.on('didInsertElement'),
 
   setupTracking: function() {
@@ -45,7 +49,7 @@ export default Ember.Component.extend({
     }
 
     self.get('scrollContainer').on('scroll', Discourse.debounce(readOnScroll, 500))
-  }.on('didInsertElement'),
+  },
 
   scroll: function() {
     var scrollSpeed = this.get('initialScroll') ? 0 : 750 // Scroll immediately on initial scroll

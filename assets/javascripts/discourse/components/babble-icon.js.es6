@@ -22,9 +22,14 @@ export default Ember.Component.extend({
           return
         }
 
+        var resetTopicField = function(topic, field) {
+          topic[field] = data[field]
+          if (!topic[field] && Discourse.Babble.topic) { topic[field] = Discourse.Babble.topic[field] }
+        }
+
         var topic = Discourse.Topic.create(data)
-        topic.last_read_post_number = data.last_read_post_number || Discourse.Babble.topic.last_read_post_number
-        topic.highest_post_number = data.highest_post_number || Discourse.Babble.topic.highest_post_number
+        resetTopicField(topic, 'last_read_post_number')
+        resetTopicField(topic, 'highest_post_number')
 
         var postStream = Discourse.PostStream.create(topic.post_stream)
         postStream.posts = topic.post_stream.posts
