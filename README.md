@@ -1,5 +1,10 @@
 A Shoutbox style plugin for [Discourse](http://discourse.org).
 
+[![Code Climate](https://codeclimate.com/github/gdpelican/babble/badges/gpa.svg)](https://codeclimate.com/github/gdpelican/babble)
+[![Gitter](https://img.shields.io/badge/GITTER-join%20chat-green.svg)](https://gitter.im/gdpelican/babble)
+
+
+
 Currently still under development!
 
 Things that work great:
