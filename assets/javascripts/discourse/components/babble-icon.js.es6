@@ -23,20 +23,15 @@ export default Ember.Component.extend({
         }
 
         var topic = Discourse.Topic.create(data)
-        var postStream = Discourse.PostStream.create(topic.post_stream)
+        topic.last_read_post_number = data.last_read_post_number || Discourse.Babble.topic.last_read_post_number
+        topic.highest_post_number = data.highest_post_number || Discourse.Babble.topic.highest_post_number
 
+        var postStream = Discourse.PostStream.create(topic.post_stream)
         postStream.posts = topic.post_stream.posts
         postStream.topic = topic
 
         Discourse.Babble.topic = topic
         Discourse.Babble.postStream = postStream
-
-        var updateIfGiven = function(field, data) {
-          Discourse.Babble.topic[field] = data[field] || Discourse.Babble.topic[field]
-        }
-
-        updateIfGiven('last_read_post_number', data)
-        updateIfGiven('highest_post_number', data)
 
         self.set('topicVersion', self.get('topicVersion') + 1)
       }
