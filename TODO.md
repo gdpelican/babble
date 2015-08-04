@@ -1,4 +1,4 @@
-## TODO for 0.1.0
+## DONE for 0.1.0
 - Send chat messages through /babble channel (DONE)
 - Prevent topic from coming through other channels (DONE)
 - Listening to messages on component (DONE)
@@ -10,12 +10,14 @@
 - Write README (DONE)
 - Live update reading of posts (DONE)
 - Errors for non-admin users (DONE)
-- Show 'no chat messages yet' message when no posts have been made
 
-## Nice to have / next up
+## Next up
 - New messages line (DONE)
 - Smileys / emoticons (DONE)
 - Generalize Babble::Topic to be able to allow for multiple chat channels. (DONE)
+- Convert Babble::User to look at a private site setting
+- Update unread line / scroll position when reopening dropdown
+- Show 'no chat messages yet' message when no posts have been made
 - Prevent 1 unread from showing up when posting a chat message
 - Allow switching between chat topics
 - Strengthen test coverage
