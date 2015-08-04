@@ -26,3 +26,6 @@ Things that I'd like to add:
 Pull requests welcome! See [CONTRIBUTING.md](./CONTRIBUTING.md)
 
 You can view some ongoing discussion about this plugin on [Discourse Meta](https://meta.discourse.org/t/has-anyone-built-something-for-informal-status-updates-chat/10550)
+
+
+[![Join the chat at https://gitter.im/gdpelican/babble](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/gdpelican/babble?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
