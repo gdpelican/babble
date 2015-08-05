@@ -42,6 +42,7 @@
 
 li.babble-post .babble-post-content a.mention {
   display: inline;
+  padding: 0;
 }
 
 .babble-post-avatar img {
