@@ -7,6 +7,17 @@ A Shoutbox style plugin for [Discourse](http://discourse.org).
 
 Currently still under development!
 
+Installation:
+ - Edit your web template and add the project clone url. (https://meta.discourse.org/t/install-a-plugin/19157)
+ - Rebuild your web container so that the plugin installs.
+ - In your Discourse setup, ensure that the option "allow uncategorized topics" is checked, otherwise the babble topic creation step you need to perform WILL fail.
+ - Enter your running web container and launch the rails console.
+   - [sudo] ./launcher enter web
+   - rails c
+ - In the rails console, enter: Babble::Topic.create_topic("your_babble_topic_name")
+   - You should get green text in response to the above command.
+ - Exit the console by typing 'exit'. Exit the container by typing 'exit' again.
+
 Things that work great:
 - Sending messages to other clients
 - Live updating of chat window with new messages
