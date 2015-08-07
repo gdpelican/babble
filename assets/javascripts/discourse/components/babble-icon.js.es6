@@ -3,10 +3,16 @@ export default Ember.Component.extend({
   tagName: 'li',
   topicVersion: 0,
 
+  icon: Ember.computed(function() { return $(this.element).find(".babble-icon"); }),
   topic: Ember.computed('topicVersion', function() { return Discourse.Babble && Discourse.Babble.topic }),
+  
   unreadCount: Ember.computed('topicVersion', function() {
     var topic = this.get('topic')
-    if (!topic) { return 0 }
+    var icon = this.get("icon")
+    // icon is active or invisible, so no need to show unread count
+    if (!topic || icon.is(".active, :not(:visible)")) { 
+        return 0 
+    }
     return topic.highest_post_number - topic.last_read_post_number
   }),
 
