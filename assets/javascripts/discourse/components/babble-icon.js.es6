@@ -1,5 +1,6 @@
 export default Ember.Component.extend({
 
+  classNames: ['babble-icon'],
   tagName: 'li',
   topicVersion: 0,
 
