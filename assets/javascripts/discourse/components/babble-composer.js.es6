@@ -29,7 +29,8 @@ export default Ember.Component.extend(Presence, {
       Discourse.ajax("/babble/topic/post", {
         type: 'POST',
         data: { raw: self.get('text') }
-      }).then(function() {
+      }).then(function(data) {
+        Discourse.Babble.refresh(data)
         self.set('text', '')
       });
     }

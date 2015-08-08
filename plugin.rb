@@ -55,7 +55,7 @@ after_initialize do
 
     def post
       Babble::PostCreator.create(current_user, post_creator_params)
-      head :ok
+      respond_with_topic_view
     end
 
     private
@@ -100,6 +100,9 @@ after_initialize do
 
     def trigger_after_events(post)
       super
+
+      TopicUser.update_last_read(@user, @topic.id, @post.post_number, PostTiming::MAX_READ_TIME_PER_BATCH)
+
       MessageBus.publish "/babble/topic", serialized_topic
       MessageBus.publish "/babble/post", serialized_post.merge!(type: :created)
     end
