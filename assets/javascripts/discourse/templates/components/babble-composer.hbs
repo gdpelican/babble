@@ -1,4 +1,4 @@
 <div class="babble-composer">
-  {{textarea value=text}}
-  <button {{action 'submit'}} {{bind-attr disabled="submitDisabled"}} class="btn btn-primary pull-right">Send</button>
+  {{textarea value=text placeholder="{{i18n 'babble.placeholder'}}" }}
+  <button {{action 'submit'}} {{bind-attr disabled="submitDisabled"}} class="btn btn-primary pull-right">{{i18n 'babble.send'}}</button>
 </div>
