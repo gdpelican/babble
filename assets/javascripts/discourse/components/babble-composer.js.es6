@@ -23,10 +23,6 @@ export default Ember.Component.extend(Presence, {
     if (this.get('textValidation.failed')) return true;
   }.property('textValidation'),
 
-  i18nPlaceholder: function() {
-    return I18n.t("babble.placeholder");
-  }.property('name_key'),
-
   actions: {
     submit: function(context) {
       var self = context || this;
