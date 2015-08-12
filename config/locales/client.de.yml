@@ -1,0 +1,6 @@
+de:
+  js:
+    babble:
+      placeholder: "Chat-Nachricht hier eingeben..."
+      send: "Abschicken"
+      title: "Shoutbox!"

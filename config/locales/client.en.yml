@@ -1,0 +1,6 @@
+en:
+  js:
+    babble:
+      placeholder: "type your chat message here..."
+      send: "Send"
+      title: "Shoutbox!"
