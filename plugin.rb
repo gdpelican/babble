@@ -7,9 +7,6 @@
 register_asset "stylesheets/babble.css"
 
 BABBLE_PLUGIN_NAME ||= "babble".freeze
-BABBLE_UNIQUE_EMAIL ||= "noreply@chattykathy.com"
-BABBLE_UNIQUE_USERNAME ||= "chattykathy"
-BABBLE_USER_ID ||= -2
 
 after_initialize do
   module ::Babble
@@ -120,9 +117,9 @@ after_initialize do
 
   class ::Babble::User
     def self.find_or_create
-      User.find_or_initialize_by(id:       BABBLE_USER_ID,
-                                 email:    BABBLE_UNIQUE_EMAIL,
-                                 username: BABBLE_UNIQUE_USERNAME).tap(&:save)
+      User.find_or_initialize_by(id:       SiteSetting.babble_user_id,
+                                 email:    SiteSetting.babble_user_email,
+                                 username: SiteSetting.babble_username).tap(&:save)
     end
   end
 
