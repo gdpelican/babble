@@ -3,6 +3,10 @@ import Presence from 'discourse/mixins/presence';
 export default Ember.Component.extend(Presence, {
   classNames: ['babble-post-composer'],
 
+  _init: function() {
+    this.set('placeholder', I18n.t('babble.placeholder'))
+  }.on('init'),
+
   keyDown: function(event) {
     if (event.keyCode == 13) {
       this._actions.submit(this) // submit on enter
