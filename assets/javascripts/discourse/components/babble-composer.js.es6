@@ -1,6 +1,5 @@
-import Presence from 'discourse/mixins/presence';
 
-export default Ember.Component.extend(Presence, {
+export default Ember.Component.extend({
   classNames: ['babble-post-composer'],
 
   _init: function() {
@@ -16,7 +15,7 @@ export default Ember.Component.extend(Presence, {
 
   textValidation: function() {
     var validation = { ok: true };
-    if (this.blank('text')) {
+    if (Ember.isEmpty(this.get('text')))
       var validation = { failed: true };
     }
 
