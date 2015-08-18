@@ -15,12 +15,12 @@ export default Ember.Component.extend({
 
   textValidation: function() {
     var validation = { ok: true }
-    if (Ember.isEmpty(this.get('text'))) {
+    if (this.get('processing') || Ember.isEmpty(this.get('text'))) {
       var validation = { failed: true }
     }
 
     return Discourse.InputValidation.create(validation)
-  }.property('text'),
+  }.property('text', 'processing'),
 
   submitDisabled: function() {
     if (this.get('textValidation.failed')) return true
@@ -29,12 +29,15 @@ export default Ember.Component.extend({
   actions: {
     submit: function(context) {
       var self = context || this;
+      self.set('processing', true)
       Discourse.ajax("/babble/topic/post", {
         type: 'POST',
         data: { raw: self.get('text') }
-      }).then(function(data) {
-        Discourse.Babble.refresh(data)
+      })
+      .then(Discourse.Babble.refresh)
+      .finally(function() {
         self.set('text', '')
+        self.set('processing', false)
       });
     }
   }
