@@ -1,5 +1,6 @@
 import isElementScrolledToBottom from "../lib/is-element-scrolled-to-bottom"
 import lastVisiblePostInScrollableDiv from "../lib/last-visible-post-in-scrollable-div"
+import debounce from 'discourse/lib/debounce'
 
 export default Ember.Component.extend({
 
@@ -22,13 +23,13 @@ export default Ember.Component.extend({
     const self = this
     var messageBus = Discourse.__container__.lookup('message-bus:main')
     messageBus.subscribe('/babble/post', function(data) {
-      var post = Discourse.Post.create(data)
+      var postStream = self.get('topic.postStream')
+      var post = postStream.storePost(Discourse.Post.create(data))
+      postStream.appendPost(post)
+
       var scrolledToBottom = self.isElementScrolledToBottom(self.get('scrollContainer'))
-      post.set('topic', self.get('topic'))
-      self.get('topic.postStream').appendPost(post)
-      if (scrolledToBottom || Discourse.User.current().id == post.user_id) {
-        self.scroll()
-      }
+      var userIsAuthor = Discourse.User.current().id == post.user_id
+      if (scrolledToBottom || userIsAuthor) { self.scroll() }
     })
   },
 
@@ -48,7 +49,7 @@ export default Ember.Component.extend({
       }
     }
 
-    self.get('scrollContainer').on('scroll', Discourse.debounce(readOnScroll, 500))
+    self.get('scrollContainer').on('scroll', debounce(readOnScroll, 500))
   },
 
   scroll: function() {
