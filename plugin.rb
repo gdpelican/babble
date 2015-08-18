@@ -101,7 +101,7 @@ after_initialize do
       TopicUser.update_last_read(@user, @topic.id, @post.post_number, PostTiming::MAX_READ_TIME_PER_BATCH)
 
       MessageBus.publish "/babble/topic", serialized_topic
-      MessageBus.publish "/babble/post", serialized_post.merge!(type: :created)
+      MessageBus.publish "/babble/post", serialized_post
     end
 
     private
