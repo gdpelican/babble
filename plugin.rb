@@ -117,9 +117,10 @@ after_initialize do
 
   class ::Babble::User
     def self.find_or_create
-      User.find_or_initialize_by(id:       SiteSetting.babble_user_id,
-                                 email:    SiteSetting.babble_user_email,
-                                 username: SiteSetting.babble_username).tap(&:save)
+      User.find_by(id:       SiteSetting.babble_user_id) ||
+      User.create( id:       SiteSetting.babble_user_id,
+                   email:    SiteSetting.babble_user_email,
+                   username: SiteSetting.babble_username)
     end
   end
 
