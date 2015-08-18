@@ -14,16 +14,16 @@ export default Ember.Component.extend({
   },
 
   textValidation: function() {
-    var validation = { ok: true };
-    if (Ember.isEmpty(this.get('text')))
-      var validation = { failed: true };
+    var validation = { ok: true }
+    if (Ember.isEmpty(this.get('text'))) {
+      var validation = { failed: true }
     }
 
-    return Discourse.InputValidation.create(validation);
+    return Discourse.InputValidation.create(validation)
   }.property('text'),
 
   submitDisabled: function() {
-    if (this.get('textValidation.failed')) return true;
+    if (this.get('textValidation.failed')) return true
   }.property('textValidation'),
 
   actions: {
