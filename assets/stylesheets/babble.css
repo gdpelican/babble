@@ -84,3 +84,7 @@ li.babble-post .babble-post-content a.mention {
   padding: 5px;
   margin: 0;
 }
+
+.babble-post .babble-post-body .cooked img {
+  max-width: 245px;
+}
