@@ -84,3 +84,8 @@ li.babble-post .babble-post-content a.mention {
   padding: 5px;
   margin: 0;
 }
+
+.d-header .icons .unread-notifications.babble-unread-notifications {
+  right: auto;
+  left: -4px;
+}
