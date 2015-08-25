@@ -85,8 +85,7 @@ li.babble-post .babble-post-content a.mention {
   margin: 0;
 }
 
-a.babble-notifications-left {
-  right: auto !important; /* I know. But I'd like to base this on the Discourse style and have to
-                             make this style stick. Therefore: I'm sorry. */
+.d-header .icons .unread-notifications.babble-unread-notifications {
+  right: auto;
   left: -4px;
 }
