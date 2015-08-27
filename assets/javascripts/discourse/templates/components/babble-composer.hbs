@@ -1,4 +1,7 @@
 <div class="babble-composer">
   {{textarea value=text placeholder=placeholder }}
   <button {{action 'submit'}} {{bind-attr disabled="submitDisabled"}} class="btn btn-primary pull-right">{{i18n 'babble.send'}}</button>
+  {{#if showError}}
+    <span class="babble-composer-error-message">{{i18n 'babble.error_message'}}</span>
+  {{/if}}
 </div>

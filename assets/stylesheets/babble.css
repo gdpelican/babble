@@ -84,3 +84,10 @@ li.babble-post .babble-post-content a.mention {
   padding: 5px;
   margin: 0;
 }
+
+.babble-composer-error-message {
+  color: red;
+  font-size: 10px;
+  float: right;
+  padding-right: 10px;
+}

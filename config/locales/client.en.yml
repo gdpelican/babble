@@ -4,3 +4,4 @@ en:
       placeholder: "type your chat message here..."
       send: "Send"
       title: "Shoutbox!"
+      error_message: "Please enter a message!"
