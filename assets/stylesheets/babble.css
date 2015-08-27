@@ -94,3 +94,10 @@ li.babble-post .babble-post-content a.mention {
 .babble-post .babble-post-body .cooked img {
   max-width: 245px;
 }
+
+.babble-composer-error-message {
+  color: red;
+  font-size: 10px;
+  float: right;
+  padding-right: 10px;
+}

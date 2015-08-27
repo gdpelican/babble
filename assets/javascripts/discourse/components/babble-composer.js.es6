@@ -7,8 +7,11 @@ export default Ember.Component.extend({
   }.on('init'),
 
   keyDown: function(event) {
-    if (event.keyCode == 13) {
-      this._actions.submit(this) // submit on enter
+    this.set('showError', false)
+    if (event.keyCode == 13 && !event.ctrlKey) {
+      if (!this.get('submitDisabled')) { // ignore if submit is disabled
+        this._actions.submit(this) // submit on enter
+      }
       return false
     }
   },
@@ -29,10 +32,17 @@ export default Ember.Component.extend({
   actions: {
     submit: function(context) {
       var self = context || this;
+
+      if (self.get('text').trim() === "") {
+        self.set('showError', true)
+        self.set('text', '')
+        return
+      }
+
       self.set('processing', true)
       Discourse.ajax("/babble/topic/post", {
         type: 'POST',
-        data: { raw: self.get('text') }
+        data: { raw: self.get('text').trim() }
       })
       .then(Discourse.Babble.refresh)
       .finally(function() {
