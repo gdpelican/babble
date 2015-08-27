@@ -90,3 +90,7 @@ li.babble-post .babble-post-content a.mention {
   right: auto;
   left: -4px;
 }
+
+.babble-post .babble-post-body .cooked img {
+  max-width: 245px;
+}
