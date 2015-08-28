@@ -83,4 +83,21 @@ li.babble-post .babble-post-content a.mention {
   box-sizing: border-box;
   padding: 5px;
   margin: 0;
+  resize: none;
+}
+
+.d-header .icons .unread-notifications.babble-unread-notifications {
+  right: auto;
+  left: -4px;
+}
+
+.babble-post .babble-post-body .cooked img {
+  max-width: 245px;
+}
+
+.babble-composer-error-message {
+  color: red;
+  font-size: 10px;
+  float: right;
+  padding-right: 10px;
 }
