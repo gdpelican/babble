@@ -92,7 +92,8 @@ li.babble-post .babble-post-content a.mention {
 }
 
 .babble-post .babble-post-body .cooked img {
-  max-width: 245px;
+  max-width: 223px; /* 12 extra px for Edge, don't ask... */
+  height: auto;
 }
 
 .babble-composer-error-message {
