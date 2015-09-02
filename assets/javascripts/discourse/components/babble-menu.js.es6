@@ -1,6 +1,7 @@
 import isElementScrolledToBottom from "../lib/is-element-scrolled-to-bottom"
 import lastVisiblePostInScrollableDiv from "../lib/last-visible-post-in-scrollable-div"
 import debounce from 'discourse/lib/debounce'
+import { observes } from 'ember-addons/ember-computed-decorators';
 
 export default Ember.Component.extend({
 
@@ -12,12 +13,14 @@ export default Ember.Component.extend({
 
   loading: Ember.computed.empty('topic'),
 
-  _init: function() {
-    if (!Discourse.Babble || !Discourse.Babble.topic) { return }
+  @observes('visible')
+  _visible: function() {
+    if (this.get('isSetup') || !Discourse.Babble || !Discourse.Babble.topic) { return }
+    this.set('isSetup',          true)
     this.set('topic',            Discourse.Babble.topic)
     this.set('topic.postStream', Discourse.Babble.postStream)
     this.setupMessageBus()
-  }.on('init'),
+  },
 
   setupMessageBus: function() {
     const self = this
