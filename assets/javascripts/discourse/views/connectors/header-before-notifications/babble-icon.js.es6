@@ -1,4 +1,4 @@
-export default Ember.Component.extend({
+export default Ember.View.extend({
 
   classNames: ['babble-icon'],
   tagName: 'li',
