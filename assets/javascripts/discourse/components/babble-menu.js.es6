@@ -1,25 +1,31 @@
 import isElementScrolledToBottom from "../lib/is-element-scrolled-to-bottom"
 import lastVisiblePostInScrollableDiv from "../lib/last-visible-post-in-scrollable-div"
 import debounce from 'discourse/lib/debounce'
-import { observes } from 'ember-addons/ember-computed-decorators';
+import { observes } from 'ember-addons/ember-computed-decorators'
 
 export default Ember.Component.extend({
 
   isElementScrolledToBottom: isElementScrolledToBottom,
   lastVisiblePostInScrollableDiv: lastVisiblePostInScrollableDiv,
 
-  loading: Ember.computed.empty('topic'),
+  ready: function() {
+    return this.get('visible') && Discourse.Babble && Discourse.Babble.topic
+  },
 
   @observes('visible')
   _visible: function() {
-    if (this.get('isSetup') || !Discourse.Babble || !Discourse.Babble.topic) { return }
-    this.set('initialScroll',    true)
+    if (!this.ready()) { return }
+    Ember.run.scheduleOnce('afterRender', this, this._rendered)
+  },
+
+  @observes('visible')
+  _initialVisible: function() {
+    if (!this.ready() || this.get('isSetup')) { return }
+    this.set('isSetup',          true)
     this.set('topic',            Discourse.Babble.topic)
     this.set('topic.postStream', Discourse.Babble.postStream)
     this.setupMessageBus()
-
-    Ember.run.scheduleOnce('afterRender', this, this._rendered)
-    this.set('isSetup', true)
+    this._visible()
   },
 
   setupMessageBus: function() {
@@ -38,10 +44,8 @@ export default Ember.Component.extend({
   },
 
   _rendered: function() {
-    if (!Discourse.Babble || !Discourse.Babble.topic) { return }
     this.set('initialScroll', true)
-    this.set('scrollContainer', $('.babble-menu').find('.panel-body'))
-    Ember.run.next(this, this.scroll)
+    this.setupScrollContainer()
     this.setupTracking()
   },
 
@@ -54,7 +58,15 @@ export default Ember.Component.extend({
       }
     }
 
+    self.get('scrollContainer').off('scroll')
     self.get('scrollContainer').on('scroll', debounce(readOnScroll, 500))
+  },
+
+  setupScrollContainer: function() {
+    this.set('scrollContainer', $('.babble-menu').find('.panel-body'))
+    if (this.get('scrollContainer').get(0)) {
+      Ember.run.next(this, this.scroll)
+    }
   },
 
   scroll: function() {
