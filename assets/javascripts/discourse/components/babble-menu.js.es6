@@ -28,6 +28,7 @@ export default Ember.Component.extend({
     messageBus.subscribe('/babble/post', function(data) {
       var postStream = self.get('topic.postStream')
       var post = postStream.storePost(Discourse.Post.create(data))
+      post.created_at = moment(data.created_at, 'YYYY-MM-DD HH:mm:ss Z')
       postStream.appendPost(post)
 
       var scrolledToBottom = self.isElementScrolledToBottom(self.get('scrollContainer'))

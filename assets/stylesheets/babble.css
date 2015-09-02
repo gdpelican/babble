@@ -83,6 +83,17 @@ li.babble-post .babble-post-content a.mention {
   box-sizing: border-box;
   padding: 5px;
   margin: 0;
+  resize: none;
+}
+
+.d-header .icons .unread-notifications.babble-unread-notifications {
+  right: auto;
+  left: -4px;
+}
+
+.babble-post .babble-post-body .cooked img {
+  max-width: 223px; /* 12 extra px for Edge, don't ask... */
+  height: auto;
 }
 
 .babble-composer-error-message {

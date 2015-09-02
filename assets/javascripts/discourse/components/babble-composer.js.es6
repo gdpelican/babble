@@ -9,7 +9,7 @@ export default Ember.Component.extend({
 
   keyDown: function(event) {
     this.set('showError', false)
-    if (event.keyCode == 13 && !event.ctrlKey) {
+    if (event.keyCode == 13 && !(event.ctrlKey || event.altKey || event.shiftKey)) {
       if (!this.get('submitDisabled')) { // ignore if submit is disabled
         this._actions.submit(this) // submit on enter
       }
