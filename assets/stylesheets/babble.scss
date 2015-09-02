@@ -16,6 +16,7 @@
 .babble-post {
   position: relative;
   list-style-type: none;
+  clear: both;
 }
 
 .babble-post:hover {
@@ -35,7 +36,7 @@
 .babble-last-read-post-message {
   font-size: 8px;
   float: right;
-  line-height: 28px;
+  line-height: 10px;
   padding-left: 5px;
 }
 
@@ -77,6 +78,11 @@ li.babble-post .babble-post-content a.mention {
   display: inline-block;
 }
 
+.babble-post-composer {
+  bottom: 10px;
+  width: 300px;
+}
+
 .babble-post-composer textarea {
   width: 100%;
   box-sizing: border-box;
@@ -109,11 +115,15 @@ li.babble-post .babble-post-content a.mention {
     }
     .babble-post-composer {
       position: fixed;
-      bottom: 10px;
-      width: 300px;
     }
   }
   .drop-down { // styles for drop-down menu
-
+    .panel-body {
+      margin-bottom: 100px;
+      max-height: 300px;
+    }
+    .babble-post-composer {
+      position: absolute;
+    }
   }
 }
