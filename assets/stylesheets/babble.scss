@@ -3,10 +3,6 @@
   position: relative;
 }
 
-.babble-menu .panel-body {
-  margin-bottom: 150px;
-}
-
 /* Post styles */
 .babble-posts {
   overflow: auto;
@@ -81,12 +77,6 @@ li.babble-post .babble-post-content a.mention {
   display: inline-block;
 }
 
-.babble-post-composer {
-  position: fixed;
-  width: 42%;
-  bottom: 7px;
-}
-
 .babble-post-composer textarea {
   width: 100%;
   box-sizing: border-box;
@@ -110,4 +100,20 @@ li.babble-post .babble-post-content a.mention {
   font-size: 10px;
   float: right;
   padding-right: 10px;
+}
+
+.babble-menu {
+  .slide-in { // styles for slide-in menu
+    .panel-body {
+      margin-bottom: 150px;
+    }
+    .babble-post-composer {
+      position: fixed;
+      bottom: 10px;
+      width: 300px;
+    }
+  }
+  .drop-down { // styles for drop-down menu
+
+  }
 }
