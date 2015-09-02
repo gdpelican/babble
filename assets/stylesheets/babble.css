@@ -3,9 +3,12 @@
   position: relative;
 }
 
+.babble-menu .panel-body {
+  margin-bottom: 150px;
+}
+
 /* Post styles */
 .babble-posts {
-  max-height: 300px;
   overflow: auto;
 }
 
@@ -76,6 +79,12 @@ li.babble-post .babble-post-content a.mention {
 .babble-post .read-state {
   position: static;
   display: inline-block;
+}
+
+.babble-post-composer {
+  position: fixed;
+  width: 42%;
+  bottom: 7px;
 }
 
 .babble-post-composer textarea {
