@@ -8,6 +8,12 @@
   overflow: auto;
 }
 
+.babble-empty-topic-message {
+  color: #ccc;
+  text-align: center;
+  padding-top: 25%;
+}
+
 .babble-post .babble-post-avatar a,
 .babble-post .post-date {
   background-color: transparent !important; /* sorry mom. */
@@ -107,6 +113,7 @@ li.babble-post .babble-post-content a.mention {
   .slide-in { // styles for slide-in menu
     box-sizing: border-box;
     padding-bottom: 100px;
+    min-height: 100vh;
 
     .panel-body {
       position: relative;
