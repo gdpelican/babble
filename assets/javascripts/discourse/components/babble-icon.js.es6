@@ -1,15 +1,8 @@
-export default Ember.View.extend({
+import { observes } from 'ember-addons/ember-computed-decorators';
+export default Ember.Component.extend({
 
   classNames: ['babble-icon'],
   tagName: 'li',
-  topicVersion: 0,
-
-  topic: Ember.computed('topicVersion', function() { return Discourse.Babble && Discourse.Babble.topic }),
-  unreadCount: Ember.computed('topicVersion', function() {
-    var topic = this.get('topic')
-    if (!topic) { return 0 }
-    return topic.highest_post_number - topic.last_read_post_number
-  }),
 
   _init: function() {
     const self = this
@@ -39,7 +32,7 @@ export default Ember.View.extend({
         Discourse.Babble.topic = topic
         Discourse.Babble.postStream = postStream
 
-        self.set('topicVersion', self.get('topicVersion') + 1)
+        self.set('unreadCount', topic.highest_post_number - topic.last_read_post_number)
       }
     }
 
