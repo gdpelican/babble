@@ -11,7 +11,7 @@
 .babble-empty-topic-message {
   color: #ccc;
   text-align: center;
-  padding-top: 25%;
+  padding: 25% 0;
 }
 
 .babble-post .babble-post-avatar a,
@@ -95,6 +95,13 @@ li.babble-post .babble-post-content a.mention {
   padding: 5px;
   margin: 0;
   resize: none;
+}
+
+.babble-post-composer button.wmd-emoji-button {
+  position: absolute;
+  top: 2px;
+  right: -2px;
+  color: #888;
 }
 
 .babble-post .babble-post-body .cooked img {
