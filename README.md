@@ -3,8 +3,6 @@ A Shoutbox style plugin for [Discourse](http://discourse.org).
 [![Code Climate](https://codeclimate.com/github/gdpelican/babble/badges/gpa.svg)](https://codeclimate.com/github/gdpelican/babble)
 [![Gitter](https://img.shields.io/badge/GITTER-join%20chat-green.svg)](https://gitter.im/gdpelican/babble)
 
-
-
 Currently still under development!
 
 Installation:
@@ -27,12 +25,11 @@ Things that work great:
 - Live updating the unread counter when posts are read
 
 Things that work not-great:
-- Updating last read line / scroll position when reopening chat dropdown
 - Need to identify which stats are being updated (post count etc.), and which stats should be updated
+- Chat responsiveness is still slower than I'd like
 - Likely other things; let me know!
 
 Things that I'd like to add:
-- Additional outlets for chat windows (sidebar, fixed floating window, etc.)
 - Pagination (likely load previous page)
 - Editing a recent post of yours
 - Allowing user to mute chat notifications
