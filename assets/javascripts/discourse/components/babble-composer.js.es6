@@ -1,3 +1,4 @@
+import { showSelector } from "discourse/lib/emoji/emoji-toolbar";
 
 export default Ember.Component.extend({
   classNames: ['babble-post-composer'],
@@ -30,6 +31,8 @@ export default Ember.Component.extend({
   }.property('textValidation'),
 
   actions: {
+    selectEmoji: showSelector,
+
     submit: function(context) {
       var self = context || this;
 

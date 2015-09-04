@@ -5,7 +5,6 @@
 
 /* Post styles */
 .babble-posts {
-  max-height: 300px;
   overflow: auto;
 }
 
@@ -17,6 +16,7 @@
 .babble-post {
   position: relative;
   list-style-type: none;
+  clear: both;
 }
 
 .babble-post:hover {
@@ -36,7 +36,7 @@
 .babble-last-read-post-message {
   font-size: 8px;
   float: right;
-  line-height: 28px;
+  line-height: 10px;
   padding-left: 5px;
 }
 
@@ -78,17 +78,17 @@ li.babble-post .babble-post-content a.mention {
   display: inline-block;
 }
 
+.babble-post-composer {
+  bottom: 10px;
+  width: 300px;
+}
+
 .babble-post-composer textarea {
   width: 100%;
   box-sizing: border-box;
   padding: 5px;
   margin: 0;
   resize: none;
-}
-
-.d-header .icons .unread-notifications.babble-unread-notifications {
-  right: auto;
-  left: -4px;
 }
 
 .babble-post .babble-post-body .cooked img {
@@ -101,4 +101,24 @@ li.babble-post .babble-post-content a.mention {
   font-size: 10px;
   float: right;
   padding-right: 10px;
+}
+
+.babble-menu {
+  .slide-in { // styles for slide-in menu
+    .panel-body {
+      margin-bottom: 150px;
+    }
+    .babble-post-composer {
+      position: fixed;
+    }
+  }
+  .drop-down { // styles for drop-down menu
+    .panel-body {
+      margin-bottom: 100px;
+      max-height: 300px;
+    }
+    .babble-post-composer {
+      position: absolute;
+    }
+  }
 }

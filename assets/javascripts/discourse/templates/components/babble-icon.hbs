@@ -1,12 +1,11 @@
-  {{#unless noTopicAvailable}}
-    <a class='icon'
-       href
-       data-dropdown="babble-dropdown"
-       id='babble-notifications'
-       title='{{i18n 'babble.title'}}'>
-       {{fa-icon "bullhorn" label="babble.title"}}
-    </a>
-    {{#if unreadCount}}
-      <a href class='badge-notification unread-notifications babble-unread-notifications'>{{unreadCount}}</a>
-    {{/if}}
-  {{/unless}}
+{{#unless noTopicAvailable}}
+  {{#header-dropdown iconId="babble-notifications"
+                     icon="bullhorn"
+                     toggleVisible=babbleVisible
+                     loginAction="showLogin"
+                     title="babble.title"}}
+  {{/header-dropdown}}
+  {{#if unreadCount}}
+    <a href class='badge-notification unread-notifications'>{{unreadCount}}</a>
+  {{/if}}
+{{/unless}}
