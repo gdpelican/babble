@@ -1,6 +1,9 @@
 {{#menu-panel visible=visible}}
   <section class="babble-chat">
     <ul class="babble-posts">
+      {{#unless topic.postStream.posts}}
+        <li class="babble-empty-topic-message">{{i18n 'babble.empty_topic_message'}}</li>
+      {{/unless}}
       {{#each post in topic.postStream.posts}}
         {{babble-post post=post topic=topic}}
       {{/each}}
