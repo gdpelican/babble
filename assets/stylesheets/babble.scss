@@ -49,7 +49,7 @@ li.babble-post .babble-post-content a.mention {
   float: left;
   width: 20px;
   height: 20px;
-  margin-right: 5px;
+  margin: 5px 5px 0 0;
 }
 
 .babble-post-body {
@@ -105,8 +105,11 @@ li.babble-post .babble-post-content a.mention {
 
 .babble-menu {
   .slide-in { // styles for slide-in menu
+    box-sizing: border-box;
+    padding-bottom: 100px;
+
     .panel-body {
-      margin-bottom: 150px;
+      position: relative;
     }
     .babble-post-composer {
       position: fixed;
