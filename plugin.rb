@@ -1,6 +1,6 @@
 # name: babble
 # about: Shoutbox plugin for Discourse
-# version: 0.5.1
+# version: 0.5.2
 # authors: James Kiesel (gdpelican)
 # url: https://github.com/gdpelican/babble
 
@@ -120,7 +120,13 @@ after_initialize do
       User.find_by(id:       SiteSetting.babble_user_id) ||
       User.create( id:       SiteSetting.babble_user_id,
                    email:    SiteSetting.babble_user_email,
-                   username: SiteSetting.babble_username)
+                   username: SiteSetting.babble_username).tap { use_gravatar }
+    end
+
+    def self.use_gravatar
+      user = find_or_create
+      user.user_avatar.update_gravatar! &&
+      user.update(uploaded_avatar: user.user_avatar.gravatar_upload)
     end
   end
 

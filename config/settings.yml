@@ -3,7 +3,7 @@ plugins:
     default: -2
     hidden: true
   babble_user_email:
-    default: chatty@kathy.com
+    default: khattycathy@gmail.com
     hidden: true
   babble_username:
     default: chattykathy
