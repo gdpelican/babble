@@ -84,6 +84,8 @@ li.babble-post .babble-post-content a.mention {
   display: inline-block;
 }
 
+/* Composer styles */
+
 .babble-post-composer {
   bottom: 10px;
   width: 300px;
@@ -116,6 +118,8 @@ li.babble-post .babble-post-content a.mention {
   padding-right: 10px;
 }
 
+/* Dropdown styles */
+
 .babble-menu {
   .slide-in { // styles for slide-in menu
     box-sizing: border-box;
@@ -138,4 +142,11 @@ li.babble-post .babble-post-content a.mention {
       position: absolute;
     }
   }
+}
+
+/* Discourse overrides */
+
+// Some (∩｀-´)⊃━☆ﾟ.*･｡ﾟ ༄ for moving the private message icon back to the correct place 
+.d-header .icons .unread-private-messages {
+  left: 121px;
 }
