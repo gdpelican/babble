@@ -1,11 +1,14 @@
-<section class="babble-chat">
-  {{#conditional-loading-spinner condition=loading}}
+{{#menu-panel visible=visible}}
+  <section class="babble-chat">
     <ul class="babble-posts">
+      {{#unless topic.postStream.posts}}
+        <li class="babble-empty-topic-message">{{i18n 'babble.empty_topic_message'}}</li>
+      {{/unless}}
       {{#each post in topic.postStream.posts}}
         {{babble-post post=post topic=topic}}
       {{/each}}
       {{conditional-loading-spinner condition=topic.postStream.loadingBelow}}
     </ul>
     {{babble-composer}}
-  {{/conditional-loading-spinner}}
-</section>
+  </section>
+{{/menu-panel}}

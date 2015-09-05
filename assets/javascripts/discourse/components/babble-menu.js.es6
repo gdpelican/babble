@@ -1,23 +1,32 @@
 import isElementScrolledToBottom from "../lib/is-element-scrolled-to-bottom"
 import lastVisiblePostInScrollableDiv from "../lib/last-visible-post-in-scrollable-div"
 import debounce from 'discourse/lib/debounce'
+import { observes } from 'ember-addons/ember-computed-decorators'
 
 export default Ember.Component.extend({
 
   isElementScrolledToBottom: isElementScrolledToBottom,
   lastVisiblePostInScrollableDiv: lastVisiblePostInScrollableDiv,
 
-  scrollContainer: Ember.computed(function() { return $(this.element).find('ul.babble-posts') }),
-  lastReadLine: Ember.computed(function() { return this.get('scrollContainer').find('.babble-last-read-post-line') }),
+  ready: function() {
+    return this.get('visible') && Discourse.Babble && Discourse.Babble.topic
+  },
 
-  loading: Ember.computed.empty('topic'),
+  @observes('visible')
+  _visible: function() {
+    if (!this.ready()) { return }
+    Ember.run.scheduleOnce('afterRender', this, this._rendered)
+  },
 
-  _init: function() {
-    if (!Discourse.Babble || !Discourse.Babble.topic) { return }
+  @observes('visible')
+  _initialVisible: function() {
+    if (!this.ready() || this.get('isSetup')) { return }
+    this.set('isSetup',          true)
     this.set('topic',            Discourse.Babble.topic)
     this.set('topic.postStream', Discourse.Babble.postStream)
     this.setupMessageBus()
-  }.on('init'),
+    this._visible()
+  },
 
   setupMessageBus: function() {
     const self = this
@@ -34,12 +43,11 @@ export default Ember.Component.extend({
     })
   },
 
-  _inserted: function() {
-    if (!Discourse.Babble || !Discourse.Babble.topic) { return }
+  _rendered: function() {
     this.set('initialScroll', true)
-    Ember.run.next(this, this.scroll)
+    this.setupScrollContainer()
     this.setupTracking()
-  }.on('didInsertElement'),
+  },
 
   setupTracking: function() {
     const self = this
@@ -50,7 +58,15 @@ export default Ember.Component.extend({
       }
     }
 
+    self.get('scrollContainer').off('scroll')
     self.get('scrollContainer').on('scroll', debounce(readOnScroll, 500))
+  },
+
+  setupScrollContainer: function() {
+    this.set('scrollContainer', $('.babble-menu').find('.panel-body'))
+    if (this.get('scrollContainer').get(0)) {
+      Ember.run.next(this, this.scroll)
+    }
   },
 
   scroll: function() {
@@ -61,7 +77,8 @@ export default Ember.Component.extend({
 
   getLastReadLinePosition: function() {
     var container = this.get('scrollContainer')
-    var lastReadLine = this.get('lastReadLine')
+    var lastReadLine = container.find('.babble-last-read-post-message')
+
     if (this.get('initialScroll') && lastReadLine.length) {
       return lastReadLine.offset().top - container.offset().top - 10
     } else {

@@ -1,3 +1,4 @@
+import { showSelector } from "discourse/lib/emoji/emoji-toolbar";
 
 export default Ember.Component.extend({
   classNames: ['babble-post-composer'],
@@ -30,6 +31,20 @@ export default Ember.Component.extend({
   }.property('textValidation'),
 
   actions: {
+    selectEmoji: function() {
+      var self = this
+      showSelector()
+      $('.emoji-page a').off('click').on('click', function() {
+        var title = $(this).attr('title')
+        self.set('text', (self.get('text') || '').trimRight() + ' :' + title + ':')
+
+        $('.emoji-modal, .emoji-modal-wrapper').remove()
+        $('body, textarea').off('keydown.emoji')
+        $('.babble-post-composer textarea').focus()
+        return false
+      })
+    },
+
     submit: function(context) {
       var self = context || this;
 
