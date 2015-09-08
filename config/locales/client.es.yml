@@ -5,4 +5,4 @@ es:
       send: "Enviar"
       title: "¡Mensajes cortos!"
       error_message: "¡Por favor, escribe un mensaje!"
-      empty_topic_message: "¡Aún no hay mensjes! Escribe uno para comenzar una conversación."
+      empty_topic_message: "¡Aún no hay mensajes! Escribe uno para comenzar una conversación."
