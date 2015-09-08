@@ -1,0 +1,8 @@
+es:
+  js:
+    babble:
+      placeholder: "Escribe tu mensaje aquí..."
+      send: "Enviar"
+      title: "¡Mensajes cortos!"
+      error_message: "¡Por favor, escribe un mensaje!"
+      empty_topic_message: "¡Aún no hay mensajes! Escribe uno para comenzar una conversación."
