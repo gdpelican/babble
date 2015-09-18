@@ -11,10 +11,8 @@ export default Ember.Component.extend({
     if (!Discourse.Babble) {
       Discourse.Babble = {}
       Discourse.Babble.refresh = function(data) {
-        if (!data.id) {
-          self.set('noTopicAvailable', true)
-          return
-        }
+        self.set('babbleEnabled', Discourse.SiteSettings.babble_enabled && data.id)
+        if (!self.get('babbleEnabled')) { return }
 
         var resetTopicField = function(topic, field) {
           topic[field] = data[field]

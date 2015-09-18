@@ -3,6 +3,5 @@ en:
     babble:
       placeholder: "type your chat message here..."
       send: "Send"
-      title: "Shoutbox!"
       error_message: "Please enter a message!"
       empty_topic_message: "No messages yet! Enter one below to get started."

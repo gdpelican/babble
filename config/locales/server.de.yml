@@ -5,3 +5,4 @@ en:
     babble_enabled: "Die Babble Shoutbox aktivieren?"
     babble_placeholder: "Leer lassen f&uuml;r den Standard Platzhalter in der Chat-Textbox, oder eigenen Text hier eingeben."
     babble_icon: "Icon-Code von Font Awesome (ohne fa- am Anfang) f&uuml;r das Babble Icon oben rechts. Siehe http://fortawesome.github.io/Font-Awesome/cheatsheet/ f&uuml;r eine Liste der verf&uuml;gbaren Icons."
+    babble_title: "Titl-Attribut des Babble Icons. Dieser Text erscheint, wenn man die Maus &uuml;ber das Babble-Icon h&auml;lt."

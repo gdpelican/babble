@@ -8,6 +8,9 @@ plugins:
   babble_icon:
     default: "bullhorn"
     client: true
+  babble_title:
+    default: "Shoutbox!"
+    client: true
   babble_user_id:
     default: -2
     hidden: true
