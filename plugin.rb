@@ -33,14 +33,14 @@ after_initialize do
     requires_plugin BABBLE_PLUGIN_NAME
     before_filter :ensure_logged_in
 
-    rescue_from 'StandardError' do |e| render_json_error e.message end
+    rescue_from('StandardError') { |e| render_json_error e.message }
 
     def show
-      if topic
+      if topic && topic.group.users.include?(current_user)
         TopicUser.find_or_create_by(user: current_user, topic: topic)
         respond_with_topic_view
       else
-        render json: { errors: 'No chat topics are available!' }
+        render json: { errors: 'You cannot view this chat topic' }
       end
     end
 

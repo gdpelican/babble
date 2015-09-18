@@ -11,12 +11,13 @@ describe ::Babble::TopicsController do
 
   before do
     SiteSetting.load_settings(File.join(Rails.root, 'plugins', 'babble', 'config', 'settings.yml'))
+    group.users << user
   end
 
   let(:user) { log_in }
   let(:another_user) { Fabricate :user }
-  let!(:topic) { Babble::Topic.create_topic "test topic for babble" }
-
+  let(:group) { Fabricate :group }
+  let!(:topic) { Babble::Topic.create_topic "test topic for babble", group }
 
   describe "show" do
     it "returns the default chat topic if it exists" do
@@ -30,6 +31,13 @@ describe ::Babble::TopicsController do
       topic.destroy
       xhr :get, :show
       expect(response.status).to eq 200
+      expect(response_json['errors']).to be_present
+    end
+
+    it 'returns a response with an error message if the user cannot view the topic' do
+      group.users.remove user
+      xhr :get, :show
+      expect(response.status).to eq 403
       expect(response_json['errors']).to be_present
     end
 
@@ -70,6 +78,12 @@ describe ::Babble::TopicsController do
       post_contents = Babble::Topic.default_topic.posts.map(&:raw).uniq
       expect(post_contents).to include "I've stepped over the post limit!"
       expect(post_contents).to_not include "I am the original post"
+    end
+  end
+
+  describe "create" do
+    it "creates a topic with a group" do
+
     end
   end
 
