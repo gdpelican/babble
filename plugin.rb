@@ -8,6 +8,8 @@ register_asset "stylesheets/babble.scss"
 
 BABBLE_PLUGIN_NAME ||= "babble".freeze
 
+enabled_site_setting :babble_enabled
+
 after_initialize do
   module ::Babble
     class Engine < ::Rails::Engine

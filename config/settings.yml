@@ -1,4 +1,13 @@
 plugins:
+  babble_enabled:
+    default: true
+    client: true
+  babble_placeholder:
+    default: ""
+    client: true
+  babble_icon:
+    default: "bullhorn"
+    client: true
   babble_user_id:
     default: -2
     hidden: true

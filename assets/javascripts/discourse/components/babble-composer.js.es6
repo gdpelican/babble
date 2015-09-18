@@ -5,7 +5,11 @@ export default Ember.Component.extend({
   classNames: ['babble-post-composer'],
 
   _init: function() {
-    this.set('placeholder', I18n.t('babble.placeholder'))
+    if (Discourse.SiteSettings.babble_placeholder) {
+      this.set('placeholder', Discourse.SiteSettings.babble_placeholder)
+    } else {
+      this.set('placeholder', I18n.t('babble.placeholder'))
+    }
   }.on('init'),
 
   keyDown: function(event) {
