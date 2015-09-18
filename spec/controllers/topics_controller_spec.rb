@@ -17,6 +17,7 @@ describe ::Babble::TopicsController do
   let(:another_user) { Fabricate :user }
   let!(:topic) { Babble::Topic.create_topic "test topic for babble" }
 
+
   describe "show" do
     it "returns the default chat topic if it exists" do
       user
