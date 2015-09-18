@@ -5,4 +5,3 @@ en:
     babble_enabled: "Enable Babble Shoutbox plugin."
     babble_placeholder: "Leave blank for default placeholder text in empty chat textarea. Or enter your custom text here."
     babble_icon: "Font Awesome code (fa- omitted) for the Babble icon in the upper right corner. See http://fortawesome.github.io/Font-Awesome/cheatsheet/ for a list of icons."
-    babble_title: "Title attribute of Babble icon. This text appears when you hover the mouse pointer over the Babble icon."
