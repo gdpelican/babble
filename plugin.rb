@@ -144,10 +144,12 @@ after_initialize do
 
   class ::Babble::Topic
 
-    def self.create_topic(title)
-      Topic.create! user: Babble::User.find_or_create,
-                    title: title,
-                    visible: false
+    def self.create_topic(title, group = Group.find_by(name: "Everyone"))
+      return unless group.present?
+      Topic.create user: Babble::User.find_or_create,
+                   title: title,
+                   visible: false,
+                   custom_fields: { group_id: group.id }
     end
 
     def self.prune_topic(topic)
