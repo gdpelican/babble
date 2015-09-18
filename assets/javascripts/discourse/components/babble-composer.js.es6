@@ -1,5 +1,4 @@
 import { showSelector } from "discourse/lib/emoji/emoji-toolbar";
-import showModal from 'discourse/lib/show-modal';
 
 export default Ember.Component.extend({
   classNames: ['babble-post-composer'],
@@ -38,18 +37,7 @@ export default Ember.Component.extend({
   actions: {
     selectEmoji: function() {
       var self = this
-      var c = showModal('smileypicker')      
-      c.setProperties({ composerView: self })
-      $('.smileypicker-box img').on('click', function() {
-        var title = $(this).attr('title')
-        self.set('text', (self.get('text') || '').trimRight() + ' :' + title + ':')
-
-        $('.modal, .modal-outer-container').remove()
-        $('body, textarea').off('keydown.emoji')
-        $('.babble-post-composer textarea').focus()
-        return false
-      })
-     /* showSelector()
+      showSelector()
       $('.emoji-page a').off('click').on('click', function() {
         var title = $(this).attr('title')
         self.set('text', (self.get('text') || '').trimRight() + ' :' + title + ':')
@@ -58,7 +46,7 @@ export default Ember.Component.extend({
         $('body, textarea').off('keydown.emoji')
         $('.babble-post-composer textarea').focus()
         return false
-      })*/
+      })
     },
 
     submit: function(context) {
