@@ -10,7 +10,7 @@ Installation:
  - Rebuild your web container so that the plugin installs.
  - In your Discourse setup, ensure that the option "allow uncategorized topics" is checked, otherwise the babble topic creation step you need to perform WILL fail.
  - Enter your running web container and launch the rails console.
-   - [sudo] ./launcher enter web
+   - [sudo] ./launcher enter app
    - rails c
  - In the rails console, enter: Babble::Topic.create_topic("your_babble_topic_name")
    - You should get green text in response to the above command.
