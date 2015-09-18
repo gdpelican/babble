@@ -33,14 +33,16 @@ after_initialize do
     requires_plugin BABBLE_PLUGIN_NAME
     before_filter :ensure_logged_in
 
-    rescue_from('StandardError') { |e| render_json_error e.message }
+    rescue_from('StandardError') { |e| render_json_error e.message, status: 422 }
 
     def show
-      if topic && topic.group.users.include?(current_user)
+      if topic && topic_group.users.include?(current_user)
         TopicUser.find_or_create_by(user: current_user, topic: topic)
         respond_with_topic_view
+      elsif topic
+        render json: { errors: 'You cannot view this chat topic' }, status: 403
       else
-        render json: { errors: 'You cannot view this chat topic' }
+        render json: { errors: 'No chat topics exist' }
       end
     end
 
@@ -63,13 +65,17 @@ after_initialize do
     private
 
     def respond_with_topic_view
-      render json: TopicViewSerializer.new(topic_view, scope: Guardian.new(current_user), root: false).as_json
+      render json: Babble::TopicViewSerializer.new(topic_view, scope: Guardian.new(current_user), root: false).as_json
     end
 
     # should be able to replace this with Babble::Topic.find(id) of some kind
     # once we make to move to multiple chat channels
     def topic
       @topic ||= Babble::Topic.default_topic
+    end
+
+    def topic_group
+      @topic_group ||= Group.find_by id: topic.custom_fields['group_id']
     end
 
     def topic_view
@@ -118,7 +124,7 @@ after_initialize do
     private
 
     def serialized_topic
-      TopicViewSerializer.new(TopicView.new(@topic.id), scope: Guardian.new(@user), root: false).as_json
+      Babble::TopicViewSerializer.new(TopicView.new(@topic.id), scope: Guardian.new(@user), root: false).as_json
     end
 
     def serialized_post
@@ -149,7 +155,7 @@ after_initialize do
       Topic.create user: Babble::User.find_or_create,
                    title: title,
                    visible: false,
-                   custom_fields: { group_id: group.id }
+                   custom_fields: { group_id: group.id, group_name: group.name }
     end
 
     def self.prune_topic(topic)
@@ -164,6 +170,17 @@ after_initialize do
       Babble::User.find_or_create.topics
     end
 
+  end
+
+  class ::Babble::TopicViewSerializer < TopicViewSerializer
+    attributes :group
+
+    def group
+      {
+        id: object.topic.custom_fields['group_id'],
+        name: object.topic.custom_fields['group_name']
+      }
+    end
   end
 
 end
