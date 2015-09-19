@@ -1,6 +1,6 @@
 # name: babble
 # about: Shoutbox plugin for Discourse
-# version: 0.6.1
+# version: 0.6.2
 # authors: James Kiesel (gdpelican)
 # url: https://github.com/gdpelican/babble
 
@@ -55,7 +55,7 @@ after_initialize do
     end
 
     def post
-      if Babble::PostCreator.create(current_user, post_creator_params).valid?
+      if Babble::PostCreator.create(current_user, post_creator_params).persisted?
         respond_with_topic_view
       else
         render json: { errors: 'Unable to create post' }, status: :unprocessable_entity
@@ -96,9 +96,6 @@ after_initialize do
     def valid?
       setup_post
       @topic = @post.topic = Babble::Topic.default_topic
-
-      add_errors_from @post unless @post.valid?
-      @post.valid?
     end
 
     def enqueue_jobs
