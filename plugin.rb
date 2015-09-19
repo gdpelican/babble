@@ -117,8 +117,6 @@ after_initialize do
 
       MessageBus.publish "/babble/topic", serialized_topic
       MessageBus.publish "/babble/post", serialized_post
-
-      @topic.posts.first.delete if @topic.posts.count > SiteSetting.babble_max_topic_size
     end
 
     private
