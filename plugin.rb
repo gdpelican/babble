@@ -133,6 +133,7 @@ after_initialize do
     end
 
     def self.use_gravatar
+      return if Rails.env.test?
       user = find_or_create
       user.user_avatar.update_gravatar! &&
       user.update(uploaded_avatar: user.user_avatar.gravatar_upload)
