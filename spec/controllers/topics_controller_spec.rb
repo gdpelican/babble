@@ -15,20 +15,29 @@ describe ::Babble::TopicsController do
 
   let(:user) { log_in }
   let(:another_user) { Fabricate :user }
-  let!(:topic) { Babble::Topic.create_topic "test topic for babble" }
+  let(:group) { Fabricate :group }
+  let!(:topic) { Babble::Topic.create_topic "test topic for babble", group }
 
   describe "show" do
     it "returns the default chat topic if it exists" do
-      user
+      group.users << user
       xhr :get, :show
+      expect(response.status).to eq 200
       expect(response_json['id']).to eq default_topic.id
     end
 
     it "returns a successful response with an error message if no suitable topics exist" do
-      user
+      group.users << user
       topic.destroy
       xhr :get, :show
       expect(response.status).to eq 200
+      expect(response_json['errors']).to be_present
+    end
+
+    it 'returns a response with an error message if the user cannot view the topic' do
+      user
+      xhr :get, :show
+      expect(response.status).to eq 403
       expect(response_json['errors']).to be_present
     end
 
@@ -41,13 +50,13 @@ describe ::Babble::TopicsController do
 
   describe "post" do
     it "adds a new post to the default chat topic" do
-      user
+      group.users << user
       expect { xhr :post, :post, raw: "I am a test post" }.to change { default_topic.posts.count }.by(1)
       expect(response.status).to eq 200
     end
 
     it 'does not allow posts with no content to be made' do
-      user
+      group.users << user
       expect { xhr :post, :post }.not_to change { default_topic.posts.count }
       expect(response.status).to eq 422
     end
@@ -58,11 +67,11 @@ describe ::Babble::TopicsController do
     end
 
     it "deletes old posts in a rolling window" do
-      user
+      group.users << user
       SiteSetting.babble_max_topic_size = 10
 
       xhr :post, :post, raw: "I am the original post"
-      9.times { xhr :post, :post, raw: "I am a test post" }
+      9.times { make_a_post }
 
       expect { xhr :post, :post, raw: "I've stepped over the post limit!" }.not_to change { default_topic.posts.count}
 
@@ -74,6 +83,7 @@ describe ::Babble::TopicsController do
 
   describe "read" do
     it "reads a post up to the given post number" do
+      group.users << user
       5.times { make_a_post }
       TopicUser.find_or_create_by(user: user, topic: default_topic)
 

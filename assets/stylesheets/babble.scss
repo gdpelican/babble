@@ -3,6 +3,15 @@
   position: relative;
 }
 
+.babble-title h4 {
+  float: left;
+  padding-right: 8px;
+}
+
+.babble-title i {
+  color: #ccc;
+}
+
 /* Post styles */
 .babble-posts {
   overflow: auto;

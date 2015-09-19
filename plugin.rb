@@ -1,6 +1,6 @@
 # name: babble
 # about: Shoutbox plugin for Discourse
-# version: 0.5.4
+# version: 0.6.0
 # authors: James Kiesel (gdpelican)
 # url: https://github.com/gdpelican/babble
 
@@ -33,14 +33,16 @@ after_initialize do
     requires_plugin BABBLE_PLUGIN_NAME
     before_filter :ensure_logged_in
 
-    rescue_from 'StandardError' do |e| render_json_error e.message end
+    rescue_from('StandardError') { |e| render_json_error e.message, status: 422 }
 
     def show
-      if topic
+      if topic && topic.allowed_group_users.include?(current_user)
         TopicUser.find_or_create_by(user: current_user, topic: topic)
         respond_with_topic_view
+      elsif topic
+        render json: { errors: 'You cannot view this chat topic' }, status: 403
       else
-        render json: { errors: 'No chat topics are available!' }
+        render json: { errors: 'No chat topics exist' }
       end
     end
 
@@ -66,10 +68,10 @@ after_initialize do
       render json: TopicViewSerializer.new(topic_view, scope: Guardian.new(current_user), root: false).as_json
     end
 
-    # should be able to replace this with Babble::Topic.find(id) of some kind
-    # once we make to move to multiple chat channels
+    # NB: the set_default_allowed_groups block is passed for backwards compatibility,
+    # so that we never have a topic which has no allowed groups.
     def topic
-      @topic ||= Babble::Topic.default_topic
+      @topic ||= Babble::Topic.default_topic.tap { |topic| Babble::Topic.set_default_allowed_groups(topic) if topic }
     end
 
     def topic_view
@@ -142,10 +144,19 @@ after_initialize do
 
   class ::Babble::Topic
 
-    def self.create_topic(title)
-      Topic.create! user: Babble::User.find_or_create,
-                    title: title,
-                    visible: false
+    def self.create_topic(title, *groups)
+      Topic.create user: Babble::User.find_or_create,
+                   title: title,
+                   visible: false,
+                   allowed_groups: Array(groups.presence || default_allowed_groups)
+    end
+
+    def self.set_default_allowed_groups(topic)
+      topic.allowed_groups << default_allowed_groups unless topic.allowed_groups.any?
+    end
+
+    def self.default_allowed_groups
+      Group.find Group::AUTO_GROUPS[:everyone]
     end
 
     def self.prune_topic(topic)

@@ -19,9 +19,16 @@ export default Ember.Component.extend({
           if (!topic[field] && Discourse.Babble.topic) { topic[field] = Discourse.Babble.topic[field] }
         }
 
+        var humanizeGroupName = function(group) {
+          if (!group.name) { return '' }
+          return group.name.charAt(0).toUpperCase() + group.name.slice(1).replace(/_/g, ' ')
+        }
+
         var topic = Discourse.Topic.create(data)
         resetTopicField(topic, 'last_read_post_number')
         resetTopicField(topic, 'highest_post_number')
+
+        topic.details.group_names = _.map(topic.details.allowed_groups, humanizeGroupName).join(', ')
 
         var postStream = Discourse.PostStream.create(topic.post_stream)
         postStream.posts = topic.post_stream.posts
