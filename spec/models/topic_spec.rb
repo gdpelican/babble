@@ -22,16 +22,19 @@ describe ::Babble::Topic do
       t = Topic.last
       expect(t.user_id).to eq SiteSetting.babble_user_id
       expect(t.title).to eq "My new topic title"
-      expect(t.custom_fields['group_id'].to_i).to eq group.id
+      expect(t.allowed_groups).to eq [group]
       expect(t.visible).to eq false
+    end
+
+    it "creates a topic with the default group if none is specified" do
+      Babble::Topic.stubs(:default_allowed_groups).returns([group])
+      Babble::Topic.create_topic "My new topic title"
+      t = Topic.last
+      expect(t.allowed_groups).to eq [group]
     end
 
     it "does not a create a topic without a title" do
       expect { Babble::Topic.create_topic nil, group }.not_to change { Topic.count }
-    end
-
-    it "does not create a topic if no group is provided" do
-      expect { Babble::Topic.create_topic "my new topic title", nil }.not_to change { Topic.count }
     end
   end
 end
