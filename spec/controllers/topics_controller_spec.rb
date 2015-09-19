@@ -9,6 +9,10 @@ plugin.initializers.first.call
 describe ::Babble::TopicsController do
   routes { ::Babble::Engine.routes }
 
+  before do
+    SiteSetting.load_settings(File.join(Rails.root, 'plugins', 'babble', 'config', 'settings.yml'))
+  end
+
   let(:user) { log_in }
   let(:another_user) { Fabricate :user }
   let!(:topic) { Babble::Topic.create_topic "test topic for babble" }
@@ -51,6 +55,20 @@ describe ::Babble::TopicsController do
     it "does not allow posts from users who are not logged in" do
       expect { xhr :post, :post, raw: "I am a test post" }.not_to change { default_topic.posts.count }
       expect(response.status).to eq 422
+    end
+
+    it "deletes old posts in a rolling window" do
+      user
+      SiteSetting.babble_max_topic_size = 10
+
+      xhr :post, :post, raw: "I am the original post"
+      9.times { xhr :post, :post, raw: "I am a test post" }
+
+      expect { xhr :post, :post, raw: "I've stepped over the post limit!" }.not_to change { default_topic.posts.count}
+
+      post_contents = Babble::Topic.default_topic.posts.map(&:raw).uniq
+      expect(post_contents).to include "I've stepped over the post limit!"
+      expect(post_contents).to_not include "I am the original post"
     end
   end
 
