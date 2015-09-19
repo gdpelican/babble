@@ -1,6 +1,6 @@
 # name: babble
 # about: Shoutbox plugin for Discourse
-# version: 0.6.0
+# version: 0.6.1
 # authors: James Kiesel (gdpelican)
 # url: https://github.com/gdpelican/babble
 
@@ -156,7 +156,7 @@ after_initialize do
     end
 
     def self.default_allowed_groups
-      Group.find Group::AUTO_GROUPS[:everyone]
+      Group.find Group::AUTO_GROUPS[:trust_level_0]
     end
 
     def self.prune_topic(topic)
