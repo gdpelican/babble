@@ -1,6 +1,6 @@
 # name: babble
 # about: Shoutbox plugin for Discourse
-# version: 0.5.3
+# version: 0.5.4
 # authors: James Kiesel (gdpelican)
 # url: https://github.com/gdpelican/babble
 
@@ -53,8 +53,11 @@ after_initialize do
     end
 
     def post
-      Babble::PostCreator.create(current_user, post_creator_params)
-      respond_with_topic_view
+      if Babble::PostCreator.create(current_user, post_creator_params).valid?
+        respond_with_topic_view
+      else
+        render json: { errors: 'Unable to create post' }, status: :unprocessable_entity
+      end
     end
 
     private
@@ -91,6 +94,9 @@ after_initialize do
     def valid?
       setup_post
       @topic = @post.topic = Babble::Topic.default_topic
+
+      add_errors_from @post unless @post.valid?
+      @post.valid?
     end
 
     def enqueue_jobs
@@ -101,6 +107,7 @@ after_initialize do
       super
 
       TopicUser.update_last_read(@user, @topic.id, @post.post_number, PostTiming::MAX_READ_TIME_PER_BATCH)
+      Babble::Topic.prune_topic(@topic)
 
       MessageBus.publish "/babble/topic", serialized_topic
       MessageBus.publish "/babble/post", serialized_post
@@ -138,6 +145,10 @@ after_initialize do
       Topic.create! user: Babble::User.find_or_create,
                     title: title,
                     visible: false
+    end
+
+    def self.prune_topic(topic)
+      topic.posts.order(created_at: :desc).offset(SiteSetting.babble_max_topic_size).destroy_all
     end
 
     def self.default_topic
