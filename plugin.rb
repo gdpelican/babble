@@ -19,9 +19,10 @@ after_initialize do
   end
 
   Babble::Engine.routes.draw do
-    get  "/topic"                   => "topics#show"
-    get  "/topic/read/:post_number" => "topics#read"
-    post "/topic/post"              => "topics#post"
+    get  "/topics"                      => "topics#index"
+    get  "/topic/:id"                   => "topics#show"
+    get  "/topic/:id/read/:post_number" => "topics#read"
+    post "/topic/:id/post/"             => "topics#post"
   end
 
   Discourse::Application.routes.append do
@@ -35,43 +36,64 @@ after_initialize do
 
     rescue_from('StandardError') { |e| render_json_error e.message, status: 422 }
 
+    def index
+      render json: ActiveModel::ArraySerializer.new(Babble::Topic.available_topics_for(current_user), serializer: BasicTopicSerializer, root: false).as_json
+    end
+
     def show
-      if topic && topic.allowed_group_users.include?(current_user)
+      perform do
         TopicUser.find_or_create_by(user: current_user, topic: topic)
         respond_with_topic_view
-      elsif topic
-        render json: { errors: 'You cannot view this chat topic' }, status: 403
-      else
-        render json: { errors: 'No chat topics exist' }
       end
     end
 
     def read
-      # TODO: This is way easier if we don't have to hack the post read timing
-      # system to work for it. I'm not opposed to putting it back in, but just
-      # setting it to the max value for now.
-      TopicUser.update_last_read(current_user, topic.id, params[:post_number].to_i, PostTiming::MAX_READ_TIME_PER_BATCH)
-      respond_with_topic_view
+      perform do
+        TopicUser.update_last_read(current_user, topic.id, params[:post_number].to_i, PostTiming::MAX_READ_TIME_PER_BATCH)
+        respond_with_topic_view
+      end
     end
 
     def post
-      if Babble::PostCreator.create(current_user, post_creator_params).persisted?
-        respond_with_topic_view
-      else
-        render json: { errors: 'Unable to create post' }, status: :unprocessable_entity
+      perform do
+        if Babble::PostCreator.create(current_user, post_creator_params).persisted?
+          respond_with_topic_view
+        else
+          respond_with_unprocessable
+        end
       end
     end
 
     private
 
+    def perform
+      if topic.blank?
+        respond_with_not_found
+      elsif !Babble::Topic.available_topics_for(current_user).include?(topic)
+        respond_with_forbidden
+      else
+        yield
+      end
+    end
+
     def respond_with_topic_view
       render json: TopicViewSerializer.new(topic_view, scope: Guardian.new(current_user), root: false).as_json
     end
 
-    # NB: the set_default_allowed_groups block is passed for backwards compatibility,
-    # so that we never have a topic which has no allowed groups.
+    def respond_with_unprocessable
+      render json: { errors: 'Unable to create post' }, status: :unprocessable_entity
+    end
+
+    def respond_with_forbidden
+      render json: { errors: 'You are unable to view this chat topic' }, status: :forbidden
+    end
+
+    def respond_with_not_found
+      render json: { errors: 'Chat topic not found' }, status: :not_found
+    end
+
     def topic
-      @topic ||= Babble::Topic.default_topic.tap { |topic| Babble::Topic.set_default_allowed_groups(topic) if topic }
+      @topic ||= Babble::Topic.find(params[:id])
     end
 
     def topic_view
@@ -81,6 +103,7 @@ after_initialize do
 
     def post_creator_params
       {
+        topic_id:         params[:id],
         raw:              params[:raw],
         skip_validations: true
       }
@@ -95,7 +118,12 @@ after_initialize do
 
     def valid?
       setup_post
-      @topic = @post.topic = Babble::Topic.default_topic
+      @post.raw.present?
+    end
+
+    def setup_post
+      super
+      @topic = @post.topic = Topic.find_by(id: @opts[:topic_id])
     end
 
     def enqueue_jobs
@@ -108,8 +136,8 @@ after_initialize do
       TopicUser.update_last_read(@user, @topic.id, @post.post_number, PostTiming::MAX_READ_TIME_PER_BATCH)
       Babble::Topic.prune_topic(@topic)
 
-      MessageBus.publish "/babble/topic", serialized_topic
-      MessageBus.publish "/babble/post", serialized_post
+      MessageBus.publish "/babble/topic/#{@topic.id}", serialized_topic
+      MessageBus.publish "/babble/post/#{@topic.id}", serialized_post
     end
 
     private
@@ -160,14 +188,23 @@ after_initialize do
       topic.posts.order(created_at: :desc).offset(SiteSetting.babble_max_topic_size).destroy_all
     end
 
-    def self.default_topic
-      available_topics.first
+    def self.default_topic_for(user)
+      available_topics_for(user).first
     end
 
     def self.available_topics
       Babble::User.find_or_create.topics
     end
 
+    def self.available_topics_for(user)
+      available_topics.select { |topic| topic.allowed_group_users.include? user }
+    end
+
+    # NB: the set_default_allowed_groups block is passed for backwards compatibility,
+    # so that we never have a topic which has no allowed groups.
+    def self.find(id)
+      available_topics.find_by(id: id).tap { |topic| set_default_allowed_groups(topic) if topic }
+    end
   end
 
 end
