@@ -19,10 +19,11 @@ after_initialize do
   end
 
   Babble::Engine.routes.draw do
-    get  "/topics"                      => "topics#index"
-    get  "/topic/:id"                   => "topics#show"
-    get  "/topic/:id/read/:post_number" => "topics#read"
-    post "/topic/:id/post/"             => "topics#post"
+    get  "/topics"                       => "topics#index"
+    get  "/topics/default"               => "topics#default"
+    get  "/topics/:id"                   => "topics#show"
+    get  "/topics/:id/read/:post_number" => "topics#read"
+    post "/topics/:id/post"              => "topics#post"
   end
 
   Discourse::Application.routes.append do
@@ -38,6 +39,11 @@ after_initialize do
 
     def index
       render json: ActiveModel::ArraySerializer.new(Babble::Topic.available_topics_for(current_user), serializer: BasicTopicSerializer, root: false).as_json
+    end
+
+    def default
+      params[:id] = Babble::Topic.default_topic_for(current_user).try(:id)
+      show
     end
 
     def show
@@ -136,8 +142,8 @@ after_initialize do
       TopicUser.update_last_read(@user, @topic.id, @post.post_number, PostTiming::MAX_READ_TIME_PER_BATCH)
       Babble::Topic.prune_topic(@topic)
 
-      MessageBus.publish "/babble/topic/#{@topic.id}", serialized_topic
-      MessageBus.publish "/babble/post/#{@topic.id}", serialized_post
+      MessageBus.publish "/babble/topics/#{@topic.id}", serialized_topic
+      MessageBus.publish "/babble/topics/#{@topic.id}/posts", serialized_post
     end
 
     private

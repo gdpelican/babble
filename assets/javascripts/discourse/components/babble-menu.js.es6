@@ -9,7 +9,7 @@ export default Ember.Component.extend({
   lastVisiblePostInScrollableDiv: lastVisiblePostInScrollableDiv,
 
   ready: function() {
-    return this.get('visible') && Discourse.Babble && Discourse.Babble.topic
+    return this.get('visible') && Discourse.Babble && Discourse.Babble.currentTopic
   },
 
   @observes('visible')
@@ -22,8 +22,7 @@ export default Ember.Component.extend({
   _initialVisible: function() {
     if (!this.ready() || this.get('isSetup')) { return }
     this.set('isSetup',          true)
-    this.set('topic',            Discourse.Babble.topic)
-    this.set('topic.postStream', Discourse.Babble.postStream)
+    this.set('topic',            Discourse.Babble.currentTopic)
     this.setupMessageBus()
     this._visible()
   },
@@ -31,7 +30,7 @@ export default Ember.Component.extend({
   setupMessageBus: function() {
     const self = this
     var messageBus = Discourse.__container__.lookup('message-bus:main')
-    messageBus.subscribe('/babble/post', function(data) {
+    messageBus.subscribe('/babble/topics/' + self.get('topic.id') + '/posts', function(data) {
       var postStream = self.get('topic.postStream')
       var post = postStream.storePost(Discourse.Post.create(data))
       post.created_at = moment(data.created_at, 'YYYY-MM-DD HH:mm:ss Z')
@@ -54,7 +53,7 @@ export default Ember.Component.extend({
     var readOnScroll = function() {
       var lastReadPostNumber = self.lastVisiblePostInScrollableDiv(self.get('scrollContainer'))
       if (lastReadPostNumber > self.get('topic.last_read_post_number')) {
-        Discourse.ajax('/babble/topic/read/' + lastReadPostNumber + '.json').then(Discourse.Babble.refresh)
+        Discourse.ajax('/babble/topic/read/' + lastReadPostNumber + '.json').then(Discourse.Babble.setCurrentTopic)
       }
     }
 
