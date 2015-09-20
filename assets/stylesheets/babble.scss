@@ -33,6 +33,7 @@
   list-style-type: none;
   clear: both;
   word-break: break-all;
+  word-break: break-word; /* Webkit fix */
 }
 
 .babble-post:hover {
