@@ -19,6 +19,3 @@ plugins:
   babble_username:
     default: chattykathy
     hidden: true
-  babble_max_topic_size:
-    default: 200
-    hidden: true
