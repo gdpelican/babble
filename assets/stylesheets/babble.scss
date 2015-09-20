@@ -132,30 +132,41 @@ li.babble-post .babble-post-content a.mention {
 .babble-menu {
   .slide-in { // styles for slide-in menu
     box-sizing: border-box;
-    padding-bottom: 160px;
+    padding: 30px 5px 160px 5px;
     min-height: 100vh;
 
     .panel-body {
       position: relative;
     }
-    .babble-post-composer {
+    .babble-title-wrapper, .babble-post-composer {
       position: fixed;
+    }
+
+    .babble-title {
+      position: relative;
+      bottom: 20px;
     }
   }
   .drop-down { // styles for drop-down menu
     .panel-body {
+      margin-top: 30px;
       margin-bottom: 100px;
-      max-height: 300px;
+      max-height: 330px;
     }
-    .babble-post-composer {
+    .babble-title-wrapper, .babble-post-composer {
       position: absolute;
+    }
+
+    .babble-title {
+      position: relative;
+      bottom: 20px;
     }
   }
 }
 
 /* Discourse overrides */
 
-// Some (∩｀-´)⊃━☆ﾟ.*･｡ﾟ ༄ for moving the private message icon back to the correct place 
+// Some (∩｀-´)⊃━☆ﾟ.*･｡ﾟ ༄ for moving the private message icon back to the correct place
 .d-header .icons .unread-private-messages {
   left: 121px;
 }
