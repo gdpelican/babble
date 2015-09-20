@@ -35,7 +35,11 @@ export default Ember.Component.extend({
         topic.postStream = postStream
         topic.details.group_names = _.map(topic.details.allowed_groups, humanizeGroupName).join(', ')
 
+        if (Discourse.Babble.currentTopic) {
+          messageBus.unsubscribe('/babble/topics/' + Discourse.Babble.currentTopic.id)
+        }
         messageBus.subscribe('/babble/topics/' + topic.id, Discourse.Babble.setCurrentTopic)
+
         Discourse.Babble.currentTopic = topic
 
         self.set('unreadCount', topic.highest_post_number - topic.last_read_post_number)
