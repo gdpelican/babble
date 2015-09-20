@@ -33,12 +33,13 @@ export default Ember.Component.extend({
   actions: {
     selectEmoji: function() {
       var self = this
-      showSelector()
-      $('.emoji-page a').off('click').on('click', function() {
+      var c = showModal('smileypicker')      
+      c.setProperties({ composerView: self })
+      $('.smileypicker-box img').on('click', function() {
         var title = $(this).attr('title')
         self.set('text', (self.get('text') || '').trimRight() + ' :' + title + ':')
 
-        $('.emoji-modal, .emoji-modal-wrapper').remove()
+        $('.modal, .modal-outer-container').remove()
         $('body, textarea').off('keydown.emoji')
         $('.babble-post-composer textarea').focus()
         return false
