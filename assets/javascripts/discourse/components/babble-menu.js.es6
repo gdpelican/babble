@@ -20,11 +20,14 @@ export default Ember.Component.extend({
 
   @observes('visible')
   _initialVisible: function() {
-    if (!this.ready() || this.get('isSetup')) { return }
-    this.set('isSetup',          true)
-    this.set('topic',            Discourse.Babble.currentTopic)
-    this.setupMessageBus()
-    this._visible()
+    var self = this
+    if (!self.ready() || self.get('isSetup')) { return }
+    self.set('isSetup',                 true)
+    self.set('topic',                   Discourse.Babble.currentTopic)
+    self.set('availableTopics',         _.filter(Discourse.Babble.availableTopics, function(t) { return t.id != self.get('topic').id }))
+    self.set('multipleTopicsAvailable', self.get('availableTopics').length > 0)
+    self.setupMessageBus()
+    self._visible()
   },
 
   setupMessageBus: function() {
@@ -43,6 +46,7 @@ export default Ember.Component.extend({
   },
 
   _rendered: function() {
+    this._actions.viewChat(this)
     this.set('initialScroll', true)
     this.setupScrollContainer()
     this.setupTracking()
@@ -53,7 +57,7 @@ export default Ember.Component.extend({
     var readOnScroll = function() {
       var lastReadPostNumber = self.lastVisiblePostInScrollableDiv(self.get('scrollContainer'))
       if (lastReadPostNumber > self.get('topic.last_read_post_number')) {
-        Discourse.ajax('/babble/topic/read/' + lastReadPostNumber + '.json').then(Discourse.Babble.setCurrentTopic)
+        Discourse.ajax('/babble/topics/' + self.get('topic.id') + '/read/' + lastReadPostNumber + '.json').then(Discourse.Babble.setCurrentTopic)
       }
     }
 
@@ -83,5 +87,10 @@ export default Ember.Component.extend({
     } else {
       return container.get(0).scrollHeight
     }
+  },
+
+  actions: {
+    viewChat:   function(context) { (context || this).set('viewingChat', true) },
+    viewTopics: function(context) { (context || this).set('viewingChat', false); return false }
   }
 });

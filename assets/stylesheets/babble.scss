@@ -12,6 +12,13 @@
   color: #ccc;
 }
 
+.babble-context-toggle {
+  background: transparent;
+  border: 0;
+  &.for-chat { float: left; }
+  &.for-topics { float: right; }
+}
+
 /* Post styles */
 .babble-posts {
   overflow: auto;
@@ -140,6 +147,7 @@ li.babble-post .babble-post-content a.mention {
     }
     .babble-title-wrapper, .babble-post-composer {
       position: fixed;
+      z-index: -1;
     }
 
     .babble-title {

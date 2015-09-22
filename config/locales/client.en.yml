@@ -6,4 +6,7 @@ en:
       title: "Shoutbox!"
       error_message: "Please enter a message!"
       empty_topic_message: "No messages yet! Enter one below to get started."
-      visibility_message: "This chat is visible to: {{groupNames}}"
+      topic_visibility_tooltip: "This chat is visible to: {{groupNames}}"
+      view_topics_tooltip: "View other chat channels"
+      view_chat_tooltip: "Back to the current chat"
+      select_topic: "Select another chat channel"
