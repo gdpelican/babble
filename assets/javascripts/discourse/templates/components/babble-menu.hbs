@@ -4,16 +4,16 @@
         <div class="babble-title">
           {{#if viewingChat}}
             <h4 class="babble-group-title">{{currentTopic.title}}</h4>
-            <button class="babble-context-toggle">
+            <button class="babble-context-toggle normalized">
               <i class="fa fa-eye" title="{{i18n 'babble.topic_visibility_tooltip' groupNames=currentTopic.details.group_names}}"></i>
             </button>
             {{#if multipleTopicsAvailable}}
-              <button {{action 'viewTopics' bubbles=false}} class="babble-context-toggle for-topics">
+              <button {{action 'viewTopics' bubbles=false}} class="babble-context-toggle for-topics normalized">
                 <i class="fa fa-exchange" title="{{i18n 'babble.view_topics_tooltip'}}"></i>
               </button>
             {{/if}}
           {{else}}
-            <button {{action 'viewChat' bubbles=false}} class="babble-context-toggle for-chat">
+            <button {{action 'viewChat' bubbles=false}} class="babble-context-toggle for-chat normalized">
               <i class="fa fa-chevron-left" title="{{i18n 'babble.view_chat_tooltip'}}"></i>
             </button>
             <h4 class="babble-topic-switcher-title">{{i18n 'babble.select_topic'}}</h4>
@@ -36,7 +36,7 @@
       <ul class="babble-available-topics">
         {{#each topic in availableTopics}}
           <li class="babble-available-topic row">
-            <button {{action 'changeTopic' topic bubbles=false}}>
+            <button {{action 'changeTopic' topic bubbles=false}} class="normalized">
               <div class="babble-available-topic-title">{{topic.title}}</div>
             </button>
           </li>

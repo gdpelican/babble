@@ -8,10 +8,6 @@ export default Ember.Component.extend({
   isElementScrolledToBottom: isElementScrolledToBottom,
   lastVisiblePostInScrollableDiv: lastVisiblePostInScrollableDiv,
 
-  exceptCurrentTopic: function(topic) {
-    topic.id != this.get('currentTopic.id')
-  },
-
   ready: function() {
     return this.get('visible') && Discourse.Babble && Discourse.Babble.currentTopic
   },
@@ -20,12 +16,12 @@ export default Ember.Component.extend({
     return Discourse.Babble.currentTopic
   }.property('Discourse.Babble.currentTopic'),
 
-  @observes('currentTopic')
   availableTopics: function() {
-    return _.filter(Discourse.Babble.availableTopics, exceptCurrentTopic)
-  },
+    var self = this
+    return _.filter(Discourse.Babble.availableTopics, function(topic) { return topic.id != self.get('currentTopic.id') })
+  }.property('Discourse.Babble.currentTopic', 'Discourse.Babble.availableTopics'),
 
-  @observes('currentTopic')
+  @observes('currentTopic', 'availableTopics')
   multipleTopicsAvailable: function() {
     return this.get('availableTopics').length > 0
   },
@@ -41,8 +37,6 @@ export default Ember.Component.extend({
     var self = this
     if (!self.ready() || self.get('isSetup')) { return }
     self.set('isSetup',                 true)
-    self.set('availableTopics',         _.filter(Discourse.Babble.availableTopics, function(t) { return t.id != self.get('currentTopic.id') }))
-    self.set('multipleTopicsAvailable', self.get('availableTopics').length > 0)
     self.setupMessageBus()
     self._visible()
   },
