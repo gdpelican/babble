@@ -16,6 +16,10 @@ export default Ember.Component.extend({
     return Discourse.Babble.currentTopic
   }.property('Discourse.Babble.currentTopic'),
 
+  latestPost: function() {
+    return Discourse.Babble.latestPost
+  }.property('Discourse.Babble.latestPost'),
+
   availableTopics: function() {
     var self = this
     return _.filter(Discourse.Babble.availableTopics, function(topic) { return topic.id != self.get('currentTopic.id') })
@@ -32,15 +36,6 @@ export default Ember.Component.extend({
     Ember.run.scheduleOnce('afterRender', this, this._rendered)
   },
 
-  @observes('visible', 'currentTopic')
-  _initialVisible: function() {
-    var self = this
-    if (!self.ready() || self.get('isSetup')) { return }
-    self.set('isSetup',                 true)
-    self.setupMessageBus()
-    self._visible()
-  },
-
   @observes('currentTopic')
   _rendered: function() {
     this._actions.viewChat(this)
@@ -49,19 +44,18 @@ export default Ember.Component.extend({
     this.setupTracking()
   },
 
-  setupMessageBus: function() {
-    const self = this
-    var messageBus = Discourse.__container__.lookup('message-bus:main')
-    messageBus.subscribe('/babble/topics/' + self.get('currentTopic.id') + '/posts', function(data) {
-      var postStream = self.get('currentTopic.postStream')
-      var post = postStream.storePost(Discourse.Post.create(data))
-      post.created_at = moment(data.created_at, 'YYYY-MM-DD HH:mm:ss Z')
-      postStream.appendPost(post)
+  @observes('latestPost')
+  messageBusPostCallback: function(context) {
+    var scrolledToBottom = this.isElementScrolledToBottom(this.get('scrollContainer'))
+    var userIsAuthor = Discourse.User.current().id == Discourse.Babble.latestPost.user_id
+    if (scrolledToBottom || userIsAuthor) { this.scroll() }
+  },
 
-      var scrolledToBottom = self.isElementScrolledToBottom(self.get('scrollContainer'))
-      var userIsAuthor = Discourse.User.current().id == post.user_id
-      if (scrolledToBottom || userIsAuthor) { self.scroll() }
-    })
+  setupScrollContainer: function() {
+    this.set('scrollContainer', $('.babble-menu').find('.panel-body'))
+    if (this.get('scrollContainer').get(0)) {
+      Ember.run.next(this, this.scroll)
+    }
   },
 
   setupTracking: function() {
@@ -75,13 +69,6 @@ export default Ember.Component.extend({
 
     self.get('scrollContainer').off('scroll')
     self.get('scrollContainer').on('scroll', debounce(readOnScroll, 500))
-  },
-
-  setupScrollContainer: function() {
-    this.set('scrollContainer', $('.babble-menu').find('.panel-body'))
-    if (this.get('scrollContainer').get(0)) {
-      Ember.run.next(this, this.scroll)
-    }
   },
 
   scroll: function() {

@@ -37,8 +37,16 @@ export default Ember.Component.extend({
 
         if (Discourse.Babble.currentTopic) {
           messageBus.unsubscribe('/babble/topics/' + Discourse.Babble.currentTopic.id)
+          messageBus.unsubscribe('/babble/topics/' + Discourse.Babble.currentTopic.id + '/posts')
         }
         messageBus.subscribe('/babble/topics/' + topic.id, Discourse.Babble.setCurrentTopic)
+        messageBus.subscribe('/babble/topics/' + topic.id + '/posts', function(data) {
+          var postStream = this.get('currentTopic.postStream')
+          var post = postStream.storePost(Discourse.Post.create(data))
+          post.created_at = moment(data.created_at, 'YYYY-MM-DD HH:mm:ss Z')
+          postStream.appendPost(post)
+          Discourse.Babble.latestPost = post
+        })
 
         Ember.set(Discourse.Babble, 'currentTopic', topic)
 
