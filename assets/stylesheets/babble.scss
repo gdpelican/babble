@@ -13,8 +13,6 @@
 }
 
 .babble-context-toggle {
-  background: transparent;
-  border: 0;
   &.for-chat { float: left; }
   &.for-topics { float: right; }
 }
@@ -182,6 +180,11 @@ li.babble-post .babble-post-content a.mention {
 }
 
 /* Discourse overrides */
+
+.babble-chat button {
+  background: transparent;
+  border: 0;
+}
 
 // Some (∩｀-´)⊃━☆ﾟ.*･｡ﾟ ༄ for moving the private message icon back to the correct place
 .d-header .icons .unread-private-messages {

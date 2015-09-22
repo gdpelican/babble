@@ -40,7 +40,7 @@ export default Ember.Component.extend({
         }
         messageBus.subscribe('/babble/topics/' + topic.id, Discourse.Babble.setCurrentTopic)
 
-        Discourse.Babble.currentTopic = topic
+        Ember.set(Discourse.Babble, 'currentTopic', topic)
 
         self.set('unreadCount', topic.highest_post_number - topic.last_read_post_number)
       }

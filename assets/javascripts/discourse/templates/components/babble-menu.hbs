@@ -35,7 +35,11 @@
     {{else}}
       <ul class="babble-available-topics">
         {{#each topic in availableTopics}}
-          {{babble-topic topic=topic}}
+          <li class="babble-available-topic row">
+            <button {{action 'changeTopic' topic bubbles=false}}>
+              <div class="babble-available-topic-title">{{topic.title}}</div>
+            </button>
+          </li>
         {{/each}}
       </ul>
     {{/if}}

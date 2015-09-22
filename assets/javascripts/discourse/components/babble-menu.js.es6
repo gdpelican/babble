@@ -8,8 +8,26 @@ export default Ember.Component.extend({
   isElementScrolledToBottom: isElementScrolledToBottom,
   lastVisiblePostInScrollableDiv: lastVisiblePostInScrollableDiv,
 
+  exceptCurrentTopic: function(topic) {
+    topic.id != this.get('currentTopic.id')
+  },
+
   ready: function() {
     return this.get('visible') && Discourse.Babble && Discourse.Babble.currentTopic
+  },
+
+  currentTopic: function() {
+    return Discourse.Babble.currentTopic
+  }.property('Discourse.Babble.currentTopic'),
+
+  @observes('currentTopic')
+  availableTopics: function() {
+    return _.filter(Discourse.Babble.availableTopics, exceptCurrentTopic)
+  },
+
+  @observes('currentTopic')
+  multipleTopicsAvailable: function() {
+    return this.get('availableTopics').length > 0
   },
 
   @observes('visible')
@@ -18,16 +36,23 @@ export default Ember.Component.extend({
     Ember.run.scheduleOnce('afterRender', this, this._rendered)
   },
 
-  @observes('visible')
+  @observes('visible', 'currentTopic')
   _initialVisible: function() {
     var self = this
     if (!self.ready() || self.get('isSetup')) { return }
     self.set('isSetup',                 true)
-    self.set('currentTopic',            Discourse.Babble.currentTopic)
     self.set('availableTopics',         _.filter(Discourse.Babble.availableTopics, function(t) { return t.id != self.get('currentTopic.id') }))
     self.set('multipleTopicsAvailable', self.get('availableTopics').length > 0)
     self.setupMessageBus()
     self._visible()
+  },
+
+  @observes('currentTopic')
+  _rendered: function() {
+    this._actions.viewChat(this)
+    this.set('initialScroll', true)
+    this.setupScrollContainer()
+    this.setupTracking()
   },
 
   setupMessageBus: function() {
@@ -43,13 +68,6 @@ export default Ember.Component.extend({
       var userIsAuthor = Discourse.User.current().id == post.user_id
       if (scrolledToBottom || userIsAuthor) { self.scroll() }
     })
-  },
-
-  _rendered: function() {
-    this._actions.viewChat(this)
-    this.set('initialScroll', true)
-    this.setupScrollContainer()
-    this.setupTracking()
   },
 
   setupTracking: function() {
@@ -90,7 +108,8 @@ export default Ember.Component.extend({
   },
 
   actions: {
-    viewChat:   function(context) { (context || this).set('viewingChat', true) },
-    viewTopics: function(context) { (context || this).set('viewingChat', false); return false }
+    viewChat:    function(context) { (context || this).set('viewingChat', true) },
+    viewTopics:  function(context) { (context || this).set('viewingChat', false) },
+    changeTopic: function(topic)   { Discourse.ajax('/babble/topics/' + topic.id + '.json').then(Discourse.Babble.setCurrentTopic) }
   }
 });
