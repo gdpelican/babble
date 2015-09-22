@@ -3,8 +3,10 @@
       <div class="babble-title-wrapper">
         <div class="babble-title">
           {{#if viewingChat}}
-            <h4 class="babble-group-title">{{topic.title}}</h4>
-            <i class="fa fa-eye" title="{{i18n 'babble.topic_visibility_tooltip' groupNames=topic.details.group_names}}"></i>
+            <h4 class="babble-group-title">{{currentTopic.title}}</h4>
+            <button class="babble-context-toggle">
+              <i class="fa fa-eye" title="{{i18n 'babble.topic_visibility_tooltip' groupNames=currentTopic.details.group_names}}"></i>
+            </button>
             {{#if multipleTopicsAvailable}}
               <button {{action 'viewTopics' bubbles=false}} class="babble-context-toggle for-topics">
                 <i class="fa fa-exchange" title="{{i18n 'babble.view_topics_tooltip'}}"></i>
@@ -21,22 +23,19 @@
 
     {{#if viewingChat}}
       <ul class="babble-posts">
-        {{#unless topic.postStream.posts}}
+        {{#unless currentTopic.postStream.posts}}
           <li class="babble-empty-topic-message">{{i18n 'babble.empty_topic_message'}}</li>
         {{/unless}}
-        {{#each post in topic.postStream.posts}}
-          {{babble-post post=post topic=topic}}
+        {{#each post in currentTopic.postStream.posts}}
+          {{babble-post post=post topic=currentTopic}}
         {{/each}}
-        {{conditional-loading-spinner condition=topic.postStream.loadingBelow}}
+        {{conditional-loading-spinner condition=currentTopic.postStream.loadingBelow}}
       </ul>
-      {{babble-composer topic=topic}}
+      {{babble-composer topic=currentTopic}}
     {{else}}
       <ul class="babble-available-topics">
-        {{#each t in availableTopics}}
-          <li class="babble-available-topic">
-            <div>{{t.title}}</div>
-            <div>{{t.details.group_names}}</div>
-          </li>
+        {{#each topic in availableTopics}}
+          {{babble-topic topic=topic}}
         {{/each}}
       </ul>
     {{/if}}

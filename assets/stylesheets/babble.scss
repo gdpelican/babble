@@ -41,7 +41,7 @@
   clear: both;
 }
 
-.babble-post:hover {
+.babble-post:hover, .babble-available-topic:hover {
   background-color: #f8f8ff;
 }
 
@@ -98,6 +98,15 @@ li.babble-post .babble-post-content a.mention {
 .babble-post .read-state {
   position: static;
   display: inline-block;
+}
+
+/* Available topic styles */
+
+.babble-available-topic {
+  line-height: 35px;
+  cursor: pointer;
+  font-weight: bold;
+  padding-left: 15px;
 }
 
 /* Composer styles */

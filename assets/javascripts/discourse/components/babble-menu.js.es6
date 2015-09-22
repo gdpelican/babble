@@ -23,8 +23,8 @@ export default Ember.Component.extend({
     var self = this
     if (!self.ready() || self.get('isSetup')) { return }
     self.set('isSetup',                 true)
-    self.set('topic',                   Discourse.Babble.currentTopic)
-    self.set('availableTopics',         _.filter(Discourse.Babble.availableTopics, function(t) { return t.id != self.get('topic').id }))
+    self.set('currentTopic',            Discourse.Babble.currentTopic)
+    self.set('availableTopics',         _.filter(Discourse.Babble.availableTopics, function(t) { return t.id != self.get('currentTopic.id') }))
     self.set('multipleTopicsAvailable', self.get('availableTopics').length > 0)
     self.setupMessageBus()
     self._visible()
@@ -33,8 +33,8 @@ export default Ember.Component.extend({
   setupMessageBus: function() {
     const self = this
     var messageBus = Discourse.__container__.lookup('message-bus:main')
-    messageBus.subscribe('/babble/topics/' + self.get('topic.id') + '/posts', function(data) {
-      var postStream = self.get('topic.postStream')
+    messageBus.subscribe('/babble/topics/' + self.get('currentTopic.id') + '/posts', function(data) {
+      var postStream = self.get('currentTopic.postStream')
       var post = postStream.storePost(Discourse.Post.create(data))
       post.created_at = moment(data.created_at, 'YYYY-MM-DD HH:mm:ss Z')
       postStream.appendPost(post)
@@ -56,8 +56,8 @@ export default Ember.Component.extend({
     const self = this
     var readOnScroll = function() {
       var lastReadPostNumber = self.lastVisiblePostInScrollableDiv(self.get('scrollContainer'))
-      if (lastReadPostNumber > self.get('topic.last_read_post_number')) {
-        Discourse.ajax('/babble/topics/' + self.get('topic.id') + '/read/' + lastReadPostNumber + '.json').then(Discourse.Babble.setCurrentTopic)
+      if (lastReadPostNumber > self.get('currentTopic.last_read_post_number')) {
+        Discourse.ajax('/babble/topics/' + self.get('currentTopic.id') + '/read/' + lastReadPostNumber + '.json').then(Discourse.Babble.setCurrentTopic)
       }
     }
 
