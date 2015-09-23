@@ -9,64 +9,63 @@ export default Ember.Component.extend({
   lastVisiblePostInScrollableDiv: lastVisiblePostInScrollableDiv,
 
   ready: function() {
-    return this.get('visible') && Discourse.Babble && Discourse.Babble.topic
+    return this.get('visible') && Discourse.Babble && Discourse.Babble.currentTopic
+  },
+
+  currentTopicId: function() {
+    return Discourse.Babble.currentTopicId
+  }.property('Discourse.Babble.currentTopicId'),
+
+  currentTopic: function() {
+    return Discourse.Babble.currentTopic
+  }.property('Discourse.Babble.currentTopic'),
+
+  availableTopics: function() {
+    var currentTopicId = this.get('currentTopicId')
+    return _.filter(Discourse.Babble.availableTopics, function(topic) { return topic.id != currentTopicId })
+  }.property('Discourse.Babble.currentTopicId', 'Discourse.Babble.availableTopics'),
+
+  @observes('Discourse.Babble.currentTopic', 'availableTopics')
+  multipleTopicsAvailable: function() {
+    return this.get('availableTopics').length > 0
   },
 
   @observes('visible')
   _visible: function() {
     if (!this.ready()) { return }
-    Ember.run.scheduleOnce('afterRender', this, this._rendered)
+    Ember.run.scheduleOnce('afterRender', this, this.topicChanged)
   },
 
-  @observes('visible')
-  _initialVisible: function() {
-    if (!this.ready() || this.get('isSetup')) { return }
-    this.set('isSetup',          true)
-    this.set('topic',            Discourse.Babble.topic)
-    this.set('topic.postStream', Discourse.Babble.postStream)
-    this.setupMessageBus()
-    this._visible()
-  },
-
-  setupMessageBus: function() {
-    const self = this
-    var messageBus = Discourse.__container__.lookup('message-bus:main')
-    messageBus.subscribe('/babble/post', function(data) {
-      var postStream = self.get('topic.postStream')
-      var post = postStream.storePost(Discourse.Post.create(data))
-      post.created_at = moment(data.created_at, 'YYYY-MM-DD HH:mm:ss Z')
-      postStream.appendPost(post)
-
-      var scrolledToBottom = self.isElementScrolledToBottom(self.get('scrollContainer'))
-      var userIsAuthor = Discourse.User.current().id == post.user_id
-      if (scrolledToBottom || userIsAuthor) { self.scroll() }
-    })
-  },
-
-  _rendered: function() {
+  @observes('Discourse.Babble.currentTopicId')
+  topicChanged: function() {
+    this._actions.viewChat(this)
     this.set('initialScroll', true)
-    this.setupScrollContainer()
-    this.setupTracking()
+    this.setupScrolling()
   },
 
-  setupTracking: function() {
+  @observes('Discourse.Babble.latestPost')
+  messageBusPostCallback: function() {
+    var scrolledToBottom = this.isElementScrolledToBottom(this.get('scrollContainer'))
+    if (scrolledToBottom || Discourse.Babble.lastPostIsMine()) { this.scroll() }
+  },
+
+  setupScrolling: function() {
     const self = this
+    self.set('scrollContainer', $('.babble-menu').find('.panel-body'))
+
     var readOnScroll = function() {
       var lastReadPostNumber = self.lastVisiblePostInScrollableDiv(self.get('scrollContainer'))
-      if (lastReadPostNumber > self.get('topic.last_read_post_number')) {
-        Discourse.ajax('/babble/topic/read/' + lastReadPostNumber + '.json').then(Discourse.Babble.refresh)
+      if (lastReadPostNumber > self.get('currentTopic.last_read_post_number')) {
+        Discourse.ajax('/babble/topics/' + self.get('currentTopicId') + '/read/' + lastReadPostNumber + '.json').then(Discourse.Babble.setCurrentTopic)
       }
+    }
+
+    if (self.get('scrollContainer').get(0)) {
+      Ember.run.next(self, self.scroll)
     }
 
     self.get('scrollContainer').off('scroll')
     self.get('scrollContainer').on('scroll', debounce(readOnScroll, 500))
-  },
-
-  setupScrollContainer: function() {
-    this.set('scrollContainer', $('.babble-menu').find('.panel-body'))
-    if (this.get('scrollContainer').get(0)) {
-      Ember.run.next(this, this.scroll)
-    }
   },
 
   scroll: function() {
@@ -84,5 +83,11 @@ export default Ember.Component.extend({
     } else {
       return container.get(0).scrollHeight
     }
+  },
+
+  actions: {
+    viewChat:    function(context) { (context || this).set('viewingChat', true) },
+    viewTopics:  function(context) { (context || this).set('viewingChat', false) },
+    changeTopic: function(topic)   { Discourse.ajax('/babble/topics/' + topic.id + '.json').then(Discourse.Babble.setCurrentTopic) }
   }
 });

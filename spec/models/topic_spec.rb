@@ -8,12 +8,28 @@ plugin.initializers.first.call
 
 describe ::Babble::Topic do
 
-  let(:user) { log_in }
+  let(:user) { Fabricate :user }
   let(:another_user) { Fabricate :user }
   let(:group) { Fabricate :group }
+  let(:another_group) { Fabricate :group, name: 'another_group' }
 
   before do
     SiteSetting.load_settings(File.join(Rails.root, 'plugins', 'babble', 'config', 'settings.yml'))
+  end
+
+  describe "available_topics_for" do
+    let! (:topic) { Babble::Topic.create_topic "A topic I should see!", group }
+    let! (:another_topic) { Babble::Topic.create_topic "A topic I should not see!", another_group }
+
+    before { group.users << user }
+
+    it "retrieves a topic available to the user" do
+      expect(Babble::Topic.available_topics_for(user)).to include topic
+    end
+
+    it "does not retrieve topics not available to the user" do
+      expect(Babble::Topic.available_topics_for(user)).to_not include another_topic
+    end
   end
 
   describe "create_topic" do

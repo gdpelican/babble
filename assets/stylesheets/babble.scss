@@ -12,6 +12,11 @@
   color: #ccc;
 }
 
+.babble-context-toggle {
+  &.for-chat { float: left; }
+  &.for-topics { float: right; }
+}
+
 /* Post styles */
 .babble-posts {
   overflow: auto;
@@ -34,7 +39,7 @@
   clear: both;
 }
 
-.babble-post:hover {
+.babble-post:hover, .babble-available-topic:hover {
   background-color: #f8f8ff;
 }
 
@@ -93,6 +98,15 @@ li.babble-post .babble-post-content a.mention {
   display: inline-block;
 }
 
+/* Available topic styles */
+
+.babble-available-topic {
+  line-height: 35px;
+  cursor: pointer;
+  font-weight: bold;
+  padding-left: 15px;
+}
+
 /* Composer styles */
 
 .babble-post-composer {
@@ -140,6 +154,7 @@ li.babble-post .babble-post-content a.mention {
     }
     .babble-title-wrapper, .babble-post-composer {
       position: fixed;
+      z-index: -1;
     }
 
     .babble-title {
@@ -165,6 +180,11 @@ li.babble-post .babble-post-content a.mention {
 }
 
 /* Discourse overrides */
+
+.babble-chat button.normalized {
+  background: transparent;
+  border: 0;
+}
 
 // Some (∩｀-´)⊃━☆ﾟ.*･｡ﾟ ༄ for moving the private message icon back to the correct place
 .d-header .icons .unread-private-messages {

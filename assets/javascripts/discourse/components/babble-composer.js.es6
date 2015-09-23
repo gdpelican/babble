@@ -55,11 +55,11 @@ export default Ember.Component.extend({
       }
 
       self.set('processing', true)
-      Discourse.ajax("/babble/topic/post", {
+      Discourse.ajax("/babble/topics/" + self.get('topic.id') + "/post", {
         type: 'POST',
         data: { raw: self.get('text').trim() }
       })
-      .then(Discourse.Babble.refresh)
+      .then(Discourse.Babble.handleNewPost)
       .finally(function() {
         self.set('text', '')
         self.set('processing', false)
