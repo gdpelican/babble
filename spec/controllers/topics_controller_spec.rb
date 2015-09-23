@@ -106,6 +106,7 @@ describe ::Babble::TopicsController do
       9.times { make_a_post(topic) }
 
       expect { xhr :post, :post, raw: "I've stepped over the post limit!", id: topic.id }.not_to change { topic.posts.count}
+      expect(response.status).to eq 200
 
       post_contents = topic.posts.map(&:raw).uniq
       expect(post_contents).to include "I've stepped over the post limit!"
