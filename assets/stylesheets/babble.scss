@@ -170,6 +170,7 @@ li.babble-post .babble-post-content a.mention {
     }
     .babble-title-wrapper, .babble-post-composer {
       position: absolute;
+      z-index: -1;
     }
 
     .babble-title {
