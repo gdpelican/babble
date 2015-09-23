@@ -12,6 +12,10 @@ export default Ember.Component.extend({
     return this.get('visible') && Discourse.Babble && Discourse.Babble.currentTopic
   },
 
+  currentTopicId: function() {
+    return Discourse.Babble.currentTopicId
+  }.property('Discourse.Babble.currentTopicId'),
+
   currentTopic: function() {
     return Discourse.Babble.currentTopic
   }.property('Discourse.Babble.currentTopic'),
@@ -21,9 +25,9 @@ export default Ember.Component.extend({
   }.property('Discourse.Babble.latestPost'),
 
   availableTopics: function() {
-    var self = this
-    return _.filter(Discourse.Babble.availableTopics, function(topic) { return topic.id != self.get('currentTopic.id') })
-  }.property('Discourse.Babble.currentTopic', 'Discourse.Babble.availableTopics'),
+    var currentTopicId = this.get('currentTopicId')
+    return _.filter(Discourse.Babble.availableTopics, function(topic) { return topic.id != currentTopicId })
+  }.property('Discourse.Babble.currentTopicId', 'Discourse.Babble.availableTopics'),
 
   @observes('currentTopic', 'availableTopics')
   multipleTopicsAvailable: function() {
@@ -33,38 +37,36 @@ export default Ember.Component.extend({
   @observes('visible')
   _visible: function() {
     if (!this.ready()) { return }
-    Ember.run.scheduleOnce('afterRender', this, this._rendered)
+    Ember.run.scheduleOnce('afterRender', this, this.topicChanged)
   },
 
-  @observes('currentTopic')
-  _rendered: function() {
+  @observes('currentTopicId')
+  topicChanged: function() {
     this._actions.viewChat(this)
     this.set('initialScroll', true)
-    this.setupScrollContainer()
-    this.setupTracking()
+    this.setupScrolling()
   },
 
   @observes('latestPost')
-  messageBusPostCallback: function(context) {
+  messageBusPostCallback: function() {
     var scrolledToBottom = this.isElementScrolledToBottom(this.get('scrollContainer'))
     var userIsAuthor = Discourse.User.current().id == Discourse.Babble.latestPost.user_id
     if (scrolledToBottom || userIsAuthor) { this.scroll() }
   },
 
-  setupScrollContainer: function() {
-    this.set('scrollContainer', $('.babble-menu').find('.panel-body'))
-    if (this.get('scrollContainer').get(0)) {
-      Ember.run.next(this, this.scroll)
-    }
-  },
-
-  setupTracking: function() {
+  setupScrolling: function() {
     const self = this
+    self.set('scrollContainer', $('.babble-menu').find('.panel-body'))
+
     var readOnScroll = function() {
       var lastReadPostNumber = self.lastVisiblePostInScrollableDiv(self.get('scrollContainer'))
       if (lastReadPostNumber > self.get('currentTopic.last_read_post_number')) {
         Discourse.ajax('/babble/topics/' + self.get('currentTopic.id') + '/read/' + lastReadPostNumber + '.json').then(Discourse.Babble.setCurrentTopic)
       }
+    }
+
+    if (self.get('scrollContainer').get(0)) {
+      Ember.run.next(self, self.scroll)
     }
 
     self.get('scrollContainer').off('scroll')

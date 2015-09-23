@@ -41,21 +41,26 @@ export default Ember.Component.extend({
           messageBus.unsubscribe('/babble/topics/' + Discourse.Babble.currentTopic.id + '/posts')
         }
         messageBus.subscribe('/babble/topics/' + topic.id, Discourse.Babble.setCurrentTopic)
-        messageBus.subscribe('/babble/topics/' + topic.id + '/posts', function(data) {
-          var postStream = this.get('currentTopic.postStream')
-          var post = postStream.storePost(Discourse.Post.create(data))
-          post.created_at = moment(data.created_at, 'YYYY-MM-DD HH:mm:ss Z')
-          postStream.appendPost(post)
-          Discourse.Babble.latestPost = post
-        })
+        messageBus.subscribe('/babble/topics/' + topic.id + '/posts', Discourse.Babble.handleNewPost)
 
+        if (topic.id != Discourse.Babble.currentTopicId) {
+          Ember.set(Discourse.Babble, 'currentTopicId', topic.id)
+        }
         Ember.set(Discourse.Babble, 'currentTopic', topic)
 
         self.set('unreadCount', topic.highest_post_number - topic.last_read_post_number)
       }
 
       Discourse.Babble.setAvailableTopics = function(data) {
-        Discourse.Babble.availableTopics = data['topics'] || []
+        Ember.set(Discourse.Babble, 'availableTopics', data['topics'] || [])
+      }
+
+      Discourse.Babble.handleNewPost = function(data) {
+        var postStream = Discourse.Babble.currentTopic.postStream
+        var post = postStream.storePost(Discourse.Post.create(data))
+        post.created_at = moment(data.created_at, 'YYYY-MM-DD HH:mm:ss Z')
+        postStream.appendPost(post)
+        Ember.set(Discourse.Babble, 'latestPost', post)
       }
     }
 
