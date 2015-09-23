@@ -19,3 +19,5 @@ plugins:
   babble_username:
     default: chattykathy
     hidden: true
+  babble_category_name:
+    default: chat
