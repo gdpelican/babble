@@ -59,7 +59,7 @@ export default Ember.Component.extend({
         type: 'POST',
         data: { raw: self.get('text').trim() }
       })
-      .then(Discourse.Babble.setCurrentTopic)
+      .then(Discourse.Babble.handleNewPost)
       .finally(function() {
         self.set('text', '')
         self.set('processing', false)

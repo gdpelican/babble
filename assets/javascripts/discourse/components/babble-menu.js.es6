@@ -20,16 +20,12 @@ export default Ember.Component.extend({
     return Discourse.Babble.currentTopic
   }.property('Discourse.Babble.currentTopic'),
 
-  latestPost: function() {
-    return Discourse.Babble.latestPost
-  }.property('Discourse.Babble.latestPost'),
-
   availableTopics: function() {
     var currentTopicId = this.get('currentTopicId')
     return _.filter(Discourse.Babble.availableTopics, function(topic) { return topic.id != currentTopicId })
   }.property('Discourse.Babble.currentTopicId', 'Discourse.Babble.availableTopics'),
 
-  @observes('currentTopic', 'availableTopics')
+  @observes('Discourse.Babble.currentTopic', 'availableTopics')
   multipleTopicsAvailable: function() {
     return this.get('availableTopics').length > 0
   },
@@ -40,14 +36,14 @@ export default Ember.Component.extend({
     Ember.run.scheduleOnce('afterRender', this, this.topicChanged)
   },
 
-  @observes('currentTopicId')
+  @observes('Discourse.Babble.currentTopicId')
   topicChanged: function() {
     this._actions.viewChat(this)
     this.set('initialScroll', true)
     this.setupScrolling()
   },
 
-  @observes('latestPost')
+  @observes('Discourse.Babble.latestPost')
   messageBusPostCallback: function() {
     var scrolledToBottom = this.isElementScrolledToBottom(this.get('scrollContainer'))
     var userIsAuthor = Discourse.User.current().id == Discourse.Babble.latestPost.user_id
@@ -61,7 +57,7 @@ export default Ember.Component.extend({
     var readOnScroll = function() {
       var lastReadPostNumber = self.lastVisiblePostInScrollableDiv(self.get('scrollContainer'))
       if (lastReadPostNumber > self.get('currentTopic.last_read_post_number')) {
-        Discourse.ajax('/babble/topics/' + self.get('currentTopic.id') + '/read/' + lastReadPostNumber + '.json').then(Discourse.Babble.setCurrentTopic)
+        Discourse.ajax('/babble/topics/' + self.get('currentTopicId') + '/read/' + lastReadPostNumber + '.json').then(Discourse.Babble.setCurrentTopic)
       }
     }
 

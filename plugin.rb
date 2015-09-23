@@ -62,11 +62,7 @@ after_initialize do
 
     def post
       perform do
-        if Babble::PostCreator.create(current_user, post_creator_params).persisted?
-          respond_with_topic_view
-        else
-          respond_with_unprocessable
-        end
+        respond_with_post
       end
     end
 
@@ -86,8 +82,12 @@ after_initialize do
       render json: TopicViewSerializer.new(topic_view, scope: Guardian.new(current_user), root: false).as_json
     end
 
-    def respond_with_unprocessable
-      render json: { errors: 'Unable to create post' }, status: :unprocessable_entity
+    def respond_with_post
+      if created_post.persisted?
+        render json: PostSerializer.new(created_post, scope: guardian, root: false).as_json
+      else
+        render json: { errors: 'Unable to create post' }, status: :unprocessable_entity
+      end
     end
 
     def respond_with_forbidden
@@ -100,6 +100,10 @@ after_initialize do
 
     def topic
       @topic ||= Babble::Topic.find(params[:id])
+    end
+
+    def created_post
+      @created_post ||= Babble::PostCreator.create(current_user, post_creator_params)
     end
 
     def topic_view
