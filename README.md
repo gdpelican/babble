@@ -13,7 +13,8 @@ Installation:
    - [sudo] ./launcher enter app
    - rails c
  - In the rails console, enter: Babble::Topic.create_topic("your_babble_topic_name")
-   - You should get green text in response to the above command.
+   - You should get green text in response to the above command, which starts off with `<Topic id: (a number)`
+   - (If you see `<Topic id: nil`, try using a longer topic name; it needs to be at least as long as the `min_topic_title_length` site setting on your instance, which defaults to 15 characters.)
  - Exit the console by typing 'exit'. Exit the container by typing 'exit' again.
 
 Things that work great:

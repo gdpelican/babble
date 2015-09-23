@@ -7,6 +7,7 @@ export default Ember.Component.extend({
   _init: function() {
     const self = this
     const messageBus = Discourse.__container__.lookup('message-bus:main')
+    self.set('babbleIcon', Discourse.SiteSettings.babble_icon)
 
     if (!Discourse.Babble) {
       Discourse.Babble = {}
