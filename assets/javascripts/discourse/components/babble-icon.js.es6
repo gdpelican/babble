@@ -14,14 +14,18 @@ export default Ember.Component.extend({
     return Discourse.Babble.currentTopic
   }.property('Discourse.Babble.currentTopic'),
 
-  latestPost: function() {
-    return Discourse.Babble.latestPost
-  }.property('Discourse.Babble.latestPost'),
-
   @observes('currentTopicId')
   babbleEnabled: function() {
     return Discourse.SiteSettings.babble_enabled && this.get('currentTopicId')
   },
+
+  unreadCount: function() {
+    if (Discourse.Babble.unreadCount > 0) {
+      return Discourse.Babble.unreadCount
+    } else {
+      return null
+    }
+  }.property('Discourse.Babble.unreadCount'),
 
   _init: function() {
     if (!Discourse.Babble) { Discourse.Babble = initializeBabble }

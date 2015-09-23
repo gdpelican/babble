@@ -46,8 +46,7 @@ export default Ember.Component.extend({
   @observes('Discourse.Babble.latestPost')
   messageBusPostCallback: function() {
     var scrolledToBottom = this.isElementScrolledToBottom(this.get('scrollContainer'))
-    var userIsAuthor = Discourse.User.current().id == Discourse.Babble.latestPost.user_id
-    if (scrolledToBottom || userIsAuthor) { this.scroll() }
+    if (scrolledToBottom || Discourse.Babble.lastPostIsMine()) { this.scroll() }
   },
 
   setupScrolling: function() {

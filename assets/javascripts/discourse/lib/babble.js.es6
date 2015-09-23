@@ -45,6 +45,7 @@ export default Ember.Object.create({
       topic.postStream = self.get('currentTopic.postStream')
     }
 
+    self.set('unreadCount', topic.highest_post_number - topic.last_read_post_number)
     self.set('currentTopic', topic)
   },
 
@@ -52,11 +53,25 @@ export default Ember.Object.create({
     Discourse.Babble.set('availableTopics', (data || {}).topics || [])
   },
 
+  lastPostIsMine: function() {
+    return Discourse.Babble.get('latestPost.user_id') == Discourse.User.current().id
+  },
+
   handleNewPost: function(data) {
-    var postStream = Discourse.Babble.get('currentTopic.postStream')
+    const self = Discourse.Babble
+
+    var postStream = self.get('currentTopic.postStream')
     var post = postStream.storePost(Discourse.Post.create(data))
     post.created_at = moment(data.created_at, 'YYYY-MM-DD HH:mm:ss Z')
     postStream.appendPost(post)
-    Discourse.Babble.set('latestPost', post)
+
+    self.set('latestPost', post)
+
+    if (self.lastPostIsMine()) {
+      self.set('unreadCount', 0)
+    } else {
+      var topic = self.get('currentTopic')
+      self.set('unreadCount', topic.highest_post_number - topic.last_read_post_number)
+    }
   }
 })
