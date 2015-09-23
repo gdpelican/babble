@@ -25,10 +25,9 @@ export default Ember.Component.extend({
     return _.filter(Discourse.Babble.availableTopics, function(topic) { return topic.id != currentTopicId })
   }.property('Discourse.Babble.currentTopicId', 'Discourse.Babble.availableTopics'),
 
-  @observes('Discourse.Babble.currentTopic', 'availableTopics')
   multipleTopicsAvailable: function() {
     return this.get('availableTopics').length > 0
-  },
+  }.property('availableTopics.length'),
 
   @observes('visible')
   _visible: function() {
