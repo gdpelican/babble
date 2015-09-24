@@ -7,7 +7,7 @@ Currently still under development!
 
 #### Demo
 
-Check out a live instance of Discourse with Babble installed on it here: [http://www.discourse-babble.com](http://www.discourse-babble.com)
+Check out a live instance of Discourse with Babble installed on it here: [http://discourse-babble.com](http://discourse-babble.com)
 (You'll have to make an account to see the chat)
 
 #### Installation
