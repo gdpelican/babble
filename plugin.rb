@@ -1,6 +1,6 @@
 # name: babble
 # about: Shoutbox plugin for Discourse
-# version: 0.7.1
+# version: 0.7.2
 # authors: James Kiesel (gdpelican)
 # url: https://github.com/gdpelican/babble
 
@@ -185,9 +185,11 @@ after_initialize do
   class ::Babble::Topic
 
     def self.create_topic(title, *groups)
-      Topic.create user: Babble::User.find_or_create,
-                   title: title,
-                   visible: false,
+      return unless title
+      Topic.create user:           Babble::User.find_or_create,
+                   title:          title,
+                   visible:        false,
+                   category:       Babble::Category.find_or_create,
                    allowed_groups: Array(groups.presence || default_allowed_groups)
     end
 
@@ -219,6 +221,14 @@ after_initialize do
     # so that we never have a topic which has no allowed groups.
     def self.find(id)
       available_topics.find_by(id: id).tap { |topic| set_default_allowed_groups(topic) if topic }
+    end
+  end
+
+  class ::Babble::Category
+    def self.find_or_create
+      Category.find_by(name:  SiteSetting.babble_category_name) ||
+      Category.create( name:  SiteSetting.babble_category_name,
+                       user:  Babble::User.find_or_create)
     end
   end
 
