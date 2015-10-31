@@ -10,16 +10,9 @@ export default Ember.Object.create({
       return
     }
 
-    const messageBus = Discourse.__container__.lookup('message-bus:main')
-
     var resetTopicField = function(topic, field) {
       topic[field] = data[field]
       if (!topic[field] && self.get('currentTopic')) { topic[field] = self.get('currentTopic')[field] }
-    }
-
-    var humanizeGroupName = function(group) {
-      if (!group.name) { return '' }
-      return group.name.charAt(0).toUpperCase() + group.name.slice(1).replace(/_/g, ' ')
     }
 
     var topic = Discourse.Topic.create(data)
@@ -27,6 +20,7 @@ export default Ember.Object.create({
     resetTopicField(topic, 'highest_post_number')
 
     if (self.get('currentTopicId') != topic.id) {
+      const messageBus = Discourse.__container__.lookup('message-bus:main')
       if (self.get('currentTopicId')) {
         messageBus.unsubscribe('/babble/topics/' + self.get('currentTopicId'))
         messageBus.unsubscribe('/babble/topics/' + self.get('currentTopicId') + '/posts')
@@ -40,7 +34,6 @@ export default Ember.Object.create({
       postStream.topic = topic
 
       topic.postStream = postStream
-      topic.details.group_names = _.map(topic.details.allowed_groups, humanizeGroupName).join(', ')
     } else {
       topic.postStream = self.get('currentTopic.postStream')
     }
@@ -49,8 +42,10 @@ export default Ember.Object.create({
     self.set('currentTopic', topic)
   },
 
-  setAvailableTopics: function(data) {
-    Discourse.Babble.set('availableTopics', (data || {}).topics || [])
+  setAvailableTopics: function() {
+    return Discourse.ajax('/babble/topics.json').then(function(data) {
+      Discourse.Babble.set('availableTopics', (data || {}).topics || [])
+    })
   },
 
   lastPostIsMine: function() {
