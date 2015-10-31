@@ -1,0 +1,24 @@
+<div class='row groups'>
+  <div class='content-list span6'>
+    <h3>{{i18n 'babble.admin.page_title'}}</h3>
+    {{#if model}}
+      <ul>
+        {{#each topic in model}}
+          <li>
+            {{#link-to 'adminChat' topic.id}}{{topic.title}}{{/link-to}}
+          </li>
+        {{/each}}
+      </ul>
+    {{else}}
+      <p>{{i18n 'search.no_results'}}</p>
+    {{/if}}
+    <div class="controls">
+      {{#link-to 'adminChat' 'new' class="btn"}}
+        {{fa-icon "plus"}} {{i18n 'babble.admin.new'}}
+      {{/link-to}}
+    </div>
+  </div>
+  <div class='content-editor'>
+    {{outlet}}
+  </div>
+</div>

@@ -16,8 +16,16 @@ describe ::Babble::TopicsController do
   let(:user) { log_in }
   let(:another_user) { Fabricate :user }
   let(:group) { Fabricate :group }
-  let!(:topic) { Babble::Topic.create_topic "test topic for babble", group }
-  let!(:another_topic) { Babble::Topic.create_topic "another test topic", Fabricate(:group, name: 'group_name') }
+  let!(:topic) { Babble::Topic.create_topic title: "test topic for babble", allowed_group_ids: [group.id] }
+  let!(:another_topic) { Babble::Topic.create_topic title: "another test topic", allowed_group_ids: [Fabricate(:group, name: 'group_name').id] }
+  let(:non_chat_topic) { Fabricate :topic }
+
+  let(:chat_params) {{
+    title: "This is a new topic title",
+    allowed_group_ids: [allowed_group_a.id]
+  }}
+  let(:allowed_group_a) { Fabricate :group, name: 'group_a' }
+  let(:allowed_group_b) { Fabricate :group, name: 'group_b' }
 
   describe "index" do
     before do
@@ -114,6 +122,101 @@ describe ::Babble::TopicsController do
     end
   end
 
+  describe "create" do
+    before do
+      user.update(admin: true)
+    end
+
+    it "creates a new chat topic" do
+      xhr :post, :create, topic: chat_params
+      expect(response).to be_success
+
+      new_topic = Babble::Topic.available_topics.last
+      expect(new_topic.user).to eq Babble::User.instance
+      expect(new_topic.title).to eq chat_params[:title]
+      expect(new_topic.allowed_groups.length).to eq 1
+      expect(new_topic.allowed_groups).to include allowed_group_a
+    end
+
+    it 'defaults to trust level 0 for a group' do
+      chat_params[:allowed_group_ids] = []
+      xhr :post, :create, topic: chat_params
+      expect(response).to be_success
+
+      new_topic = Babble::Topic.available_topics.last
+      expect(new_topic.allowed_groups).to include Group.find Group::AUTO_GROUPS[:trust_level_0]
+    end
+
+    it "does not create an invalid chat topic" do
+      chat_params[:title] = ''
+      xhr :post, :create, topic: chat_params
+      expect(response.status).to eq 422
+      expect(Babble::Topic.available_topics.last.title).not_to eq chat_params[:title]
+    end
+
+    it 'does not allow non-admins to create topics' do
+      user.update(admin: false)
+      xhr :post, :create, topic: chat_params
+      expect(response.status).to eq 403
+      expect(Babble::Topic.available_topics.last.title).not_to eq chat_params[:title]
+    end
+  end
+
+  describe 'update' do
+    before do
+      user.update(admin: true)
+    end
+
+    it "updates a chat topic" do
+      xhr :post, :update, id: topic.id, topic: chat_params
+      expect(response).to be_success
+
+      topic.reload
+      expect(topic.title).to eq chat_params[:title]
+      expect(topic.allowed_group_ids).to eq chat_params[:allowed_group_ids]
+    end
+
+    it "does not make invalid updates" do
+      chat_params[:title] = ''
+      xhr :post, :update, id: topic.id, topic: chat_params
+      expect(response.status).to eq 422
+      expect(Babble::Topic.find(topic.id).title).to_not eq chat_params[:title]
+    end
+
+    it 'does not allow non-admins to update topics' do
+      user.update(admin: false)
+      xhr :post, :update, id: topic.id, topic: chat_params
+      expect(response.status).to eq 403
+      expect(Babble::Topic.find(topic.id).title).to_not eq chat_params[:title]
+    end
+  end
+
+  describe "destroy" do
+    before do
+      user.update(admin: true)
+    end
+
+    it "can destroy a chat topic" do
+      xhr :delete, :destroy, id: topic.id
+      expect(response).to be_success
+      expect(Babble::Topic.available_topics).not_to include topic
+    end
+
+    it "can destroy a chat topic with posts" do
+      make_a_post(topic)
+      xhr :delete, :destroy, id: topic.id
+      expect(response).to be_success
+      expect(Babble::Topic.available_topics).not_to include topic
+    end
+
+    it "does not allow non-admins to destroy topics" do
+      user.update(admin: false)
+      xhr :delete, :destroy, id: topic.id
+      expect(response.status).to eq 403
+      expect(Babble::Topic.available_topics).to include topic
+    end
+  end
+
   describe "read" do
     it "reads a post up to the given post number" do
       group.users << user
@@ -133,6 +236,34 @@ describe ::Babble::TopicsController do
       xhr :get, :read, post_number: 2, id: topic.id
       expect(response.status).to eq 422
       expect(response_json['errors']).to be_present
+    end
+  end
+
+  describe "groups" do
+    before do
+      user.update(admin: true)
+      group.users << user
+    end
+
+    it "returns the allowed groups for a babble topic" do
+      topic.allowed_groups << allowed_group_a
+      xhr :get, :groups, id: topic.id
+      expect(response).to be_success
+      json = JSON.parse(response.body)['topics']
+      group_ids = json.map { |g| g['id'] }
+      expect(group_ids).to include allowed_group_a.id
+      expect(group_ids).to_not include allowed_group_b.id
+    end
+
+    it "does not return allowed groups unless the user is an admin" do
+      user.update(admin: false)
+      xhr :get, :groups, id: topic.id
+      expect(response.status).to eq 403
+    end
+
+    it "does not return allowed groups for non-chat topics" do
+      xhr :get, :groups, id: non_chat_topic.id
+      expect(response.status).to eq 404
     end
   end
 
