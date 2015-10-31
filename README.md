@@ -16,16 +16,7 @@ Check out a live instance of Discourse with Babble installed on it here: [http:/
  - In your Discourse setup, ensure that the option "allow uncategorized topics" is checked, otherwise the babble topic creation step you need to perform WILL fail.
 
 #### Adding a chat channel
- - Enter your running web container and launch the rails console.
-   - [sudo] ./launcher enter app
-   - rails c
- - In order to create a topic, you'll need to specify a name and (optionally) a group which has access to the chat.
- - The syntax looks like this: `Babble::Topic.create_topic("<your topic name>", Group.find_by(name: "<your group name>"))`
-   - Some options for existing group names include 'staff', 'trust_level_<0-4>', 'admins'. You can check out a list of all of the group names in your app with the following command: `Group.all.pluck(:name)`
-   - Things to note:
-     - If you do not specify a group, the chat will default to trust_level_0, ie anyone with an account can see and post in the chat.
-     - The topic name must be a valid Discourse topic name, ie. it must be at least your instance's `min_topic_title_length` characters long (this value defaults to 15).
- - Once you've created your topic(s), exit the console by typing 'exit'. Exit the container by typing 'exit' again.
+ - This has been added to the admin panel; simply visit `/admin/chats` to create, update, and delete your chat channels.
 
 #### Things that work great
 - Sending messages to other clients
