@@ -58,9 +58,5 @@ describe ::Babble::Topic do
       expect(Topic.last.category).to eq Category.find_by(name: SiteSetting.babble_category_name)
     end
 
-    it "is in a chat category" do
-      Babble::Topic.create_topic "My new topic title"
-      expect(Topic.last.category).to eq Category.find_by(name: SiteSetting.babble_category_name)
-    end
   end
 end
