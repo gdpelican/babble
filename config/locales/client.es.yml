@@ -1,8 +1,25 @@
 es:
   js:
     babble:
-      placeholder: "Escribe tu mensaje aquí..."
+      placeholder: "escribe tu mensaje aquí..."
       send: "Enviar"
-      title: "¡Mensajes cortos!"
+      title: "Chat"
       error_message: "¡Por favor, escribe un mensaje!"
-      empty_topic_message: "¡Aún no hay mensajes! Escribe uno para comenzar una conversación."
+      empty_topic_message: "¡No hay mensajes aún! Escribe uno para comenzar una conversación."
+      topic_visibility_tooltip: "Este chat está visible para: {{groupNames}}"
+      view_topics_tooltip: "Ver otros canales de chat"
+      view_chat_tooltip: "Volver al chat actual"
+      select_topic: "Seleccionar otro canal de chat"
+      admin:
+        new: "Nuevo Canal"
+        none_selected: "Selcciona un canal para comenzar"
+        title: "Título del Canal"
+        allowed_groups: "Visible para:"
+        menu_title: "Chats"
+        page_title: "Canales de chat"
+        group: "Visible Para"
+        post_count: "Mensajes"
+        last_post: "Último mensaje"
+        delete_confirm: "¿Seguro que quieres eliminar este canal? Se perderá todo el historial."
+        delete_failed: "No ha sido posible eliminar ese canal de chat. Por favor, inténtalo de nuevo."
+        save_failed: "No ha sido posible guardar ese canal de chat. Por favor, inténtalo de nuevo."
