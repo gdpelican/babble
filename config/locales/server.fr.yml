@@ -1,6 +1,6 @@
 # Babble
 
-en:
+fr:
   site_settings:
     babble_enabled: "Activer le plugin de tribune Babble."
     babble_max_topic_size: "Nombre maximal de messages de tribune stockés"
