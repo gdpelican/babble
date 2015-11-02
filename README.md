@@ -39,6 +39,11 @@ Things that I'd like to add:
 - Editing a recent post of yours
 - Allowing user to mute chat notifications
 
+#### Translations
+
+Babble is currently available in English, German, Spanish, and French.
+If you'd like it translated into your language, let me know! The process is simple and easy, and I'm happy to help with it.
+
 Pull requests welcome! See [CONTRIBUTING.md](./CONTRIBUTING.md)
 
 You can view some ongoing discussion about this plugin on [Discourse Meta](https://meta.discourse.org/t/babble-a-chat-plugin/31753)
