@@ -1,0 +1,25 @@
+fr:
+  js:
+    babble:
+      placeholder: "écrivez votre message ici..."
+      send: "Envoyer"
+      title: "Tribune"
+      error_message: "Veuillez entrer un message"
+      empty_topic_message: "Pas encore de message ! Ecrivez-en un ci-dessous pour commencer."
+      topic_visibility_tooltip: "Cette tribune est visible pour : {{groupNames}}"
+      view_topics_tooltip: "Voir les autres canaux de tribune"
+      view_chat_tooltip: "Retour au canal actuel"
+      select_topic: "Choisir un autre canal de tribune"
+      admin:
+        new: "Nouveau canal"
+        none_selected: "Choisissez un canal pour commencer"
+        title: "Titre du canal"
+        allowed_groups: "Visible pour :"
+        menu_title: "Tribunes"
+        page_title: "Canaux de tribune"
+        group: "Visible pour : "
+        post_count: "Messages"
+        last_post: "Dernier message"
+        delete_confirm: "Etes vous sûr de vouloir supprimer ce canal ? Tous les messages existants seront supprimés."
+        delete_failed: "Impossible de supprimer le canal choisi. Veuillez réessayer."
+        save_failed: "Impossible de sauvegarder le canal choisi. Veuillez réessayer."
