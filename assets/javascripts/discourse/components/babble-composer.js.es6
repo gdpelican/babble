@@ -33,15 +33,25 @@ export default Ember.Component.extend({
   actions: {
     selectEmoji: function() {
       var self = this
-      showSelector()
-      $('.emoji-page a').off('click').on('click', function() {
-        var title = $(this).attr('title')
-        self.set('text', (self.get('text') || '').trimRight() + ' :' + title + ':')
+      var closeMenuPanelHandler = _.find($._data($('html')[0], 'events')['click'], function(e) {
+        return e.namespace == 'close-menu-panel'
+      }) // sorry mom.
 
-        $('.emoji-modal, .emoji-modal-wrapper').remove()
-        $('body, textarea').off('keydown.emoji')
-        $('.babble-post-composer textarea').focus()
-        return false
+      $('html').off('click.close-menu-panel')
+      $('.emoji-modal-wrapper').on('click', function() {
+        $('html').on('click.close-menu-panel', closeMenuPanelHandler.handler)
+      })
+
+      showSelector({
+        container: this.container,
+        onSelect: function(emoji) {
+          self.set('text', (self.get('text') || '').trimRight() + ' :' + emoji + ':')
+
+          $('.emoji-modal, .emoji-modal-wrapper').remove()
+          $('.babble-post-composer textarea').focus()
+          $('html').on('click.close-menu-panel', closeMenuPanelHandler.handler)
+          return false
+        }
       })
     },
 

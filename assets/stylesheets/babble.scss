@@ -117,16 +117,17 @@ li.babble-post .babble-post-content a.mention {
 .babble-post-composer textarea {
   width: 100%;
   box-sizing: border-box;
-  padding: 5px;
+  padding: 5px 21px 5px 5px;
   margin: 0;
   resize: none;
 }
 
-.babble-post-composer button.wmd-emoji-button {
+.babble-post-composer button.emoji {
   position: absolute;
   top: 2px;
   right: -2px;
   color: #888;
+  background: transparent;
 }
 
 .babble-post .babble-post-body .cooked img {
