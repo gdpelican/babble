@@ -276,6 +276,7 @@ after_initialize do
 
     def self.prune_topic(topic)
       topic.posts.order(created_at: :desc).offset(SiteSetting.babble_max_topic_size).destroy_all
+      topic.update(user: Babble::User.instance)
     end
 
     def self.default_topic_for(user)
