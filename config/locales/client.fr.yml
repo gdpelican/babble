@@ -3,7 +3,6 @@ fr:
     babble:
       placeholder: "écrivez votre message ici..."
       send: "Envoyer"
-      title: "Tribune"
       error_message: "Veuillez entrer un message"
       empty_topic_message: "Pas encore de message ! Ecrivez-en un ci-dessous pour commencer."
       topic_visibility_tooltip: "Cette tribune est visible pour : {{groupNames}}"
