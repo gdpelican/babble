@@ -38,7 +38,11 @@ export default Ember.Object.create({
       topic.postStream = self.get('currentTopic.postStream')
     }
 
-    self.set('unreadCount', topic.highest_post_number - topic.last_read_post_number)
+    var totalUnreadCount = topic.highest_post_number - topic.last_read_post_number
+    var windowUnreadCount = _.min([totalUnreadCount, topic.postStream.posts.length])
+
+    self.set('unreadCount', windowUnreadCount)
+    self.set('hasAdditionalUnread', totalUnreadCount > windowUnreadCount)
     self.set('currentTopic', topic)
   },
 
