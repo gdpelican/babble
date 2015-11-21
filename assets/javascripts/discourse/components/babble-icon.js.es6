@@ -19,12 +19,14 @@ export default Ember.Component.extend({
   }.property('Discourse.Babble.currentTopicId'),
 
   unreadCount: function() {
-    if (Discourse.Babble.unreadCount > 0) {
+    if (Discourse.Babble.unreadCount > 0 && Discourse.Babble.hasAdditionalUnread) {
+      return Discourse.Babble.unreadCount + "+"
+    } else if (Discourse.Babble.unreadCount) {
       return Discourse.Babble.unreadCount
     } else {
       return null
     }
-  }.property('Discourse.Babble.unreadCount'),
+  }.property('Discourse.Babble.unreadCount', 'Discourse.Babble.hasAdditionalUnread'),
 
   _init: function() {
     if (!Discourse.Babble) { Discourse.Babble = initializeBabble }
