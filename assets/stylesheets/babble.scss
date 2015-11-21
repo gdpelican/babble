@@ -192,3 +192,8 @@ li.babble-post .babble-post-content a.mention {
 .d-header .icons .unread-private-messages {
   left: 121px;
 }
+
+// magic needed for the Firefox family to display the title correctly
+.babble-title-wrapper {
+    top: 37px;
+}
