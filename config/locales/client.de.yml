@@ -3,6 +3,7 @@ de:
     babble:
       placeholder: "Chat-Nachricht hier eingeben..."
       send: "Abschicken"
+      title: "öffnet ein Chat-Fenster für schnelle Unterhaltungen"
       error_message: "Bitte eine Nachricht eingeben!"
       empty_topic_message: "Es gibt noch keine Nachrichten! Bitte unten eine eingeben, damit es losgehen kann..."
       topic_visibility_tooltip: "Dieser Chat ist sichtbar für: {{groupNames}}"
