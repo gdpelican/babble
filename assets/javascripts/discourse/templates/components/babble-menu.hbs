@@ -5,11 +5,13 @@
           {{#if viewingChat}}
             <h4 class="babble-group-title">{{currentTopic.title}}</h4>
             <button class="babble-context-toggle normalized">
-              <i class="fa fa-eye" title="{{i18n 'babble.topic_visibility_tooltip' groupNames=currentTopic.group_names}}"></i>
+              <i class="fa fa-eye" />
+              <span class="babble-context-toggle-tooltip">{{i18n 'babble.topic_visibility_tooltip' groupNames=currentTopic.group_names}}</span>
             </button>
             {{#if multipleTopicsAvailable}}
               <button {{action 'viewTopics' bubbles=false}} class="babble-context-toggle for-topics normalized">
-                <i class="fa fa-exchange" title="{{i18n 'babble.view_topics_tooltip'}}"></i>
+                <i class="fa fa-exchange" />
+                <span class="babble-context-toggle-tooltip">{{i18n 'babble.view_topics_tooltip'}}</span>
               </button>
             {{/if}}
           {{else}}

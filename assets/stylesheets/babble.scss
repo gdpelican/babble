@@ -13,8 +13,36 @@
 }
 
 .babble-context-toggle {
+  position: relative;
+  outline: 0;
   &.for-chat { float: left; }
   &.for-topics { float: right; }
+  &:hover .babble-context-toggle-tooltip { opacity: 1; }
+}
+
+.babble-context-toggle-tooltip {
+  opacity: 0;
+  transition: .5s opacity;
+  position: absolute;
+  background: black;
+  color: white;
+  font-weight: bold;
+  padding: 5px;
+  border-radius: 5px;
+  word-wrap: normal;
+  min-width: 150px;
+  left: 50%;
+  transform: translate(-50%, 0);
+  &:after {
+    content: ' ';
+    width: 7px;
+    height: 7px;
+    top: 0;
+    left: 50%;
+    transform: rotate(45deg) translate(-50%, 0);
+    position: absolute;
+    background: black;
+  }
 }
 
 /* Post styles */
