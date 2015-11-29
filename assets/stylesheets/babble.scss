@@ -201,8 +201,15 @@ li.babble-post .babble-post-content a.mention {
       max-height: 330px;
     }
     .babble-title-wrapper, .babble-post-composer {
-      position: absolute;
       z-index: 1;
+    }
+
+    // magic needed for the Firefox family to display the title correctly
+    .babble-post-composer {
+      position: absolute;
+    }
+    .babble-title-wrapper {
+      position: fixed;
     }
 
     .babble-title {
