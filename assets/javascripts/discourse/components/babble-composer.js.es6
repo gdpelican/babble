@@ -7,6 +7,30 @@ export default Ember.Component.extend({
     this.set('placeholder', Discourse.SiteSettings.babble_placeholder || I18n.t('babble.placeholder'))
   }.on('init'),
 
+  _didInsertElement: function() {
+    this.$('textarea').autocomplete({
+      template: this.container.lookup('template:emoji-selector-autocomplete.raw'),
+      key: ":",
+
+      transformComplete(v) {
+        if (!v.code) { return }
+        return `${v.code}:`
+      },
+
+      dataSource(term) {
+        return new Ember.RSVP.Promise(resolve => {
+          term = term.toLowerCase()
+          var options = (term === "" && ['smile', 'smiley', 'wink', 'sunny', 'blush']) ||
+                        Discourse.Emoji.translations[`:${term}`] ||
+                        Discourse.Emoji.search(term, {maxResults: 5})
+          return resolve(options)
+        }).then(list => list.map(code => {
+          return {code, src: Discourse.Emoji.urlFor(code)};
+        }))
+      }
+    })
+  }.on('didInsertElement'),
+
   keyDown: function(event) {
     this.set('showError', false)
     if (event.keyCode == 13 && !(event.ctrlKey || event.altKey || event.shiftKey)) {
