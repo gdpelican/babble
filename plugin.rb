@@ -1,6 +1,6 @@
 # name: babble
 # about: Shoutbox plugin for Discourse
-# version: 0.8.5
+# version: 0.8.6
 # authors: James Kiesel (gdpelican)
 # url: https://github.com/gdpelican/babble
 
@@ -49,14 +49,14 @@ after_initialize do
       if current_user.blank?
         respond_with_forbidden
       else
-        respond_with Babble::Topic.available_topics_for(current_user), serializer: Babble::BasicTopicSerializer
+        respond_with Babble::Topic.available_topics_for(current_user), serializer: BasicTopicSerializer
       end
     end
 
     def show
       perform_fetch do
         TopicUser.find_or_create_by(user: current_user, topic: topic)
-        respond_with topic_view, serializer: TopicViewSerializer
+        respond_with topic_view, serializer: Babble::TopicViewSerializer
       end
     end
     alias :default :show
@@ -84,7 +84,7 @@ after_initialize do
     def read
       perform_fetch do
         TopicUser.update_last_read(current_user, topic.id, params[:post_number].to_i, PostTiming::MAX_READ_TIME_PER_BATCH)
-        respond_with topic_view, serializer: TopicViewSerializer
+        respond_with topic_view, serializer: Babble::TopicViewSerializer
       end
     end
 
@@ -125,7 +125,7 @@ after_initialize do
       elsif !yield
         respond_with_unprocessable
       else
-        respond_with topic_view, serializer: TopicViewSerializer
+        respond_with topic_view, serializer: Babble::TopicViewSerializer
       end
     end
 
@@ -217,7 +217,7 @@ after_initialize do
     private
 
     def serialized_topic
-      TopicViewSerializer.new(TopicView.new(@topic.id), scope: Guardian.new(@user), root: false).as_json
+      Babble::TopicViewSerializer.new(TopicView.new(@topic.id), scope: Guardian.new(@user), root: false).as_json
     end
 
     def serialized_post
@@ -298,10 +298,10 @@ after_initialize do
     end
   end
 
-  class ::Babble::BasicTopicSerializer < ::BasicTopicSerializer
+  class ::Babble::TopicViewSerializer < ::TopicViewSerializer
     attributes :group_names, :last_posted_at
     def group_names
-      object.allowed_groups.pluck(:name).map(&:humanize)
+      object.topic.allowed_groups.pluck(:name).map(&:humanize)
     end
   end
 

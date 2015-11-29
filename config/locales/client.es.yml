@@ -3,7 +3,7 @@ es:
     babble:
       placeholder: "escribe tu mensaje aquí..."
       send: "Enviar"
-      title: "Chat"
+      title: "abra una ventana para chatear"
       error_message: "¡Por favor, escribe un mensaje!"
       empty_topic_message: "¡No hay mensajes aún! Escribe uno para comenzar una conversación."
       topic_visibility_tooltip: "Este chat está visible para: {{groupNames}}"

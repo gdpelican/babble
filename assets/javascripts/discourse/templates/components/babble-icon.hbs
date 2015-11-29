@@ -6,6 +6,11 @@
                      title="babble.title"}}
   {{/header-dropdown}}
   {{#if unreadCount}}
-    <a href class='badge-notification unread-notifications'>{{unreadCount}}</a>
+    <a href class='badge-notification unread-notifications'>
+      <span>{{unreadCount}}</span>
+      {{#if hasAdditionalUnread}}
+        <span>+</span>
+      {{/if}}
+    </a>
   {{/if}}
 {{/if}}
