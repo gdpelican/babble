@@ -45,6 +45,12 @@
   }
 }
 
+@-moz-document url-prefix() {
+  .babble-context-toggle-tooltip {
+    top: 25px;
+  }
+}
+
 /* Post styles */
 .babble-posts {
   overflow: auto;
