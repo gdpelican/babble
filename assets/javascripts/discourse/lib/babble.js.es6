@@ -1,3 +1,7 @@
+import Post from 'discourse/models/post'
+import PostStream from 'discourse/models/post-stream'
+import Topic from 'discourse/models/topic'
+
 export default Ember.Object.create({
 
   setCurrentTopic: function(data) {
@@ -15,7 +19,7 @@ export default Ember.Object.create({
       if (!topic[field] && self.get('currentTopic')) { topic[field] = self.get('currentTopic')[field] }
     }
 
-    var topic = Discourse.Topic.create(data)
+    var topic = Topic.create(data)
     resetTopicField(topic, 'last_read_post_number')
     resetTopicField(topic, 'highest_post_number')
 
@@ -29,7 +33,7 @@ export default Ember.Object.create({
       messageBus.subscribe('/babble/topics/' + self.get('currentTopicId'), self.setCurrentTopic)
       messageBus.subscribe('/babble/topics/' + self.get('currentTopicId') + '/posts', self.handleNewPost)
 
-      var postStream = Discourse.PostStream.create(topic.post_stream)
+      var postStream = PostStream.create(topic.post_stream)
       postStream.posts = topic.post_stream.posts
       postStream.topic = topic
 
@@ -60,7 +64,7 @@ export default Ember.Object.create({
     const self = Discourse.Babble
 
     var postStream = self.get('currentTopic.postStream')
-    var post = postStream.storePost(Discourse.Post.create(data))
+    var post = postStream.storePost(Post.create(data))
     post.created_at = moment(data.created_at, 'YYYY-MM-DD HH:mm:ss Z')
     postStream.appendPost(post)
 

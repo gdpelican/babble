@@ -1,14 +1,15 @@
 import initializeBabble from "../../discourse/lib/babble"
-
+import Topic from 'discourse/models/topic'
+import Group from 'discourse/models/group'
 
 export default Discourse.Route.extend({
 
   model: function(params) {
     if (params.id === 'new') {
-      return Discourse.Topic.create()
+      return Topic.create()
     } else {
       if (!Discourse.Babble) { Discourse.Babble = initializeBabble }
-      return Discourse.ajax('/babble/topics/' + params.id + '.json').then(function(data) { return Discourse.Topic.create(data) })
+      return Discourse.ajax('/babble/topics/' + params.id + '.json').then(function(data) { return Topic.create(data) })
     }
   },
 
@@ -33,7 +34,7 @@ export default Discourse.Route.extend({
       setup([], null)
     }
 
-    Discourse.Group.findAll().then(function(groups) {
+    Group.findAll().then(function(groups) {
       setup(null, groups)
     })
   }
