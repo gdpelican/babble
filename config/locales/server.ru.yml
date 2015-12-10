@@ -1,0 +1,8 @@
+# Babble
+
+en:
+  site_settings:
+    babble_enabled: "Включить плагин Babble Shoutbox."
+    babble_max_topic_size: "Максимальное количество сохраняемых чат сообщений"
+    babble_placeholder: "Оставьте пустым это поле чтобы показывался текст по умолчания в пустых полях. Или напишите здесь свой текст для пустых полей."
+    babble_icon: "Font Awesome код (fa- удален) для Babble иконки в верхнем правом углу. Смотри http://fortawesome.github.io/Font-Awesome/cheatsheet/ для полного списка иконок."
