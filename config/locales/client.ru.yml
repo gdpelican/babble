@@ -13,7 +13,7 @@ en:
       admin:
         new: "Новый чат"
         none_selected: "Выберите чат чтобы начать"
-        title: "Загаловок чата"
+        title: "Заголовок чата"
         allowed_groups: "Виден для:"
         menu_title: "Чаты"
         page_title: "Каналы чата"
