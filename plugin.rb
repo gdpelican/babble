@@ -1,6 +1,6 @@
 # name: babble
 # about: Shoutbox plugin for Discourse
-# version: 0.9.1
+# version: 0.9.2
 # authors: James Kiesel (gdpelican)
 # url: https://github.com/gdpelican/babble
 
@@ -198,6 +198,10 @@ after_initialize do
     def setup_post
       super
       @topic = @post.topic = Topic.find_by(id: @opts[:topic_id])
+    end
+
+    def update_user_counts
+      return false
     end
 
     def enqueue_jobs

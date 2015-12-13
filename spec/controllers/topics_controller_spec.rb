@@ -105,6 +105,11 @@ describe ::Babble::TopicsController do
       expect(response.status).to eq 422
     end
 
+    it "does not affect user's post count" do
+      group.users << user
+      expect { xhr :post, :post, raw: "I am a test post", id: topic.id }.not_to change { user.post_count }
+    end
+
     it "deletes old posts in a rolling window" do
       group.users << user
       group.users << another_user
