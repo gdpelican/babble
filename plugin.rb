@@ -200,6 +200,10 @@ after_initialize do
       @topic = @post.topic = Topic.find_by(id: @opts[:topic_id])
     end
 
+    def update_user_counts
+      return false
+    end
+
     def enqueue_jobs
       return false
     end
