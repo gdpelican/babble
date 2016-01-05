@@ -23,12 +23,13 @@
 .babble-context-toggle-tooltip {
   opacity: 0;
   transition: .5s opacity;
+  pointer-events: none;
   position: absolute;
-  background: black;
-  color: white;
-  font-weight: bold;
+  box-shadow: 0 2px 2px rgba(0, 0, 0, 0.25);
+  background: #fefefe;
+  font-size: 13px;
+  color: black;
   padding: 5px;
-  border-radius: 5px;
   word-wrap: normal;
   min-width: 150px;
   left: 50%;
@@ -41,7 +42,7 @@
     left: 50%;
     transform: rotate(45deg) translate(-50%, 0);
     position: absolute;
-    background: black;
+    background: #fefefe;
   }
 }
 
