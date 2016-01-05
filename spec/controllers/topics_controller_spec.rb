@@ -1,4 +1,4 @@
-require "spec_helper"
+require "rails_helper"
 
 path = "./plugins/babble/plugin.rb"
 source = File.read(path)
