@@ -274,7 +274,7 @@ after_initialize do
     def self.save_topic(topic, params)
       topic.tap do |t|
         t.assign_attributes(params)
-        t.save(validate: false) if t.valid? || t.errors.to_h.except(:title).empty?
+        t.save(validate: false) if t.valid? || t.errors.to_hash.except(:title).empty?
       end
     end
     private_class_method :save_topic
