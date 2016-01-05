@@ -253,18 +253,31 @@ after_initialize do
   class ::Babble::Topic
 
     def self.create_topic(params)
-      return false unless params[:title]
-      Topic.create user: Babble::User.instance,
-                   category: Babble::Category.instance,
-                   title: params[:title],
-                   visible: false,
-                   allowed_groups: get_allowed_groups(params[:allowed_group_ids])
+      return false unless params[:title].present?
+      save_topic Topic.new, {
+        user: Babble::User.instance,
+        category: Babble::Category.instance,
+        title: params[:title],
+        visible: false,
+        allowed_groups: get_allowed_groups(params[:allowed_group_ids])
+      }
     end
 
     def self.update_topic(topic, params)
-      topic.update title: params[:title],
-                   allowed_groups: get_allowed_groups(params[:allowed_group_ids])
+      return false unless params[:title].present?
+      save_topic topic, {
+        title: params[:title],
+        allowed_groups: get_allowed_groups(params[:allowed_group_ids])
+      }
     end
+
+    def self.save_topic(topic, params)
+      topic.tap do |t|
+        t.assign_attributes(params)
+        t.save(validate: false) if t.valid? || t.errors.to_h.except(:title).empty?
+      end
+    end
+    private_class_method :save_topic
 
     def self.get_allowed_groups(ids)
       Group.where(id: Array(ids)).presence || default_allowed_groups
