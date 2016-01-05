@@ -1,4 +1,4 @@
-require "spec_helper"
+require "rails_helper"
 
 path = "./plugins/babble/plugin.rb"
 source = File.read(path)
@@ -33,6 +33,11 @@ describe ::Babble::Topic do
   end
 
   describe "create_topic" do
+
+    before do
+      Babble::Topic.create_topic title: "Handle category about thread creation", allowed_group_ids: [group.id]
+    end
+
     it "creates a topic" do
       Babble::Topic.create_topic title: "My new topic title", allowed_group_ids: [group.id]
       t = Topic.last
@@ -49,6 +54,10 @@ describe ::Babble::Topic do
       expect(t.allowed_groups).to eq [group]
     end
 
+    it "can create a topic of less than 15 characters" do
+      expect { Babble::Topic.create_topic title: "ok", allowed_group_ids: [group.id] }.to change { Topic.count }.by(1)
+    end
+
     it "does not a create a topic without a title" do
       expect { Babble::Topic.create_topic title: nil, allowed_group_ids: [group.id] }.not_to change { Topic.count }
     end
@@ -56,6 +65,16 @@ describe ::Babble::Topic do
     it "is in a chat category" do
       Babble::Topic.create_topic title: "My new topic title"
       expect(Topic.last.category).to eq Category.find_by(name: SiteSetting.babble_category_name)
+    end
+
+  end
+
+  describe "update_topic" do
+    let(:topic) { Babble::Topic.create_topic title: "Pre-existing Chat Topic", allowed_group_ids: [group.id] }
+
+    it "can update a topic to have a short name" do
+      Babble::Topic.update_topic topic, { title: "Ok" }
+      expect(topic.reload.title).to eq "Ok"
     end
 
   end

@@ -1,4 +1,4 @@
-require "spec_helper"
+require "rails_helper"
 
 path = "./plugins/babble/plugin.rb"
 source = File.read(path)
@@ -143,6 +143,12 @@ describe ::Babble::TopicsController do
       expect(new_topic.allowed_groups).to include allowed_group_a
     end
 
+    it "can create a chat topic with a short name" do
+      chat_params[:title] = 'short'
+      expect { xhr :post, :create, topic: chat_params }.to change { Topic.count }.by(1)
+      expect(response).to be_success
+    end
+
     it 'defaults to trust level 0 for a group' do
       chat_params[:allowed_group_ids] = []
       xhr :post, :create, topic: chat_params
@@ -179,6 +185,13 @@ describe ::Babble::TopicsController do
       topic.reload
       expect(topic.title).to eq chat_params[:title]
       expect(topic.allowed_group_ids).to eq chat_params[:allowed_group_ids]
+    end
+
+    it "can update a chat topic to a short title" do
+      chat_params[:title] = "Ok"
+      xhr :post, :update, id: topic.id, topic: chat_params
+      expect(response).to be_success
+      expect(topic.reload.title).to eq chat_params[:title]
     end
 
     it "does not make invalid updates" do
