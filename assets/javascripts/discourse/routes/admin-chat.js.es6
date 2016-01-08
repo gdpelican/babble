@@ -23,6 +23,7 @@ export default Discourse.Route.extend({
 
       self._available = _.map(self._available, function(g) { g.automatic = false; return g })
       self._selected  = _.map(self._selected,  function(g) { g.automatic = false; return g })
+      self._available = _.reject(self._available, function(g) { return g.name == 'everyone'; })
 
       model.allowed_group_ids = _.pluck(self._selected, 'id')
       controller.setProperties({ model: model, available: self._available, selected: self._selected })
