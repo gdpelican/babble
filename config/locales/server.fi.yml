@@ -1,0 +1,8 @@
+# Babble
+
+fi:
+  site_settings:
+    babble_enabled: "Ota Babble-pikaviestin käyttöön."
+    babble_max_topic_size: "Säilytettävien pikaviestien enimmäismäärä per keskustelu."
+    babble_placeholder: "Pikaviestimen tyhjässä viestikentässä näkyvä ohjeteksti. Jos tyhjä, siinä näkyy oletusteksti."
+    babble_icon: "Oikeassa ylänurkassa näkyvän pikaviestinkuvakkeen Font Awesome -koodi (ilman fa-etuliitettä). Lista löytyy osoitteesta http://fortawesome.github.io/Font-Awesome/cheatsheet/"
