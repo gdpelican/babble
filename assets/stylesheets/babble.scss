@@ -12,6 +12,10 @@
   color: #ccc;
 }
 
+.babble-chat {
+  padding-right: 12px;
+}
+
 .babble-context-toggle {
   position: relative;
   outline: 0;
@@ -84,7 +88,7 @@
 }
 
 .babble-post-content .post-info {
-  width: 40px;
+  width: 32px;
   text-align: right;
 }
 
@@ -190,6 +194,7 @@ li.babble-post .babble-post-content a.mention {
     min-height: 100vh;
 
     .panel-body {
+      width: 100%;
       position: relative;
     }
     .babble-title-wrapper, .babble-post-composer {
