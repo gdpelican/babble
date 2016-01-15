@@ -17,13 +17,15 @@ export default Discourse.Route.extend({
     const self = this
 
     var setup = function(selected, available) {
+      const everyoneGroupId = 0;
+
       if (selected) { self._selected = selected }
       if (available) { self._available = available }
       if (!self._available || !self._selected) { return }
 
       self._available = _.map(self._available, function(g) { g.automatic = false; return g })
       self._selected  = _.map(self._selected,  function(g) { g.automatic = false; return g })
-      self._available = _.reject(self._available, function(g) { return g.name == 'everyone'; })
+      self._available = _.reject(self._available, function(g) { return g.id == everyoneGroupId; })
 
       model.allowed_group_ids = _.pluck(self._selected, 'id')
       controller.setProperties({ model: model, available: self._available, selected: self._selected })
