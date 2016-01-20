@@ -1,6 +1,6 @@
 # Babble
 
-en:
+ko:
   site_settings:
     babble_enabled: "Babble Shoutbox 플러그인을 활성화합니다."
     babble_max_topic_size: "한번에 저장될 대화 메시지의 최대 갯수"
