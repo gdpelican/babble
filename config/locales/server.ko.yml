@@ -1,0 +1,9 @@
+# Babble
+
+ko:
+  site_settings:
+    babble_enabled: "Babble Shoutbox 플러그인을 활성화합니다."
+    babble_max_topic_size: "한번에 저장될 대화 메시지의 최대 갯수"
+    babble_placeholder: "채팅영역에 기본 힌트문구를 보여주려면 비워두십시오. 그렇지 않을경우 원하는 커스템 문구를 입력해주세요."
+    babble_icon: "우측 상단에 보여질 Babble 아이콘을 위한 Font Awesome code (fa- omitted). 아이콘 리스트는 http://fontawesome.io/cheetsheet/를 참고해주세요."
+    babble_category_name: "Babble 토픽을 위한 Discourse 카테고리"
