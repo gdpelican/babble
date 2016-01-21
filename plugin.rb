@@ -83,7 +83,7 @@ after_initialize do
 
     def read
       perform_fetch do
-        TopicUser.update_last_read(current_user, topic.id, params[:post_number].to_i, PostTiming::MAX_READ_TIME_PER_BATCH)
+        topic_user.update(last_read_post_number: params[:post_number]) if topic_user.last_read_post_number.to_i < params[:post_number].to_i
         respond_with topic_view, serializer: Babble::TopicViewSerializer
       end
     end
@@ -158,6 +158,10 @@ after_initialize do
 
     def create_post
       Babble::PostCreator.create(current_user, post_creator_params)
+    end
+
+    def topic_user
+      @topic_user ||= TopicUser.find_or_initialize_by(user: current_user, topic: topic)
     end
 
     def topic_view
@@ -305,7 +309,7 @@ after_initialize do
     end
 
     def self.available_topics_for(user)
-      available_topics.select { |topic| user.admin || topic.allowed_group_users.include?(user) }
+      available_topics.joins(:allowed_group_users).where("? OR group_users.user_id = ?", user.admin, user.id)
     end
 
     # NB: the set_default_allowed_groups block is passed for backwards compatibility,
