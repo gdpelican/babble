@@ -309,7 +309,7 @@ after_initialize do
     end
 
     def self.available_topics_for(user)
-      available_topics.joins(:allowed_group_users).where("? OR group_users.user_id = ?", user.admin, user.id)
+      available_topics.joins(:allowed_group_users).where("? OR group_users.user_id = ?", user.admin, user.id).uniq
     end
 
     # NB: the set_default_allowed_groups block is passed for backwards compatibility,
