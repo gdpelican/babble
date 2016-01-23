@@ -21,7 +21,7 @@ export default Ember.Component.extend({
   unreadCount: function() {
     if (Discourse.Babble.unreadCount > 0 && Discourse.Babble.hasAdditionalUnread) {
       return Discourse.Babble.unreadCount + "+"
-    } else if (Discourse.Babble.unreadCount) {
+    } else if (!Discourse.Babble.menuVisible && Discourse.Babble.unreadCount) {
       return Discourse.Babble.unreadCount
     } else {
       return null
