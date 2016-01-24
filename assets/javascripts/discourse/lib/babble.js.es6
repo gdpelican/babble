@@ -60,21 +60,52 @@ export default Ember.Object.create({
     return Discourse.Babble.get('latestPost.user_id') == Discourse.User.current().id
   },
 
+  stagePost: function(text) {
+    const self = Discourse.Babble
+    const user = Discourse.User.current()
+
+    var postStream = self.get('currentTopic.postStream')
+    var post = Post.create({
+      raw: text,
+      cooked: text,
+      name: user.get('name'),
+      display_username: user.get('name'),
+      username: user.get('username'),
+      user_id: user.get('id'),
+      user_title: user.get('title'),
+      avatar_template: user.get('avatar_template'),
+      user_custom_fields: user.get('custom_fields'),
+      moderator: user.get('moderator'),
+      admin: user.get('admin')
+    })
+    postStream.set('loadedAllPosts', true)
+    postStream.stagePost(post, user)
+    self.set('latestPost', post)
+  },
+
   handleNewPost: function(data) {
     const self = Discourse.Babble
 
     var postStream = self.get('currentTopic.postStream')
-    var post = postStream.storePost(Post.create(data))
-    post.created_at = moment(data.created_at, 'YYYY-MM-DD HH:mm:ss Z')
-    postStream.appendPost(post)
-
+    var post = Post.create(data)
+    post.set('created_at', moment(data.created_at, 'YYYY-MM-DD HH:mm:ss Z'))
     self.set('latestPost', post)
 
     if (self.lastPostIsMine()) {
+      self.clearStagedPost()
+      postStream.commitPost(post)
       self.set('unreadCount', 0)
     } else {
+      postStream.appendPost(post)
       var topic = self.get('currentTopic')
       self.set('unreadCount', topic.highest_post_number - topic.last_read_post_number)
     }
+  },
+
+  clearStagedPost: function() {
+    const self = Discourse.Babble
+    var postStream = self.get('currentTopic.postStream')
+    var staged = postStream.findLoadedPost(-1)
+    if (staged) { postStream.removePosts([staged]) }
   }
 })

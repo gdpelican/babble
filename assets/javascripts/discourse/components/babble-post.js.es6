@@ -5,6 +5,7 @@ export default Ember.Component.extend({
   tagName: 'li',
   classNames: ['babble-post'],
 
+  isStaged: Em.computed.equal('post.id', -1),
   userDeleted: Em.computed.empty('post.user_id'),
 
   _init: function() {

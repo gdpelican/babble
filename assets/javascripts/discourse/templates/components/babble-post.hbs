@@ -1,7 +1,7 @@
 {{post-gap post=post postStream=postStream before="true"}}
 
-<article class="babble-post-container boxed" {{bind-attr id="postElementId" data-post-id="post.id" data-user-id="post.user_id" data-post-number="post.post_number"}}>
-  <div class='row'>
+<article {{bind-attr class="isStaged:babble-post-staged :babble-post-container :boxed" id="postElementId" data-post-id="post.id" data-user-id="post.user_id" data-post-number="post.post_number"}}>
+  <div class="row">
     <div class='babble-post-avatar babble-post-content'>
       <div class="contents">
         {{#if userDeleted}}
