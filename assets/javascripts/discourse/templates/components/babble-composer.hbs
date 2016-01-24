@@ -6,7 +6,7 @@
   <button {{action 'selectEmoji'}} class="btn no-text emoji" title="Emoji :smile:" aria-label="Emoji :smile:">
     <i class="fa fa-smile-o"></i>
   </button>
-  {{#if showError}}
-    <span class="babble-composer-error-message">{{i18n 'babble.error_message'}}</span>
+  {{#if errorMessage}}
+    <span class="babble-composer-error-message">{{i18n errorMessage}}</span>
   {{/if}}
 </div>

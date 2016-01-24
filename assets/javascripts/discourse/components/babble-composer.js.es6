@@ -99,24 +99,25 @@ export default Ember.Component.extend({
     },
 
     submit: function(context) {
-      var self = context || this;
+      const self = context || this;
+      const text = self.get('text').trim()
+      self.set('text', '')
 
-      if (self.get('text').trim() === "") {
-        self.set('showError', true)
-        self.set('text', '')
-        return
+      if (text === '') {
+        self.set('errorMessage', 'babble.error_message')
+      } else {
+        self.set('processing', true)
+        Discourse.Babble.stagePost(text)
+        Discourse.ajax("/babble/topics/" + self.get('topic.id') + "/post", {
+          type: 'POST',
+          data: { raw: text }
+        })
+        .then(Discourse.Babble.handleNewPost, function() {
+          Discourse.Babble.clearStagedPost()
+          self.set('errorMessage', 'babble.failed_post')
+        })
+        .finally(function() { self.set('processing', false) });
       }
-
-      self.set('processing', true)
-      Discourse.ajax("/babble/topics/" + self.get('topic.id') + "/post", {
-        type: 'POST',
-        data: { raw: self.get('text').trim() }
-      })
-      .then(Discourse.Babble.handleNewPost)
-      .finally(function() {
-        self.set('text', '')
-        self.set('processing', false)
-      });
     }
   }
 
