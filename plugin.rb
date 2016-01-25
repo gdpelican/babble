@@ -334,4 +334,12 @@ after_initialize do
     end
   end
 
+  class ::Guardian
+    def can_see_topic?(topic)
+      super && (is_admin? ||
+               !Babble::Topic.available_topics.include?(topic) ||
+                Babble::Topic.available_topics_for(user).include?(topic))
+    end
+  end
+
 end
