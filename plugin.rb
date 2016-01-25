@@ -225,7 +225,7 @@ after_initialize do
     private
 
     def serialized_topic
-      Babble::TopicViewSerializer.new(TopicView.new(@topic.id), scope: Guardian.new(@user), root: false).as_json
+      Babble::TopicViewSerializer.new(TopicView.new(@topic.id, @user), scope: Guardian.new(@user), root: false).as_json
     end
 
     def serialized_post
