@@ -1,0 +1,26 @@
+it:
+  js:
+    babble:
+      placeholder: "digita qui il tuo messaggio..."
+      send: "Invia"
+      title: "apri una finestra di chat per una conversazione veloce"
+      error_message: "Per favore digita un messaggio!"
+      failed_post: "Impossibile salvare il messaggio. Per favore prova di nuovo."
+      empty_topic_message: "Ancora nessun messaggio! Scrivine uno qui sotto per iniziare."
+      topic_visibility_tooltip: "Questa chat è visibile a: {{groupNames}}"
+      view_topics_tooltip: "Mostra gli altri canali della chat"
+      view_chat_tooltip: "Torna alla chat corrente"
+      select_topic: "Seleziona un altro canale chat"
+      admin:
+        new: "Nuovo Canale"
+        none_selected: "Seleziona un canale per cominciare"
+        title: "Nome del Canale"
+        allowed_groups: "Visibile a:"
+        menu_title: "Chat"
+        page_title: "Canali Chat"
+        group: "Visibile A"
+        post_count: "Messaggi"
+        last_post: "Ultimo messaggio"
+        delete_confirm: "Sei sicuro di voler cancellare questo canale? Tutta la cronologia della chat andrà persa."
+        delete_failed: "Impossibile eliminare quel canale della chat. Per favore prova di nuovo."
+        save_failed: "Impossibile salvare quel canale della chat. Per favore prova di nuovo."
