@@ -1,0 +1,9 @@
+# Babble
+
+it:
+  site_settings:
+    babble_enabled: "Abilita il plugin Babble Shoutbox."
+    babble_max_topic_size: "Il numero massimo di messaggi della chat memorizzati al momento"
+    babble_placeholder: "Lascia il campo vuoto per mantenere il testo di default nel campo di digitazione. Oppure inserisci un testo personalizzato."
+    babble_icon: "Codice Font Awesome (omettere fa-) per l'icona Babble nell'angolo in alto a destra. Per una lista delle icone vedi http://fontawesome.io/cheatsheet/."
+    babble_category_name: "Categoria di Discourse per i topic di Babble."
