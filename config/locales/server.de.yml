@@ -1,6 +1,6 @@
 # Babble
 
-en:
+de:
   site_settings:
     babble_enabled: "Die Babble Shoutbox aktivieren?"
     babble_placeholder: "Leer lassen f&uuml;r den Standard Platzhalter in der Chat-Textbox, oder eigenen Text hier eingeben."
