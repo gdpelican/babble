@@ -1,6 +1,6 @@
 # Babble
 
-en:
+ru:
   site_settings:
     babble_enabled: "Включить плагин Babble Shoutbox."
     babble_max_topic_size: "Максимальное количество сохраняемых чат сообщений"
