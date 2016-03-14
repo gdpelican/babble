@@ -1,6 +1,6 @@
 # Babble
 
-zh_cn:
+zh_CN:
   site_settings:
     babble_enabled: "启用Babble在线留言板插件。"
     babble_max_topic_size: "每次存储聊天消息的最大数量"
