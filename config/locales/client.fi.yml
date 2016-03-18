@@ -5,6 +5,7 @@ fi:
       send: "Lähetä"
       title: "Avaa pikaviestin välittömään keskusteluun"
       error_message: "Kirjoita ensin viesti!"
+      failed_post: "Viestin tallentaminen epäonnistui. Ole hyvä ja yritä uudelleen."
       empty_topic_message: "Tämä keskustelu ei ole vielä alkanut. Kirjoita viesti alle, niin päästään alkuun!"
       topic_visibility_tooltip: "Tämän keskustelun näkevät: {{groupNames}}"
       view_topics_tooltip: "Muut keskustelut"

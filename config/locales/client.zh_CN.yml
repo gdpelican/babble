@@ -1,0 +1,26 @@
+zh_CN:
+  js:
+    babble:
+      placeholder: "请输入聊天内容..."
+      send: "发送"
+      title: "开始聊天"
+      error_message: "聊天信息不能为空！"
+      failed_post: "帖子保存失败。 请再尝试一次。"
+      empty_topic_message: "现在还没有聊天内容！说点什么吧。"
+      topic_visibility_tooltip: "聊天内容仅以下人员可见: {{groupNames}}"
+      view_topics_tooltip: "查看其它聊天频道"
+      view_chat_tooltip: "返回原先的频道"
+      select_topic: "选择另一个聊天频道"
+      admin:
+        new: "创建新频道"
+        none_selected: "选择一个频道开始聊天"
+        title: "频道名称"
+        allowed_groups: "哪些人员可见:"
+        menu_title: "聊天"
+        page_title: "聊天频道"
+        group: "以下人员可见"
+        post_count: "回复"
+        last_post: "最后的回复"
+        delete_confirm: "请确认是否要删除这个聊天频道？ 所有该频道的聊天记录将被删除。"
+        delete_failed: "无法删除这个聊天频道。请再尝试一次。"
+        save_failed: "无法保存这个聊天频道。请再尝试一次。"

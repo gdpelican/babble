@@ -13,7 +13,6 @@ Check out a live instance of Discourse with Babble installed on it here: [http:/
 #### Installation
  - Edit your web template and add the project clone url. (https://meta.discourse.org/t/install-a-plugin/19157)
  - Rebuild your web container so that the plugin installs.
- - In your Discourse setup, ensure that the option "allow uncategorized topics" is checked, otherwise the babble topic creation step you need to perform WILL fail.
 
 #### Adding a chat channel
  - This has been added to the admin panel; simply visit `/admin/chats` to create, update, and delete your chat channels.
@@ -29,19 +28,15 @@ Check out a live instance of Discourse with Babble installed on it here: [http:/
 - Configuring channels to be accessible to certain groups of people
 - Emojis!
 
-#### Things that work not-great
-- Posting to chat currently counts as a user post, which appears in a user's /posts page, counts towards badges, etc., which is not the best.
-- Chat responsiveness is still a bit slower than I'd like
-- Likely other things; let me know!
-
-Things that I'd like to add:
+#### Things that I'd like to add:
 - Pagination (likely load previous page)
 - Editing a recent post of yours
 - Allowing user to mute chat notifications
+- Check out the [issues list](http://github.com/gdpelican/babble/issues) for a more comprehensive list of what's not working great and what could be improved.
 
 #### Translations
 
-Babble is currently available in English, German, Spanish, and French.
+Babble is currently available in English, German, French, Spanish, Italian, Finnish, Russian, and Korean.
 If you'd like it translated into your language, let me know! The process is simple and easy, and I'm happy to help with it.
 
 Pull requests welcome! See [CONTRIBUTING.md](./CONTRIBUTING.md)

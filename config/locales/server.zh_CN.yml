@@ -1,0 +1,9 @@
+# Babble
+
+zh_CN:
+  site_settings:
+    babble_enabled: "启用Babble在线留言板插件。"
+    babble_max_topic_size: "每次存储聊天消息的最大数量"
+    babble_placeholder: "欲在消息发送框使用默认占位符文字请留空，否则在此输入自定义占位符文字。"
+    babble_icon: "此处可以使用Font Awesome code (fa- omitted) 替换右上角的Babble图标。详见页面 http://fontawesome.io/cheatsheet/ 上图标对应码。"
+    babble_category_name: "为Babble主题创建Discourse分类。"
