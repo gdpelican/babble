@@ -24,6 +24,7 @@
   outline: 0;
   text-align: center;
   float: left;
+  z-index: 1;
   .fa-chevron-left { padding-top: 4px; }
   &:hover .babble-context-toggle-tooltip { opacity: 1; }
 }
