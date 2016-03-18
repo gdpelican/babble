@@ -1,5 +1,5 @@
 export default function (container) {
   if (!container) { return false }
-  container = container[0]
+  container = container.get(0)
   return container.scrollHeight - container.scrollTop === container.offsetHeight
 }
