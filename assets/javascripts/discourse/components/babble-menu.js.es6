@@ -77,7 +77,7 @@ export default Ember.Component.extend({
   topicChanged: function() {
     this._actions.viewChat(this)
     this.set('initialScroll', true)
-    this.setupScrolling()
+    Ember.run.scheduleOnce('afterRender', this, this.setupScrolling)
   },
 
   @observes('Discourse.Babble.latestPost')
