@@ -2,6 +2,8 @@ import isElementScrolledToBottom from "../lib/is-element-scrolled-to-bottom"
 import lastVisiblePostInScrollableDiv from "../lib/last-visible-post-in-scrollable-div"
 import debounce from 'discourse/lib/debounce'
 import { observes } from 'ember-addons/ember-computed-decorators'
+import { headerHeight } from 'discourse/views/header'
+const HAS_MUTATION_OBSERVER = !Ember.testing && !!window.MutationObserver;
 
 export default Ember.Component.extend({
 
@@ -32,8 +34,40 @@ export default Ember.Component.extend({
   @observes('visible')
   _visible: function() {
     Discourse.Babble.set('menuVisible', this.get('visible'))
-    if (!this.ready()) { return }
-    Ember.run.scheduleOnce('afterRender', this, this.topicChanged)
+    if (this.ready()) {
+      Ember.run.scheduleOnce('afterRender', this, this.topicChanged)
+      Ember.run.scheduleOnce('afterRender', this, this.setupObserver)
+    }
+  },
+
+  watchHeight: function() {
+    // I am kinda fragile. :/
+    let menuPanel = $(this.element).find('.menu-panel')
+    if (menuPanel.hasClass('drop-down')) { return }
+
+    let panelBody = menuPanel.find('.panel-body')
+    let postWindow = panelBody.find('.babble-posts')
+    let offset = 10;
+    let postWindowSiblingHeight = _.reduce(postWindow.siblings(), function(sum, s) {
+      return sum + $(s).height()
+    }, 0)
+    postWindow.height(panelBody.height() - headerHeight() - postWindowSiblingHeight - offset)
+  },
+
+  setupObserver: function() {
+    if (!HAS_MUTATION_OBSERVER) { return }
+    if (!this.get('observer')) {
+      this.set('observer', new MutationObserver(() => { Ember.run.debounce(this, this.watchHeight, 50) }))
+    }
+
+    let observer = this.get('observer')
+    observer.disconnect()
+    if (this.get('visible')) {
+      observer.observe(this.element, { childList: true,
+                                       subtree: true,
+                                       characterData: true,
+                                       attributes: true })
+    }
   },
 
   @observes('Discourse.Babble.currentTopicId')
@@ -51,7 +85,7 @@ export default Ember.Component.extend({
 
   setupScrolling: function() {
     const self = this
-    self.set('scrollContainer', $('.babble-menu').find('.panel-body'))
+    self.set('scrollContainer', $('.babble-menu').find('.babble-posts'))
 
     var readOnScroll = function() {
       var lastReadPostNumber = self.lastVisiblePostInScrollableDiv(self.get('scrollContainer'))
