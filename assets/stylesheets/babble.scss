@@ -6,13 +6,17 @@
 /* Dropdown styles */
 
 .babble-title-wrapper {
-  height: 25px;
-  line-height: 25px;
 }
 
 .babble-title h4 {
-  float: left;
+  display: inline-block;
   padding-right: 8px;
+  margin: 0;
+  line-height: 20px;
+  @media (max-width: 700px) {
+    font-size: 17px;
+    line-height: 35px;
+  }
 }
 
 .babble-title i {
@@ -23,9 +27,11 @@
   position: relative;
   outline: 0;
   text-align: center;
-  float: left;
+  display: inline-block;
+  line-height: 20px;
+  @media (max-width: 700px) { line-height: 35px; }
+  vertical-align: top;
   z-index: 1;
-  .fa-chevron-left { padding-top: 4px; }
   &:hover .babble-context-toggle-tooltip { opacity: 1; }
 }
 
@@ -37,11 +43,13 @@
   box-shadow: 0 2px 2px rgba(0, 0, 0, 0.25);
   background: #fefefe;
   font-size: 13px;
+  line-height: 18px;
   color: black;
   padding: 5px;
   word-wrap: normal;
   min-width: 150px;
   left: 50%;
+  top: 100%;
   transform: translate(-50%, 0);
   &:after {
     content: ' ';
@@ -160,6 +168,13 @@ li.babble-post .babble-post-content a.mention {
   cursor: pointer;
   font-weight: bold;
   padding-left: 15px;
+  @media (max-width: 700px) {
+    padding: 10px 20px;
+  }
+}
+
+.babble-available-topic button {
+  color: #888;
 }
 
 /* Composer styles */
@@ -182,8 +197,13 @@ li.babble-post .babble-post-content a.mention {
   position: absolute;
   top: 2px;
   right: -2px;
-  color: #888;
+  color: #555;
+  cursor: pointer;
   background: transparent;
+  @media (max-width: 700px) {
+    font-size: 18px;
+    right: -5px;
+  }
 }
 
 .babble-post .babble-post-body .cooked img {
@@ -199,6 +219,10 @@ li.babble-post .babble-post-content a.mention {
   color: red;
   font-size: 10px;
   padding-right: 10px;
+}
+
+.babble-submit {
+  float: none;
 }
 
 /* Dropdown styles */
@@ -228,4 +252,9 @@ li.babble-post .babble-post-content a.mention {
 .babble-chat button.normalized {
   background: transparent;
   border: 0;
+  @media (max-width: 700px) {
+    padding: 0 5px;
+    &.for-chat { padding: 8px 10px; }
+    font-size: 17px;
+  }
 }

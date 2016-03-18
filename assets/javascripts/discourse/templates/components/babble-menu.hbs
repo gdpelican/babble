@@ -4,7 +4,7 @@
       <div class="babble-title">
         {{#if viewingChat}}
           <h4 class="babble-group-title">{{currentTopic.title}}</h4>
-          <div class="babble-context-toggle for-topics">
+          <div class="babble-context-toggle for-chat">
             <button class="normalized">
               <i class="fa fa-eye" />
             </button>
@@ -19,7 +19,7 @@
           </div>
           {{/if}}
         {{else}}
-          <button {{action 'viewChat' bubbles=false}} class="babble-context-toggle for-chat normalized">
+          <button {{action 'viewChat' bubbles=false}} class="babble-context-toggle for-topics normalized">
             <i class="fa fa-chevron-left" title="{{i18n 'babble.view_chat_tooltip'}}"></i>
           </button>
           <h4 class="babble-topic-switcher-title">{{i18n 'babble.select_topic'}}</h4>
