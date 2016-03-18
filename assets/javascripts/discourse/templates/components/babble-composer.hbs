@@ -1,12 +1,12 @@
-<div class="babble-composer">
-  <div class="babble-composer-textarea">
-    {{textarea value=text placeholder=placeholder }}
+<div class="babble-post-composer">
+  <div class="babble-post-composer-textarea">
+    {{textarea value=text placeholder=placeholder rows=3 }}
   </div>
-  <button {{action 'submit'}} {{bind-attr disabled="submitDisabled"}} class="btn btn-primary pull-right">{{i18n 'babble.send'}}</button>
-  <button {{action 'selectEmoji'}} class="btn no-text emoji" title="Emoji :smile:" aria-label="Emoji :smile:">
-    <i class="fa fa-smile-o"></i>
-  </button>
   {{#if errorMessage}}
     <span class="babble-composer-error-message">{{i18n errorMessage}}</span>
   {{/if}}
+  <button {{action 'submit'}} {{bind-attr disabled="submitDisabled"}} class="babble-submit btn btn-primary">{{i18n 'babble.send'}}</button>
+  <button {{action 'selectEmoji'}} class="btn no-text emoji" title="Emoji :smile:" aria-label="Emoji :smile:">
+    <i class="fa fa-smile-o"></i>
+  </button>
 </div>

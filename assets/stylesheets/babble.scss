@@ -1,6 +1,13 @@
-/* Dropdown styles */
+/* Icon styles */
 .babble-icon {
   position: relative;
+}
+
+/* Dropdown styles */
+
+.babble-title-wrapper {
+  height: 25px;
+  line-height: 25px;
 }
 
 .babble-title h4 {
@@ -12,15 +19,12 @@
   color: #ccc;
 }
 
-.babble-chat {
-  padding-right: 12px;
-}
-
 .babble-context-toggle {
   position: relative;
   outline: 0;
   text-align: center;
   float: left;
+  .fa-chevron-left { padding-top: 4px; }
   &:hover .babble-context-toggle-tooltip { opacity: 1; }
 }
 
@@ -58,13 +62,23 @@
 
 /* Post styles */
 .babble-posts {
+  width: 100%;
   overflow: auto;
+  height: 500px;
 }
 
 .babble-empty-topic-message {
   color: #ccc;
   text-align: center;
   padding: 25% 0;
+}
+
+.babble-post-container .row {
+  margin-right: 12px;
+}
+
+.babble-post {
+  clear: both;
 }
 
 .babble-post .babble-post-avatar a,
@@ -74,12 +88,6 @@
 
 .babble-post-staged {
   opacity: .5;
-}
-
-.babble-post {
-  position: relative;
-  list-style-type: none;
-  clear: both;
 }
 
 .babble-post:hover, .babble-available-topic:hover {
@@ -98,9 +106,8 @@
 
 .babble-last-read-post-message {
   font-size: 8px;
-  float: right;
   line-height: 10px;
-  padding-left: 5px;
+  padding: 0 10px 0 5px;
 }
 
 li.babble-post .babble-post-content a.mention {
@@ -157,14 +164,15 @@ li.babble-post .babble-post-content a.mention {
 /* Composer styles */
 
 .babble-post-composer {
-  bottom: 10px;
-  width: 300px;
+  position: relative;
+  margin-right: 2px;
+  text-align: right;
 }
 
 .babble-post-composer textarea {
   width: 100%;
   box-sizing: border-box;
-  padding: 5px 21px 5px 5px;
+  padding: 7px 21px 7px 7px;
   margin: 0;
   resize: none;
 }
@@ -182,10 +190,13 @@ li.babble-post .babble-post-content a.mention {
   height: auto;
 }
 
+.babble-composer .btn-primary {
+  margin: 3px 1px;
+}
+
 .babble-composer-error-message {
   color: red;
   font-size: 10px;
-  float: right;
   padding-right: 10px;
 }
 
@@ -194,46 +205,21 @@ li.babble-post .babble-post-content a.mention {
 .babble-menu {
   .slide-in { // styles for slide-in menu
     box-sizing: border-box;
-    padding: 30px 5px 160px 5px;
-    min-height: 100vh;
-
-    .panel-body {
-      width: 100%;
-      position: relative;
-    }
-    .babble-title-wrapper, .babble-post-composer {
-      position: fixed;
-      z-index: 1;
-    }
-
-    .babble-title {
-      position: relative;
-      bottom: 20px;
-    }
+    height: 100vh !important;
   }
   .drop-down { // styles for drop-down menu
     .panel-body {
-      margin-top: 30px;
-      margin-bottom: 100px;
-      max-height: 330px;
+      height: auto !important;
     }
-    .babble-title-wrapper, .babble-post-composer {
-      z-index: 1;
-    }
-
-    // magic needed for the Firefox family to display the title correctly
-    .babble-post-composer {
-      position: absolute;
-    }
-    .babble-title-wrapper {
-      position: fixed;
-    }
-
-    .babble-title {
-      position: relative;
-      bottom: 20px;
+    .babble-posts {
+      max-height: 300px;
     }
   }
+}
+
+.babble-menu .panel-body {
+  overflow: hidden;
+  width: 100%;
 }
 
 /* Discourse overrides */

@@ -1,31 +1,31 @@
 {{#menu-panel visible=visible}}
   <section class="babble-chat">
-      <div {{bind-attr class=":babble-title-wrapper viewingChat"}}>
-        <div class="babble-title">
-          {{#if viewingChat}}
-            <h4 class="babble-group-title">{{currentTopic.title}}</h4>
-            <div class="babble-context-toggle for-topics">
-              <button class="normalized">
-                <i class="fa fa-eye" />
-              </button>
-              <span class="babble-context-toggle-tooltip">{{i18n 'babble.topic_visibility_tooltip' groupNames=currentTopic.group_names}}</span>
-            </div>
-            {{#if multipleTopicsAvailable}}
-            <div class="babble-context-toggle for-chat">
-              <button {{action 'viewTopics' bubbles=false}} class="normalized">
-                <i class="fa fa-exchange" />
-              </button>
-              <span class="babble-context-toggle-tooltip">{{i18n 'babble.view_topics_tooltip'}}</span>
-            </div>
-            {{/if}}
-          {{else}}
-            <button {{action 'viewChat' bubbles=false}} class="babble-context-toggle for-chat normalized">
-              <i class="fa fa-chevron-left" title="{{i18n 'babble.view_chat_tooltip'}}"></i>
+    <div {{bind-attr class=":babble-title-wrapper viewingChat"}}>
+      <div class="babble-title">
+        {{#if viewingChat}}
+          <h4 class="babble-group-title">{{currentTopic.title}}</h4>
+          <div class="babble-context-toggle for-topics">
+            <button class="normalized">
+              <i class="fa fa-eye" />
             </button>
-            <h4 class="babble-topic-switcher-title">{{i18n 'babble.select_topic'}}</h4>
+            <span class="babble-context-toggle-tooltip">{{i18n 'babble.topic_visibility_tooltip' groupNames=currentTopic.group_names}}</span>
+          </div>
+          {{#if multipleTopicsAvailable}}
+          <div class="babble-context-toggle for-chat">
+            <button {{action 'viewTopics' bubbles=false}} class="normalized">
+              <i class="fa fa-exchange" />
+            </button>
+            <span class="babble-context-toggle-tooltip">{{i18n 'babble.view_topics_tooltip'}}</span>
+          </div>
           {{/if}}
-        </div>
+        {{else}}
+          <button {{action 'viewChat' bubbles=false}} class="babble-context-toggle for-chat normalized">
+            <i class="fa fa-chevron-left" title="{{i18n 'babble.view_chat_tooltip'}}"></i>
+          </button>
+          <h4 class="babble-topic-switcher-title">{{i18n 'babble.select_topic'}}</h4>
+        {{/if}}
       </div>
+    </div>
 
     {{#if viewingChat}}
       <ul class="babble-posts">
