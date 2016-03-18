@@ -56,17 +56,20 @@ export default Ember.Component.extend({
 
   setupObserver: function() {
     if (!HAS_MUTATION_OBSERVER) { return }
-    if (!this.get('observer')) {
-      this.set('observer', new MutationObserver(() => { Ember.run.debounce(this, this.watchHeight, 50) }))
+    if (!this.observer) {
+      this.observer = new MutationObserver(() => {
+        Ember.run.debounce(this, () => {
+          Ember.run.scheduleOnce('afterRender', this, this.watchHeight)
+        }, 150)
+      });
     }
 
-    let observer = this.get('observer')
-    observer.disconnect()
+    this.observer.disconnect()
     if (this.get('visible')) {
-      observer.observe(this.element, { childList: true,
-                                       subtree: true,
-                                       characterData: true,
-                                       attributes: true })
+      this.observer.observe(this.element, { childList: true,
+                                            subtree: true,
+                                            characterData: true,
+                                            attributes: true })
     }
   },
 
