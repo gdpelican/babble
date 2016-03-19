@@ -41,7 +41,7 @@ describe ::Babble::Topic do
     it "creates a topic" do
       Babble::Topic.create_topic title: "My new topic title", allowed_group_ids: [group.id]
       t = Topic.last
-      expect(t.user_id).to eq SiteSetting.babble_user_id
+      expect(t.user_id).to eq Discourse.system_user.id
       expect(t.title).to eq "My new topic title"
       expect(t.allowed_groups).to eq [group]
       expect(t.visible).to eq false

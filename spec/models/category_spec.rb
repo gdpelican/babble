@@ -18,7 +18,7 @@ describe ::Babble::Category do
       expect { Babble::Category.instance }.to change { Category.count }.by(1)
       category = Category.last
       expect(category.name).to eq SiteSetting.babble_category_name
-      expect(category.user).to eq Babble::User.instance
+      expect(category.user).to eq Discourse.system_user
     end
 
     it "does not create duplicate categories" do

@@ -137,7 +137,7 @@ describe ::Babble::TopicsController do
       expect(response).to be_success
 
       new_topic = Babble::Topic.available_topics.last
-      expect(new_topic.user).to eq Babble::User.instance
+      expect(new_topic.user).to eq Discourse.system_user
       expect(new_topic.title).to eq chat_params[:title]
       expect(new_topic.allowed_groups.length).to eq 1
       expect(new_topic.allowed_groups).to include allowed_group_a
