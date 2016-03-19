@@ -84,7 +84,7 @@ export default Ember.Component.extend({
   messageBusPostCallback: function() {
     let isScrolledToBottom = this.isElementScrolledToBottom(this.get('scrollContainer')),
         lastPostIsMine     = Discourse.Babble.lastPostIsMine
-    if (isScrolledToBottom || lastPostIsMine) { this.scroll() && this.read() }
+    if (isScrolledToBottom || lastPostIsMine) { this.scroll() }
   },
 
   setupScrolling: function() {
@@ -95,23 +95,22 @@ export default Ember.Component.extend({
     scrollContainer.on('scroll', debounce(() => { this.read }, 500))
     this.set('scrollContainer', scrollContainer)
     this.scroll()
-    this.read()
   },
 
   scroll: function() {
     let scrollSpeed = this.get('initialScroll') ? 0 : 750 // Scroll immediately on initial scroll
-    this.get('scrollContainer').animate({ scrollTop: this.getLastReadLinePosition() }, scrollSpeed)
+    this.get('scrollContainer').animate({ scrollTop: this.getLastReadLinePosition() }, scrollSpeed, () => { this.read() })
     this.set('initialScroll', false)
   },
 
   getLastReadLinePosition: function() {
-    var container = this.get('scrollContainer')
-    var lastReadLine = container.find('.babble-last-read-post-message')
+    let scrollContainer = this.get('scrollContainer')
+    let lastReadLine    = scrollContainer.find('.babble-last-read-post-message')
 
     if (this.get('initialScroll') && lastReadLine.length) {
-      return lastReadLine.offset().top - container.offset().top - 10
+      return lastReadLine.offset().top - scrollContainer.offset().top - 10
     } else {
-      return container.get(0).scrollHeight
+      return scrollContainer.get(0).scrollHeight
     }
   },
 
