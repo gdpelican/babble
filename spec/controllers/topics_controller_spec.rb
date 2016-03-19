@@ -212,6 +212,7 @@ describe ::Babble::TopicsController do
   describe "destroy" do
     before do
       user.update(admin: true)
+      group.users << another_user
     end
 
     it "can destroy a chat topic" do
@@ -238,6 +239,7 @@ describe ::Babble::TopicsController do
   describe "read" do
     it "reads a post up to the given post number" do
       group.users << user
+      group.users << another_user
       5.times { make_a_post(topic) }
       TopicUser.find_or_create_by(user: user, topic: topic)
 
@@ -249,6 +251,7 @@ describe ::Babble::TopicsController do
     end
 
     it "does not read posts for users who are not logged in" do
+      group.users << another_user
       5.times { make_a_post(topic) }
 
       xhr :get, :read, post_number: 2, id: topic.id
@@ -286,7 +289,7 @@ describe ::Babble::TopicsController do
   end
 
   def make_a_post(t)
-     Babble::PostCreator.create(another_user, raw: 'I am a test post', skip_validations: true, topic_id: t.id)
+    Babble::PostCreator.create(another_user, raw: 'I am a test post', skip_validations: true, topic_id: t.id)
   end
 
   def response_json
