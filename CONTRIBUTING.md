@@ -13,7 +13,7 @@ I'm going for a well-tested plugin on the backend here, as there will be some so
 To run the tests, navigate to the root of your Discourse fork, and run the tests from there
 
 ```
-rspec plugins/babble/spec
+bundle exec rspec plugins/babble/spec
 ```
 
 ## Setup
