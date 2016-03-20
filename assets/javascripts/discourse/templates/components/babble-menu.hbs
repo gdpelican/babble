@@ -44,6 +44,7 @@
           <li class="babble-available-topic row">
             <button {{action 'changeTopic' topic bubbles=false}} class="normalized">
               <div class="babble-available-topic-title">{{topic.title}}</div>
+              {{babble-unread-count topic=topic}}
             </button>
           </li>
         {{/each}}

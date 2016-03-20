@@ -42,11 +42,8 @@ export default Ember.Object.create({
       topic.postStream = self.get('currentTopic.postStream')
     }
 
-    var totalUnreadCount = topic.highest_post_number - topic.last_read_post_number
-    var windowUnreadCount = _.min([totalUnreadCount, topic.postStream.posts.length])
-
-    self.set('unreadCount', windowUnreadCount)
-    self.set('hasAdditionalUnread', totalUnreadCount > windowUnreadCount)
+    let currentTopicVersion = self.get('currentTopicVersion') || 0
+    self.set('currentTopicVersion', currentTopicVersion + 1)
     self.set('currentTopic', topic)
   },
 
@@ -94,11 +91,8 @@ export default Ember.Object.create({
     if (self.lastPostIsMine()) {
       self.clearStagedPost()
       postStream.commitPost(post)
-      self.set('unreadCount', 0)
     } else {
       postStream.appendPost(post)
-      var topic = self.get('currentTopic')
-      self.set('unreadCount', topic.highest_post_number - topic.last_read_post_number)
     }
   },
 

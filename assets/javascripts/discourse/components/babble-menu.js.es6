@@ -22,9 +22,12 @@ export default Ember.Component.extend({
     return Discourse.Babble.currentTopic
   }.property('Discourse.Babble.currentTopic'),
 
+  lastPostIsMine: function() {
+    return Discourse.Babble.lastPostIsMine
+  }.property('Discourse.Babble.lastPostIsMine'),
+
   availableTopics: function() {
-    var currentTopicId = this.get('currentTopicId')
-    return _.filter(Discourse.Babble.availableTopics, function(topic) { return topic.id != currentTopicId })
+    return _.filter(Discourse.Babble.availableTopics, (topic) => { return topic.id != this.get('currentTopicId') })
   }.property('Discourse.Babble.currentTopicId', 'Discourse.Babble.availableTopics'),
 
   multipleTopicsAvailable: function() {
@@ -34,10 +37,10 @@ export default Ember.Component.extend({
   @observes('visible')
   _visible: function() {
     Discourse.Babble.set('menuVisible', this.get('visible'))
-    if (this.ready()) {
-      Ember.run.scheduleOnce('afterRender', this, this.topicChanged)
-      Ember.run.scheduleOnce('afterRender', this, this.setupObserver)
-    }
+    if (!this.ready()) { return }
+
+    Ember.run.scheduleOnce('afterRender', this, this.topicChanged)
+    Ember.run.scheduleOnce('afterRender', this, this.setupObserver)
   },
 
   watchHeight: function() {
@@ -83,7 +86,7 @@ export default Ember.Component.extend({
   @observes('Discourse.Babble.latestPost')
   messageBusPostCallback: function() {
     let isScrolledToBottom = this.isElementScrolledToBottom(this.get('scrollContainer')),
-        lastPostIsMine     = Discourse.Babble.lastPostIsMine
+        lastPostIsMine     = this.get('lastPostIsMine')
     if (isScrolledToBottom || lastPostIsMine) { this.scroll() }
   },
 
@@ -119,6 +122,10 @@ export default Ember.Component.extend({
     if (lastReadPostNumber <= this.get('currentTopic.last_read_post_number')) { return }
     Discourse.ajax('/babble/topics/' + this.get('currentTopicId') + '/read/' + lastReadPostNumber + '.json')
              .then(Discourse.Babble.setCurrentTopic)
+  },
+
+  unreadCountFor: function(topic) {
+    return Discourse.Babble.unreadCountStringFor(topic)
   },
 
   actions: {

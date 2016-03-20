@@ -18,15 +18,9 @@ export default Ember.Component.extend({
     return Discourse.SiteSettings.babble_enabled && this.get('currentTopicId')
   }.property('Discourse.Babble.currentTopicId'),
 
-  unreadCount: function() {
-    if (Discourse.Babble.unreadCount > 0 && Discourse.Babble.hasAdditionalUnread) {
-      return Discourse.Babble.unreadCount + "+"
-    } else if (!Discourse.Babble.menuVisible && Discourse.Babble.unreadCount) {
-      return Discourse.Babble.unreadCount
-    } else {
-      return null
-    }
-  }.property('Discourse.Babble.unreadCount', 'Discourse.Babble.hasAdditionalUnread'),
+  menuVisible: function() {
+    return Discourse.Babble.menuVisible
+  }.property('Discourse.Babble.menuVisible'),
 
   _init: function() {
     if (!Discourse.Babble) { Discourse.Babble = initializeBabble }

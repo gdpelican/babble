@@ -26,8 +26,10 @@ describe ::Babble::TopicsController do
   }}
   let(:allowed_group_a) { Fabricate :group, name: 'group_a' }
   let(:allowed_group_b) { Fabricate :group, name: 'group_b' }
+  let(:last_read_post_number) { 5 }
 
   describe "index" do
+    let!(:topic_user) { TopicUser.create topic: topic, user: user, last_read_post_number: last_read_post_number }
     before do
       group.users << user
     end
@@ -37,10 +39,12 @@ describe ::Babble::TopicsController do
       expect(response.status).to eq 200
       topic_ids = response_json['topics'].map { |t| t['id'] }
       topic_titles = response_json['topics'].map { |t| t['title'] }
+      topic_last_read_post_numbers = response_json['topics'].map { |t| t['last_read_post_number'] }
       expect(topic_ids).to include topic.id
       expect(topic_ids).to_not include another_topic.id
       expect(topic_titles).to include topic.title
       expect(topic_titles).to_not include another_topic.title
+      expect(topic_last_read_post_numbers).to include last_read_post_number
     end
   end
 

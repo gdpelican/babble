@@ -19,6 +19,7 @@ describe ::Babble::Topic do
 
   describe "available_topics_for" do
     let! (:topic) { Babble::Topic.create_topic title: "A topic I should see!", allowed_group_ids: [group.id] }
+    let! (:topic_user) { TopicUser.create(topic: topic, user: user, last_read_post_number: 5) }
     let! (:another_topic) { Babble::Topic.create_topic title: "A topic I should not see!", allowed_group_ids: [another_group.id] }
 
     before { group.users << user }
@@ -29,6 +30,10 @@ describe ::Babble::Topic do
 
     it "does not retrieve topics not available to the user" do
       expect(Babble::Topic.available_topics_for(user)).to_not include another_topic
+    end
+
+    it "includes the last read post number" do
+      expect(Babble::Topic.available_topics_for(user).first.last_read_post_number).to eq topic_user.last_read_post_number
     end
   end
 
