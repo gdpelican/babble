@@ -186,6 +186,11 @@ li.babble-post .babble-post-content a.mention {
   text-align: right;
 }
 
+.babble-post-composer .autocomplete {
+  left: 15% !important;
+  width: 70%;
+}
+
 .babble-post-composer textarea {
   width: 100%;
   box-sizing: border-box;
