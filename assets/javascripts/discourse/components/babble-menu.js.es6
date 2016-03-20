@@ -82,44 +82,43 @@ export default Ember.Component.extend({
 
   @observes('Discourse.Babble.latestPost')
   messageBusPostCallback: function() {
-    var scrolledToBottom = this.isElementScrolledToBottom(this.get('scrollContainer'))
-    if (scrolledToBottom || Discourse.Babble.lastPostIsMine()) { this.scroll() }
+    let isScrolledToBottom = this.isElementScrolledToBottom(this.get('scrollContainer')),
+        lastPostIsMine     = Discourse.Babble.lastPostIsMine
+    if (isScrolledToBottom || lastPostIsMine) { this.scroll() }
   },
 
   setupScrolling: function() {
-    const self = this
-    self.set('scrollContainer', $('.babble-menu').find('.babble-posts'))
+    let scrollContainer = $('.babble-menu').find('.babble-posts')
+    if (!scrollContainer.length) { return }
 
-    var readOnScroll = function() {
-      var lastReadPostNumber = self.lastVisiblePostInScrollableDiv(self.get('scrollContainer'))
-      if (lastReadPostNumber > self.get('currentTopic.last_read_post_number')) {
-        Discourse.ajax('/babble/topics/' + self.get('currentTopicId') + '/read/' + lastReadPostNumber + '.json').then(Discourse.Babble.setCurrentTopic)
-      }
-    }
-
-    if (self.get('scrollContainer').get(0)) {
-      Ember.run.next(self, self.scroll)
-    }
-
-    self.get('scrollContainer').off('scroll')
-    self.get('scrollContainer').on('scroll', debounce(readOnScroll, 500))
+    scrollContainer.off('scroll')
+    scrollContainer.on('scroll', debounce(() => { this.read }, 500))
+    this.set('scrollContainer', scrollContainer)
+    this.scroll()
   },
 
   scroll: function() {
-    var scrollSpeed = this.get('initialScroll') ? 0 : 750 // Scroll immediately on initial scroll
-    this.get('scrollContainer').animate({ scrollTop: this.getLastReadLinePosition() }, scrollSpeed)
+    let scrollSpeed = this.get('initialScroll') ? 0 : 750 // Scroll immediately on initial scroll
+    this.get('scrollContainer').animate({ scrollTop: this.getLastReadLinePosition() }, scrollSpeed, () => { this.read() })
     this.set('initialScroll', false)
   },
 
   getLastReadLinePosition: function() {
-    var container = this.get('scrollContainer')
-    var lastReadLine = container.find('.babble-last-read-post-message')
+    let scrollContainer = this.get('scrollContainer')
+    let lastReadLine    = scrollContainer.find('.babble-last-read-post-message')
 
     if (this.get('initialScroll') && lastReadLine.length) {
-      return lastReadLine.offset().top - container.offset().top - 10
+      return lastReadLine.offset().top - scrollContainer.offset().top - 10
     } else {
-      return container.get(0).scrollHeight
+      return scrollContainer.get(0).scrollHeight
     }
+  },
+
+  read: function() {
+    let lastReadPostNumber = this.lastVisiblePostInScrollableDiv(this.get('scrollContainer'))
+    if (lastReadPostNumber <= this.get('currentTopic.last_read_post_number')) { return }
+    Discourse.ajax('/babble/topics/' + this.get('currentTopicId') + '/read/' + lastReadPostNumber + '.json')
+             .then(Discourse.Babble.setCurrentTopic)
   },
 
   actions: {

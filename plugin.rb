@@ -225,32 +225,15 @@ after_initialize do
     private
 
     def serialized_topic
-      Babble::TopicViewSerializer.new(TopicView.new(@topic.id, @user), scope: Guardian.new(@user), root: false).as_json
+      Babble::TopicViewSerializer.new(anonymous_topic_view, scope: guardian, root: false).as_json
+    end
+
+    def anonymous_topic_view
+      Babble::AnonymousTopicView.new(@topic.id, @user)
     end
 
     def serialized_post
       PostSerializer.new(@post, scope: guardian, root: false).as_json
-    end
-  end
-
-  class ::Babble::User
-    def self.instance
-      User.find_by(id:       SiteSetting.babble_user_id).tap { |user| ensure_admin(user) } ||
-      User.create( id:       SiteSetting.babble_user_id,
-                   email:    SiteSetting.babble_user_email,
-                   username: SiteSetting.babble_username,
-                   admin:    true).tap { use_gravatar }
-    end
-
-    def self.ensure_admin(user)
-      user.update(admin: true) if user && user.id == SiteSetting.babble_user_id
-    end
-
-    def self.use_gravatar
-      return if Rails.env.test?
-      user = instance
-      user.user_avatar.update_gravatar! &&
-      user.update(uploaded_avatar: user.user_avatar.gravatar_upload)
     end
   end
 
@@ -259,7 +242,7 @@ after_initialize do
     def self.create_topic(params)
       return false unless params[:title].present?
       save_topic Topic.new, {
-        user: Babble::User.instance,
+        user: Discourse.system_user,
         category: Babble::Category.instance,
         title: params[:title],
         visible: false,
@@ -297,7 +280,7 @@ after_initialize do
 
     def self.prune_topic(topic)
       topic.posts.order(created_at: :desc).offset(SiteSetting.babble_max_topic_size).destroy_all
-      topic.update(user: Babble::User.instance)
+      topic.update(user: Discourse.system_user)
     end
 
     def self.default_topic_for(user)
@@ -305,7 +288,7 @@ after_initialize do
     end
 
     def self.available_topics
-      Babble::User.instance.topics.includes(:allowed_groups)
+      Babble::Category.instance.topics.includes(:allowed_groups)
     end
 
     def self.available_topics_for(user)
@@ -319,6 +302,14 @@ after_initialize do
     end
   end
 
+  # anonymous topic_view for sending out via Message Bus
+  # (otherwise we end up serializing out the current user's read data to other people)
+  class ::Babble::AnonymousTopicView < ::TopicView
+    def topic_user
+      nil
+    end
+  end
+
   class ::Babble::TopicViewSerializer < ::TopicViewSerializer
     attributes :group_names, :last_posted_at
     def group_names
@@ -328,9 +319,10 @@ after_initialize do
 
   class ::Babble::Category
     def self.instance
-      Category.find_by(name:  SiteSetting.babble_category_name) ||
-      Category.create!(name:  SiteSetting.babble_category_name,
-                       user:  Babble::User.instance)
+      Category.find_by(name: SiteSetting.babble_category_name) ||
+      Category.new(    name: SiteSetting.babble_category_name,
+                       slug: SiteSetting.babble_category_name,
+                       user: Discourse.system_user).tap { |t| t.save(validate: false) }
     end
   end
 
