@@ -18,17 +18,6 @@ bundle exec rspec plugins/babble/spec
 
 ## Setup
 
-Currently, installing this plugin on its own will not create a topic for chat.
+To create a chat room, access Chats section in Admin Panel, and create a new channel in it.
 
-In order to do this, you'll need to go into a rails console and run the following:
-
-```
-Babble::Topic.create_topic("Your topic name")
-```
-
-This will create:
-
-- A Discourse User which will serve as 'author' for this and future chat topics. (This makes it easy for us to keep track of which topics are chat topics)
-- A Discourse Topic which will be marked as `visible: false` and saved.
-
-Once you have a valid chat topic, the bullhorn icon will appear in the navbar, and you're good to go!
+Once you have a valid chat topic and refreshing the webpage, the bullhorn icon will appear in the navbar, and you're good to go!
