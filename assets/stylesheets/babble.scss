@@ -189,6 +189,19 @@ li.babble-post .babble-post-content a.mention {
 .babble-post-composer .autocomplete {
   left: 15% !important;
   width: 70%;
+  text-align: left;
+
+  span.username {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 60%;
+  }
+
+  span.name {
+    float: right;
+    width: inherit !important;
+    max-width: 28%;
+  }
 }
 
 .babble-post-composer textarea {
