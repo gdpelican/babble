@@ -37,7 +37,7 @@ Check out a live instance of Discourse with Babble installed on it here: [http:/
 #### Translations
 
 Babble is currently available in English, German, French, Spanish, Italian, Finnish, Russian, and Korean.
-If you'd like it translated into your language, let me know! The process is simple and easy, and I'm happy to help with it.
+If you'd like it translated into your language, let me know! Babble is now [on Transifex](http://transifex.com/babble/babble), which should result in a better translation experience for all.
 
 Pull requests welcome! See [CONTRIBUTING.md](./CONTRIBUTING.md)
 
