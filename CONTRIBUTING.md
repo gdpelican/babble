@@ -23,7 +23,7 @@ Currently, installing this plugin on its own will not create a topic for chat.
 In order to do this, you'll need to go into a rails console and run the following:
 
 ```
-Babble::Topic.create_topic("Your topic name")
+Babble::Topic.create_topic(title: "Your topic name")
 ```
 
 This will create:
