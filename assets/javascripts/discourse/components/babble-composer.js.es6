@@ -81,9 +81,6 @@ export default Ember.Component.extend({
       }) // sorry mom.
 
       $('html').off('click.close-menu-panel')
-      $('.emoji-modal-wrapper').on('click', function() {
-        $('html').on('click.close-menu-panel', closeMenuPanelHandler.handler)
-      })
 
       showSelector({
         container: this.container,
@@ -95,6 +92,13 @@ export default Ember.Component.extend({
           $('html').on('click.close-menu-panel', closeMenuPanelHandler.handler)
           return false
         }
+      })
+
+      $('.emoji-modal-wrapper').on('click', function(event) {
+        $('html').on('click.close-menu-panel', closeMenuPanelHandler.handler)
+        // The click responsible for closing emoji box doesn't count
+        // as a click to close chat box.
+        event.stopPropagation()
       })
     },
 
