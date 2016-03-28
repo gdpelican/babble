@@ -104,7 +104,7 @@ after_initialize do
       perform_fetch do
         if !guardian.can_edit_post?(topic_post)
           respond_with_forbidden
-        elsif params[:raw].present? && PostRevisor.new(topic_post, topic).revise!(current_user, params.slice(:raw), validate_post: false)
+        elsif params[:raw].present? && Babble::PostRevisor.new(topic_post, topic).revise!(current_user, params.slice(:raw))
           respond_with topic_post, serializer: PostSerializer
         else
           respond_with_unprocessable
@@ -235,8 +235,6 @@ after_initialize do
       MessageBus.publish "/babble/topics/#{@topic.id}/posts", serialized_post
     end
 
-    private
-
     def serialized_topic
       Babble::TopicViewSerializer.new(anonymous_topic_view, scope: guardian, root: false).as_json
     end
@@ -247,6 +245,25 @@ after_initialize do
 
     def serialized_post
       PostSerializer.new(@post, scope: guardian, root: false).as_json
+    end
+  end
+
+  class ::Babble::PostRevisor < ::PostRevisor
+
+    def revise!(editor, fields, opts={})
+      opts[:validate_post] = false # don't validate length etc of chat posts
+      super
+    end
+
+    private
+
+    def publish_changes
+      super
+      MessageBus.publish "/babble/topics/#{@topic.id}/posts", serialized_post
+    end
+
+    def serialized_post
+      PostSerializer.new(@post, scope: Guardian.new(@editor), root: false).as_json
     end
   end
 

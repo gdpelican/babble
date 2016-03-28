@@ -55,7 +55,7 @@ export default Ember.Component.extend({
     this.set('showError', false)
     if (event.keyCode == 13 && !(event.ctrlKey || event.altKey || event.shiftKey)) {
       if (!this.get('submitDisabled')) { // ignore if submit is disabled
-        this._actions.submit(this) // submit on enter
+        this._actions.create(this) // submit on enter
       }
       return false
     }
@@ -81,14 +81,6 @@ export default Ember.Component.extend({
 
   editing: function() {
     return this.get('composerAction') == 'update'
-  }.property('composerAction'),
-
-  submitText: function() {
-    if (this.get('composerAction') == 'create') {
-      return 'babble.send'
-    } else {
-      return 'babble.save'
-    }
   }.property('composerAction'),
 
   actions: {
@@ -122,16 +114,16 @@ export default Ember.Component.extend({
       if (!text) { self.set('errorMessage', 'babble.error_message'); return; }
       self.set('text', '')
 
-      this.set('processing', true)
+      self.set('processing', true)
       Discourse.Babble.stagePost(text)
-      Discourse.ajax(`/babble/topics/${this.get('topic.id')}/post`, {
+      Discourse.ajax(`/babble/topics/${self.get('topic.id')}/post`, {
         type: 'POST',
         data: { raw: text }
       }).then(Discourse.Babble.handleNewPost, () => {
         Discourse.Babble.clearStagedPost()
-        this.set('errorMessage', 'babble.failed_post')
+        self.set('errorMessage', 'babble.failed_post')
       }).finally(() => {
-        this.set('processing', false)
+        self.set('processing', false)
       });
     },
 
@@ -144,7 +136,9 @@ export default Ember.Component.extend({
       Discourse.ajax(`/babble/topics/${self.get('post.topic_id')}/post/${self.get('post.id')}`, {
         type: 'POST',
         data: { raw: text }
-      }).then(() => {}, () => {
+      }).then(() => {
+        self.set('context.isEditing', false)
+      }, () => {
         self.set('errorMessage', 'babble.failed_post')
       }).finally(() => {
         self.set('processing', false)
