@@ -33,9 +33,11 @@ export default Ember.Object.create({
       messageBus.subscribe('/babble/topics/' + self.get('currentTopicId'), self.setCurrentTopic)
       messageBus.subscribe('/babble/topics/' + self.get('currentTopicId') + '/posts', self.handleNewPost)
 
-      let postStream = PostStream.create()
-      postStream.set('topic', topic)
+      var postStream = PostStream.create(topic.post_stream)
+      postStream.topic = topic
       postStream.updateFromJson(topic.post_stream)
+
+      topic.postStream = postStream
     } else {
       topic.postStream = self.get('currentTopic.postStream')
     }
