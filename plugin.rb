@@ -263,7 +263,7 @@ after_initialize do
     end
 
     def serialized_post
-      PostSerializer.new(@post, scope: Guardian.new(@editor), root: false).as_json
+      PostSerializer.new(@post, scope: Guardian.new(@editor), root: false).as_json.merge(is_edit: true)
     end
   end
 
