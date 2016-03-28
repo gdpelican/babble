@@ -73,14 +73,27 @@ export default Ember.Component.extend({
     if (this.get('textValidation.failed')) return true
   }.property('textValidation'),
 
+  _eventToggleFor: function(selector, event, namespace) {
+    let elem = $(selector)
+    let handler = _.find($._data(elem[0], 'events')[event], function(e) {
+      return e.namespace == namespace
+    })
+    return {
+      element: elem,
+      handler: handler,
+      on: function() {  elem.on(`${event}.${namespace}`, handler) },
+      off: function() { elem.off(`${event}.${namespace}`) }
+    }
+  },
+
   actions: {
     selectEmoji: function() {
-      var self = this
-      var closeMenuPanelHandler = _.find($._data($('html')[0], 'events')['click'], function(e) {
-        return e.namespace == 'close-menu-panel'
-      }) // sorry mom.
+      const self              = this
+      const outsideClickEvent = self._eventToggleFor('html', 'click', 'close-menu-panel')
+      const escKeyEvent       = self._eventToggleFor('body', 'keydown', 'discourse-menu-panel')
 
-      $('html').off('click.close-menu-panel')
+      outsideClickEvent.off()
+      escKeyEvent.off()
 
       showSelector({
         container: this.container,
@@ -89,15 +102,21 @@ export default Ember.Component.extend({
 
           $('.emoji-modal, .emoji-modal-wrapper').remove()
           $('.babble-post-composer textarea').focus()
-          $('html').on('click.close-menu-panel', closeMenuPanelHandler.handler)
+          outsideClickEvent.on()
+          escKeyEvent.on()
           return false
         }
       })
 
       $('.emoji-modal-wrapper').on('click', function(event) {
-        $('html').on('click.close-menu-panel', closeMenuPanelHandler.handler)
-        // The click responsible for closing emoji box doesn't count
-        // as a click to close chat box.
+        outsideClickEvent.on()
+        escKeyEvent.on()
+        event.stopPropagation()
+      })
+      $('body').on('keydown.emoji', function(event) {
+        if (event.which != 27) { return; }
+        outsideClickEvent.on()
+        escKeyEvent.on()
         event.stopPropagation()
       })
     },
