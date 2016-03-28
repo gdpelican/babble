@@ -26,7 +26,8 @@ after_initialize do
     post "/topics/:id"                   => "topics#update"
     delete "/topics/:id"                 => "topics#destroy"
     get  "/topics/:id/read/:post_number" => "topics#read"
-    post "/topics/:id/post"              => "topics#post"
+    post "/topics/:id/post/:post_id"     => "topics#update_post"
+    post "/topics/:id/post"              => "topics#create_post"
     get  "/topics/:id/groups"            => "topics#groups"
   end
 
@@ -88,11 +89,23 @@ after_initialize do
       end
     end
 
-    def post
+    def create_post
       perform_fetch do
-        post = create_post
-        if post.persisted?
-          respond_with post, serializer: PostSerializer
+        @post = Babble::PostCreator.create(current_user, post_creator_params)
+        if @post.persisted?
+          respond_with @post, serializer: PostSerializer
+        else
+          respond_with_unprocessable
+        end
+      end
+    end
+
+    def update_post
+      perform_fetch do
+        if !guardian.can_edit_post?(topic_post)
+          respond_with_forbidden
+        elsif params[:raw].present? && PostRevisor.new(topic_post, topic).revise!(current_user, params.slice(:raw), validate_post: false)
+          respond_with topic_post, serializer: PostSerializer
         else
           respond_with_unprocessable
         end
@@ -141,7 +154,7 @@ after_initialize do
     end
 
     def respond_with_unprocessable
-      render json: { errors: 'Unable to create post' }, status: :unprocessable_entity
+      render json: { errors: 'Unable to create or update post' }, status: :unprocessable_entity
     end
 
     def respond_with_forbidden
@@ -156,8 +169,8 @@ after_initialize do
       @topic ||= Babble::Topic.find(params[:id])
     end
 
-    def create_post
-      Babble::PostCreator.create(current_user, post_creator_params)
+    def topic_post
+      @topic_post ||= topic.posts.find_by(id: params[:post_id])
     end
 
     def topic_user
@@ -314,6 +327,11 @@ after_initialize do
     attributes :group_names, :last_posted_at
     def group_names
       object.topic.allowed_groups.pluck(:name).map(&:humanize)
+    end
+
+    def posts
+      @options[:include_raw] = true
+      super
     end
   end
 

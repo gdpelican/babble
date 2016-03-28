@@ -120,6 +120,7 @@ export default Ember.Component.extend({
       const self = composer || this
       const text = self.get('text').trim()
       if (!text) { self.set('errorMessage', 'babble.error_message'); return; }
+      self.set('text', '')
 
       this.set('processing', true)
       Discourse.Babble.stagePost(text)
@@ -140,7 +141,7 @@ export default Ember.Component.extend({
       if (!text) { self.set('errorMessage', 'babble.error_message'); return; }
 
       self.set('processing', true)
-      Discourse.ajax(`/babbles/topics/${self.get('post.topic_id')}/post/${self.get('post.id')}`, {
+      Discourse.ajax(`/babble/topics/${self.get('post.topic_id')}/post/${self.get('post.id')}`, {
         type: 'POST',
         data: { raw: text }
       }).then(() => {}, () => {
