@@ -3,6 +3,8 @@ en:
     babble:
       placeholder: "type your chat message here..."
       send: "Send"
+      save: "Save"
+      cancel: "Cancel"
       title: "open a chat window for a quick conversation"
       error_message: "Please enter a message!"
       failed_post: "Could not save that post. Please try again."

@@ -7,6 +7,7 @@ export default Ember.Component.extend({
 
   _init: function() {
     this.set('placeholder', Discourse.SiteSettings.babble_placeholder || I18n.t('babble.placeholder'))
+    if (this.get('post')) { this.set('text', this.get('post.raw')) }
   }.on('init'),
 
   _didInsertElement: function() {
@@ -73,6 +74,23 @@ export default Ember.Component.extend({
     if (this.get('textValidation.failed')) return true
   }.property('textValidation'),
 
+  composerAction: function() {
+    if (this.get('post.id'))  { return 'update' }
+    if (this.get('topic.id')) { return 'create' }
+  }.property('post', 'topic'),
+
+  editing: function() {
+    return this.get('composerAction') == 'update'
+  }.property('composerAction'),
+
+  submitText: function() {
+    if (this.get('composerAction') == 'create') {
+      return 'babble.send'
+    } else {
+      return 'babble.save'
+    }
+  }.property('composerAction'),
+
   actions: {
     selectEmoji: function() {
       var self = this
@@ -98,26 +116,42 @@ export default Ember.Component.extend({
       })
     },
 
-    submit: function(context) {
-      const self = context || this;
+    create: function(composer) {
+      const self = composer || this
       const text = self.get('text').trim()
-      self.set('text', '')
+      if (!text) { self.set('errorMessage', 'babble.error_message'); return; }
 
-      if (text === '') {
-        self.set('errorMessage', 'babble.error_message')
-      } else {
-        self.set('processing', true)
-        Discourse.Babble.stagePost(text)
-        Discourse.ajax("/babble/topics/" + self.get('topic.id') + "/post", {
-          type: 'POST',
-          data: { raw: text }
-        })
-        .then(Discourse.Babble.handleNewPost, function() {
-          Discourse.Babble.clearStagedPost()
-          self.set('errorMessage', 'babble.failed_post')
-        })
-        .finally(function() { self.set('processing', false) });
-      }
+      this.set('processing', true)
+      Discourse.Babble.stagePost(text)
+      Discourse.ajax(`/babble/topics/${this.get('topic.id')}/post`, {
+        type: 'POST',
+        data: { raw: text }
+      }).then(Discourse.Babble.handleNewPost, () => {
+        Discourse.Babble.clearStagedPost()
+        this.set('errorMessage', 'babble.failed_post')
+      }).finally(() => {
+        this.set('processing', false)
+      });
+    },
+
+    update: function(composer) {
+      const self = composer || this
+      const text = self.get('text').trim()
+      if (!text) { self.set('errorMessage', 'babble.error_message'); return; }
+
+      self.set('processing', true)
+      Discourse.ajax(`/babbles/topics/${self.get('post.topic_id')}/post/${self.get('post.id')}`, {
+        type: 'POST',
+        data: { raw: text }
+      }).then(() => {}, () => {
+        self.set('errorMessage', 'babble.failed_post')
+      }).finally(() => {
+        self.set('processing', false)
+      })
+    },
+
+    cancel: function() {
+      this.set('context.isEditing', false)
     }
   }
 
