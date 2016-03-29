@@ -49,7 +49,7 @@ after_initialize do
       if current_user.blank?
         respond_with_forbidden
       else
-        respond_with Babble::Topic.available_topics_for(current_user), serializer: BasicTopicSerializer
+        respond_with Babble::Topic.available_topics_for(current_user), serializer: Babble::BasicTopicSerializer
       end
     end
 
@@ -292,7 +292,12 @@ after_initialize do
     end
 
     def self.available_topics_for(user)
-      available_topics.joins(:allowed_group_users).where("? OR group_users.user_id = ?", user.admin, user.id).uniq
+      available_topics.select('topics.*')
+                      .select('tu.last_read_post_number')
+                      .joins(:allowed_group_users)
+                      .joins("LEFT OUTER JOIN topic_users tu ON topics.id = tu.id AND tu.user_id = #{user.id}")
+                      .where('? OR group_users.user_id = ?', user.admin, user.id)
+                      .uniq
     end
 
     # NB: the set_default_allowed_groups block is passed for backwards compatibility,
@@ -308,6 +313,10 @@ after_initialize do
     def topic_user
       nil
     end
+  end
+
+  class ::Babble::BasicTopicSerializer < ::BasicTopicSerializer
+    attributes :last_read_post_number, :highest_post_number
   end
 
   class ::Babble::TopicViewSerializer < ::TopicViewSerializer

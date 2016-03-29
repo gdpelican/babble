@@ -5,12 +5,7 @@
                      loginAction="showLogin"
                      title="babble.title"}}
   {{/header-dropdown}}
-  {{#if unreadCount}}
-    <a href class='badge-notification unread-notifications'>
-      <span>{{unreadCount}}</span>
-      {{#if hasAdditionalUnread}}
-        <span>+</span>
-      {{/if}}
-    </a>
-  {{/if}}
+  {{#unless menuVisible}}
+    {{babble-unread-count topic=currentTopic}}
+  {{/unless}}
 {{/if}}
