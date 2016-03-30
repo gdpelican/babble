@@ -4,12 +4,16 @@ import userSearch from "discourse/lib/user-search";
 export default Ember.Component.extend({
   userSearch: userSearch,
   classNames: ['babble-post-composer'],
+  showUpload: false,
+  uploadProgress: 0,
+  _xhr: null,
 
   _init: function() {
     this.set('placeholder', Discourse.SiteSettings.babble_placeholder || I18n.t('babble.placeholder'))
   }.on('init'),
 
   _didInsertElement: function() {
+    this._bindUploadTarget();
     const self = this
     self.$('textarea').autocomplete({
       template: self.container.lookup('template:emoji-selector-autocomplete.raw'),
@@ -72,6 +76,144 @@ export default Ember.Component.extend({
   submitDisabled: function() {
     if (this.get('textValidation.failed')) return true
   }.property('textValidation'),
+
+  uploadPlaceholder: function() {
+    return `[${I18n.t('uploading')}]() `;
+  }.property(),
+
+  _bindUploadTarget: function() {
+    this._unbindUploadTarget();
+
+    const $element = this.$();
+    const csrf = this.session.get('csrfToken');
+    const uploadPlaceholder = this.get('uploadPlaceholder');
+
+    $element.fileupload({
+      url: Discourse.getURL(`/uploads.json?client_id=${this.messageBus.clientId}&authenticity_token=${encodeURIComponent(csrf)}`),
+      dataType: "json",
+      pasteZone: $element,
+    });
+
+    $element.on('fileuploadsubmit', (e, data) => {
+      const isUploading = Discourse.Utilities.validateUploadedFiles(data.files);
+      data.formData = { type: "composer" };
+      this.setProperties({ uploadProgress: 0, isUploading });
+      return isUploading;
+    });
+
+    $element.on("fileuploadprogressall", (e, data) => {
+      this.set("uploadProgress", parseInt(data.loaded / data.total * 100, 10));
+    });
+
+    $element.on("fileuploadsend", (e, data) => {
+      this._validUploads++;
+      // add upload placeholders (as much placeholders as valid files dropped)
+      const placeholder = _.times(this._validUploads, () => uploadPlaceholder).join("\n");
+      this._addText(this._getSelected(), placeholder);
+
+      if (data.xhr && data.originalFiles.length === 1) {
+        this.set("isCancellable", true);
+        this._xhr = data.xhr();
+      }
+    });
+
+    $element.on("fileuploadfail", (e, data) => {
+      this._resetUpload(true);
+
+      const userCancelled = this._xhr && this._xhr._userCancelled;
+      this._xhr = null;
+
+      if (!userCancelled) {
+        Discourse.Utilities.displayErrorForUpload(data);
+      }
+    });
+
+    this.messageBus.subscribe("/uploads/composer", upload => {
+      // replace upload placeholder
+      if (upload && upload.url) {
+        if (!this._xhr || !this._xhr._userCancelled) {
+          const markdown = Discourse.Utilities.getUploadMarkdown(upload);
+          this.set('text', this.get('text').replace(uploadPlaceholder, markdown));
+          this._resetUpload(false);
+          this.set('showUpload', false)
+        } else {
+          this._resetUpload(true);
+        }
+      } else {
+        this._resetUpload(true);
+        Discourse.Utilities.displayErrorForUpload(upload);
+      }
+    });
+  },
+
+  _resetUpload: function(removePlaceholder) {
+    this._validUploads--;
+    if (this._validUploads === 0) {
+      this.setProperties({ uploadProgress: 0, isUploading: false, isCancellable: false });
+    }
+    if (removePlaceholder) {
+      this.set('text', this.get('text').replace(this.get('placeholder'), ""));
+    }
+  },
+
+  _unbindUploadTarget: function() {
+    this._validUploads = 0;
+    this.messageBus.unsubscribe("/uploads/composer");
+    const $uploadTarget = this.$();
+    try { $uploadTarget.fileupload("destroy"); }
+    catch (e) { }
+    $uploadTarget.off();
+  }.on('willDestroyElement'),
+
+  _addTextFromMenu: function() {
+    this._addText(this._getSelected(), this.get('addText'))
+  }.observes('addText'),
+
+  _addText: function(sel, text) {
+    const insert = `${sel.pre}${text}`;
+    this.set('text', `${insert}${sel.post}`);
+    this._selectText(insert.length, 0);
+    Ember.run.scheduleOnce("afterRender", () => this.$("textarea").focus());
+  },
+
+  _selectText: function(from, length) {
+    Ember.run.scheduleOnce('afterRender', () => {
+      const $textarea = this.$('textarea');
+      const textarea = $textarea[0];
+      const oldScrollPos = $textarea.scrollTop();
+      if (!this.capabilities.isIOS) {
+        $textarea.focus();
+      }
+      textarea.selectionStart = from;
+      textarea.selectionEnd = textarea.selectionStart + length;
+      $textarea.scrollTop(oldScrollPos);
+    });
+  },
+
+  _getSelected: function(trimLeading) {
+    const textarea = this.$('textarea')[0];
+    const value = textarea.value;
+    var start = textarea.selectionStart;
+    let end = textarea.selectionEnd;
+
+    // trim trailing spaces cause **test ** would be invalid
+    while (end > start && /\s/.test(value.charAt(end-1))) {
+      end--;
+    }
+
+    if (trimLeading) {
+      // trim leading spaces cause ** test** would be invalid
+      while(end > start && /\s/.test(value.charAt(start))) {
+        start++;
+      }
+    }
+
+    const selVal = value.substring(start, end);
+    const pre = value.slice(0, start);
+    const post = value.slice(end);
+
+    return { start, end, value: selVal, pre, post };
+  },
 
   _eventToggleFor: function(selector, event, namespace) {
     let elem = $(selector)
@@ -141,7 +283,19 @@ export default Ember.Component.extend({
         })
         .finally(function() { self.set('processing', false) });
       }
-    }
+    },
+
+    upload: function() {
+      this.set('showUpload', true)
+    },
+
+    cancelUpload: function() {
+      if (this._xhr) {
+        this._xhr._userCancelled = true;
+        this._xhr.abort();
+      }
+      this._resetUpload(true);
+    },
   }
 
 });
