@@ -9,6 +9,8 @@ export default Ember.Component.extend({
 
   isElementScrolledToBottom: isElementScrolledToBottom,
   lastVisiblePostInScrollableDiv: lastVisiblePostInScrollableDiv,
+  showUpload: false,
+  addText: null,
 
   ready: function() {
     return this.get('visible') && Discourse.Babble && Discourse.Babble.currentTopic
@@ -145,6 +147,7 @@ export default Ember.Component.extend({
   actions: {
     viewChat:    function(context) { (context || this).set('viewingChat', true) },
     viewTopics:  function(context) { (context || this).set('viewingChat', false) },
-    changeTopic: function(topic)   { Discourse.ajax('/babble/topics/' + topic.id + '.json').then(Discourse.Babble.setCurrentTopic) }
+    changeTopic: function(topic)   { Discourse.ajax('/babble/topics/' + topic.id + '.json').then(Discourse.Babble.setCurrentTopic)},
+    addText:     function(text)    { this.set('addText', text)}
   }
 });
