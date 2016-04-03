@@ -71,7 +71,8 @@ export default Ember.Component.extend({
   }.property('text', 'processing'),
 
   submitDisabled: function() {
-    if (this.get('textValidation.failed')) return true
+    return this.get('textValidation.failed') ||
+           this.get('text') == this.get('post.raw')
   }.property('textValidation'),
 
   composerAction: function() {
