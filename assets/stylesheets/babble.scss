@@ -219,6 +219,10 @@ li.babble-post .babble-post-content a.mention {
   resize: none;
 }
 
+.babble-post-composer:not(.is-editing) textarea {
+  min-height: 75px;
+}
+
 .babble-post-composer button.emoji {
   position: absolute;
   top: 2px;

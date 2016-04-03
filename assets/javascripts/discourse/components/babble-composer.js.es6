@@ -1,5 +1,6 @@
 import { showSelector } from "discourse/lib/emoji/emoji-toolbar";
 import userSearch from "discourse/lib/user-search";
+import expanding from "../lib/expanding"
 
 export default Ember.Component.extend({
   userSearch: userSearch,
@@ -12,7 +13,11 @@ export default Ember.Component.extend({
 
   _didInsertElement: function() {
     const self = this
-    self.$('textarea').autocomplete({
+    let $textarea = self.$('textarea')
+
+    if (this.get('editing')) { expanding.initialize($textarea) }
+
+    $textarea.autocomplete({
       template: self.container.lookup('template:emoji-selector-autocomplete.raw'),
       key: ":",
 
@@ -34,7 +39,7 @@ export default Ember.Component.extend({
       }
     })
 
-    self.$('textarea').autocomplete({
+    $textarea.autocomplete({
       template: self.container.lookup('template:user-selector-autocomplete.raw'),
       key: '@',
       dataSource(term) {
