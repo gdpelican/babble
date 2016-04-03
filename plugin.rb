@@ -93,7 +93,7 @@ after_initialize do
       perform_fetch do
         @post = Babble::PostCreator.create(current_user, post_creator_params)
         if @post.persisted?
-          respond_with @post, serializer: PostSerializer
+          respond_with @post, serializer: Babble::PostSerializer
         else
           respond_with_unprocessable
         end
@@ -105,7 +105,7 @@ after_initialize do
         if !guardian.can_edit_post?(topic_post)
           respond_with_forbidden
         elsif params[:raw].present? && Babble::PostRevisor.new(topic_post, topic).revise!(current_user, params.slice(:raw))
-          respond_with topic_post, serializer: PostSerializer
+          respond_with topic_post, serializer: Babble::PostSerializer
         else
           respond_with_unprocessable
         end
@@ -244,7 +244,7 @@ after_initialize do
     end
 
     def serialized_post
-      PostSerializer.new(@post, scope: guardian, root: false).as_json
+      Babble::PostSerializer.new(@post, scope: guardian, root: false).as_json
     end
   end
 
@@ -263,7 +263,7 @@ after_initialize do
     end
 
     def serialized_post
-      PostSerializer.new(@post, scope: Guardian.new(@editor), root: false).as_json.merge(is_edit: true)
+      Babble::PostSerializer.new(@post, scope: Guardian.new(@editor), root: false).as_json.merge(is_edit: true)
     end
   end
 
@@ -337,6 +337,12 @@ after_initialize do
   class ::Babble::AnonymousTopicView < ::TopicView
     def topic_user
       nil
+    end
+  end
+
+  class ::Babble::PostSerializer < ::PostSerializer
+    def initialize(object, opts = {})
+      super object, opts.merge(add_raw: true)
     end
   end
 

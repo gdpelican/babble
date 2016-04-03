@@ -95,6 +95,12 @@ describe ::Babble::TopicsController do
       expect(response.status).to eq 200
     end
 
+    it "returns the raw value of the post" do
+      group.users << user
+      xhr :post, :create_post, raw: "I am a test post", id: topic.id
+      expect(JSON.parse(response.body)['raw']).to eq "I am a test post"
+    end
+
     it "can add a short post to the chat topic" do
       group.users << user
       expect { xhr :post, :create_post, raw: "Hi!", id: topic.id }.to change { topic.posts.count }.by(1)
