@@ -85,16 +85,24 @@
 
 .babble-post {
   clear: both;
-  .post-edit {
-    padding: 0;
-    background: none;
-    margin-left: auto;
-    color: $tertiary;
-    display: block;
-    transition: all 0.25s;
-    opacity: 0;
-  }
-  &:hover .post-edit { opacity: 1; }
+}
+
+.babble-post-actions button {
+  float: right;
+  background: none;
+  color: $tertiary;
+  display: block;
+  margin: 0;
+  padding: 0 3px;
+  i.fa { margin: 0; }
+}
+
+.babble-post-actions .dropdown-menu {
+  bottom: inherit;
+  width: inherit;
+  left: inherit;
+  right: 0;
+  a { font-weight: bold; }
 }
 
 .babble-post .babble-post-avatar a,
@@ -217,10 +225,11 @@ li.babble-post .babble-post-content a.mention {
   padding: 7px 21px 7px 7px;
   margin: 0;
   resize: none;
+  min-height: 75px;
 }
 
-.babble-post-composer:not(.is-editing) textarea {
-  min-height: 75px;
+.babble-post-composer .is-editing textarea {
+  min-height: inherit;
 }
 
 .babble-post-composer button.emoji {
@@ -243,6 +252,11 @@ li.babble-post .babble-post-content a.mention {
 
 .babble-composer .btn-primary {
   margin: 3px 1px;
+}
+
+.babble-composer-editing-buttons {
+  margin: 5px 0;
+  button { padding: 3px 6px; }
 }
 
 .babble-composer-error-message {

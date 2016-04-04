@@ -25,8 +25,8 @@
     <div class='babble-post-meta-data babble-post-content'>
       <div class='post-info'>
         <a class='post-date' {{bind-attr href="shareUrl" data-share-url="shareUrl" data-post-number="post_number"}}>{{age-with-tooltip post.created_at}}</a>
-        {{#if post.can_edit}}
-          <button class='post-edit btn no-text' {{action "editPost"}}>{{fa-icon "pencil"}}</button>
+        {{#if canPerformActions}}
+          {{babble-actions post=post actions=dropdownActions}}
         {{/if}}
       </div>
     </div>

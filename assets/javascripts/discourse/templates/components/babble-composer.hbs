@@ -1,17 +1,19 @@
-<div {{bind-attr class="editing:is-editing :babble-post-composer :header-dropdown-toggle"}}>
+<div {{bind-attr class="editing:is-editing :header-dropdown-toggle"}}>
   <!-- ^^ the header-dropdown-toggle class on this element is a complete hack to get around the
           menu closing after hitting 'cancel edit'. Remove at your own risk. Actually, don't remove, kthx.
           See menu-panel.js.es6#100 for the related code. -->
   <div class="babble-post-composer-textarea">
-    {{textarea value=text placeholder=placeholder }}
+    {{textarea value=text placeholder=placeholder rows=1 }}
   </div>
   {{#if errorMessage}}
     <span class="babble-composer-error-message">{{i18n errorMessage}}</span>
   {{/if}}
 
   {{#if editing}}
-    <button {{action 'update'}} {{bind-attr disabled="submitDisabled"}} class="btn btn-primary">{{i18n 'babble.save'}}</button>
-    <button {{action 'cancel'}} class="btn cancel">{{i18n 'babble.cancel'}}</button>
+    <div class="babble-composer-editing-buttons">
+      <button {{action 'update'}} {{bind-attr disabled="submitDisabled"}} class="btn btn-primary">{{i18n 'babble.save'}}</button>
+      <button {{action 'cancel'}} class="btn cancel">{{i18n 'babble.cancel'}}</button>
+    </div>
   {{else}}
     <button {{action 'create'}} {{bind-attr disabled="submitDisabled"}} class="babble-submit btn btn-primary">{{i18n 'babble.send'}}</button>
   {{/if}}

@@ -13,9 +13,32 @@ export default Ember.Component.extend({
                            this.get('post.post_number') === this.get('post.topic.last_read_post_number'))
   }.on('init'),
 
+  canPerformActions: function() {
+    return this.get('post.can_edit') || this.get('post.can_delete') || this.get('post.flagsAvailable.length')
+  }.property('post'),
+
+  dropdownActions: function() {
+    const self = this
+    return {
+      edit: function() {
+        self.set('isEditing', true)
+      },
+
+      flag: function() {
+        self.set('isFlagging', true)
+        console.log('flag')
+      },
+
+      delete: function() {
+        self.set('isDeleting', true)
+        console.log('delete')
+      }
+    }
+  }.property('post'),
+
   actions: {
-    editPost: function(e) {
-      this.set('isEditing', true)
+    toggleActions: function() {
+      this.set('showActions', !this.get('showActions'))
     }
   }
 
