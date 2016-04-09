@@ -114,6 +114,10 @@
   a { font-weight: bold; }
 }
 
+.babble-post:last-of-type .babble-post-actions .dropdown-menu {
+  bottom: -15px;
+}
+
 .babble-post .babble-post-avatar a,
 .babble-post .post-date {
   background-color: transparent !important; /* sorry mom. */
