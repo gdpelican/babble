@@ -112,7 +112,7 @@ export default Ember.Component.extend({
   },
 
   scroll: function(postId) {
-    let target = $(`.babble-post-container[data-post-number=${postId}]`)
+    if (!this.get('visible')) { return }
     let scrollSpeed = this.get('initialScroll') ? 0 : 750 // Scroll immediately on initial scroll
     this.get('scrollContainer').animate({ scrollTop: this.scrollToPosition(postId) }, scrollSpeed, () => { this.read() })
     this.set('initialScroll', false)
@@ -128,7 +128,7 @@ export default Ember.Component.extend({
     }
 
     if (targetElement) {
-      return targetElement.offsetTop - scrollContainer.offset().top - 10
+      return targetElement.offsetTop - scrollContainer.offset().top + 50
     } else {
       return scrollContainer.get(0).scrollHeight
     }
