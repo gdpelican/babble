@@ -34,8 +34,8 @@ export default Ember.Object.create({
       messageBus.subscribe('/babble/topics/' + self.get('currentTopicId') + '/posts', self.handleNewPost)
 
       var postStream = PostStream.create(topic.post_stream)
-      postStream.posts = topic.post_stream.posts
       postStream.topic = topic
+      postStream.updateFromJson(topic.post_stream)
 
       topic.postStream = postStream
     } else {
@@ -85,20 +85,29 @@ export default Ember.Object.create({
 
   handleNewPost: function(data) {
     const self = Discourse.Babble
+    let postStream = self.get('currentTopic.postStream')
+    if (data.user_id != Discourse.User.current().id) {
+      _.each(['can_edit', 'can_delete'], function(key) { delete data[key] })
+    }
 
-    var postStream = self.get('currentTopic.postStream')
-    var post = Post.create(data)
-    post.set('created_at', moment(data.created_at, 'YYYY-MM-DD HH:mm:ss Z'))
-    self.set('latestPost', post)
+    let post = Post.create(data)
 
-    if (self.lastPostIsMine()) {
-      self.clearStagedPost()
-      postStream.commitPost(post)
-      self.set('unreadCount', 0)
+    if (data.is_edit || data.is_delete) {
+      postStream.storePost(post)
+      postStream.findLoadedPost(post.id).updateFromPost(post)
     } else {
-      postStream.appendPost(post)
-      var topic = self.get('currentTopic')
-      self.set('unreadCount', topic.highest_post_number - topic.last_read_post_number)
+      post.set('created_at', moment(data.created_at, 'YYYY-MM-DD HH:mm:ss Z'))
+      self.set('latestPost', post)
+
+      if (self.lastPostIsMine()) {
+        self.clearStagedPost()
+        postStream.commitPost(post)
+        self.set('unreadCount', 0)
+      } else {
+        postStream.appendPost(post)
+        var topic = self.get('currentTopic')
+        self.set('unreadCount', topic.highest_post_number - topic.last_read_post_number)
+      }
     }
   },
 

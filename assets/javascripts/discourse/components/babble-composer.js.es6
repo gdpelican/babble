@@ -1,5 +1,6 @@
 import { showSelector } from "discourse/lib/emoji/emoji-toolbar";
 import userSearch from "discourse/lib/user-search";
+import expanding from "../lib/expanding"
 
 export default Ember.Component.extend({
   userSearch: userSearch,
@@ -7,11 +8,16 @@ export default Ember.Component.extend({
 
   _init: function() {
     this.set('placeholder', Discourse.SiteSettings.babble_placeholder || I18n.t('babble.placeholder'))
+    if (this.get('post')) { this.set('text', this.get('post.raw')) }
   }.on('init'),
 
   _didInsertElement: function() {
     const self = this
-    self.$('textarea').autocomplete({
+    let $textarea = self.$('textarea')
+
+    if (this.get('editing')) { expanding.initialize($textarea) }
+
+    $textarea.autocomplete({
       template: self.container.lookup('template:emoji-selector-autocomplete.raw'),
       key: ":",
 
@@ -33,7 +39,7 @@ export default Ember.Component.extend({
       }
     })
 
-    self.$('textarea').autocomplete({
+    $textarea.autocomplete({
       template: self.container.lookup('template:user-selector-autocomplete.raw'),
       key: '@',
       dataSource(term) {
@@ -52,9 +58,17 @@ export default Ember.Component.extend({
 
   keyDown: function(event) {
     this.set('showError', false)
+    if (event.keyCode == 38 && !this.get('editing')) {
+      let myLastPost = _.last(_.select(this.get('topic.postStream.posts'), function(post) {
+        return post.user_id == Discourse.User.current().id
+      }))
+      if (myLastPost) { Discourse.Babble.set('editingPostId', myLastPost.id) }
+      return false
+    }
+
     if (event.keyCode == 13 && !(event.ctrlKey || event.altKey || event.shiftKey)) {
       if (!this.get('submitDisabled')) { // ignore if submit is disabled
-        this._actions.submit(this) // submit on enter
+        this._actions[this.get('composerAction')](this) // submit on enter
       }
       return false
     }
@@ -70,8 +84,18 @@ export default Ember.Component.extend({
   }.property('text', 'processing'),
 
   submitDisabled: function() {
-    if (this.get('textValidation.failed')) return true
+    return this.get('textValidation.failed') ||
+           this.get('text') == this.get('post.raw')
   }.property('textValidation'),
+
+  composerAction: function() {
+    if (this.get('post.id'))  { return 'update' }
+    if (this.get('topic.id')) { return 'create' }
+  }.property('post', 'topic'),
+
+  editing: function() {
+    return this.get('composerAction') == 'update'
+  }.property('composerAction'),
 
   _eventToggleFor: function(selector, event, namespace) {
     let elem = $(selector)
@@ -121,26 +145,45 @@ export default Ember.Component.extend({
       })
     },
 
-    submit: function(context) {
-      const self = context || this;
+    create: function(composer) {
+      const self = composer || this
       const text = self.get('text').trim()
+      if (!text) { self.set('errorMessage', 'babble.error_message'); return; }
       self.set('text', '')
 
-      if (text === '') {
-        self.set('errorMessage', 'babble.error_message')
-      } else {
-        self.set('processing', true)
-        Discourse.Babble.stagePost(text)
-        Discourse.ajax("/babble/topics/" + self.get('topic.id') + "/post", {
-          type: 'POST',
-          data: { raw: text }
-        })
-        .then(Discourse.Babble.handleNewPost, function() {
-          Discourse.Babble.clearStagedPost()
-          self.set('errorMessage', 'babble.failed_post')
-        })
-        .finally(function() { self.set('processing', false) });
-      }
+      self.set('processing', true)
+      Discourse.Babble.stagePost(text)
+      Discourse.ajax(`/babble/topics/${self.get('topic.id')}/post`, {
+        type: 'POST',
+        data: { raw: text }
+      }).then(Discourse.Babble.handleNewPost, () => {
+        Discourse.Babble.clearStagedPost()
+        self.set('errorMessage', 'babble.failed_post')
+      }).finally(() => {
+        self.set('processing', false)
+      });
+    },
+
+    update: function(composer) {
+      const self = composer || this
+      const text = self.get('text').trim()
+      if (!text) { self.set('errorMessage', 'babble.error_message'); return; }
+
+      self.set('processing', true)
+      Discourse.ajax(`/babble/topics/${self.get('post.topic_id')}/post/${self.get('post.id')}`, {
+        type: 'POST',
+        data: { raw: text }
+      }).then(() => {
+        Discourse.Babble.set('editingPostId', null)
+      }, () => {
+        self.set('errorMessage', 'babble.failed_post')
+      }).finally(() => {
+        self.set('processing', false)
+      })
+    },
+
+    cancel: function() {
+      Discourse.Babble.set('editingPostId', null)
     }
   }
 

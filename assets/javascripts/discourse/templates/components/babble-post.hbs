@@ -1,4 +1,4 @@
-<article {{bind-attr class="isStaged:babble-post-staged :babble-post-container :boxed" id="postElementId" data-post-id="post.id" data-user-id="post.user_id" data-post-number="post.post_number"}}>
+<article {{bind-attr class="post.user_deleted:babble-post-user-deleted post.deleted_at:babble-post-staff-deleted isStaged:babble-post-staged isEditing:babble-post-editing :babble-post-container :boxed" id="postElementId" data-post-id="post.id" data-user-id="post.user_id" data-post-number="post.post_number"}}>
   <div class="row">
     <div class='babble-post-avatar babble-post-content'>
       <div class="contents">
@@ -11,25 +11,32 @@
     </div>
 
     <div class='babble-post-body babble-post-content'>
-      <div {{bind-attr class="showUserReplyTab:avoid-tab view.repliesShown::contents :regular view.extraClass"}}>
-        <div class='cooked'>
-          {{{post.cooked}}}
+      {{#if isEditing}}
+        {{babble-composer post=post isEditing=isEditing}}
+      {{else}}
+        <div {{bind-attr class="showUserReplyTab:avoid-tab view.repliesShown::contents :regular view.extraClass"}}>
+          <div class='cooked'>
+            {{{post.cooked}}}
+          </div>
         </div>
-        {{#if post.cooked_hidden}}
-          <a href {{action "expandHidden" this}}>{{i18n 'post.show_hidden'}}</a>
-        {{/if}}
-      </div>
+      {{/if}}
     </div>
 
     <div class='babble-post-meta-data babble-post-content'>
       <div class='post-info'>
         <a class='post-date' {{bind-attr href="shareUrl" data-share-url="shareUrl" data-post-number="post_number"}}>{{age-with-tooltip post.created_at}}</a>
+        {{#if canPerformActions}}
+          {{babble-actions post=post actions=dropdownActions}}
+        {{/if}}
+        {{#if post.deleted_at}}
+          <div><i class="fa fa-trash-o"></i></div>
+        {{/if}}
       </div>
     </div>
   </div>
 </article>
 
 {{#if isLastRead}}
-  <div class="babble-last-read-post-message">NEW MESSAGES</div>
+  <div class="babble-last-read-post-message">{{i18n 'babble.new_messages'}}</div>
   <hr class="babble-last-read-post-line"/>
 {{/if}}

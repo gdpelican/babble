@@ -5,9 +5,6 @@
 
 /* Dropdown styles */
 
-.babble-title-wrapper {
-}
-
 .babble-title h4 {
   display: inline-block;
   padding-right: 8px;
@@ -88,6 +85,37 @@
 
 .babble-post {
   clear: both;
+}
+
+.babble-post-user-deleted {
+  .babble-post-avatar, .babble-post-body, .post-date, .babble-post-actions button { opacity: 0.5 }
+  .cooked { font-size: 11px; }
+}
+
+.babble-post-staff-deleted {
+  display: none;
+}
+
+.babble-post-actions button {
+  float: right;
+  background: none;
+  color: $tertiary;
+  display: block;
+  margin: 0;
+  padding: 0 3px;
+  i.fa { margin: 0; }
+}
+
+.babble-post-actions .dropdown-menu {
+  bottom: inherit;
+  width: inherit;
+  left: inherit;
+  right: 0;
+  a { font-weight: bold; }
+}
+
+.babble-post:last-of-type .babble-post-actions .dropdown-menu {
+  bottom: -15px;
 }
 
 .babble-post .babble-post-avatar a,
@@ -210,6 +238,11 @@ li.babble-post .babble-post-content a.mention {
   padding: 7px 21px 7px 7px;
   margin: 0;
   resize: none;
+  min-height: 75px;
+}
+
+.babble-post-composer .is-editing textarea {
+  min-height: inherit;
 }
 
 .babble-post-composer button.emoji {
@@ -234,13 +267,18 @@ li.babble-post .babble-post-content a.mention {
   margin: 3px 1px;
 }
 
+.babble-composer-editing-buttons {
+  margin: 5px 0;
+  button { padding: 3px 6px; }
+}
+
 .babble-composer-error-message {
   color: red;
   font-size: 10px;
   padding-right: 10px;
 }
 
-.babble-submit {
+.babble-create-post {
   float: none;
 }
 

@@ -19,15 +19,17 @@ after_initialize do
   end
 
   Babble::Engine.routes.draw do
-    get  "/topics"                       => "topics#index"
-    post "/topics"                       => "topics#create"
-    get  "/topics/default"               => "topics#default"
-    get  "/topics/:id"                   => "topics#show"
-    post "/topics/:id"                   => "topics#update"
-    delete "/topics/:id"                 => "topics#destroy"
-    get  "/topics/:id/read/:post_number" => "topics#read"
-    post "/topics/:id/post"              => "topics#post"
-    get  "/topics/:id/groups"            => "topics#groups"
+    get    "/topics"                       => "topics#index"
+    post   "/topics"                       => "topics#create"
+    get    "/topics/default"               => "topics#default"
+    get    "/topics/:id"                   => "topics#show"
+    post   "/topics/:id"                   => "topics#update"
+    delete "/topics/:id"                   => "topics#destroy"
+    get    "/topics/:id/read/:post_number" => "topics#read"
+    post   "/topics/:id/post"              => "topics#create_post"
+    post   "/topics/:id/post/:post_id"     => "topics#update_post"
+    delete "/topics/:id/destroy/:post_id"  => "topics#destroy_post"
+    get    "/topics/:id/groups"            => "topics#groups"
   end
 
   Discourse::Application.routes.append do
@@ -73,7 +75,7 @@ after_initialize do
       if !current_user.admin?
         respond_with_forbidden
       elsif topic.ordered_posts.any?
-        PostDestroyer.new(current_user, topic.ordered_posts.first).destroy
+        Babble::PostDestroyer.new(current_user, topic.ordered_posts.first).destroy
         respond_with nil
       else
         topic.destroy
@@ -88,13 +90,36 @@ after_initialize do
       end
     end
 
-    def post
+    def create_post
       perform_fetch do
-        post = create_post
-        if post.persisted?
-          respond_with post, serializer: PostSerializer
+        @post = Babble::PostCreator.create(current_user, post_creator_params)
+        if @post.persisted?
+          respond_with @post, serializer: Babble::PostSerializer
         else
           respond_with_unprocessable
+        end
+      end
+    end
+
+    def update_post
+      perform_fetch do
+        if !guardian.can_edit_post?(topic_post)
+          respond_with_forbidden
+        elsif params[:raw].present? && Babble::PostRevisor.new(topic_post, topic).revise!(current_user, params.slice(:raw))
+          respond_with topic_post, serializer: Babble::PostSerializer
+        else
+          respond_with_unprocessable
+        end
+      end
+    end
+
+    def destroy_post
+      perform_fetch do
+        if !guardian.can_delete_post?(topic_post)
+          respond_with_forbidden
+        else
+          Babble::PostDestroyer.new(current_user, topic_post).destroy
+          respond_with topic_post, serializer: Babble::PostSerializer
         end
       end
     end
@@ -141,7 +166,7 @@ after_initialize do
     end
 
     def respond_with_unprocessable
-      render json: { errors: 'Unable to create post' }, status: :unprocessable_entity
+      render json: { errors: 'Unable to create or update post' }, status: :unprocessable_entity
     end
 
     def respond_with_forbidden
@@ -156,8 +181,8 @@ after_initialize do
       @topic ||= Babble::Topic.find(params[:id])
     end
 
-    def create_post
-      Babble::PostCreator.create(current_user, post_creator_params)
+    def topic_post
+      @topic_post ||= topic.posts.find_by(id: params[:post_id])
     end
 
     def topic_user
@@ -218,22 +243,54 @@ after_initialize do
       TopicUser.update_last_read(@user, @topic.id, @post.post_number, PostTiming::MAX_READ_TIME_PER_BATCH)
       Babble::Topic.prune_topic(@topic)
 
-      MessageBus.publish "/babble/topics/#{@topic.id}", serialized_topic
-      MessageBus.publish "/babble/topics/#{@topic.id}/posts", serialized_post
+      Babble::Broadcaster.publish_to_posts(@post, @user)
+      Babble::Broadcaster.publish_to_topic(@topic, @user)
+    end
+  end
+
+  class ::Babble::PostRevisor < ::PostRevisor
+
+    def revise!(editor, fields, opts={})
+      opts[:validate_post] = false # don't validate length etc of chat posts
+      super
     end
 
     private
 
-    def serialized_topic
-      Babble::TopicViewSerializer.new(anonymous_topic_view, scope: guardian, root: false).as_json
+    def publish_changes
+      super
+      Babble::Broadcaster.publish_to_posts(@post, @editor, is_edit: true)
+    end
+  end
+
+  class ::Babble::PostDestroyer < ::PostDestroyer
+    def destroy
+      super
+      Babble::Broadcaster.publish_to_topic(@topic, @user)
+      Babble::Broadcaster.publish_to_posts(@post, @user, is_delete: true)
+    end
+  end
+
+  class Babble::Broadcaster
+
+    def self.publish_to_topic(topic, user, extras = {})
+      MessageBus.publish "/babble/topics/#{topic.id}", serialized_topic(topic, user, extras)
     end
 
-    def anonymous_topic_view
-      Babble::AnonymousTopicView.new(@topic.id, @user)
+    def self.publish_to_posts(post, user, extras = {})
+      MessageBus.publish "/babble/topics/#{post.topic_id}/posts", serialized_post(post, user, extras)
     end
 
-    def serialized_post
-      PostSerializer.new(@post, scope: guardian, root: false).as_json
+    def self.serialized_topic(topic, user, extras = {})
+      serialize(Babble::AnonymousTopicView.new(topic.id, user), user, extras, Babble::TopicViewSerializer)
+    end
+
+    def self.serialized_post(post, user, extras = {})
+      serialize(post, user, extras, Babble::PostSerializer)
+    end
+
+    def self.serialize(obj, user, extras, serializer)
+      serializer.new(obj, scope: Guardian.new(user), root: false).as_json.merge(extras)
     end
   end
 
@@ -310,10 +367,21 @@ after_initialize do
     end
   end
 
+  class ::Babble::PostSerializer < ::PostSerializer
+    def initialize(object, opts = {})
+      super object, opts.merge(add_raw: true)
+    end
+  end
+
   class ::Babble::TopicViewSerializer < ::TopicViewSerializer
     attributes :group_names, :last_posted_at
     def group_names
       object.topic.allowed_groups.pluck(:name).map(&:humanize)
+    end
+
+    def posts
+      @options[:include_raw] = true
+      super
     end
 
     # details are expensive to calculate and we don't use them
