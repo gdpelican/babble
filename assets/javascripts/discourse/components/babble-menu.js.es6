@@ -122,7 +122,7 @@ export default Ember.Component.extend({
     let scrollContainer = this.get('scrollContainer')
     var targetElement
     if (postId) {
-      targetElement = _.first(scrollContainer.find(`.babble-post-container[data-post-number=${postId}]`))
+      targetElement = _.first(scrollContainer.find(`.babble-post-container[data-post-id="${postId}"]`))
     } else if (this.get('initialScroll')) {
       targetElement = _.first(scrollContainer.find('.babble-last-read-post-message'))
     }
