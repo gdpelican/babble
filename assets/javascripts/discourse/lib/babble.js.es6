@@ -88,7 +88,7 @@ export default Ember.Object.create({
     let postStream = self.get('currentTopic.postStream')
     let post = Post.create(data)
 
-    if (data.is_edit) {
+    if (data.is_edit || data.is_delete) {
       postStream.storePost(post)
       postStream.findLoadedPost(post.id).updateFromPost(post)
     } else {

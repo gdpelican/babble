@@ -19,16 +19,17 @@ after_initialize do
   end
 
   Babble::Engine.routes.draw do
-    get  "/topics"                       => "topics#index"
-    post "/topics"                       => "topics#create"
-    get  "/topics/default"               => "topics#default"
-    get  "/topics/:id"                   => "topics#show"
-    post "/topics/:id"                   => "topics#update"
-    delete "/topics/:id"                 => "topics#destroy"
-    get  "/topics/:id/read/:post_number" => "topics#read"
-    post "/topics/:id/post/:post_id"     => "topics#update_post"
-    post "/topics/:id/post"              => "topics#create_post"
-    get  "/topics/:id/groups"            => "topics#groups"
+    get    "/topics"                       => "topics#index"
+    post   "/topics"                       => "topics#create"
+    get    "/topics/default"               => "topics#default"
+    get    "/topics/:id"                   => "topics#show"
+    post   "/topics/:id"                   => "topics#update"
+    delete "/topics/:id"                   => "topics#destroy"
+    get    "/topics/:id/read/:post_number" => "topics#read"
+    post   "/topics/:id/post"              => "topics#create_post"
+    post   "/topics/:id/post/:post_id"     => "topics#update_post"
+    delete "/topics/:id/destroy/:post_id"  => "topics#destroy_post"
+    get    "/topics/:id/groups"            => "topics#groups"
   end
 
   Discourse::Application.routes.append do
@@ -74,7 +75,7 @@ after_initialize do
       if !current_user.admin?
         respond_with_forbidden
       elsif topic.ordered_posts.any?
-        PostDestroyer.new(current_user, topic.ordered_posts.first).destroy
+        Babble::PostDestroyer.new(current_user, topic.ordered_posts.first).destroy
         respond_with nil
       else
         topic.destroy
@@ -108,6 +109,17 @@ after_initialize do
           respond_with topic_post, serializer: Babble::PostSerializer
         else
           respond_with_unprocessable
+        end
+      end
+    end
+
+    def destroy_post
+      perform_fetch do
+        if !guardian.can_delete_post?(topic_post)
+          respond_with_forbidden
+        else
+          Babble::PostDestroyer.new(current_user, topic_post).destroy
+          respond_with topic_post, serializer: Babble::PostSerializer
         end
       end
     end
@@ -231,20 +243,8 @@ after_initialize do
       TopicUser.update_last_read(@user, @topic.id, @post.post_number, PostTiming::MAX_READ_TIME_PER_BATCH)
       Babble::Topic.prune_topic(@topic)
 
-      MessageBus.publish "/babble/topics/#{@topic.id}", serialized_topic
-      MessageBus.publish "/babble/topics/#{@topic.id}/posts", serialized_post
-    end
-
-    def serialized_topic
-      Babble::TopicViewSerializer.new(anonymous_topic_view, scope: guardian, root: false).as_json
-    end
-
-    def anonymous_topic_view
-      Babble::AnonymousTopicView.new(@topic.id, @user)
-    end
-
-    def serialized_post
-      Babble::PostSerializer.new(@post, scope: guardian, root: false).as_json
+      Babble::Broadcaster.publish_to_posts(@post, @user)
+      Babble::Broadcaster.publish_to_topic(@topic, @user)
     end
   end
 
@@ -259,11 +259,37 @@ after_initialize do
 
     def publish_changes
       super
-      MessageBus.publish "/babble/topics/#{@topic.id}/posts", serialized_post
+      Babble::Broadcaster.publish_to_posts(@post, @editor, is_edit: true)
+    end
+  end
+
+  class ::Babble::PostDestroyer < ::PostDestroyer
+    def destroy
+      super
+      Babble::Broadcaster.publish_to_posts(@post, @user, is_delete: true)
+    end
+  end
+
+  class Babble::Broadcaster
+
+    def self.publish_to_topic(topic, user, extras = {})
+      MessageBus.publish "/babble/topics/#{topic.id}", serialized_topic(topic, user, extras)
     end
 
-    def serialized_post
-      Babble::PostSerializer.new(@post, scope: Guardian.new(@editor), root: false).as_json.merge(is_edit: true)
+    def self.publish_to_posts(post, user, extras = {})
+      MessageBus.publish "/babble/topics/#{post.topic_id}/posts", serialized_post(post, user, extras)
+    end
+
+    def self.serialized_topic(topic, user, extras = {})
+      serialize(Babble::AnonymousTopicView.new(topic.id, user), user, extras, Babble::TopicViewSerializer)
+    end
+
+    def self.serialized_post(post, user, extras = {})
+      serialize(post, user, extras, Babble::PostSerializer)
+    end
+
+    def self.serialize(obj, user, extras, serializer)
+      serializer.new(obj, scope: Guardian.new(user), root: false).as_json.merge(extras)
     end
   end
 

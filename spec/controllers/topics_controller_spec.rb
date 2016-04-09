@@ -146,6 +146,36 @@ describe ::Babble::TopicsController do
     end
   end
 
+  describe "flag_post" do
+    
+  end
+
+  describe "destroy_post" do
+    let!(:target_post) { topic.posts.create(raw: "I am a post to delete", user: user) }
+
+    it "deletes an existing post" do
+      group.users << user
+      expect { xhr :post, :destroy_post, id: topic.id, post_id: target_post.id }.to_not change { topic.posts.count }
+      expect(target_post.reload.user_deleted).to eq true
+      expect(response.status).to eq 200
+    end
+
+    it "does not allow deleting of posts the user can't delete" do
+      group.users << user
+      group.users << another_user
+      xhr :post, :destroy_post, id: topic.id, post_id: another_post.id
+      expect(response.status).to eq 403
+    end
+
+    it "allows admins to delete others' posts" do
+      user.update(admin: true)
+      group.users << user
+      group.users << another_user
+      expect { xhr :post, :destroy_post, id: topic.id, post_id: target_post.id }.to change { topic.posts.count }.by(-1)
+      expect(response.status).to eq 200
+    end
+  end
+
   describe "update_post" do
     let(:raw) { "Here is an updated post!" }
 

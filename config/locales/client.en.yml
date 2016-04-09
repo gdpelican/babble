@@ -7,6 +7,7 @@ en:
       cancel: "Cancel"
       title: "open a chat window for a quick conversation"
       error_message: "Please enter a message!"
+      new_messages: "NEW MESSAGES"
       failed_post: "Could not save that post. Please try again."
       empty_topic_message: "No messages yet! Enter one below to get started."
       topic_visibility_tooltip: "This chat is visible to: {{groupNames}}"

@@ -87,6 +87,15 @@
   clear: both;
 }
 
+.babble-post-user-deleted {
+  .babble-post-avatar, .babble-post-body, .post-date, .babble-post-actions button { opacity: 0.5 }
+  .cooked { font-size: 11px; }
+}
+
+.babble-post-staff-deleted {
+  background-color: dark-light-diff(rgba($danger,.7), $secondary, 50%, -60%);
+}
+
 .babble-post-actions button {
   float: right;
   background: none;

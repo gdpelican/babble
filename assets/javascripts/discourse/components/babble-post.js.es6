@@ -1,5 +1,6 @@
 import Post from "discourse/models/post"
 import Topic from "discourse/models/topic"
+import showModal from "discourse/lib/show-modal"
 
 export default Ember.Component.extend({
   tagName: 'li',
@@ -14,8 +15,11 @@ export default Ember.Component.extend({
   }.on('init'),
 
   canPerformActions: function() {
-    return this.get('post.can_edit') || this.get('post.can_delete') || this.get('post.flagsAvailable.length')
-  }.property('post'),
+    return !this.get('post.deleted_at') &&
+           (this.get('post.can_edit') ||
+            this.get('post.can_delete') ||
+            this.get('post.flagsAvailable.length'))
+  }.property('post.can_edit', 'post.can_delete', 'post.deleted_at', 'post.flagsAvailable.length'),
 
   dropdownActions: function() {
     const self = this
@@ -25,13 +29,18 @@ export default Ember.Component.extend({
       },
 
       flag: function() {
-        self.set('isFlagging', true)
-        console.log('flag')
+        showModal('flag', self.get('post'))
       },
 
       delete: function() {
-        self.set('isDeleting', true)
-        console.log('delete')
+        self.set('isStaged', true)
+        Discourse.ajax(`/babble/topics/${self.get('post.topic_id')}/destroy/${self.get('post.id')}`, {
+          type: 'DELETE',
+        }).then(Discourse.Babble.handleNewPost, () => {
+          self.set('errorMessage', 'babble.failed_post')
+        }).finally(() => {
+          self.set('isStaged', false)
+        })
       }
     }
   }.property('post'),
