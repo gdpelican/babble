@@ -383,6 +383,11 @@ after_initialize do
       @options[:include_raw] = true
       super
     end
+
+    # details are expensive to calculate and we don't use them
+    def include_details?
+      false
+    end
   end
 
   class ::Babble::Category
