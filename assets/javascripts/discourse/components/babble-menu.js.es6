@@ -120,11 +120,15 @@ export default Ember.Component.extend({
 
   scrollToPosition: function(postId) {
     let scrollContainer = this.get('scrollContainer')
-    let targetElement   = _.first(scrollContainer.find(`.babble-post-container[data-post-number=${postId}]`)) ||
-                          _.first(scrollContainer.find('.babble-last-read-post-message'))
+    var targetElement
+    if (postId) {
+      targetElement = _.first(scrollContainer.find(`.babble-post-container[data-post-number=${postId}]`))
+    } else if (this.get('initialScroll')) {
+      targetElement = _.first(scrollContainer.find('.babble-last-read-post-message'))
+    }
 
     if (targetElement) {
-      return targetElement.offset().top - scrollContainer.offset().top - 10
+      return targetElement.offsetTop - scrollContainer.offset().top - 10
     } else {
       return scrollContainer.get(0).scrollHeight
     }
