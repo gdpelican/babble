@@ -58,9 +58,17 @@ export default Ember.Component.extend({
 
   keyDown: function(event) {
     this.set('showError', false)
+    if (event.keyCode == 38 && !this.get('editing')) {
+      let myLastPost = _.last(_.select(this.get('topic.postStream.posts'), function(post) {
+        return post.user_id == Discourse.User.current().id
+      }))
+      if (myLastPost) { Discourse.Babble.set('editingPostId', myLastPost.id) }
+      return false
+    }
+
     if (event.keyCode == 13 && !(event.ctrlKey || event.altKey || event.shiftKey)) {
       if (!this.get('submitDisabled')) { // ignore if submit is disabled
-        this._actions.create(this) // submit on enter
+        this._actions[this.get('composerAction')](this) // submit on enter
       }
       return false
     }
@@ -166,7 +174,7 @@ export default Ember.Component.extend({
         type: 'POST',
         data: { raw: text }
       }).then(() => {
-        self.set('context.isEditing', false)
+        Discourse.Babble.set('editingPostId', null)
       }, () => {
         self.set('errorMessage', 'babble.failed_post')
       }).finally(() => {
@@ -175,7 +183,7 @@ export default Ember.Component.extend({
     },
 
     cancel: function() {
-      this.set('context.isEditing', false)
+      Discourse.Babble.set('editingPostId', null)
     }
   }
 

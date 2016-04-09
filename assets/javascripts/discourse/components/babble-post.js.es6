@@ -19,11 +19,15 @@ export default Ember.Component.extend({
             this.get('post.can_delete'))
   }.property('post.can_edit', 'post.can_delete', 'post.deleted_at'),
 
+  isEditing: function() {
+    return Discourse.Babble.editingPostId == this.get('post.id')
+  }.property('Discourse.Babble.editingPostId'),
+
   dropdownActions: function() {
     const self = this
     return {
       edit: function() {
-        self.set('isEditing', true)
+        Discourse.Babble.set('editingPostId', self.get('post.id'))
       },
 
       delete: function() {

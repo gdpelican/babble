@@ -76,6 +76,7 @@ export default Ember.Component.extend({
   @observes('Discourse.Babble.currentTopicId')
   topicChanged: function() {
     this._actions.viewChat(this)
+    $(this.element).find('.babble-post-composer').find('textarea').focus()
     this.set('initialScroll', true)
     Ember.run.scheduleOnce('afterRender', this, this.setupScrolling)
   },
@@ -83,8 +84,21 @@ export default Ember.Component.extend({
   @observes('Discourse.Babble.latestPost')
   messageBusPostCallback: function() {
     let isScrolledToBottom = this.isElementScrolledToBottom(this.get('scrollContainer')),
-        lastPostIsMine     = Discourse.Babble.lastPostIsMine
+        lastPostIsMine     = Discourse.Babble.lastPostIsMine()
     if (isScrolledToBottom || lastPostIsMine) { this.scroll() }
+  },
+
+  @observes('Discourse.Babble.editingPostId')
+  scrollToEditingPost: function() {
+    if (Discourse.Babble.editingPostId) {
+      // focus the textarea of the post being edited
+      Ember.run.scheduleOnce('afterRender', this, () => {
+        $(this.element).find('.is-editing').find('textarea').focus()
+        this.scroll(Discourse.Babble.editingPostId)
+      })
+    } else {
+      $(this.element).find('.babble-post-composer').find('textarea').focus()
+    }
   },
 
   setupScrolling: function() {
@@ -97,18 +111,20 @@ export default Ember.Component.extend({
     this.scroll()
   },
 
-  scroll: function() {
+  scroll: function(postId) {
+    let target = $(`.babble-post-container[data-post-number=${postId}]`)
     let scrollSpeed = this.get('initialScroll') ? 0 : 750 // Scroll immediately on initial scroll
-    this.get('scrollContainer').animate({ scrollTop: this.getLastReadLinePosition() }, scrollSpeed, () => { this.read() })
+    this.get('scrollContainer').animate({ scrollTop: this.scrollToPosition(postId) }, scrollSpeed, () => { this.read() })
     this.set('initialScroll', false)
   },
 
-  getLastReadLinePosition: function() {
+  scrollToPosition: function(postId) {
     let scrollContainer = this.get('scrollContainer')
-    let lastReadLine    = scrollContainer.find('.babble-last-read-post-message')
+    let targetElement   = _.first(scrollContainer.find(`.babble-post-container[data-post-number=${postId}]`)) ||
+                          _.first(scrollContainer.find('.babble-last-read-post-message'))
 
-    if (this.get('initialScroll') && lastReadLine.length) {
-      return lastReadLine.offset().top - scrollContainer.offset().top - 10
+    if (targetElement) {
+      return targetElement.offset().top - scrollContainer.offset().top - 10
     } else {
       return scrollContainer.get(0).scrollHeight
     }
