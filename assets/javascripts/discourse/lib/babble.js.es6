@@ -86,6 +86,10 @@ export default Ember.Object.create({
   handleNewPost: function(data) {
     const self = Discourse.Babble
     let postStream = self.get('currentTopic.postStream')
+    if (data.user_id != Discourse.User.current().id) {
+      _.each(['can_edit', 'can_delete'], function(key) { delete data[key] })
+    }
+
     let post = Post.create(data)
 
     if (data.is_edit || data.is_delete) {

@@ -1,6 +1,5 @@
 import Post from "discourse/models/post"
 import Topic from "discourse/models/topic"
-import showModal from "discourse/lib/show-modal"
 
 export default Ember.Component.extend({
   tagName: 'li',
@@ -17,19 +16,14 @@ export default Ember.Component.extend({
   canPerformActions: function() {
     return !this.get('post.deleted_at') &&
            (this.get('post.can_edit') ||
-            this.get('post.can_delete') ||
-            this.get('post.flagsAvailable.length'))
-  }.property('post.can_edit', 'post.can_delete', 'post.deleted_at', 'post.flagsAvailable.length'),
+            this.get('post.can_delete'))
+  }.property('post.can_edit', 'post.can_delete', 'post.deleted_at'),
 
   dropdownActions: function() {
     const self = this
     return {
       edit: function() {
         self.set('isEditing', true)
-      },
-
-      flag: function() {
-        showModal('flag', self.get('post'))
       },
 
       delete: function() {
