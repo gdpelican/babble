@@ -315,6 +315,11 @@ after_initialize do
     def group_names
       object.topic.allowed_groups.pluck(:name).map(&:humanize)
     end
+
+    # details are expensive to calculate and we don't use them
+    def include_details?
+      false
+    end
   end
 
   class ::Babble::Category
