@@ -9,9 +9,17 @@ export default Ember.Component.extend({
   userDeleted: Em.computed.empty('post.user_id'),
 
   _init: function() {
-    this.set('isLastRead', this.get('post.post_number') <   this.get('post.topic.highest_post_number') &&
-                           this.get('post.post_number') === this.get('post.topic.last_read_post_number'))
+    this.set('isLastRead', this.get('post.post_number') <   this.get('highestPostNumber') &&
+                           this.get('post.post_number') === this.get('lastReadPostNumber'))
   }.on('init'),
+
+  highestPostNumber: function() {
+    return Discourse.Babble.get('currentTopic.highest_post_number')
+  }.property('Discourse.Babble.currentTopic.highest_post_number'),
+
+  lastReadPostNumber: function() {
+    return Discourse.Babble.get('currentTopic.last_read_post_number')
+  }.property('Discourse.Babble.currentTopic.last_read_post_number'),
 
   canPerformActions: function() {
     return !this.get('post.deleted_at') &&
