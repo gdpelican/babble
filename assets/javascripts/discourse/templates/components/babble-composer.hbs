@@ -8,7 +8,7 @@
   {{#if errorMessage}}
     <span class="babble-composer-error-message">{{i18n errorMessage}}</span>
   {{/if}}
-
+  
   {{#if editing}}
     <div class="babble-composer-editing-buttons">
       <button {{action 'update'}} {{bind-attr disabled="submitDisabled"}} class="btn btn-primary">{{i18n 'babble.save'}}</button>
