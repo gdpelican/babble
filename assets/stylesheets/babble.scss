@@ -306,6 +306,12 @@ li.babble-post .babble-post-content a.mention {
   width: 100%;
 }
 
+/* Admin styles */
+.babble-admin-disabled {
+  font-weight: bold;
+  text-align: center;
+}
+
 /* Discourse overrides */
 
 .babble-chat button.normalized {

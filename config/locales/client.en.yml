@@ -15,6 +15,7 @@ en:
       view_chat_tooltip: "Back to the current chat"
       select_topic: "Select another chat channel"
       admin:
+        disabled: "Babble has been disabled. Please re-enable it to continue."
         new: "New Channel"
         none_selected: "Select a channel to get started"
         title: "Channel Title"

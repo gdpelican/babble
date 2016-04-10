@@ -3,11 +3,12 @@ import initializeBabble from "../../discourse/lib/babble"
 export default Discourse.Route.extend({
 
   model: function() {
+    if (initializeBabble.disabled()) { return }
     if (!Discourse.Babble) { Discourse.Babble = initializeBabble }
     return Discourse.Babble.setAvailableTopics().then(function() { return Discourse.Babble.get('availableTopics') })
   },
 
   setupController: function(controller, model) {
-    controller.setProperties({ model: model })
+    controller.setProperties({ model: model, disabled: initializeBabble.disabled() })
   }
 });
