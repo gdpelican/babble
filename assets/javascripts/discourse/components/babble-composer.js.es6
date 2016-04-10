@@ -153,22 +153,19 @@ export default Ember.Component.extend({
           this._resetUpload(false);
           this.set('showUpload', false)
         } else {
-          this._resetUpload(true);
+          this._resetUpload();
         }
       } else {
-        this._resetUpload(true);
+        this._resetUpload();
         Discourse.Utilities.displayErrorForUpload(upload);
       }
     });
   },
 
-  _resetUpload: function(removePlaceholder) {
+  _resetUpload: function() {
     this._validUploads--;
     if (this._validUploads === 0) {
       this.setProperties({ uploadProgress: 0, isUploading: false, isCancellable: false });
-    }
-    if (removePlaceholder) {
-      this.set('text', this.get('text').replace(this.get('placeholder'), ""));
     }
   },
 
