@@ -286,7 +286,7 @@ after_initialize do
     end
 
     def self.serialized_post(post, user, extras = {})
-      serialize(post, user, extras, Babble::PostSerializer)
+      serialize(post, user, extras, Babble::PostSerializer).as_json.merge(extras)
     end
 
     def self.serialize(obj, user, extras, serializer)
