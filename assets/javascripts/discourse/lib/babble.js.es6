@@ -4,6 +4,10 @@ import Topic from 'discourse/models/topic'
 
 export default Ember.Object.create({
 
+  disabled: function() {
+    return _.contains(Discourse.Site.current().disabled_plugins, 'babble')
+  },
+
   setCurrentTopic: function(data) {
     const self = Discourse.Babble
 

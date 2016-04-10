@@ -14,6 +14,7 @@ export default Discourse.Route.extend({
   },
 
   setupController: function(controller, model) {
+    if (Discourse.Babble.disabled()) { return }
     const self = this
 
     var setup = function(selected, available) {

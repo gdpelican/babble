@@ -30,17 +30,16 @@ export default Ember.Component.extend({
 
   _init: function() {
     if (!Discourse.Babble) { Discourse.Babble = initializeBabble }
+    if (Discourse.Babble.disabled()) { return }
 
-    var handleNotFound = function(error) {
-      if (error.jqXHR.status === 404) {
+    this.set('babbleIcon', Discourse.SiteSettings.babble_icon)
+    Discourse.ajax('/babble/topics/default.json').then(Discourse.Babble.setCurrentTopic, function(e) {
+      if (e.status === 404) {
         console.log('No chat channels are available.')
       } else {
         throw error
       }
-    }
-
-    this.set('babbleIcon', Discourse.SiteSettings.babble_icon)
-    Discourse.ajax('/babble/topics/default.json').then(Discourse.Babble.setCurrentTopic).catch(handleNotFound)
+    })
     Discourse.Babble.setAvailableTopics()
   }.on('init')
 });

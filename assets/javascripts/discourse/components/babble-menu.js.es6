@@ -33,6 +33,7 @@ export default Ember.Component.extend({
 
   @observes('visible')
   _visible: function() {
+    if (Discourse.Babble.disabled()) { return }
     Discourse.Babble.set('menuVisible', this.get('visible'))
     if (this.ready()) {
       Ember.run.scheduleOnce('afterRender', this, this.topicChanged)
