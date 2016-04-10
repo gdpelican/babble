@@ -131,10 +131,6 @@ export default Ember.Component.extend({
 
     $element.on("fileuploadsend", (e, data) => {
       this._validUploads++;
-      // add upload placeholders (as much placeholders as valid files dropped)
-      const placeholder = _.times(this._validUploads, () => uploadPlaceholder).join("\n");
-      this._addText(this._getSelected(), placeholder);
-
       if (data.xhr && data.originalFiles.length === 1) {
         this.set("isCancellable", true);
         this._xhr = data.xhr();
@@ -157,7 +153,7 @@ export default Ember.Component.extend({
       if (upload && upload.url) {
         if (!this._xhr || !this._xhr._userCancelled) {
           const markdown = Discourse.Utilities.getUploadMarkdown(upload);
-          this.set('text', this.get('text').replace(uploadPlaceholder, markdown));
+          this._submit(null, markdown);
           this._resetUpload(false);
           this.set('showUpload', false)
         } else {
@@ -189,55 +185,9 @@ export default Ember.Component.extend({
     $uploadTarget.off();
   }.on('willDestroyElement'),
 
-  _addTextFromMenu: function() {
-    this._addText(this._getSelected(), this.get('addText'))
-  }.observes('addText'),
-
-  _addText: function(sel, text) {
-    const insert = `${sel.pre}${text}`;
-    this.set('text', `${insert}${sel.post}`);
-    this._selectText(insert.length, 0);
-    Ember.run.scheduleOnce("afterRender", () => this.$("textarea").focus());
-  },
-
-  _selectText: function(from, length) {
-    Ember.run.scheduleOnce('afterRender', () => {
-      const $textarea = this.$('textarea');
-      const textarea = $textarea[0];
-      const oldScrollPos = $textarea.scrollTop();
-      if (!this.capabilities.isIOS) {
-        $textarea.focus();
-      }
-      textarea.selectionStart = from;
-      textarea.selectionEnd = textarea.selectionStart + length;
-      $textarea.scrollTop(oldScrollPos);
-    });
-  },
-
-  _getSelected: function(trimLeading) {
-    const textarea = this.$('textarea')[0];
-    const value = textarea.value;
-    var start = textarea.selectionStart;
-    let end = textarea.selectionEnd;
-
-    // trim trailing spaces cause **test ** would be invalid
-    while (end > start && /\s/.test(value.charAt(end-1))) {
-      end--;
-    }
-
-    if (trimLeading) {
-      // trim leading spaces cause ** test** would be invalid
-      while(end > start && /\s/.test(value.charAt(start))) {
-        start++;
-      }
-    }
-
-    const selVal = value.substring(start, end);
-    const pre = value.slice(0, start);
-    const post = value.slice(end);
-
-    return { start, end, value: selVal, pre, post };
-  },
+  _submitLinkedImage: function() {
+    this._submit(null, this.get('linkedImage'))
+  }.observes('linkedImage'),
 
   _eventToggleFor: function(selector, event, namespace) {
     let elem = $(selector)
@@ -250,6 +200,46 @@ export default Ember.Component.extend({
       on: function() {  elem.on(`${event}.${namespace}`, handler) },
       off: function() { elem.off(`${event}.${namespace}`) }
     }
+  },
+
+  _submit: function(composer, image, update) {
+    const self = composer || this;
+    const text = image || self.get('text').trim()
+    if (!text) { self.set('errorMessage', 'babble.error_message'); return; }
+    if (!image) {self.set('text', '')}
+    self.set('processing', true)
+
+    if (update) {
+      this._update(self, text)
+    } else {
+      this._create(self, text)
+    }
+  },
+
+  _create: function(self, text) {
+    Discourse.Babble.stagePost(text)
+    Discourse.ajax(`/babble/topics/${self.get('topic.id')}/post`, {
+      type: 'POST',
+      data: { raw: text }
+    }).then(Discourse.Babble.handleNewPost, () => {
+      Discourse.Babble.clearStagedPost()
+      self.set('errorMessage', 'babble.failed_post')
+    }).finally(() => {
+      self.set('processing', false)
+    });
+  },
+
+  _update: function(self, text) {
+    Discourse.ajax(`/babble/topics/${self.get('post.topic_id')}/post/${self.get('post.id')}`, {
+      type: 'POST',
+      data: { raw: text }
+    }).then(() => {
+      Discourse.Babble.set('editingPostId', null)
+    }, () => {
+      self.set('errorMessage', 'babble.failed_post')
+    }).finally(() => {
+      self.set('processing', false)
+    })
   },
 
   actions: {
@@ -288,60 +278,15 @@ export default Ember.Component.extend({
     },
 
     create: function(composer) {
-      const self = composer || this
-      const text = self.get('text').trim()
-      if (!text) { self.set('errorMessage', 'babble.error_message'); return; }
-      self.set('text', '')
-
-      self.set('processing', true)
-      Discourse.Babble.stagePost(text)
-      Discourse.ajax(`/babble/topics/${self.get('topic.id')}/post`, {
-        type: 'POST',
-        data: { raw: text }
-      }).then(Discourse.Babble.handleNewPost, () => {
-        Discourse.Babble.clearStagedPost()
-        self.set('errorMessage', 'babble.failed_post')
-      }).finally(() => {
-        self.set('processing', false)
-      });
+      this._submit(composer, false)
     },
 
     update: function(composer) {
-      const self = composer || this
-      const text = self.get('text').trim()
-      if (!text) { self.set('errorMessage', 'babble.error_message'); return; }
-
-      self.set('processing', true)
-      Discourse.ajax(`/babble/topics/${self.get('post.topic_id')}/post/${self.get('post.id')}`, {
-        type: 'POST',
-        data: { raw: text }
-      }).then(() => {
-        Discourse.Babble.set('editingPostId', null)
-      }, () => {
-        self.set('errorMessage', 'babble.failed_post')
-      }).finally(() => {
-        self.set('processing', false)
-      })
+      this._submit(composer, true)
     },
 
     cancel: function() {
       Discourse.Babble.set('editingPostId', null)
-    }
-      if (text === '') {
-        self.set('errorMessage', 'babble.error_message')
-      } else {
-        self.set('processing', true)
-        Discourse.Babble.stagePost(text)
-        Discourse.ajax("/babble/topics/" + self.get('topic.id') + "/post", {
-          type: 'POST',
-          data: { raw: text }
-        })
-        .then(Discourse.Babble.handleNewPost, function() {
-          Discourse.Babble.clearStagedPost()
-          self.set('errorMessage', 'babble.failed_post')
-        })
-        .finally(function() { self.set('processing', false) });
-      }
     },
 
     upload: function() {
