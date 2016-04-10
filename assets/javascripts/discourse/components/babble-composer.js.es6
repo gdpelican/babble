@@ -72,7 +72,7 @@ export default Ember.Component.extend({
 
     if (event.keyCode == 13 && !(event.ctrlKey || event.altKey || event.shiftKey)) {
       if (!this.get('submitDisabled')) { // ignore if submit is disabled
-        this._actions[this.get('composerAction')](this) // submit on enter
+        this._submit(this) // submit on enter
       }
       return false
     }
@@ -100,10 +100,6 @@ export default Ember.Component.extend({
   editing: function() {
     return this.get('composerAction') == 'update'
   }.property('composerAction'),
-
-  uploadPlaceholder: function() {
-    return `[${I18n.t('uploading')}]() `;
-  }.property(),
 
   _bindUploadTarget: function() {
     this._unbindUploadTarget();

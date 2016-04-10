@@ -27,6 +27,11 @@ export default Ember.Component.extend({
             this.get('post.can_delete'))
   }.property('post.can_edit', 'post.can_delete', 'post.deleted_at'),
 
+  isImage: function() {
+    // todo: set and use a 'isImage' property on the post model itself
+    return Boolean(this.get('post.cooked').indexOf('<img') > -1)
+  }.property(),
+
   isEditing: function() {
     return Discourse.Babble.editingPostId == this.get('post.id')
   }.property('Discourse.Babble.editingPostId'),
