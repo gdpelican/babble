@@ -134,7 +134,7 @@ export default Ember.Component.extend({
     });
 
     $element.on("fileuploadfail", (e, data) => {
-      this._resetUpload(true);
+      this._resetUpload();
 
       const userCancelled = this._xhr && this._xhr._userCancelled;
       this._xhr = null;
@@ -150,7 +150,7 @@ export default Ember.Component.extend({
         if (!this._xhr || !this._xhr._userCancelled) {
           const markdown = Discourse.Utilities.getUploadMarkdown(upload);
           this._submit(null, markdown);
-          this._resetUpload(false);
+          this._resetUpload();
           this.set('showUpload', false)
         } else {
           this._resetUpload();
@@ -291,7 +291,7 @@ export default Ember.Component.extend({
         this._xhr._userCancelled = true;
         this._xhr.abort();
       }
-      this._resetUpload(true);
+      this._resetUpload();
     },
   }
 
