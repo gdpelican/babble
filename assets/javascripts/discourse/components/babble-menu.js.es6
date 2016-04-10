@@ -49,11 +49,10 @@ export default Ember.Component.extend({
 
     let panelBody = menuPanel.find('.panel-body')
     let postWindow = panelBody.find('.babble-posts')
+    let title = panelBody.find('.babble-title-wrapper')
+    let compose = panelBody.find('.babble-post-composer')
     let offset = 10;
-    let postWindowSiblingHeight = _.reduce(postWindow.siblings(), function(sum, s) {
-      return sum + $(s).height()
-    }, 0)
-    postWindow.height(panelBody.height() - headerHeight() - postWindowSiblingHeight - offset)
+    postWindow.height(panelBody.height() - headerHeight() - title.height() - compose.height() - offset)
   },
 
   setupObserver: function() {
