@@ -37,7 +37,7 @@ export default Ember.Component.extend({
       } else {
         const imageUrl = this.get('imageUrl') || '';
         const imageLink = imageUrl.substr(imageUrl.lastIndexOf('/') + 1)
-        this.sendAction('addText', `![${imageLink}](${imageUrl})`)
+        this.sendAction('sendLinkedImage', `![${imageLink}](${imageUrl})`)
       }
       this.close()
     },
