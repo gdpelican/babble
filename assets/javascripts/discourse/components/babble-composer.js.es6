@@ -5,6 +5,9 @@ import expanding from "../lib/expanding"
 export default Ember.Component.extend({
   userSearch: userSearch,
   classNames: ['babble-post-composer'],
+  showUpload: false,
+  uploadProgress: 0,
+  _xhr: null,
 
   _init: function() {
     this.set('placeholder', Discourse.SiteSettings.babble_placeholder || I18n.t('babble.placeholder'))
@@ -12,6 +15,7 @@ export default Ember.Component.extend({
   }.on('init'),
 
   _didInsertElement: function() {
+    this._bindUploadTarget();
     const self = this
     let $textarea = self.$('textarea')
 
@@ -68,7 +72,7 @@ export default Ember.Component.extend({
 
     if (event.keyCode == 13 && !(event.ctrlKey || event.altKey || event.shiftKey)) {
       if (!this.get('submitDisabled')) { // ignore if submit is disabled
-        this._actions[this.get('composerAction')](this) // submit on enter
+        this._submit(this) // submit on enter
       }
       return false
     }
@@ -88,14 +92,91 @@ export default Ember.Component.extend({
            this.get('text') == this.get('post.raw')
   }.property('textValidation'),
 
-  composerAction: function() {
-    if (this.get('post.id'))  { return 'update' }
-    if (this.get('topic.id')) { return 'create' }
-  }.property('post', 'topic'),
-
   editing: function() {
-    return this.get('composerAction') == 'update'
-  }.property('composerAction'),
+    // if we have a post id, then we are editing it.
+    return this.get('post.id')
+  }.property('post.id'),
+
+  _bindUploadTarget: function() {
+    this._unbindUploadTarget();
+
+    const $element = this.$();
+    const csrf = this.session.get('csrfToken');
+    const uploadPlaceholder = this.get('uploadPlaceholder');
+
+    $element.fileupload({
+      url: Discourse.getURL(`/uploads.json?client_id=${this.messageBus.clientId}&authenticity_token=${encodeURIComponent(csrf)}`),
+      dataType: "json",
+      pasteZone: $element,
+    });
+
+    $element.on('fileuploadsubmit', (e, data) => {
+      const isUploading = Discourse.Utilities.validateUploadedFiles(data.files);
+      data.formData = { type: "composer" };
+      this.setProperties({ uploadProgress: 0, isUploading });
+      return isUploading;
+    });
+
+    $element.on("fileuploadprogressall", (e, data) => {
+      this.set("uploadProgress", parseInt(data.loaded / data.total * 100, 10));
+    });
+
+    $element.on("fileuploadsend", (e, data) => {
+      this._validUploads++;
+      if (data.xhr && data.originalFiles.length === 1) {
+        this.set("isCancellable", true);
+        this._xhr = data.xhr();
+      }
+    });
+
+    $element.on("fileuploadfail", (e, data) => {
+      this._resetUpload();
+
+      const userCancelled = this._xhr && this._xhr._userCancelled;
+      this._xhr = null;
+
+      if (!userCancelled) {
+        Discourse.Utilities.displayErrorForUpload(data);
+      }
+    });
+
+    this.messageBus.subscribe("/uploads/composer", upload => {
+      // replace upload placeholder
+      if (upload && upload.url) {
+        if (!this._xhr || !this._xhr._userCancelled) {
+          const markdown = Discourse.Utilities.getUploadMarkdown(upload);
+          this._submit(null, markdown);
+          this._resetUpload();
+          this.set('showUpload', false)
+        } else {
+          this._resetUpload();
+        }
+      } else {
+        this._resetUpload();
+        Discourse.Utilities.displayErrorForUpload(upload);
+      }
+    });
+  },
+
+  _resetUpload: function() {
+    this._validUploads--;
+    if (this._validUploads === 0) {
+      this.setProperties({ uploadProgress: 0, isUploading: false, isCancellable: false });
+    }
+  },
+
+  _unbindUploadTarget: function() {
+    this._validUploads = 0;
+    this.messageBus.unsubscribe("/uploads/composer");
+    const $uploadTarget = this.$();
+    try { $uploadTarget.fileupload("destroy"); }
+    catch (e) { }
+    $uploadTarget.off();
+  }.on('willDestroyElement'),
+
+  _submitLinkedImage: function() {
+    this._submit(null, this.get('linkedImage'))
+  }.observes('linkedImage'),
 
   _eventToggleFor: function(selector, event, namespace) {
     let elem = $(selector)
@@ -108,6 +189,46 @@ export default Ember.Component.extend({
       on: function() {  elem.on(`${event}.${namespace}`, handler) },
       off: function() { elem.off(`${event}.${namespace}`) }
     }
+  },
+
+  _submit: function(context, image) {
+    const self = context || this;
+    const text = image || self.get('text').trim()
+    if (!text) { self.set('errorMessage', 'babble.error_message'); return; }
+
+    self.set('processing', true)
+    if (self.get('editing')) {
+      self._update(self, text)
+    } else {
+      self._create(self, text)
+    }
+  },
+
+  _create: function(self, text) {
+    self.set('text', '')
+    Discourse.Babble.stagePost(text)
+    Discourse.ajax(`/babble/topics/${self.get('topic.id')}/post`, {
+      type: 'POST',
+      data: { raw: text }
+    }).then(Discourse.Babble.handleNewPost, () => {
+      Discourse.Babble.clearStagedPost()
+      self.set('errorMessage', 'babble.failed_post')
+    }).finally(() => {
+      self.set('processing', false)
+    });
+  },
+
+  _update: function(self, text) {
+    Discourse.ajax(`/babble/topics/${self.get('post.topic_id')}/post/${self.get('post.id')}`, {
+      type: 'POST',
+      data: { raw: text }
+    }).then(() => {
+      Discourse.Babble.set('editingPostId', null)
+    }, () => {
+      self.set('errorMessage', 'babble.failed_post')
+    }).finally(() => {
+      self.set('processing', false)
+    })
   },
 
   actions: {
@@ -145,46 +266,25 @@ export default Ember.Component.extend({
       })
     },
 
-    create: function(composer) {
-      const self = composer || this
-      const text = self.get('text').trim()
-      if (!text) { self.set('errorMessage', 'babble.error_message'); return; }
-      self.set('text', '')
-
-      self.set('processing', true)
-      Discourse.Babble.stagePost(text)
-      Discourse.ajax(`/babble/topics/${self.get('topic.id')}/post`, {
-        type: 'POST',
-        data: { raw: text }
-      }).then(Discourse.Babble.handleNewPost, () => {
-        Discourse.Babble.clearStagedPost()
-        self.set('errorMessage', 'babble.failed_post')
-      }).finally(() => {
-        self.set('processing', false)
-      });
-    },
-
-    update: function(composer) {
-      const self = composer || this
-      const text = self.get('text').trim()
-      if (!text) { self.set('errorMessage', 'babble.error_message'); return; }
-
-      self.set('processing', true)
-      Discourse.ajax(`/babble/topics/${self.get('post.topic_id')}/post/${self.get('post.id')}`, {
-        type: 'POST',
-        data: { raw: text }
-      }).then(() => {
-        Discourse.Babble.set('editingPostId', null)
-      }, () => {
-        self.set('errorMessage', 'babble.failed_post')
-      }).finally(() => {
-        self.set('processing', false)
-      })
+    submit: function(context) {
+      this._submit(context)
     },
 
     cancel: function() {
       Discourse.Babble.set('editingPostId', null)
-    }
+    },
+
+    upload: function() {
+      this.set('showUpload', true)
+    },
+
+    cancelUpload: function() {
+      if (this._xhr) {
+        this._xhr._userCancelled = true;
+        this._xhr.abort();
+      }
+      this._resetUpload();
+    },
   }
 
 });

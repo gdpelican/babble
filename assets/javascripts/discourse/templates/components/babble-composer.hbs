@@ -8,15 +8,29 @@
   {{#if errorMessage}}
     <span class="babble-composer-error-message">{{i18n errorMessage}}</span>
   {{/if}}
-
+  
   {{#if editing}}
     <div class="babble-composer-editing-buttons">
-      <button {{action 'update'}} {{bind-attr disabled="submitDisabled"}} class="btn btn-primary">{{i18n 'babble.save'}}</button>
+      <button {{action 'submit'}} {{bind-attr disabled="submitDisabled"}} class="btn btn-primary">{{i18n 'babble.save'}}</button>
       <button {{action 'cancel'}} class="btn cancel">{{i18n 'babble.cancel'}}</button>
     </div>
   {{else}}
-    <button {{action 'create'}} {{bind-attr disabled="submitDisabled"}} class="babble-submit btn btn-primary">{{i18n 'babble.send'}}</button>
+    <button {{action 'submit'}} {{bind-attr disabled="submitDisabled"}} class="babble-submit btn btn-primary">{{i18n 'babble.send'}}</button>
   {{/if}}
 
   <button {{action 'selectEmoji'}} class="btn no-text emoji" title="Emoji :smile:" aria-label="Emoji :smile:">{{fa-icon "smile-o"}}</button>
+  {{#unless editing}}
+    <button {{action 'upload'}} class="btn no-text upload" title="Upload" aria-label="Upload">
+      <i class="fa fa-picture-o"></i>
+    </button>
+  {{/unless}}
+  {{#if isUploading}}
+    <div class="file-uploading">
+      {{loading-spinner size="small"}} {{i18n 'upload_selector.uploading'}}
+      {{uploadProgress}}%
+      {{#if isCancellable}}
+        <a href class="cancel-file-upload" {{action "cancelUpload"}}>{{fa-icon "times"}}</a>
+      {{/if}}
+    </div>
+  {{/if}}
 </div>

@@ -9,6 +9,8 @@ export default Ember.Component.extend({
 
   isElementScrolledToBottom: isElementScrolledToBottom,
   lastVisiblePostInScrollableDiv: lastVisiblePostInScrollableDiv,
+  showUpload: false,
+  sendLinkedImage: null,
 
   ready: function() {
     return this.get('visible') && Discourse.Babble && Discourse.Babble.currentTopic
@@ -48,11 +50,10 @@ export default Ember.Component.extend({
 
     let panelBody = menuPanel.find('.panel-body')
     let postWindow = panelBody.find('.babble-posts')
+    let title = panelBody.find('.babble-title-wrapper')
+    let compose = panelBody.find('.babble-post-composer')
     let offset = 10;
-    let postWindowSiblingHeight = _.reduce(postWindow.siblings(), function(sum, s) {
-      return sum + $(s).height()
-    }, 0)
-    postWindow.height(panelBody.height() - headerHeight() - postWindowSiblingHeight - offset)
+    postWindow.height(panelBody.height() - headerHeight() - title.height() - compose.height() - offset)
   },
 
   setupObserver: function() {
@@ -145,6 +146,7 @@ export default Ember.Component.extend({
   actions: {
     viewChat:    function(context) { (context || this).set('viewingChat', true) },
     viewTopics:  function(context) { (context || this).set('viewingChat', false) },
-    changeTopic: function(topic)   { Discourse.ajax('/babble/topics/' + topic.id + '.json').then(Discourse.Babble.setCurrentTopic) }
+    changeTopic: function(topic)   { Discourse.ajax('/babble/topics/' + topic.id + '.json').then(Discourse.Babble.setCurrentTopic)},
+    sendLinkedImage: function(image) { this.set('sendLinkedImage', image)}
   }
 });

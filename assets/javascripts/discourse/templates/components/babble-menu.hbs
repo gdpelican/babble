@@ -28,6 +28,9 @@
     </div>
 
     {{#if viewingChat}}
+      <div class='babble-menu-modals'>
+        {{babble-upload sendLinkedImage="sendLinkedImage" visible=showUpload}}
+      </div>
       <ul class="babble-posts">
         {{#unless currentTopic.postStream.posts}}
           <li class="babble-empty-topic-message">{{i18n 'babble.empty_topic_message'}}</li>
@@ -37,7 +40,7 @@
         {{/each}}
         {{conditional-loading-spinner condition=currentTopic.postStream.loadingBelow}}
       </ul>
-      {{babble-composer topic=currentTopic}}
+      {{babble-composer topic=currentTopic showUpload=showUpload linkedImage=sendLinkedImage}}
     {{else}}
       <ul class="babble-available-topics">
         {{#each topic in availableTopics}}

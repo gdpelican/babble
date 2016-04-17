@@ -26,7 +26,7 @@
       <div class='post-info'>
         <a class='post-date' {{bind-attr href="shareUrl" data-share-url="shareUrl" data-post-number="post_number"}}>{{age-with-tooltip post.created_at}}</a>
         {{#if canPerformActions}}
-          {{babble-actions post=post actions=dropdownActions}}
+          {{babble-actions post=post actions=dropdownActions isImage=isImage}}
         {{/if}}
         {{#if post.deleted_at}}
           <div><i class="fa fa-trash-o"></i></div>

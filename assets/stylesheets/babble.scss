@@ -66,6 +66,46 @@
   }
 }
 
+.babble-menu-modals {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  z-index: 100;
+}
+
+.babble-modal {
+  background-color: black;
+  opacity: 0.9;
+  z-index: 1000;
+  color: white;
+  .modal-body {
+    opacity: 1;
+  }
+  .radios {
+    padding-top: 5px;
+    line-height: 30px;
+    > * {
+      display: inline-block;
+    }
+    #filename-input {
+      display: inline-block;
+      line-height: initial;
+      color: white;
+    }
+    .radio {
+      padding-left: 5px;
+    }
+  }
+  .hint {
+    font-size: 0.929em;
+  }
+  .modal-footer {
+    border: none;
+    padding: 10px 15px;
+  }
+}
+
 /* Post styles */
 .babble-posts {
   width: 100%;
@@ -246,9 +286,8 @@ li.babble-post .babble-post-content a.mention {
   min-height: inherit;
 }
 
-.babble-post-composer button.emoji {
+.babble-post-composer button.no-text {
   position: absolute;
-  top: 2px;
   right: -2px;
   color: #555;
   cursor: pointer;
@@ -256,6 +295,19 @@ li.babble-post .babble-post-content a.mention {
   @media (max-width: 700px) {
     font-size: 18px;
     right: -5px;
+  }
+  &.emoji {
+    top: 2px;
+  }
+  &.upload {
+    top: 25px;
+  }
+}
+
+.babble-post-composer .file-uploading {
+  float: left;
+  .spinner {
+    vertical-align: middle;
   }
 }
 
