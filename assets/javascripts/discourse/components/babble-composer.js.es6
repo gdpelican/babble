@@ -92,14 +92,10 @@ export default Ember.Component.extend({
            this.get('text') == this.get('post.raw')
   }.property('textValidation'),
 
-  composerAction: function() {
-    if (this.get('post.id'))  { return 'update' }
-    if (this.get('topic.id')) { return 'create' }
-  }.property('post', 'topic'),
-
   editing: function() {
-    return this.get('composerAction') == 'update'
-  }.property('composerAction'),
+    // if we have a post id, then we are editing it.
+    return this.get('post.id')
+  }.property('post.id'),
 
   _bindUploadTarget: function() {
     this._unbindUploadTarget();
@@ -195,21 +191,21 @@ export default Ember.Component.extend({
     }
   },
 
-  _submit: function(composer, image, update) {
-    const self = composer || this;
+  _submit: function(context, image) {
+    const self = context || this;
     const text = image || self.get('text').trim()
     if (!text) { self.set('errorMessage', 'babble.error_message'); return; }
-    if (!image) {self.set('text', '')}
-    self.set('processing', true)
 
-    if (update) {
-      this._update(self, text)
+    self.set('processing', true)
+    if (self.get('editing')) {
+      self._update(self, text)
     } else {
-      this._create(self, text)
+      self._create(self, text)
     }
   },
 
   _create: function(self, text) {
+    self.set('text', '')
     Discourse.Babble.stagePost(text)
     Discourse.ajax(`/babble/topics/${self.get('topic.id')}/post`, {
       type: 'POST',
@@ -270,12 +266,8 @@ export default Ember.Component.extend({
       })
     },
 
-    create: function(composer) {
-      this._submit(composer, false)
-    },
-
-    update: function(composer) {
-      this._submit(composer, true)
+    submit: function(context) {
+      this._submit(context)
     },
 
     cancel: function() {

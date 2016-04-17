@@ -11,11 +11,11 @@
   
   {{#if editing}}
     <div class="babble-composer-editing-buttons">
-      <button {{action 'update'}} {{bind-attr disabled="submitDisabled"}} class="btn btn-primary">{{i18n 'babble.save'}}</button>
+      <button {{action 'submit'}} {{bind-attr disabled="submitDisabled"}} class="btn btn-primary">{{i18n 'babble.save'}}</button>
       <button {{action 'cancel'}} class="btn cancel">{{i18n 'babble.cancel'}}</button>
     </div>
   {{else}}
-    <button {{action 'create'}} {{bind-attr disabled="submitDisabled"}} class="babble-submit btn btn-primary">{{i18n 'babble.send'}}</button>
+    <button {{action 'submit'}} {{bind-attr disabled="submitDisabled"}} class="babble-submit btn btn-primary">{{i18n 'babble.send'}}</button>
   {{/if}}
 
   <button {{action 'selectEmoji'}} class="btn no-text emoji" title="Emoji :smile:" aria-label="Emoji :smile:">{{fa-icon "smile-o"}}</button>
