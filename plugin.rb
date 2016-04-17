@@ -368,6 +368,8 @@ after_initialize do
   end
 
   class ::Babble::PostSerializer < ::PostSerializer
+    attributes :image_count
+
     def initialize(object, opts = {})
       super object, opts.merge(add_raw: true)
     end
@@ -380,8 +382,11 @@ after_initialize do
     end
 
     def posts
-      @options[:include_raw] = true
-      super
+      @posts ||= object.posts.map do |p|
+        ps = Babble::PostSerializer.new(p, scope: scope, root: false)
+        ps.topic_view = object
+        ps.as_json
+      end
     end
 
     # details are expensive to calculate and we don't use them

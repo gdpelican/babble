@@ -19,7 +19,7 @@ export default DropdownButton.extend({
        styleClasses: 'fa fa-trash-o'
       }
     ]
-    if (!this.get('isImage')) {
+    if (!this.get('post.image_count')) {
       content.push(
         {
          id: 'edit',
