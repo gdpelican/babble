@@ -31,7 +31,7 @@ export default Ember.Component.extend({
 
   actions: {
     upload: function() {
-      const $composer = this.$().parent().siblings('.babble-post-composer')
+      const $composer = this.$().parent().siblings('.babble-chat').find('.babble-post-composer')
       if (this.get('local')) {
         $composer.fileupload('add', { fileInput: this.$('#filename-input') });
       } else {
