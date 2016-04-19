@@ -1,4 +1,7 @@
 {{#menu-panel visible=visible}}
+  <div class='babble-menu-modals'>
+    {{babble-upload sendLinkedImage="sendLinkedImage" visible=showUpload}}
+  </div>
   <section class="babble-chat">
     <div {{bind-attr class=":babble-title-wrapper viewingChat"}}>
       <div class="babble-title">
@@ -28,9 +31,6 @@
     </div>
 
     {{#if viewingChat}}
-      <div class='babble-menu-modals'>
-        {{babble-upload sendLinkedImage="sendLinkedImage" visible=showUpload}}
-      </div>
       <ul class="babble-posts">
         {{#unless currentTopic.postStream.posts}}
           <li class="babble-empty-topic-message">{{i18n 'babble.empty_topic_message'}}</li>
