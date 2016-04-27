@@ -94,10 +94,17 @@ after_initialize do
       perform_fetch do
         @post = Babble::PostCreator.create(current_user, post_creator_params)
         if @post.persisted?
+          success_callback
           respond_with @post, serializer: Babble::PostSerializer
         else
           respond_with_unprocessable
         end
+      end
+    end
+
+    def success_callback
+      if (SiteSetting.babble_remote_post)
+        response = RestClient.post(SiteSetting.babble_remote_url, { current_user: current_user.username, message: @post.cooked }) unless params[:from_discord]
       end
     end
 

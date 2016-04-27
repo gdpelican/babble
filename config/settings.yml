@@ -12,3 +12,7 @@ plugins:
     default: 200
   babble_category_name:
     default: chat
+  babble_remote_post:
+    default: false
+  babble_remote_url:
+    default: http://example.com/api/message/add
