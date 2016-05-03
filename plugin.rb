@@ -104,7 +104,7 @@ after_initialize do
 
     def success_callback
       if (SiteSetting.babble_remote_post)
-        response = RestClient.post(SiteSetting.babble_remote_url, { current_user: current_user.username, message: @post.cooked }) unless params[:from_discord]
+        RestClient.post(SiteSetting.babble_remote_url, { current_user: current_user.username, message: @post.cooked }) unless params[:skip_callback]
       end
     end
 
