@@ -39,7 +39,7 @@ after_initialize do
     end
   end
 
-  Dir.chdir([:plugins, BABBLE_PLUGIN_NAME].join('/')) do
+  Dir.chdir([Rails.root, :plugins, BABBLE_PLUGIN_NAME].join('/')) do
     require_relative 'controllers/topics_controller.rb'
     require_relative 'controllers/admin_chats_controller.rb'
     require_relative 'lib/broadcaster.rb'

@@ -147,7 +147,7 @@ describe ::Babble::TopicsController do
   end
 
   describe "flag_post" do
-    
+
   end
 
   describe "destroy_post" do
