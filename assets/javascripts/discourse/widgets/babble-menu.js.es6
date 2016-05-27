@@ -5,14 +5,14 @@ import { h } from 'virtual-dom';
 export default createWidget('babble-menu', {
   tagName: 'li.babble-menu',
 
-  html() {
+  panelContents() {
     let currentTopic = { title: 'hi!', group_names: 'names' }
     return [
       h('.babble-menu-modals'),
       h('.babble-chat', [
         h('.babble-title-wrapper', [
           h('.babble-title', [
-            h('h4.babble-group-title', currentTopic.title)
+            h('h4.babble-group-title', currentTopic.title),
             h('.babble-context-toggle.for-chat', [
               h('button.normalized', [
                 h('i.fa.fa-eye')
@@ -21,8 +21,22 @@ export default createWidget('babble-menu', {
             ])
           ])
         ])
-      ])
-    }});
+      ]),
+      h('ul.babble-posts', this.getPosts()),
+      this.attach('babble-composer', {
+        topic: currentTopic
+      })
+    ];
+  },
+
+  getPosts() {
+    return h('ul.babble-posts', [
+      h('li.babble-empty-topic-message', I18n.t('babble.empty_topic_message'))
+    ])
+  },
+
+  html() {
+    return this.attach('menu-panel', { contents: this.panelContents.bind(this) });
   },
 
   clickOutside() {
