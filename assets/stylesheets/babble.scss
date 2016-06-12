@@ -1,9 +1,15 @@
+
 /* Icon styles */
 .babble-icon {
   position: relative;
 }
 
 /* Dropdown styles */
+
+.babble-title {
+  text-align: left;
+  margin-left: 10px;
+}
 
 .babble-title h4 {
   display: inline-block;
@@ -295,9 +301,9 @@ li.babble-post .babble-post-content a.mention {
   color: #555;
   cursor: pointer;
   background: transparent;
+  padding: 0;
   @media (max-width: 700px) {
     font-size: 18px;
-    right: -5px;
   }
   &.emoji {
     top: 2px;
@@ -368,6 +374,10 @@ li.babble-post .babble-post-content a.mention {
 }
 
 /* Discourse overrides */
+
+.d-header .babble-menu {
+  [class^="fa fa-"] { font-size: 1em; }
+}
 
 @media (min-width: 700px) {
   .babble-post       button.dropdown-toggle { opacity: 0; }
