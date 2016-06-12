@@ -1,38 +1,43 @@
-// import { currentTopic } from 'discourse/plugins/babble/discourse/lib/babble'
 import { createWidget } from 'discourse/widgets/widget';
 import { h } from 'virtual-dom';
+import Babble from 'discourse/plugins/babble/discourse/lib/babble'
 
 export default createWidget('babble-menu', {
   tagName: 'li.babble-menu',
 
   panelContents() {
-    let currentTopic = { title: 'hi!', group_names: 'names' }
+    let topic = Babble.currentTopic
     return [
       h('.babble-menu-modals'),
       h('.babble-chat', [
         h('.babble-title-wrapper', [
           h('.babble-title', [
-            h('h4.babble-group-title', currentTopic.title),
+            h('h4.babble-group-title', topic.title),
             h('.babble-context-toggle.for-chat', [
               h('button.normalized', [
                 h('i.fa.fa-eye')
               ]),
-              h('span.babble-context-toggle-tooltip', I18n.t('babble.topic_visibility_tooltip', { groupNames: currentTopic.group_names }))
+              h('span.babble-context-toggle-tooltip', I18n.t('babble.topic_visibility_tooltip', { groupNames: topic.group_names }))
             ])
           ])
         ])
       ]),
-      h('ul.babble-posts', this.getPosts()),
-      this.attach('babble-composer', {
-        topic: currentTopic
-      })
+      h('ul.babble-posts', this.getPosts(topic.postStream.posts)),
+      this.attach('babble-composer', { topic: topic })
     ];
   },
 
-  getPosts() {
-    return h('ul.babble-posts', [
-      h('li.babble-empty-topic-message', I18n.t('babble.empty_topic_message'))
-    ])
+  getPosts(posts) {
+    let postsHtml = []
+    if (posts.length == 0) {
+      postsHtml.push(h('li.babble-empty-topic-message', I18n.t('babble.empty_topic_message')))
+    }
+    posts.forEach(function(post) {
+      postsHtml.push(h('li.temp_post', 'Hi, I am a post'))
+      // this.attach('babble-post', { post: post }) TODO: write the babble-post widget
+    })
+
+    return h('ul.babble-posts', postsHtml)
   },
 
   html() {
