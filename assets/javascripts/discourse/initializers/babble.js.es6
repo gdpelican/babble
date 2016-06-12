@@ -12,6 +12,10 @@ export default {
         else                      { throw error }
       }
     )
+    Discourse.ajax('/babble/topics.json').then(
+      (data)  => { Babble.setAvailableTopics(data.topics || []) },
+      (error) => { throw error }
+    )
 
     withPluginApi('0.1', api => {
       api.decorateWidget('header-icons:before', function(helper) {

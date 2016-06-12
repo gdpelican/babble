@@ -52,10 +52,8 @@ export default Ember.Object.create({
     this.set('currentTopic', topic)
   },
 
-  setAvailableTopics: function() {
-    return Discourse.ajax('/babble/topics.json').then((data) => {
-      this.set('availableTopics', (data || {}).topics || [])
-    })
+  setAvailableTopics: function(topics) {
+    this.set('availableTopics', topics)
   },
 
   lastPostIsMine: function() {
