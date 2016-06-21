@@ -9,7 +9,7 @@ export default createWidget('babble-post', {
     var post = attrs.post
     return {
       post: post,
-      isStaged: Boolean(post.id === -1)
+      isStaged: post.id === -1
     };
   },
 
@@ -52,7 +52,7 @@ export default createWidget('babble-post', {
 
   html(){
     var post = this.state.post,
-        isEditing = Boolean(Discourse.Babble.editingPostId === post.id),
+        isEditing = Discourse.Babble.editingPostId === post.id,
         isStaged = this.state.isStaged;
 
     var postClasses = ['babble', 'post-container', 'boxed']
