@@ -70,13 +70,13 @@ export default createWidget('babble-post', {
     if (isEditing) {
       var postContents = this.attach('babble-composer', {post: post, isEditing: isEditing})
     } else {
-      var postContents = h('div.regular', h('div.cooked', {innerHTML: post.cooked}))
+      var postContents = h('.regular', h('.cooked', {innerHTML: post.cooked}))
     }
 
     var infoContents = [h('a.post-date', post.created_at )]
 
     if (!post.deleted_at && (post.can_edit || post.can_delete)) {
-      infoContents = infoContents.push(this.postDropDown(post))
+      infoContents.push(this.postDropDown(post))
     }
 
     if (post.deleted_at) {
@@ -89,10 +89,10 @@ export default createWidget('babble-post', {
         'data-post-id': post.id,
         'data-user-id': post.user_id,
         'data-post-number': post.post_number
-      }}, h('div.row', [
-        h('div', {className: 'babble-post-avatar babble-post-content'}, h('div.contents', avatarContents)),
-        h('div', {className: 'babble-post-body babble-post-content'}, postContents),
-        h('div', {className: 'babble-post-meta-data babble-post-content'}, h('div', infoContents))
+      }}, h('.row', [
+        h('.babble-post-avatar.babble-post-content', h('.contents', avatarContents)),
+        h('.babble-post-body.babble-post-content', postContents),
+        h('.babble-post-meta-data.babble-post-content', h('.post-info', infoContents))
       ])
     )
   }
