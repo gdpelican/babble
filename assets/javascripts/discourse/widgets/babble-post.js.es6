@@ -70,7 +70,7 @@ export default createWidget('babble-post', {
     if (isEditing) {
       var postContents = this.attach('babble-composer', {post: post, isEditing: isEditing})
     } else {
-      var postContents = h('div.regular', h('div.cooked', post.cooked))
+      var postContents = h('div.regular', h('div.cooked', {innerHTML: post.cooked}))
     }
 
     var infoContents = [h('a.post-date', post.created_at )]
