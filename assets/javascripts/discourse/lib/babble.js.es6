@@ -120,8 +120,15 @@ export default Ember.Object.create({
   },
 
   handleNotification: function (data) {
-    console.log(data)
-    Discourse.Babble.get('currentTopic.notifications')[data.user.username] = data
+    const notifications = Discourse.Babble.get('currentTopic.notifications')
+    const username = data.user.username
+    if (notifications[username]) {
+      clearTimeout(notifications[username].timeout)
+    }
+    notifications[username] = data
+    data.timeout = setTimeout(function () {
+      delete notifications[username]
+    }, 30 * 1000)
   },
 
   clearStagedPost: function() {
