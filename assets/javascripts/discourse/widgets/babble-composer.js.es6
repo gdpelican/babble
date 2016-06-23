@@ -13,7 +13,8 @@ export default createWidget('babble-composer', {
       errorMessage: '',
       text: '',
       post: null,
-      topic: attrs.topic
+      topic: attrs.topic,
+      lastInteraction: new Date(0),
     }
   },
 
@@ -113,6 +114,7 @@ export default createWidget('babble-composer', {
 
   keyUp(event) {
     this.state.showError = false
+    this.checkInteraction()
     if (event.keyCode == 38 && !this.state.editing) {
       let myLastPost = _.last(_.select(this.state.topic.postStream.posts, function(post) {
         return post.user_id == Discourse.User.current().id
@@ -126,6 +128,19 @@ export default createWidget('babble-composer', {
         this.submit(this) // submit on enter
       }
       return false
+    }
+  },
+
+  checkInteraction() {
+    const topic = this.state.topic
+    const lastInteraction = this.state.lastInteraction
+    const now = new Date
+    if (now - lastInteraction > 5000) {
+      this.state.lastInteraction = now
+      Discourse.ajax(`/babble/topics/${topic.id}/notification`, {
+        type: 'POST',
+        data: {state: 'editing'}
+      })
     }
   },
 

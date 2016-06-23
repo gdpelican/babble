@@ -44,8 +44,10 @@ export default Ember.Object.create({
       postStream.updateFromJson(topic.post_stream)
 
       topic.postStream = postStream
+      topic.notifications = {}
     } else {
       topic.postStream = self.get('currentTopic.postStream')
+      topic.notifications = self.get('currentTopic.notifications')
     }
 
     var totalUnreadCount = topic.highest_post_number - topic.last_read_post_number
@@ -118,9 +120,8 @@ export default Ember.Object.create({
   },
 
   handleNotification: function (data) {
-    const self = Discourse.Babble
-
     console.log(data)
+    Discourse.Babble.get('currentTopic.notifications')[data.user.username] = data
   },
 
   clearStagedPost: function() {

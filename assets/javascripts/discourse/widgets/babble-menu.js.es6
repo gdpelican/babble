@@ -78,6 +78,10 @@ export default createWidget('babble-menu', {
       h('div', {className: titleWrapperClass}, h('div.babble-title', titleContents )),
       h('ul', {className: listClass}, listContents)
     ]
+    const notifications = Object.keys(currentTopic.notifications)
+    if (notifications.length) {
+      contents.push(h('p', `${notifications.join(", ")} have interacted with notifications anyhow.`))
+    }
     if (viewingChat) {contents.push(this.attach('babble-composer', {topic: currentTopic }))}
 
     return h('section.babble-chat', contents)

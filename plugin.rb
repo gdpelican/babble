@@ -222,7 +222,7 @@ after_initialize do
     end
 
     def notification_params
-      params.require(:status)
+      params.require(:state)
     end
   end
 
@@ -313,7 +313,7 @@ after_initialize do
     end
 
     def self.serialized_notification(user, extras = {})
-      {user: user}.merge(extras).to_json
+      UserSerializer.new(user, scope: Guardian.new).as_json.merge(extras)
     end
 
     def self.serialize(obj, user, extras, serializer)
