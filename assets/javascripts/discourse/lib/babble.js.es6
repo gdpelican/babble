@@ -32,10 +32,12 @@ export default Ember.Object.create({
       if (self.get('currentTopicId')) {
         messageBus.unsubscribe('/babble/topics/' + self.get('currentTopicId'))
         messageBus.unsubscribe('/babble/topics/' + self.get('currentTopicId') + '/posts')
+        messageBus.unsubscribe('/babble/topics/' + self.get('currentTopicId') + '/notifications')
       }
       self.set('currentTopicId', topic.id)
       messageBus.subscribe('/babble/topics/' + self.get('currentTopicId'), self.setCurrentTopic)
       messageBus.subscribe('/babble/topics/' + self.get('currentTopicId') + '/posts', self.handleNewPost)
+      messageBus.subscribe('/babble/topics/' + self.get('currentTopicId') + '/notifications', self.handleNotification)
 
       var postStream = PostStream.create(topic.post_stream)
       postStream.topic = topic
@@ -113,6 +115,12 @@ export default Ember.Object.create({
         self.set('unreadCount', topic.highest_post_number - topic.last_read_post_number)
       }
     }
+  },
+
+  handleNotification: function (data) {
+    const self = Discourse.Babble
+
+    console.log(data)
   },
 
   clearStagedPost: function() {

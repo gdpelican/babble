@@ -30,6 +30,7 @@ after_initialize do
     post   "/topics/:id/post/:post_id"     => "topics#update_post"
     delete "/topics/:id/destroy/:post_id"  => "topics#destroy_post"
     get    "/topics/:id/groups"            => "topics#groups"
+    post   "/topics/:id/notification"      => "topics#send_notification"
   end
 
   Discourse::Application.routes.append do
@@ -135,6 +136,13 @@ after_initialize do
       perform_fetch(require_admin: true) { respond_with topic.allowed_groups, serializer: BasicGroupSerializer }
     end
 
+    def send_notification
+      perform_fetch do
+        Babble::Broadcaster.publish_to_notifications(topic, current_user, notification_params)
+        respond_with nil
+      end
+    end
+
     private
 
     def set_default_id
@@ -212,6 +220,10 @@ after_initialize do
         skip_validations: true
       }
     end
+
+    def notification_params
+      params.require(:status)
+    end
   end
 
   class ::Admin::ChatsController < ::ApplicationController
@@ -288,12 +300,20 @@ after_initialize do
       MessageBus.publish "/babble/topics/#{post.topic_id}/posts", serialized_post(post, user, extras)
     end
 
+    def self.publish_to_notifications(topic, user, status)
+      MessageBus.publish "/babble/topics/#{topic.id}/notifications", serialized_notification(user, {status: status})
+    end
+
     def self.serialized_topic(topic, user, extras = {})
       serialize(Babble::AnonymousTopicView.new(topic.id, user), user, extras, Babble::TopicViewSerializer)
     end
 
     def self.serialized_post(post, user, extras = {})
       serialize(post, user, extras, Babble::PostSerializer).as_json.merge(extras)
+    end
+
+    def self.serialized_notification(user, extras = {})
+      {user: user}.merge(extras).to_json
     end
 
     def self.serialize(obj, user, extras, serializer)

@@ -83,6 +83,7 @@ export default createWidget('babble-composer', {
 
   create(text) {
     this.state.text = ''
+    console.log(this.state)
     var topic = this.state.topic
     Discourse.Babble.stagePost(text)
     Discourse.ajax(`/babble/topics/${topic.id}/post`, {
