@@ -35,7 +35,10 @@ export default Ember.Object.create({
       }
       self.set('currentTopicId', topic.id)
       messageBus.subscribe('/babble/topics/' + self.get('currentTopicId'), self.setCurrentTopic)
-      messageBus.subscribe('/babble/topics/' + self.get('currentTopicId') + '/posts', self.handleNewPost)
+      messageBus.subscribe('/babble/topics/' + self.get('currentTopicId') + '/posts', (data) => {
+        self.handleNewPost(data)
+        console.log(data)
+      })
 
       var postStream = PostStream.create(topic.post_stream)
       postStream.topic = topic
@@ -46,11 +49,6 @@ export default Ember.Object.create({
       topic.postStream = self.get('currentTopic.postStream')
     }
 
-    var totalUnreadCount = topic.highest_post_number - topic.last_read_post_number
-    var windowUnreadCount = _.min([totalUnreadCount, topic.postStream.posts.length])
-
-    self.set('unreadCount', windowUnreadCount)
-    self.set('hasAdditionalUnread', totalUnreadCount > windowUnreadCount)
     self.set('currentTopic', topic)
   },
 
@@ -99,19 +97,22 @@ export default Ember.Object.create({
     if (data.is_edit || data.is_delete) {
       postStream.storePost(post)
       postStream.findLoadedPost(post.id).updateFromPost(post)
+      self.set('loadingEditId', null)
+      self.toggleProperty('queueRerender')
     } else {
-      post.set('created_at', moment(data.created_at, 'YYYY-MM-DD HH:mm:ss Z'))
+      post.set('created_at', data.created_at)
       self.set('latestPost', post)
 
       if (self.lastPostIsMine()) {
         self.clearStagedPost()
         postStream.commitPost(post)
         self.set('unreadCount', 0)
+        Discourse.Babble.set('submitDisabled', false)
       } else {
         postStream.appendPost(post)
         var topic = self.get('currentTopic')
-        self.set('unreadCount', topic.highest_post_number - topic.last_read_post_number)
       }
+      self.toggleProperty('postStreamUpdated')
     }
   },
 
