@@ -81,7 +81,7 @@ export default createWidget('babble-menu', {
       h('div', {className: titleWrapperClass}, h('div.babble-title', titleContents )),
       h('div.babble-list', h('ul', {className: listClass}, listContents))
     ]
-    const notifications = Object.keys(currentTopic.notifications)
+    const notifications = Object.keys(currentTopic.notifications).filter(username => this.currentUser.username !== username)
     if (notifications.length) {
       contents.push(h('p', `${notifications.join(", ")} have interacted with notifications anyhow.`))
     }
