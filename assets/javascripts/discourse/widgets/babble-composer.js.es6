@@ -10,7 +10,8 @@ export default createWidget('babble-composer', {
       editing: attrs.isEditing,
       submitDisabled: attrs.submitDisabled,
       post: attrs.post,
-      topic: attrs.topic
+      topic: attrs.topic,
+      lastInteraction: new Date(0)
     }
   },
 
