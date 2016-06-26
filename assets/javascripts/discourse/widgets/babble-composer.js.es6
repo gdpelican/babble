@@ -3,18 +3,14 @@ import { h } from 'virtual-dom';
 import { showSelector } from "discourse/lib/emoji/emoji-toolbar";
 
 export default createWidget('babble-composer', {
-  tagName: 'babble-post-composer',
+  tagName: 'div.babble-post-composer',
 
   defaultState(attrs) {
     return {
-      processing: false,
-      editing: false,
-      submitDisabled: false,
-      errorMessage: '',
-      text: '',
-      post: null,
-      topic: attrs.topic,
-      lastInteraction: new Date(0),
+      editing: attrs.isEditing,
+      submitDisabled: attrs.submitDisabled,
+      post: attrs.post,
+      topic: attrs.topic
     }
   },
 
@@ -22,17 +18,17 @@ export default createWidget('babble-composer', {
     const self = this,
           outsideClickEvent = self.eventToggleFor('html', 'click', 'close-menu-panel'),
           escKeyEvent = self.eventToggleFor('body', 'keydown', 'discourse-menu-panel');
-
     outsideClickEvent.off()
     escKeyEvent.off()
-
     showSelector({
       container: self.container,
       onSelect: function(emoji) {
-        self.state.text = self.state.text.trimRight() + ' :' + emoji + ':'
-
+        var $composer = $('.babble-post-composer textarea'),
+            text = $composer.val();
+        text = text.trimRight() + ' :' + emoji + ':'
+        $composer.val(text)
         $('.emoji-modal, .emoji-modal-wrapper').remove()
-        $('.babble-post-composer textarea').focus()
+        $composer.focus()
         outsideClickEvent.on()
         escKeyEvent.on()
         return false
@@ -70,11 +66,11 @@ export default createWidget('babble-composer', {
   },
 
   submit() {
-    var text = $('.babble-post-composer-textarea textarea').val()
-    this.state.text = text
-    if (!text) { this.state.errorMessage = 'babble.error_message'; return; }
+    var $composer = $('.babble-post-composer textarea'),
+        text = $composer.val();
+    $composer.val('')
+    if (!text) { return; }
 
-    this.state.processing = true
     if (this.state.editing) {
       this.update(text)
     } else {
@@ -83,32 +79,24 @@ export default createWidget('babble-composer', {
   },
 
   create(text) {
-    this.state.text = ''
-    console.log(this.state)
     var topic = this.state.topic
     Discourse.Babble.stagePost(text)
+    Discourse.Babble.set('submitDisabled', true)
+    Discourse.Babble.toggleProperty('postStreamUpdated')
     Discourse.ajax(`/babble/topics/${topic.id}/post`, {
       type: 'POST',
       data: { raw: text }
-    }).then(Discourse.Babble.handleNewPost, () => {
-      Discourse.Babble.clearStagedPost()
-      this.state.errorMessage = 'babble.failed_post'
-    }).finally(() => {
-      this.state.processing = false
-    });
+    })
   },
 
   update(text) {
     var post = this.state.post
+    Discourse.Babble.set('editingPostId', null)
+    Discourse.Babble.set('loadingEditId', post.id)
+    this.scheduleRerender()
     Discourse.ajax(`/babble/topics/${post.topic_id}/post/${post.id}`, {
       type: 'POST',
       data: { raw: text }
-    }).then(() => {
-      Discourse.Babble.set('editingPostId', null)
-    }, () => {
-      this.state.errorMessage = 'babble.failed_post'
-    }).finally(() => {
-      this.state.processing = false
     })
   },
 
@@ -124,6 +112,7 @@ export default createWidget('babble-composer', {
     }
 
     if (event.keyCode == 13 && !(event.ctrlKey || event.altKey || event.shiftKey)) {
+      event.preventDefault()
       if (!this.state.submitDisabled) { // ignore if submit is disabled
         this.submit(this) // submit on enter
       }
@@ -157,56 +146,17 @@ export default createWidget('babble-composer', {
     }
   },
 
-  html(){
-    const editing = this.state.editing,
-          submitDisabled = this.state.submitDisabled,
-          text = this.state.text,
-          placeholder = Discourse.SiteSettings.babble_placeholder || I18n.t('babble.placeholder'),
-          errorMessage = this.state.errorMessage;
-    var wrapperClass = ['header-dropdown-toggle']
-    if (editing) {wrapperClass.push('is-editing')}
+  html(attrs){
+    const placeholder = Discourse.SiteSettings.babble_placeholder || I18n.t('babble.placeholder'),
+          attributes = {'placeholder': placeholder, 'rows': 1};
+    if (this.state.submitDisabled) {attributes.disabled = true}
     var contents = [
-      h('div.babble-post-composer-textarea', h('textarea', {
-          attributes: {
-            'value': text,
-            'placeholder': placeholder,
-            'rows': 1
-          }
-        })
-      )
-    ]
-
-    if (errorMessage.length) {contents.push(h('span.babble-composer-error-message'), I18n.t(errorMessage))}
-
-    if (editing) {
-      contents.push(h('div.babble-composer-editing-buttons', [
-          this.attach('button', {
-            className: 'btn btn-primary',
-            label: 'babble.save',
-            action: 'submit',
-            disabled: submitDisabled}),
-          this.attach('button', {
-            className: 'btn cancel',
-            label: 'babble.cancel',
-            action: 'cancel'})
-        ]
-      ))
-    } else {
-      contents.push(
-        this.attach('button', {
-          className: 'babble-submit btn btn-primary',
-          label: 'babble.send',
-          action: 'submit',
-          disabled: submitDisabled})
-      )
-    }
-    contents.push(
       this.attach('button', {
-        className: 'btn no-text emoji',
+        className: 'emoji',
         icon: 'smile-o',
-        action: 'selectEmoji'})
-    )
-
+        action: 'selectEmoji'}),
+      h('textarea', {attributes: attributes})
+    ]
     return contents
   }
 })

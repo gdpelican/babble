@@ -1,6 +1,7 @@
 import { withPluginApi } from 'discourse/lib/plugin-api';
 import Babble from "../lib/babble";
 import SiteHeader from 'discourse/components/site-header';
+import autosize from 'discourse/lib/autosize';
 import { default as computed, on, observes } from 'ember-addons/ember-computed-decorators';
 
 export default {
@@ -19,9 +20,40 @@ export default {
     Discourse.Babble.setAvailableTopics()
 
     SiteHeader.reopen({
-      @observes('Discourse.Babble.currentTopicId')
-      _babbleChanged() {
-        this.queueRerender();
+      @observes('Discourse.Babble.currentTopicId', 'Discourse.Babble.postStreamUpdated')
+      _babbleRenderPosts() {
+        const topic = Discourse.Babble.currentTopic
+        if (topic) {this.container.lookup('topic-tracking-state:main').updateSeen(topic.id, topic.highest_post_number)}
+        this.queueRerender()
+        Ember.run.scheduleOnce('afterRender', () => {
+          this.$('.babble-list').scrollTop($('.babble-posts').height())
+        })
+      },
+
+      @observes('Discourse.Babble.queueRerender')
+      _rerenderTrigger() {
+        this.queueRerender()
+      },
+
+      @observes('Discourse.Babble.postStreamUpdated', 'Discourse.Babble.editingPostId')
+      afterPatch() {
+        Ember.run.scheduleOnce('afterRender', () => {
+          const $textarea = this.$('.babble-post-composer textarea')
+          if ($textarea.length) {
+            if (!$textarea.val()) {
+              const editingId = Discourse.Babble.editingPostId
+              if (editingId) {
+                var post = Discourse.Babble.currentTopic.postStream.findLoadedPost(editingId)
+                $textarea.val(post.raw)
+                autosize($textarea)
+              } else {
+                $textarea.css('height', 'initial')
+              }
+            } else {
+              autosize($textarea)
+            }
+          }
+        })
       }
     })
 
@@ -31,7 +63,7 @@ export default {
         var currentUser = api.getCurrentUser(),
             headerState = helper.widget.parentWidget.state,
             enabled = Discourse.SiteSettings.babble_enabled,
-            topicId = Discourse.Babble.currentTopicId
+            topicId = Discourse.Babble.currentTopicId;
 
         var contents = [];
         if (!helper.widget.site.mobileView && currentUser && enabled && topicId) {
@@ -40,7 +72,7 @@ export default {
           contents.push(helper.attach('header-dropdown', {
             title: 'babble.title',
             icon: icon,
-            iconId: 'babble-notifications',
+            iconId: 'babble-icon',
             active: headerState.babbleVisible,
             action: 'toggleBabble',
             contents() {
@@ -55,13 +87,21 @@ export default {
           }));
         }
         if (headerState.babbleVisible) {
-          contents.push(helper.attach('babble-menu'))
+          if (headerState.babbleViewingChat === undefined) {
+            headerState.babbleViewingChat = true
+            Discourse.Babble.toggleProperty('postStreamUpdated')
+          }
+          contents.push(helper.attach('babble-menu', {viewingChat: headerState.babbleViewingChat}))
         }
         return contents
       })
 
       api.attachWidgetAction('header', 'toggleBabble', function() {
         this.state.babbleVisible = !this.state.babbleVisible
+      })
+
+      api.attachWidgetAction('header', 'toggleBabbleViewingChat', function() {
+        this.state.babbleViewingChat = !this.state.babbleViewingChat
       })
 
     })

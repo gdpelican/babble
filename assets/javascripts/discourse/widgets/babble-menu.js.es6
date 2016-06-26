@@ -4,34 +4,35 @@ import { h } from 'virtual-dom';
 export default createWidget('babble-menu', {
   tagName: 'li.babble-menu',
 
-  defaultState() {
-    return {
-      viewingChat: true
-    }
-  },
-
   availableTopics() {
     var currentTopicId = Discourse.Babble.currentTopicId
     return Discourse.Babble.availableTopics.filter(function(topic) { return topic.id !== currentTopicId })
   },
 
   toggleView() {
-    this.state.viewingChat = !this.state.viewingChat
+    this.sendWidgetAction('toggleBabbleViewingChat')
   },
 
   changeTopic(topic) {
-    Discourse.ajax('/babble/topics/' + topic.id + '.json').then(Discourse.Babble.setCurrentTopic)
+    Discourse.Babble.set('loadingTopicId', topic.id)
+    Discourse.ajax('/babble/topics/' + topic.id + '.json').then((result) => {
+      Discourse.Babble.setCurrentTopic(result)
+      Discourse.Babble.set('loadingTopic', null)
+      this.sendWidgetAction('toggleBabbleViewingChat')
+    })
+    this.scheduleRerender()
   },
 
-  panelContents(state) {
-    var viewingChat = state.viewingChat,
+  panelContents(attrs) {
+    var viewingChat = attrs.viewingChat,
         availableTopics = this.availableTopics(),
         multipleTopicsAvailable = Boolean(availableTopics.length > 0),
         currentTopic = Discourse.Babble.currentTopic,
-        titleWrapperClass = "babble-title-wrapper";
+        titleWrapperClass = "babble-title-wrapper",
+        submitDisabled = Discourse.Babble.submitDisabled;
 
     if (viewingChat) {
-      titleWrapperClass += "viewingChat"
+      titleWrapperClass += " viewingChat"
       var contextButtonAttrs = multipleTopicsAvailable ?
                                { className: 'normalized', icon: 'exchange', title: 'babble.view_topics_tooltip', action: 'toggleView' } :
                                { className: 'normalized', icon: 'eye', title: 'topic_visibility_tooltip'},
@@ -59,36 +60,40 @@ export default createWidget('babble-menu', {
         listContents.push(h('div.spinner-container', h('div.spinner')));
       } else if (posts.length) {
         var posts = posts.map(p => this.attach('babble-post', {post: p, topic: currentTopic}));
-        listContents.push(h('ul', [posts]));
+        listContents.push(posts);
       } else {
         listContents.push(h('li.babble-empty-topic-message', I18n.t(`babble.empty_topic_message`)))
       }
     } else {
-      listContents = availableTopics.map(t => {
-        h('li.babble-available-topic.row',
-          h('button.normalized', {
-            action: 'changeTopic',
-            actionParam: t
-          }, h('div.babble-available-topic-title', t.title))
-        )
+      listContents = availableTopics.map((t) => {
+        var spinner = Discourse.Babble.loadingTopicId === t.id ? h('div.spinner-container', h('div.spinner')) : ''
+        return h('li.babble-available-topic.row', [
+          this.attach('link', {
+          className: 'normalized',
+          rawLabel: t.title,
+          action: 'changeTopic',
+          actionParam: t
+        }), spinner])
       })
     }
 
     var contents = [
       h('div', {className: titleWrapperClass}, h('div.babble-title', titleContents )),
-      h('ul', {className: listClass}, listContents)
+      h('div.babble-list', h('ul', {className: listClass}, listContents))
     ]
     const notifications = Object.keys(currentTopic.notifications)
     if (notifications.length) {
       contents.push(h('p', `${notifications.join(", ")} have interacted with notifications anyhow.`))
     }
-    if (viewingChat) {contents.push(this.attach('babble-composer', {topic: currentTopic }))}
+    if (viewingChat && !Discourse.Babble.editingPostId) {
+      contents.push(this.attach('babble-composer', {topic: currentTopic, submitDisabled: submitDisabled }))
+    }
 
     return h('section.babble-chat', contents)
   },
 
   html(attrs, state) {
-    return this.attach('menu-panel', { contents: () => this.panelContents(state) });
+    return this.attach('menu-panel', { contents: () => this.panelContents(attrs) });
   },
 
   clickOutside() {
