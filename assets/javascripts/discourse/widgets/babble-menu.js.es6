@@ -81,9 +81,14 @@ export default createWidget('babble-menu', {
       h('div', {className: titleWrapperClass}, h('div.babble-title', titleContents )),
       h('div.babble-list', h('ul', {className: listClass}, listContents))
     ]
-    const notifications = Object.keys(currentTopic.notifications).filter(username => this.currentUser.username !== username)
-    if (notifications.length) {
-      contents.push(h('p', `${notifications.join(", ")} have interacted with notifications anyhow.`))
+    const {notifications} = currentTopic
+    const users = Object.keys(notifications).filter(username => this.currentUser.username !== username)
+    if (users.length) {
+      contents.push(this.attach('small-user-list', {
+        users: users.map(user => notifications[user].user),
+        listClassName: 'who-liked',
+        description: 'babble.is_typing'
+      }));
     }
     if (viewingChat && !Discourse.Babble.editingPostId) {
       contents.push(this.attach('babble-composer', {topic: currentTopic, submitDisabled: submitDisabled }))

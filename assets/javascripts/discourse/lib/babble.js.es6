@@ -120,6 +120,7 @@ export default Ember.Object.create({
   handleNotification: function (data) {
     const notifications = Discourse.Babble.get('currentTopic.notifications')
     const username = data.user.username
+    data.user.template = data.user.avatar_template
     if (notifications[username]) {
       clearTimeout(notifications[username].timeout)
     }
