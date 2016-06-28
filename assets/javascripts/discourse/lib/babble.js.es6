@@ -9,65 +9,69 @@ export default Ember.Object.create({
   },
 
   setCurrentTopic: function(data) {
-    const self = Discourse.Babble
 
     if (!data.id) {
-      self.set('currentTopic', null)
-      self.set('currentTopicId', null)
-      self.set('latestPost', null)
+      this.set('currentTopic', null)
+      this.set('currentTopicId', null)
+      this.set('latestPost', null)
       return
     }
 
     var resetTopicField = function(topic, field) {
       topic[field] = data[field]
-      if (!topic[field] && self.get('currentTopic')) { topic[field] = self.get('currentTopic')[field] }
+      if (!topic[field] && this.get('currentTopic')) { topic[field] = this.get('currentTopic')[field] }
     }
 
     var topic = Topic.create(data)
     resetTopicField(topic, 'last_read_post_number')
     resetTopicField(topic, 'highest_post_number')
 
-    if (self.get('currentTopicId') != topic.id) {
-      const messageBus = Discourse.__container__.lookup('message-bus:main')
-      if (self.get('currentTopicId')) {
-        messageBus.unsubscribe('/babble/topics/' + self.get('currentTopicId'))
-        messageBus.unsubscribe('/babble/topics/' + self.get('currentTopicId') + '/posts')
-        messageBus.unsubscribe('/babble/topics/' + self.get('currentTopicId') + '/notifications')
-      }
-      self.set('currentTopicId', topic.id)
-      messageBus.subscribe('/babble/topics/' + self.get('currentTopicId'), self.setCurrentTopic)
-      messageBus.subscribe('/babble/topics/' + self.get('currentTopicId') + '/posts', self.handleNewPost)
-      messageBus.subscribe('/babble/topics/' + self.get('currentTopicId') + '/notifications', self.handleNotification)
+    if (this.get('currentTopicId') != topic.id) {
+      this.handleMessageBusSubscriptions()
+      this.set('currentTopicId', topic.id)
 
-      var postStream = PostStream.create(topic.post_stream)
+      let postStream = PostStream.create(topic.post_stream)
       postStream.topic = topic
       postStream.updateFromJson(topic.post_stream)
 
       topic.postStream = postStream
       topic.notifications = {}
     } else {
-      topic.postStream = self.get('currentTopic.postStream')
-      topic.notifications = self.get('currentTopic.notifications')
+      topic.postStream = this.get('currentTopic.postStream')
+      topic.notifications = this.get('currentTopic.notifications')
     }
 
-    self.set('currentTopic', topic)
+    this.set('currentTopic', topic)
   },
 
-  setAvailableTopics: function() {
-    return Discourse.ajax('/babble/topics.json').then(function(data) {
-      Discourse.Babble.set('availableTopics', (data || {}).topics || [])
-    })
+  handleMessageBusSubscriptions(topicId) {
+    if (this.get('currentTopicId') == topicId) { return }
+    const messageBus = Discourse.__container__.lookup('message-bus:main')
+    let apiPath = function(topicId, action) { return `/babble/topics/${topicId}/${action}` }
+
+    if (this.currentTopicId) {
+      messageBus.unsubscribe(apiPath(this.currentTopicId))
+      messageBus.unsubscribe(apiPath(this.currentTopicId), 'posts')
+      messageBus.unsubscribe(apiPath(this.currentTopicId), 'notifications')
+    }
+    messageBus.subscribe(apiPath(topicId),                  (data) => { this.setCurrentTopic(data) })
+    messageBus.subscribe(apiPath(topicId, 'posts'),         (data) => { this.handleNewPost(data) })
+    messageBus.subscribe(apiPath(topicId, 'notifications'), (data) => { this.handleNotification(data) })
+
+  },
+
+  setAvailableTopics: function(data) {
+    this.set('availableTopics', (data || {}).topics || [])
   },
 
   lastPostIsMine: function() {
-    return Discourse.Babble.get('latestPost.user_id') == Discourse.User.current().id
+    return this.get('latestPost.user_id') == Discourse.User.current().id
   },
 
   stagePost: function(text) {
-    const self = Discourse.Babble
     const user = Discourse.User.current()
 
-    var postStream = self.get('currentTopic.postStream')
+    var postStream = this.get('currentTopic.postStream')
     var post = Post.create({
       raw: text,
       cooked: text,
@@ -83,12 +87,11 @@ export default Ember.Object.create({
     })
     postStream.set('loadedAllPosts', true)
     postStream.stagePost(post, user)
-    self.set('latestPost', post)
+    this.set('latestPost', post)
   },
 
   handleNewPost: function(data) {
-    const self = Discourse.Babble
-    let postStream = self.get('currentTopic.postStream')
+    let postStream = this.get('currentTopic.postStream')
     if (data.user_id != Discourse.User.current().id) {
       _.each(['can_edit', 'can_delete'], function(key) { delete data[key] })
     }
@@ -98,27 +101,27 @@ export default Ember.Object.create({
     if (data.is_edit || data.is_delete) {
       postStream.storePost(post)
       postStream.findLoadedPost(post.id).updateFromPost(post)
-      self.set('loadingEditId', null)
-      self.toggleProperty('queueRerender')
+      this.set('loadingEditId', null)
+      this.toggleProperty('queueRerender')
     } else {
       post.set('created_at', data.created_at)
-      self.set('latestPost', post)
+      this.set('latestPost', post)
 
-      if (self.lastPostIsMine()) {
-        self.clearStagedPost()
+      if (this.lastPostIsMine()) {
+        this.clearStagedPost()
         postStream.commitPost(post)
-        self.set('unreadCount', 0)
-        Discourse.Babble.set('submitDisabled', false)
+        this.set('unreadCount', 0)
+        this.set('submitDisabled', false)
       } else {
         postStream.appendPost(post)
-        var topic = self.get('currentTopic')
+        var topic = this.get('currentTopic')
       }
-      self.toggleProperty('postStreamUpdated')
+      this.toggleProperty('postStreamUpdated')
     }
   },
 
   handleNotification: function (data) {
-    const notifications = Discourse.Babble.get('currentTopic.notifications')
+    const notifications = this.get('currentTopic.notifications')
     const username = data.user.username
     data.user.template = data.user.avatar_template
     if (notifications[username]) {
@@ -131,8 +134,7 @@ export default Ember.Object.create({
   },
 
   clearStagedPost: function() {
-    const self = Discourse.Babble
-    var postStream = self.get('currentTopic.postStream')
+    var postStream = this.get('currentTopic.postStream')
     var staged = postStream.findLoadedPost(-1)
     if (staged) { postStream.removePosts([staged]) }
   }

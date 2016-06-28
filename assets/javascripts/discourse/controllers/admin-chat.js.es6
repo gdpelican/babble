@@ -1,3 +1,5 @@
+import Babble from '../lib/babble'
+
 export default Ember.Controller.extend({
   needs: ['adminChats'],
 
@@ -39,7 +41,7 @@ export default Ember.Controller.extend({
         } else {
           allTopics.addObject(saved)
         }
-        Discourse.Babble.setAvailableTopics()
+        Babble.setAvailableTopics()
         self.transitionToRoute('adminChat', saved.id)
 
       }).catch(function() {

@@ -1,5 +1,6 @@
 import { createWidget } from 'discourse/widgets/widget';
 import { h } from 'virtual-dom';
+import Babble from '../lib/babble'
 import RawHtml from 'discourse/widgets/raw-html';
 import { avatarImg } from 'discourse/widgets/post';
 import { dateNode } from 'discourse/helpers/node';
@@ -8,30 +9,24 @@ export default createWidget('babble-post', {
   tagName: 'li.babble-post',
 
   defaultState(attrs) {
-    var post = attrs.post
-    return {
-      post: post
-    };
+    return { post: attrs.post }
   },
 
   edit() {
-    var post = this.state.post
-    Discourse.Babble.set('editingPostId', post.id)
+    Babble.set('editingPostId', this.state.post.id)
   },
 
   delete() {
-    var post = this.state.post
-    Discourse.Babble.set('loadingEditId', post.id)
-    Discourse.Babble.toggleProperty('postStreamEdited')
-    Discourse.ajax(`/babble/topics/${post.topic_id}/destroy/${post.id}`, {
-      type: 'DELETE',
-    })
+    let post = this.state.post
+    Babble.set('loadingEditId', post.id)
+    Babble.toggleProperty('postStreamEdited')
+    Discourse.ajax(`/babble/topics/${post.topic_id}/destroy/${post.id}`, { type: 'DELETE' })
   },
 
   html(){
     var post = this.state.post,
-        isEditing = Boolean(Discourse.Babble.editingPostId === post.id),
-        loadingEdit = Boolean(Discourse.Babble.loadingEditId === post.id);
+        isEditing = Boolean(Babble.editingPostId === post.id),
+        loadingEdit = Boolean(Babble.loadingEditId === post.id);
 
     if (post.deleted_at) {
       var postContents = h('div.babble-deleted-post', I18n.t("babble.post_deleted_by", {username: post.deleted_by.username}))

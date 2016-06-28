@@ -1,12 +1,12 @@
 import { createWidget } from 'discourse/widgets/widget';
 import { h } from 'virtual-dom';
+import Babble from '../lib/babble'
 
 export default createWidget('babble-menu', {
   tagName: 'li.babble-menu',
 
   availableTopics() {
-    var currentTopicId = Discourse.Babble.currentTopicId
-    return Discourse.Babble.availableTopics.filter(function(topic) { return topic.id !== currentTopicId })
+    return Babble.availableTopics.filter(function(topic) { return topic.id !== Babble.currentTopicId })
   },
 
   toggleView() {
@@ -14,12 +14,15 @@ export default createWidget('babble-menu', {
   },
 
   changeTopic(topic) {
-    Discourse.Babble.set('loadingTopicId', topic.id)
-    Discourse.ajax('/babble/topics/' + topic.id + '.json').then((result) => {
-      Discourse.Babble.setCurrentTopic(result)
-      Discourse.Babble.set('loadingTopic', null)
-      this.sendWidgetAction('toggleBabbleViewingChat')
-    })
+    Babble.set('loadingTopicId', topic.id)
+    Discourse.ajax('/babble/topics/' + topic.id + '.json').then(
+      (data)  => {
+        Babble.setCurrentTopic(data)
+        Babble.set('loadingTopic', null)
+        this.sendWidgetAction('toggleBabbleViewingChat')
+      },
+      (error) => { console.log(error) }
+    )
     this.scheduleRerender()
   },
 
@@ -27,9 +30,9 @@ export default createWidget('babble-menu', {
     var viewingChat = attrs.viewingChat,
         availableTopics = this.availableTopics(),
         multipleTopicsAvailable = Boolean(availableTopics.length > 0),
-        currentTopic = Discourse.Babble.currentTopic,
+        currentTopic = Babble.currentTopic,
         titleWrapperClass = "babble-title-wrapper",
-        submitDisabled = Discourse.Babble.submitDisabled;
+        submitDisabled = Babble.submitDisabled;
 
     if (viewingChat) {
       titleWrapperClass += " viewingChat"
@@ -66,7 +69,7 @@ export default createWidget('babble-menu', {
       }
     } else {
       listContents = availableTopics.map((t) => {
-        var spinner = Discourse.Babble.loadingTopicId === t.id ? h('div.spinner-container', h('div.spinner')) : ''
+        var spinner = Babble.loadingTopicId === t.id ? h('div.spinner-container', h('div.spinner')) : ''
         return h('li.babble-available-topic.row', [
           this.attach('link', {
           className: 'normalized',
@@ -90,7 +93,7 @@ export default createWidget('babble-menu', {
         description: 'babble.is_typing'
       }));
     }
-    if (viewingChat && !Discourse.Babble.editingPostId) {
+    if (viewingChat && !Babble.editingPostId) {
       contents.push(this.attach('babble-composer', {topic: currentTopic, submitDisabled: submitDisabled }))
     }
 

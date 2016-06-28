@@ -1,6 +1,7 @@
 import { createWidget } from 'discourse/widgets/widget';
 import { h } from 'virtual-dom';
 import { showSelector } from "discourse/lib/emoji/emoji-toolbar";
+import Babble from "../lib/babble";
 
 export default createWidget('babble-composer', {
   tagName: 'div.babble-post-composer',
@@ -50,7 +51,7 @@ export default createWidget('babble-composer', {
   },
 
   cancel() {
-    Discourse.Babble.set('editingPostId', null)
+    Babble.set('editingPostId', null)
   },
 
   eventToggleFor(selector, event, namespace) {
@@ -81,9 +82,9 @@ export default createWidget('babble-composer', {
 
   create(text) {
     var topic = this.state.topic
-    Discourse.Babble.stagePost(text)
-    Discourse.Babble.set('submitDisabled', true)
-    Discourse.Babble.toggleProperty('postStreamUpdated')
+    Babble.stagePost(text)
+    Babble.set('submitDisabled', true)
+    Babble.toggleProperty('postStreamUpdated')
     Discourse.ajax(`/babble/topics/${topic.id}/post`, {
       type: 'POST',
       data: { raw: text }
@@ -92,8 +93,8 @@ export default createWidget('babble-composer', {
 
   update(text) {
     var post = this.state.post
-    Discourse.Babble.set('editingPostId', null)
-    Discourse.Babble.set('loadingEditId', post.id)
+    Babble.set('editingPostId', null)
+    Babble.set('loadingEditId', post.id)
     this.scheduleRerender()
     Discourse.ajax(`/babble/topics/${post.topic_id}/post/${post.id}`, {
       type: 'POST',
@@ -108,7 +109,7 @@ export default createWidget('babble-composer', {
       let myLastPost = _.last(_.select(this.state.topic.postStream.posts, function(post) {
         return post.user_id == Discourse.User.current().id
       }))
-      if (myLastPost) { Discourse.Babble.set('editingPostId', myLastPost.id) }
+      if (myLastPost) { Babble.set('editingPostId', myLastPost.id) }
       return false
     }
 
