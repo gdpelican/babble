@@ -19,17 +19,23 @@
 
 .babble-title h4 {
   display: inline-block;
+  margin-right: 5px;
 }
 
 .babble-title i {
   color: #ccc;
 }
 
+.d-header .icons .babble-title [class^="fa fa-"] {
+  font-size: 15px;
+}
+
 .babble-context-toggle {
   position: relative;
   outline: 0;
+  padding: 0;
   text-align: center;
-  float: right;
+  display: inline-block;
   line-height: 20px;
   @media (max-width: 700px) { line-height: 35px; }
   vertical-align: top;
@@ -401,9 +407,8 @@ li.babble-post .babble-post-content a.mention {
 .babble-chat button.normalized {
   background: transparent;
   border: 0;
+  padding: 0;
   @media (max-width: 700px) {
-    padding: 0 5px;
-    &.for-chat { padding: 8px 10px; }
     font-size: 17px;
   }
 }
