@@ -150,15 +150,16 @@ export default createWidget('babble-composer', {
 
   html(attrs){
     var contents = [
+      h('textarea', {attributes: {
+        placeholder: Discourse.SiteSettings.babble_placeholder || I18n.t('babble.placeholder'),
+        rows:        this.state.editing ? 1 : 3,
+        disabled:    this.state.submitDisabled
+      }}),
       this.attach('button', {
         className: 'emoji',
         icon: 'smile-o',
-        action: 'selectEmoji'}),
-      h('textarea', {attributes: {
-        placeholder: Discourse.SiteSettings.babble_placeholder || I18n.t('babble.placeholder'),
-        rows:        this.isEditing ? 1 : 3,
-        disabled:    this.state.submitDisabled
-      }})
+        action: 'selectEmoji'
+      })
     ]
     return contents
   }

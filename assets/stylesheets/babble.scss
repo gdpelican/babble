@@ -282,7 +282,7 @@ li.babble-post .babble-post-content a.mention {
   box-shadow: none;
   border: none;
   box-sizing: border-box;
-  margin: 0;
+  margin: 5px 0 0 0;
   resize: none;
   width: 100%;
   min-height: 30px;
@@ -290,14 +290,11 @@ li.babble-post .babble-post-content a.mention {
 }
 
 .babble-post-composer .emoji {
-  position: absolute;
-  bottom: 8px;
-  right: 0px;
   font-size: 12px;
   background: none;
   border: none;
   display: inline-block;
-  vertical-align: top;
+  vertical-align: bottom;
   padding: 0;
 }
 
@@ -373,7 +370,9 @@ li.babble-post .babble-post-content a.mention {
     height: 500px;
   }
   .babble-post-composer {
-    flex: 0 1 auto;
+    display: flex;
+    flex-direction: row;
+    align-items: flex-end;
   }
 }
 
