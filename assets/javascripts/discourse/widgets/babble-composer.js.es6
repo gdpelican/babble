@@ -156,18 +156,25 @@ export default createWidget('babble-composer', {
   },
 
   html(attrs){
-    var contents = [
-      h('textarea', {attributes: {
-        placeholder: Discourse.SiteSettings.babble_placeholder || I18n.t('babble.placeholder'),
-        rows:        this.state.editing ? 1 : 3,
-        disabled:    this.state.submitDisabled
-      }}),
+    return [
+      h('div.babble-composer-wrapper', [
+        h('textarea', {attributes: {
+          placeholder: Discourse.SiteSettings.babble_placeholder || I18n.t('babble.placeholder'),
+          rows:        this.state.editing ? 1 : 3,
+          disabled:    this.state.submitDisabled
+        }}),
+        this.attach('button', {
+          className: 'emoji',
+          icon: 'smile-o',
+          action: 'selectEmoji'
+        })
+      ]),
       this.attach('button', {
-        className: 'emoji',
-        icon: 'smile-o',
-        action: 'selectEmoji'
+        className: 'btn btn-primary btn-submit pull-right',
+        action: 'submit',
+        label: 'babble.send',
+        attributes: { disabled: this.state.submitDisabled }
       })
     ]
-    return contents
   }
 })

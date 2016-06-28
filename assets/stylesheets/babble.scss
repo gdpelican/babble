@@ -275,20 +275,20 @@ li.babble-post .babble-post-content a.mention {
 /* Composer styles */
 
 .babble-post-composer {
-  box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.3);
-  border: 1px solid #e9e9e9;
-  padding: 2px;
-  line-height: 12px;
-  margin-bottom: 8px;
+  margin: 0 1px 8px;
+}
+
+.babble-composer-wrapper {
+  position: relative;
 }
 
 .babble-post-composer textarea {
+  box-shadow: inset 0 1px 4px rgba(0, 0, 0, 0.3);
   display: inline-block;
   vertical-align: middle;
-  box-shadow: none;
   border: none;
   box-sizing: border-box;
-  margin: 5px 0 0 0;
+  margin: 5px 2px 0 0;
   resize: none;
   width: 100%;
   min-height: 30px;
@@ -296,12 +296,19 @@ li.babble-post .babble-post-content a.mention {
 }
 
 .babble-post-composer .emoji {
+  position: absolute;
+  bottom: -2px;
+  right: -2px;
   font-size: 12px;
   background: none;
   border: none;
   display: inline-block;
   vertical-align: bottom;
   padding: 0;
+}
+
+.babble-post-composer .btn-submit {
+  margin-top: 5px;
 }
 
 .babble-post-composer .autocomplete {
@@ -375,7 +382,7 @@ li.babble-post .babble-post-content a.mention {
     overflow-y: auto;
     height: 500px;
   }
-  .babble-post-composer {
+  .babble-post-composer-wrapper {
     display: flex;
     flex-direction: row;
     align-items: flex-end;
