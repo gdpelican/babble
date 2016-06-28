@@ -27,15 +27,11 @@ export default createWidget('babble-menu', {
   },
 
   panelContents(attrs) {
-    let viewingChat = attrs.viewingChat,
-        availableTopics = this.availableTopics(),
-        multipleTopicsAvailable = Boolean(availableTopics.length > 0),
-        currentTopic = Babble.currentTopic,
-        titleContents = [],
-        titleWrapperClass = "babble-title-wrapper",
-        submitDisabled = Babble.submitDisabled;
+    let currentTopic            = Babble.currentTopic,
+        titleContents           = [],
+        titleWrapperClass       = "babble-title-wrapper"
 
-    if (viewingChat) {
+    if (attrs.viewingChat) {
       titleWrapperClass += " viewingChat"
       titleContents.push(h('h4.babble-group-title', currentTopic.title))
       titleContents.push(h('div.babble-context-toggle.for-chat', this.attach('button', {
@@ -43,7 +39,7 @@ export default createWidget('babble-menu', {
         icon:      'eye',
         title:     'babble.topic_visibility_tooltip'
       })))
-      if (multipleTopicsAvailable) {
+      if (this.availableTopics().length > 0) {
         titleContents.push(h('div.babble-context-toggle.for-chat', this.attach('button', {
           className: 'normalized',
           icon:      'exchange',
@@ -61,21 +57,20 @@ export default createWidget('babble-menu', {
       ]
     }
 
-    var listClass = viewingChat ? 'babble-posts' : 'babble-available-topics',
+    var listClass = attrs.viewingChat ? 'babble-posts' : 'babble-available-topics',
         listContents = [];
 
-    if (viewingChat) {
+    if (attrs.viewingChat) {
       var posts = currentTopic.postStream.posts;
       if (currentTopic.postStream.loadingBelow) {
         listContents.push(h('div.spinner-container', h('div.spinner')));
       } else if (posts.length) {
-        var posts = posts.map(p => this.attach('babble-post', {post: p, topic: currentTopic}));
-        listContents.push(posts);
+        listContents.push(posts.map((p) => this.attach('babble-post', {post: p, topic: currentTopic })))
       } else {
         listContents.push(h('li.babble-empty-topic-message', I18n.t(`babble.empty_topic_message`)))
       }
     } else {
-      listContents = availableTopics.map((t) => {
+      listContents = this.availableTopics().map((t) => {
         var spinner = Babble.loadingTopicId === t.id ? h('div.spinner-container', h('div.spinner')) : ''
         return h('li.babble-available-topic.row', [
           this.attach('link', {
@@ -100,11 +95,8 @@ export default createWidget('babble-menu', {
         description: 'babble.is_typing'
       }));
     }
-    if (viewingChat) {
-      contents.push(this.attach('babble-composer', {
-        topic: currentTopic,
-        submitDisabled: submitDisabled
-      }))
+    if (attrs.viewingChat) {
+      contents.push(this.attach('babble-composer', { topic: currentTopic }))
     }
 
     return h('section.babble-chat', contents)

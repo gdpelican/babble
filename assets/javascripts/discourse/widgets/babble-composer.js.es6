@@ -82,12 +82,14 @@ export default createWidget('babble-composer', {
 
   create(text) {
     var topic = this.state.topic
+    this.state.submitDisabled = true
     Babble.stagePost(text)
-    Babble.set('submitDisabled', true)
-    Babble.toggleProperty('postStreamUpdated')
     Discourse.ajax(`/babble/topics/${topic.id}/post`, {
       type: 'POST',
       data: { raw: text }
+    }).finally(() => {
+      this.state.submitDisabled = false
+      Babble.toggleProperty('queueRerender')
     })
   },
 
@@ -95,10 +97,15 @@ export default createWidget('babble-composer', {
     var post = this.state.post
     Babble.set('editingPostId', null)
     Babble.set('loadingEditId', post.id)
+    this.state.submitDisabled = true
     this.scheduleRerender()
     Discourse.ajax(`/babble/topics/${post.topic_id}/post/${post.id}`, {
       type: 'POST',
       data: { raw: text }
+    }).finally(() => {
+      Babble.set('loadingEditId', null)
+      Babble.toggleProperty('queueRerender')
+      this.state.submitDisabled = false
     })
   },
 
@@ -123,12 +130,12 @@ export default createWidget('babble-composer', {
   },
 
   checkInteraction() {
-    const topic = this.state.topic
+    const topicId = this.state.post.topic_id
     const lastInteraction = this.state.lastInteraction
     const now = new Date
     if (now - lastInteraction > 5000) {
       this.state.lastInteraction = now
-      Discourse.ajax(`/babble/topics/${topic.id}/notification`, {
+      Discourse.ajax(`/babble/topics/${topicId}/notification`, {
         type: 'POST',
         data: {state: 'editing'}
       })

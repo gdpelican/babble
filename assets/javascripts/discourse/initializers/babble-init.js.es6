@@ -40,7 +40,7 @@ export default {
       @observes('Babble.postStreamUpdated', 'Babble.editingPostId')
       afterPatch() {
         Ember.run.scheduleOnce('afterRender', () => {
-          const $textarea = this.$('.babble-post-composer textarea')
+          const $textarea = this.$('.babble-post-container .babble-post-composer textarea')
           if ($textarea.length) {
             if (!$textarea.val()) {
               const editingId = Babble.editingPostId

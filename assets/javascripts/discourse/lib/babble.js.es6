@@ -9,7 +9,6 @@ export default Ember.Object.create({
   },
 
   setCurrentTopic: function(data) {
-
     if (!data.id) {
       this.set('currentTopic', null)
       this.set('currentTopicId', null)
@@ -57,7 +56,6 @@ export default Ember.Object.create({
     messageBus.subscribe(apiPath(topicId),                  (data) => { this.setCurrentTopic(data) })
     messageBus.subscribe(apiPath(topicId, 'posts'),         (data) => { this.handleNewPost(data) })
     messageBus.subscribe(apiPath(topicId, 'notifications'), (data) => { this.handleNotification(data) })
-
   },
 
   setAvailableTopics: function(data) {
@@ -111,7 +109,6 @@ export default Ember.Object.create({
         this.clearStagedPost()
         postStream.commitPost(post)
         this.set('unreadCount', 0)
-        this.set('submitDisabled', false)
       } else {
         postStream.appendPost(post)
         var topic = this.get('currentTopic')
