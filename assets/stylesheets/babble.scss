@@ -273,6 +273,7 @@ li.babble-post .babble-post-content a.mention {
   border: 1px solid #e9e9e9;
   padding: 2px;
   line-height: 12px;
+  margin-bottom: 8px;
 }
 
 .babble-post-composer textarea {
@@ -283,17 +284,20 @@ li.babble-post .babble-post-content a.mention {
   box-sizing: border-box;
   margin: 0;
   resize: none;
-  width: 262px;
+  width: 100%;
   min-height: 30px;
   padding: 6px;
 }
 
 .babble-post-composer .emoji {
+  position: absolute;
+  bottom: 8px;
+  right: 0px;
   font-size: 12px;
   background: none;
   border: none;
   display: inline-block;
-  vertical-align: middle;
+  vertical-align: top;
   padding: 0;
 }
 

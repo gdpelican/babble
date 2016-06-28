@@ -27,22 +27,29 @@ export default createWidget('babble-menu', {
   },
 
   panelContents(attrs) {
-    var viewingChat = attrs.viewingChat,
+    let viewingChat = attrs.viewingChat,
         availableTopics = this.availableTopics(),
         multipleTopicsAvailable = Boolean(availableTopics.length > 0),
         currentTopic = Babble.currentTopic,
+        titleContents = [],
         titleWrapperClass = "babble-title-wrapper",
         submitDisabled = Babble.submitDisabled;
 
     if (viewingChat) {
       titleWrapperClass += " viewingChat"
-      var contextButtonAttrs = multipleTopicsAvailable ?
-                               { className: 'normalized', icon: 'exchange', title: 'babble.view_topics_tooltip', action: 'toggleView' } :
-                               { className: 'normalized', icon: 'eye', title: 'topic_visibility_tooltip'},
-          titleContents = [
-            h('h4.babble-group-title', currentTopic.title),
-            h('div.babble-context-toggle.for-chat', this.attach('button', contextButtonAttrs))
-          ]
+      titleContents.push(h('h4.babble-group-title', currentTopic.title))
+      titleContents.push(h('div.babble-context-toggle.for-chat', this.attach('button', {
+        className: 'normalized',
+        icon:      'eye',
+        title:     'babble.topic_visibility_tooltip'
+      })))
+      if (multipleTopicsAvailable) {
+        titleContents.push(h('div.babble-context-toggle.for-chat', this.attach('button', {
+          className: 'normalized',
+          icon:      'exchange',
+          title:     'babble.view_topics_tooltip'
+        })))
+      }
     } else {
       titleContents = [
         this.attach('button', {
@@ -93,8 +100,11 @@ export default createWidget('babble-menu', {
         description: 'babble.is_typing'
       }));
     }
-    if (viewingChat && !Babble.editingPostId) {
-      contents.push(this.attach('babble-composer', {topic: currentTopic, submitDisabled: submitDisabled }))
+    if (viewingChat) {
+      contents.push(this.attach('babble-composer', {
+        topic: currentTopic,
+        submitDisabled: submitDisabled
+      }))
     }
 
     return h('section.babble-chat', contents)
