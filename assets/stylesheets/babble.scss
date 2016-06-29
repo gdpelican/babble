@@ -292,7 +292,7 @@ li.babble-post .babble-post-content a.mention {
   resize: none;
   width: 100%;
   min-height: 30px;
-  padding: 6px;
+  padding: 6px 24px 6px 6px;
 }
 
 .babble-post-composer .emoji {
@@ -405,10 +405,10 @@ li.babble-post .babble-post-content a.mention {
 }
 
 /* Discourse overrides */
-
 @media (min-width: 700px) {
   .babble-post       button.dropdown-toggle { opacity: 0; }
   .babble-post:hover button.dropdown-toggle { opacity: 1; }
+  .babble-post-composer .btn-submit { display: none; }
 }
 
 .babble-chat button.normalized {

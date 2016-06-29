@@ -1,7 +1,7 @@
-import { createWidget } from 'discourse/widgets/widget';
-import { h } from 'virtual-dom';
-import { showSelector } from "discourse/lib/emoji/emoji-toolbar";
-import Babble from "../lib/babble";
+import { createWidget } from 'discourse/widgets/widget'
+import { h } from 'virtual-dom'
+import { showSelector } from "discourse/lib/emoji/emoji-toolbar"
+import Babble from "../lib/babble"
 
 export default createWidget('babble-composer', {
   tagName: 'div.babble-post-composer',
@@ -87,9 +87,10 @@ export default createWidget('babble-composer', {
     Discourse.ajax(`/babble/topics/${topic.id}/post`, {
       type: 'POST',
       data: { raw: text }
+    }).then((data) => {
+      Babble.handleNewPost(data)
     }).finally(() => {
       this.state.submitDisabled = false
-      Babble.toggleProperty('queueRerender')
     })
   },
 
@@ -98,13 +99,13 @@ export default createWidget('babble-composer', {
     Babble.set('editingPostId', null)
     Babble.set('loadingEditId', post.id)
     this.state.submitDisabled = true
-    this.scheduleRerender()
     Discourse.ajax(`/babble/topics/${post.topic_id}/post/${post.id}`, {
       type: 'POST',
       data: { raw: text }
+    }).then((data) => {
+      Babble.handleNewPost(data)
     }).finally(() => {
       Babble.set('loadingEditId', null)
-      Babble.toggleProperty('queueRerender')
       this.state.submitDisabled = false
     })
   },
@@ -130,16 +131,16 @@ export default createWidget('babble-composer', {
   },
 
   checkInteraction() {
-    const topicId = this.state.post.topic_id
-    const lastInteraction = this.state.lastInteraction
-    const now = new Date
-    if (now - lastInteraction > 5000) {
-      this.state.lastInteraction = now
-      Discourse.ajax(`/babble/topics/${topicId}/notification`, {
-        type: 'POST',
-        data: {state: 'editing'}
-      })
-    }
+    // const topicId = this.state.post.topic_id
+    // const lastInteraction = this.state.lastInteraction
+    // const now = new Date
+    // if (now - lastInteraction > 5000) {
+    //   this.state.lastInteraction = now
+    //   Discourse.ajax(`/babble/topics/${topicId}/notification`, {
+    //     type: 'POST',
+    //     data: {state: 'editing'}
+    //   })
+    // }
   },
 
   eventToggleFor(selector, event, namespace) {
@@ -160,7 +161,7 @@ export default createWidget('babble-composer', {
       h('div.babble-composer-wrapper', [
         h('textarea', {attributes: {
           placeholder: Discourse.SiteSettings.babble_placeholder || I18n.t('babble.placeholder'),
-          rows:        this.state.editing ? 1 : 3,
+          rows:        this.state.editing ? 1 : 2,
           disabled:    this.state.submitDisabled
         }}),
         this.attach('button', {
