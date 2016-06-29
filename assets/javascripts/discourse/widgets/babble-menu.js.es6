@@ -26,84 +26,76 @@ export default createWidget('babble-menu', {
     this.scheduleRerender()
   },
 
-  panelContents(attrs) {
-    let currentTopic            = Babble.currentTopic,
-        titleContents           = [],
-        titleWrapperClass       = "babble-title-wrapper"
+  html(attrs, state) {
+    return this.attach('menu-panel', { contents: () => {
+      return h('section.babble-chat', attrs.viewingChat ? this.chatContents() : this.topicContents())
+    }})
+  },
 
-    if (attrs.viewingChat) {
-      titleWrapperClass += " viewingChat"
-      titleContents.push(h('h4.babble-group-title', currentTopic.title))
-      titleContents.push(h('div.babble-context-toggle.for-chat', this.attach('button', {
-        className: 'normalized',
-        icon:      'eye',
-        title:     'babble.topic_visibility_tooltip'
-      })))
-      if (this.availableTopics().length > 0) {
-        titleContents.push(h('div.babble-context-toggle.for-chat', this.attach('button', {
+  chatContents(attrs) {
+    let currentTopic = Babble.currentTopic
+    return [
+      h('div', {className: 'babble-title-wrapper' }, h('div.babble-title', [
+        h('h4.babble-group-title', currentTopic.title),
+        h('div.babble-context-toggle.for-chat', this.attach('button', {
           className: 'normalized',
-          icon:      'exchange',
-          title:     'babble.view_topics_tooltip'
-        })))
-      }
+          icon:      'eye',
+          title:     'babble.topic_visibility_tooltip'
+        })),
+        this.exchangeTopicsButton()
+      ])),
+      h('div.babble-list', h('ul', {className: 'babble-posts'}, this.chatView(currentTopic))),
+      this.attach('babble-composer', { topic: currentTopic })
+    ]
+  },
+
+  exchangeTopicsButton() {
+    if (this.availableTopics().length == 0) { return }
+    return h('div.babble-context-toggle.for-chat', this.attach('button', {
+      className: 'normalized',
+      icon:      'exchange',
+      title:     'babble.view_topics_tooltip'
+    }))
+  },
+
+  chatView(topic) {
+    if (topic.postStream.loadingBelow) {
+      return this.loadingSpinner()
+    } else if (topic.postStream.posts) {
+      return topic.postStream.posts.map(p => { return this.attach('babble-post', { post: p, topic: topic}) })
     } else {
-      titleContents = [
+      return h('li.babble-empty-topic-message', I18n.t('babble.empty_topic_message'))
+    }
+  },
+
+  topicContents() {
+    return [
+      h('div', {className: 'babble-title-wrapper' }, h('div.babble-title', [
         this.attach('button', {
           className: 'babble-context-toggle for-topics normalized',
           icon: 'chevron-left',
           title: 'babble.view_chat_tooltip',
           action: 'toggleView' }),
         h('h4.babble-topic-switcher-title', I18n.t(`babble.select_topic`))
-      ]
-    }
-
-    var listClass = attrs.viewingChat ? 'babble-posts' : 'babble-available-topics',
-        listContents = [];
-
-    if (attrs.viewingChat) {
-      var posts = currentTopic.postStream.posts;
-      if (currentTopic.postStream.loadingBelow) {
-        listContents.push(h('div.spinner-container', h('div.spinner')));
-      } else if (posts.length) {
-        listContents.push(posts.map((p) => this.attach('babble-post', {post: p, topic: currentTopic })))
-      } else {
-        listContents.push(h('li.babble-empty-topic-message', I18n.t(`babble.empty_topic_message`)))
-      }
-    } else {
-      listContents = this.availableTopics().map((t) => {
-        var spinner = Babble.loadingTopicId === t.id ? h('div.spinner-container', h('div.spinner')) : ''
-        return h('li.babble-available-topic.row', [
-          this.attach('link', {
-          className: 'normalized',
-          rawLabel: t.title,
-          action: 'changeTopic',
-          actionParam: t
-        }), spinner])
-      })
-    }
-
-    var contents = [
-      h('div', {className: titleWrapperClass}, h('div.babble-title', titleContents )),
-      h('div.babble-list', h('ul', {className: listClass}, listContents))
+      ])),
+      h('div.babble-list', h('ul', {className: 'babble-available-topics'},
+        this.availableTopics().map(t => {
+          return h('li.babble-available-topic.row', [
+            this.attach('link', {
+              className: 'normalized',
+              rawLabel: t.title,
+              action: 'changeTopic',
+              actionParam: t
+            }),
+            Babble.loadingTopicId == t.id ? this.loadingSpinner() : null
+          ])
+        })
+      ))
     ]
-    const {notifications} = currentTopic
-    const users = Object.keys(notifications).filter(username => this.currentUser.username !== username)
-    if (users.length) {
-      contents.push(this.attach('small-user-list', {
-        users: users.map(user => notifications[user].user),
-        listClassName: 'who-liked',
-        description: 'babble.is_typing'
-      }));
-    }
-    if (attrs.viewingChat) {
-      contents.push(this.attach('babble-composer', { topic: currentTopic }))
-    }
-
-    return h('section.babble-chat', contents)
   },
 
-  html(attrs, state) {
-    return this.attach('menu-panel', { contents: () => this.panelContents(attrs) });
+  loadingSpinner() {
+    return h('div.spinner-container', h('div.spinner'))
   },
 
   clickOutside() {
