@@ -1,7 +1,7 @@
 import { createWidget } from 'discourse/widgets/widget'
-import { h } from 'virtual-dom'
 import { showSelector } from "discourse/lib/emoji/emoji-toolbar"
 import Babble from "../lib/babble"
+import template from "../widgets/templates/babble-composer"
 
 export default createWidget('babble-composer', {
   tagName: 'div.babble-post-composer',
@@ -78,6 +78,7 @@ export default createWidget('babble-composer', {
     } else {
       this.create(text)
     }
+    this.scheduleRerender()
   },
 
   create(text) {
@@ -156,26 +157,5 @@ export default createWidget('babble-composer', {
     }
   },
 
-  html(attrs){
-    return [
-      h('div.babble-composer-wrapper', [
-        h('textarea', {attributes: {
-          placeholder: Discourse.SiteSettings.babble_placeholder || I18n.t('babble.placeholder'),
-          rows:        this.state.editing ? 1 : 2,
-          disabled:    this.state.submitDisabled
-        }}),
-        this.attach('button', {
-          className: 'emoji',
-          icon: 'smile-o',
-          action: 'selectEmoji'
-        })
-      ]),
-      this.attach('button', {
-        className: 'btn btn-primary btn-submit pull-right',
-        action: 'submit',
-        label: 'babble.send',
-        attributes: { disabled: this.state.submitDisabled }
-      })
-    ]
-  }
+  html() { return template.render(this) }
 })
