@@ -131,16 +131,16 @@ export default createWidget('babble-composer', {
   },
 
   checkInteraction() {
-    // const topicId = this.state.post.topic_id
-    // const lastInteraction = this.state.lastInteraction
-    // const now = new Date
-    // if (now - lastInteraction > 5000) {
-    //   this.state.lastInteraction = now
-    //   Discourse.ajax(`/babble/topics/${topicId}/notification`, {
-    //     type: 'POST',
-    //     data: {state: 'editing'}
-    //   })
-    // }
+    const topicId = this.state.topic.id
+    const lastInteraction = this.state.lastInteraction
+    const now = new Date
+    if (now - lastInteraction > 5000) {
+      this.state.lastInteraction = now
+      Discourse.ajax(`/babble/topics/${topicId}/notification`, {
+        type: 'POST',
+        data: {state: 'editing'}
+      })
+    }
   },
 
   eventToggleFor(selector, event, namespace) {
