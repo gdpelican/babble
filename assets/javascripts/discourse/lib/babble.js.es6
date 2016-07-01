@@ -40,7 +40,13 @@ export default Ember.Object.create({
       topic.notifications = this.get('currentTopic.notifications')
     }
 
+    var totalUnreadCount = topic.highest_post_number - topic.last_read_post_number
+    var windowUnreadCount = _.min([totalUnreadCount, topic.postStream.posts.length])
+
+    this.set('unreadCount', windowUnreadCount)
+    this.set('hasAdditionalUnread', totalUnreadCount > windowUnreadCount)
     this.set('currentTopic', topic)
+    this.rerender()
   },
 
   handleMessageBusSubscriptions(topicId) {

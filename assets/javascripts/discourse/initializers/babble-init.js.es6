@@ -74,11 +74,11 @@ export default {
             active:        headerState.babbleVisible,
             action:        'toggleBabble',
             contents() {
-              if (!Babble.unreadCount) { return }
+              if (!Babble.get('unreadCount')) { return }
               return this.attach('link', {
                 action:    'toggleBabble',
                 className: 'badge-notification unread-notifications',
-                rawLabel:  Babble.unreadCount
+                rawLabel:  Babble.get('unreadCount')
               })
             }
           }));
