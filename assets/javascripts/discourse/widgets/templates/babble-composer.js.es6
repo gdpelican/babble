@@ -4,7 +4,7 @@ export default Ember.Object.create({
   render(widget) {
     this.widget = widget
     this.state  = widget.state
-    return [this.composer(), this.sendButton()]
+    return [this.composer(), this.sendButton(), this.cancelButton()]
   },
 
   composer() {
@@ -29,12 +29,21 @@ export default Ember.Object.create({
     })
   },
 
-  sendButton(state) {
+  sendButton() {
     return this.widget.attach('button', {
       className: 'btn btn-primary btn-submit pull-right',
       action: 'submit',
-      label: 'babble.send',
+      label: this.state.editing ? 'babble.save' : 'babble.send',
       attributes: { disabled: this.state.submitDisabled }
+    })
+  },
+
+  cancelButton() {
+    if (!this.state.editing) { return }
+    return this.widget.attach('button', {
+      className: 'btn btn-cancel pull-right',
+      action: 'cancel',
+      label: 'babble.cancel'
     })
   }
 })
