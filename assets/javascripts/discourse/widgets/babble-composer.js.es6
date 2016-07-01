@@ -78,7 +78,6 @@ export default createWidget('babble-composer', {
     } else {
       this.create(text)
     }
-    this.scheduleRerender()
   },
 
   create(text) {

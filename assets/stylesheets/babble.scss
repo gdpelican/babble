@@ -250,7 +250,7 @@ li.babble-post .babble-post-content a.mention {
 }
 
 .babble-available-topic {
-  line-height: 15px;
+  line-height: 32px;
   cursor: pointer;
   font-weight: bold;
   padding-left: 15px;
@@ -413,7 +413,7 @@ li.babble-post .babble-post-content a.mention {
 @media (min-width: 700px) {
   .babble-post       button.dropdown-toggle { opacity: 0; }
   .babble-post:hover button.dropdown-toggle { opacity: 1; }
-  .babble-post-composer .btn-submit { display: none; }
+  .babble-chat > .babble-post-composer .btn-submit { display: none; }
 }
 
 .babble-chat button.normalized {

@@ -3,7 +3,7 @@ import Babble from "../../discourse/lib/babble"
 export default Discourse.Route.extend({
 
   model: function() {
-    Babble.get('availableTopics') // TODO
+    return Babble.get('availableTopics')
   },
 
   setupController: function(controller, model) {

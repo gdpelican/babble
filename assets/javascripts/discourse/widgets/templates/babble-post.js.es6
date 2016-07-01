@@ -25,9 +25,9 @@ export default Ember.Object.create({
   contents() {
     if (this.post.deleted_at) {
       return h('div.babble-deleted-post', I18n.t('babble.post_deleted_by', {username: this.post.deleted_by.username}))
-    } else if (Babble.editingPostId === this.post.id ){
+    } else if (Babble.get('editingPostId') === this.post.id ){
       return this.widget.attach('babble-composer', {post: this.post, isEditing: true})
-    } else if (Babble.loadingPostId === this.post.id) {
+    } else if (Babble.get('loadingEditId') === this.post.id) {
       return h('div.spinner-container', h('div.spinner'))
     } else {
       return [this.avatarWrapper(), this.bodyWrapper()]
