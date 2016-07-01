@@ -22,22 +22,21 @@ export default {
     )
 
     SiteHeader.reopen({
-      @observes('Babble.currentTopicId', 'Babble.postStreamUpdated')
+      @observes('Babble.currentTopic')
       _babbleRenderPosts() {
-        const topic = Babble.currentTopic
-        if (topic) {this.container.lookup('topic-tracking-state:main').updateSeen(topic.id, topic.highest_post_number)}
-        this.queueRerender()
-        Ember.run.scheduleOnce('afterRender', () => {
-          this.$('.babble-list').scrollTop($('.babble-posts').height())
-        })
+        // const topic = Babble.currentTopic
+        // if (topic) {this.container.lookup('topic-tracking-state:main').updateSeen(topic.id, topic.highest_post_number)}
+        // this.scheduleRerender()
+        // Ember.run.scheduleOnce('afterRender', () => {
+        //   this.$('.babble-list').scrollTop($('.babble-posts').height())
+        // })
       },
 
-      @observes('Babble.queueRerender')
-      _rerenderTrigger() {
-        this.queueRerender()
+      didInsertElement() {
+        this._super();
+        Babble.set('header', this)
       },
 
-      @observes('Babble.postStreamUpdated', 'Babble.editingPostId')
       afterPatch() {
         Ember.run.scheduleOnce('afterRender', () => {
           const $textarea = this.$('.babble-post-container .babble-post-composer textarea')
@@ -87,7 +86,6 @@ export default {
         if (headerState.babbleVisible) {
           if (headerState.babbleViewingChat === undefined) {
             headerState.babbleViewingChat = true
-            Babble.toggleProperty('postStreamUpdated')
           }
           contents.push(helper.attach('babble-menu', {viewingChat: headerState.babbleViewingChat}))
         }

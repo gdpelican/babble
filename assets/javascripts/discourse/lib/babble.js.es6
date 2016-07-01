@@ -26,7 +26,7 @@ export default Ember.Object.create({
     resetTopicField(topic, 'highest_post_number')
 
     if (this.get('currentTopicId') != topic.id) {
-      this.handleMessageBusSubscriptions()
+      this.handleMessageBusSubscriptions(topic.id)
       this.set('currentTopicId', topic.id)
 
       let postStream = PostStream.create(topic.post_stream)
@@ -100,7 +100,6 @@ export default Ember.Object.create({
       postStream.storePost(post)
       postStream.findLoadedPost(post.id).updateFromPost(post)
       this.set('loadingEditId', null)
-      this.toggleProperty('queueRerender')
     } else {
       post.set('created_at', data.created_at)
       this.set('latestPost', post)
@@ -113,8 +112,8 @@ export default Ember.Object.create({
         postStream.appendPost(post)
         var topic = this.get('currentTopic')
       }
-      this.toggleProperty('postStreamUpdated')
     }
+    this.rerender()
   },
 
   handleNotification: function (data) {
@@ -134,5 +133,10 @@ export default Ember.Object.create({
     var postStream = this.get('currentTopic.postStream')
     var staged = postStream.findLoadedPost(-1)
     if (staged) { postStream.removePosts([staged]) }
+  },
+
+  rerender() {
+    if (!this.get('header')) { return }
+    this.get('header').queueRerender()
   }
 })

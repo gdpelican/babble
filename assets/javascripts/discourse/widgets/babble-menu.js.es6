@@ -27,7 +27,6 @@ export default createWidget('babble-menu', {
       },
       (error) => { console.log(error) }
     )
-    this.scheduleRerender()
   },
 
   clickOutside() {

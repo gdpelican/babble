@@ -16,14 +16,11 @@ export default createWidget('babble-post', {
   delete() {
     let post = this.state.post
     Babble.set('loadingEditId', post.id)
-    Babble.toggleProperty('postStreamEdited')
     Discourse.ajax(`/babble/topics/${post.topic_id}/destroy/${post.id}`, {
       type: 'DELETE'
     }).finally(() => {
       Babble.set('loadingEditId', null)
-      Babble.toggleProperty('queueRerender')
     })
-    this.scheduleRerender()
   },
 
   html() { return template.render(this) }
