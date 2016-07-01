@@ -69,34 +69,57 @@ export default Ember.Object.create({
   },
 
   topicContents() {
-    return [
-      h('div', {className: 'babble-title-wrapper' }, h('div.babble-title', [
-        this.widget.attach('button', {
-          className: 'babble-context-toggle for-topics normalized',
-          icon: 'chevron-left',
-          title: 'babble.view_chat_tooltip',
-          action: 'toggleView' }),
-        h('h4.babble-topic-switcher-title', I18n.t(`babble.select_topic`))
-      ])),
-      h('div.babble-list', h('ul', {className: 'babble-available-topics'},
-        this.availableTopics().map(t => {
-          return h('li.babble-available-topic.row', [
-            this.widget.attach('link', {
-              className: 'normalized',
-              rawLabel: t.title,
-              action: 'changeTopic',
-              actionParam: t
-            }),
-            this.loadingSpinner(Babble.loadingTopicId === t.id)
-          ])
-        })
-      ))
-    ]
+    return [this.topicsHeader(), this.topicsList()]
+  },
+
+  topicsHeader() {
+    return h('div.babble-title-wrapper', h('div.babble-title', this.topicsHeaderContent()))
+  },
+
+  topicsHeaderContent() {
+    return [this.backButton(), this.topicsHeaderText()]
+  },
+
+  backButton() {
+    return this.widget.attach('button', {
+      className: 'babble-context-toggle for-topics normalized',
+      icon:      'chevron-left',
+      title:     'babble.view_chat_tooltip',
+      action:    'toggleView'
+    })
+  },
+
+  topicsHeaderText() {
+    return h('h4.babble-topic-switcher-title', I18n.t('babble.select_topic'))
+  },
+
+  topicsList() {
+    return h('div.babble-list', h('ul.babble-available-topics', this.availableTopicsList()))
+  },
+
+  availableTopicsList() {
+    return this.availableTopics().map(t => { return this.availableTopicListItem(t) })
+  },
+
+  availableTopicListItem(topic) {
+    return h('li.babble-available-topic.row', [
+      this.availableTopicLink(topic),
+      this.loadingSpinner(Babble.loadingTopicId === topic.id)
+    ])
+  },
+
+  availableTopicLink(topic) {
+    return this.widget.attach('link', {
+      className: 'normalized',
+      rawLabel: topic.title,
+      action: 'changeTopic',
+      actionParam: topic
+    })
   },
 
   loadingSpinner(visible) {
     if (!visible) { return }
     return h('div.spinner-container', h('div.spinner'))
-  },
+  }
 
 })

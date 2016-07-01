@@ -51,7 +51,7 @@ export default Ember.Object.create({
   },
 
   body() {
-    return [this.postDate(), this.cooked(), this.actions()]
+    return [this.postDate(), this.cooked(), this.unreadLine(), this.actions()]
   },
 
   postDate() {
@@ -60,6 +60,15 @@ export default Ember.Object.create({
 
   cooked() {
     return new RawHtml({ html: `<div class="babble-post-cooked">${Discourse.Emoji.unescape(this.post.cooked)}</div>` })
+  },
+
+  unreadLine() {
+    if (this.post.post_number !== Babble.currentTopic.last_read_post_number ||
+        this.post.post_number === Babble.currentTopic.highest_post_number) { return }
+    return h('div.babble-last-read-wrapper', [
+      h('div.babble-last-read-post-message', I18n.t('babble.new_messages')),
+      h('hr.babble-last-read-post-line')
+    ])
   },
 
   actions() {
