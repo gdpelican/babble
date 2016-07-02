@@ -57,8 +57,7 @@ export default Ember.Object.create({
   },
 
   unreadLine() {
-    if (this.post.post_number !== Babble.currentTopic.last_read_post_number ||
-        this.post.post_number === Babble.currentTopic.highest_post_number) { return }
+    if (!this.widget.state.isLastRead) { return }
     return h('div.babble-last-read-wrapper', [
       h('div.babble-last-read-post-message', I18n.t('babble.new_messages')),
       h('hr.babble-last-read-post-line')

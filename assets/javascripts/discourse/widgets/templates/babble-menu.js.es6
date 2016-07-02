@@ -62,7 +62,11 @@ export default Ember.Object.create({
     if (topic.postStream.loadingBelow) {
       return this.loadingSpinner(true)
     } else if (topic.postStream.posts.length) {
-      return topic.postStream.posts.map(p => { return this.widget.attach('babble-post', { post: p, topic: topic}) })
+      return topic.postStream.posts.map(p => { return this.widget.attach('babble-post', {
+        post: p,
+        topic: topic,
+        isLastRead: this.widget.state.lastReadPostNumber == p.post_number
+      }) })
     } else {
       return h('li.babble-empty-topic-message', I18n.t('babble.empty_topic_message'))
     }

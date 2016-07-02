@@ -15,7 +15,10 @@ export default createWidget('babble-post', {
   },
 
   defaultState(attrs) {
-    return { post: attrs.post }
+    return {
+      post: attrs.post,
+      isLastRead: attrs.isLastRead
+    }
   },
 
   edit() {
