@@ -1,5 +1,5 @@
 /* Icon styles */
-.babble-icon {
+#babble-icon {
   position: relative;
 }
 
@@ -220,6 +220,10 @@
   line-height: 10px;
   padding: 0 10px 0 5px;
   float: right;
+}
+
+.babble-last-read-wrapper {
+  margin-top: 15px;
 }
 
 li.babble-post .babble-post-content a.mention {

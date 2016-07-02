@@ -5,12 +5,24 @@ import template from '../widgets/templates/babble-post'
 export default createWidget('babble-post', {
   tagName: 'li.babble-post',
 
+  buildAttributes() {
+    let post = this.state.post
+    return {
+      'data-post-id':     post.id,
+      'data-user-id':     post.user_id,
+      'data-post-number': post.post_number
+    }
+  },
+
   defaultState(attrs) {
-    return { post: attrs.post }
+    return {
+      post: attrs.post,
+      isLastRead: attrs.isLastRead
+    }
   },
 
   edit() {
-    Babble.set('editingPostId', this.state.post.id)
+    Babble.editPost(this.state.post)
   },
 
   delete() {

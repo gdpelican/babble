@@ -7,7 +7,8 @@ export default createWidget('babble-menu', {
 
   defaultState(attrs) {
     return {
-      viewingChat: attrs.viewingChat
+      viewingChat: attrs.viewingChat,
+      lastReadPostNumber: attrs.lastReadPostNumber
     }
   },
 

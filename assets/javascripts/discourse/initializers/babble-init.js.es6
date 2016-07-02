@@ -22,15 +22,6 @@ export default {
     )
 
     SiteHeader.reopen({
-      @observes('Babble.currentTopic')
-      _babbleRenderPosts() {
-        // const topic = Babble.currentTopic
-        // if (topic) {this.container.lookup('topic-tracking-state:main').updateSeen(topic.id, topic.highest_post_number)}
-        // this.scheduleRerender()
-        // Ember.run.scheduleOnce('afterRender', () => {
-        //   this.$('.babble-list').scrollTop($('.babble-posts').height())
-        // })
-      },
 
       didInsertElement() {
         this._super();
@@ -39,6 +30,12 @@ export default {
 
       afterPatch() {
         Ember.run.scheduleOnce('afterRender', () => {
+          const $scrollContainer = this.$('.babble-list[scroll-container=inactive]')
+          if ($scrollContainer.length) {
+            Babble.setScrollContainer($scrollContainer)
+            Babble.scrollTo(Babble.currentTopic.last_read_post_number, 0)
+          }
+
           const $textarea = this.$('.babble-post-container .babble-post-composer textarea')
           if ($textarea.length) {
             if (!$textarea.val()) {
@@ -74,11 +71,11 @@ export default {
             active:        headerState.babbleVisible,
             action:        'toggleBabble',
             contents() {
-              if (!Babble.unreadCount) { return }
+              if (!Babble.get('unreadCount') || headerState.babbleVisible) { return }
               return this.attach('link', {
                 action:    'toggleBabble',
                 className: 'badge-notification unread-notifications',
-                rawLabel:  Babble.unreadCount
+                rawLabel:  Babble.get('unreadCount')
               })
             }
           }));
@@ -87,12 +84,22 @@ export default {
           if (headerState.babbleViewingChat === undefined) {
             headerState.babbleViewingChat = true
           }
-          contents.push(helper.attach('babble-menu', {viewingChat: headerState.babbleViewingChat}))
+          contents.push(helper.attach('babble-menu', {
+            viewingChat:        headerState.babbleViewingChat,
+            lastReadPostNumber: headerState.lastReadPostNumber
+          }))
         }
         return contents
       })
 
       api.attachWidgetAction('header', 'toggleBabble', function() {
+        let topic = Babble.currentTopic
+        if (topic.last_read_post_number < topic.highest_post_number) {
+          this.state.lastReadPostNumber = topic.last_read_post_number
+        } else {
+          this.state.lastReadPostNumber = null
+        }
+
         this.state.babbleVisible = !this.state.babbleVisible
       })
 

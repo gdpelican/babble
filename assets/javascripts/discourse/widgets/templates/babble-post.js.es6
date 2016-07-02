@@ -13,13 +13,7 @@ export default Ember.Object.create({
   },
 
   container() {
-    return h('div.babble-post-container', {
-      attributes: {
-        'data-post-id':     this.post.id,
-        'data-user-id':     this.post.user_id,
-        'data-post-number': this.post.post_number
-      }
-    }, this.contents())
+    return h('div.babble-post-container', this.contents())
   },
 
   contents() {
@@ -51,7 +45,7 @@ export default Ember.Object.create({
   },
 
   body() {
-    return [this.postDate(), this.cooked(), this.actions()]
+    return [this.postDate(), this.cooked(), this.unreadLine(), this.actions()]
   },
 
   postDate() {
@@ -60,6 +54,14 @@ export default Ember.Object.create({
 
   cooked() {
     return new RawHtml({ html: `<div class="babble-post-cooked">${Discourse.Emoji.unescape(this.post.cooked)}</div>` })
+  },
+
+  unreadLine() {
+    if (!this.widget.state.isLastRead) { return }
+    return h('div.babble-last-read-wrapper', [
+      h('div.babble-last-read-post-message', I18n.t('babble.new_messages')),
+      h('hr.babble-last-read-post-line')
+    ])
   },
 
   actions() {

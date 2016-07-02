@@ -1,6 +1,8 @@
 import Post from 'discourse/models/post'
 import PostStream from 'discourse/models/post-stream'
 import Topic from 'discourse/models/topic'
+import lastVisibleElement from '../lib/last-visible-element'
+import debounce from 'discourse/lib/debounce'
 
 export default Ember.Object.create({
 
@@ -13,6 +15,7 @@ export default Ember.Object.create({
       this.set('currentTopic', null)
       this.set('currentTopicId', null)
       this.set('latestPost', null)
+      this.set('scrollContainer', null)
       return
     }
 
@@ -41,6 +44,18 @@ export default Ember.Object.create({
     }
 
     this.set('currentTopic', topic)
+    this.set('latestPost', _.last(topic.postStream.posts))
+    this.setUnreadCount()
+    this.rerender()
+  },
+
+  editPost(post) {
+    if (!post) {
+      this.set('editingPostId', null)
+    } else {
+      this.set('editingPostId', post.id)
+      this.scrollTo(post.post_number)
+    }
   },
 
   handleMessageBusSubscriptions(topicId) {
@@ -58,8 +73,37 @@ export default Ember.Object.create({
     messageBus.subscribe(apiPath(topicId, 'notifications'), (data) => { this.handleNotification(data) })
   },
 
+  setScrollContainer: function(scrollContainer) {
+    // Set up scroll listener
+    $(scrollContainer).on('scroll.discourse-babble-scroll', debounce((e) => {
+      let postNumber = lastVisibleElement(scrollContainer, '.babble-post', 'post-number')
+      if (postNumber <= this.get('currentTopic.last_read_post_number')) { return }
+      Discourse.ajax(`/babble/topics/${this.get('currentTopicId')}/read/${postNumber}.json`).then((data) => {
+        this.setCurrentTopic(data)
+      })
+    }, 500))
+
+    // Mark scroll container as activated
+    scrollContainer.attr('scroll-container', 'active')
+    this.set('scrollContainer', scrollContainer)
+  },
+
   setAvailableTopics: function(data) {
     this.set('availableTopics', (data || {}).topics || [])
+  },
+
+  setUnreadCount: function() {
+    if (this.lastPostIsMine()) {
+      var unreadCount       = 0,
+          additionalUnread  = false
+    } else {
+      var totalUnreadCount  = this.get('latestPost.post_number') - this.get('currentTopic.last_read_post_number'),
+          windowUnreadCount = _.min([totalUnreadCount, this.get('currentTopic.postStream.posts.length')]),
+          unreadCount       = windowUnreadCount,
+          additionalUnread  = totalUnreadCount > windowUnreadCount
+    }
+    this.set('unreadCount', unreadCount)
+    this.set('hasAdditionalUnread', additionalUnread)
   },
 
   lastPostIsMine: function() {
@@ -85,11 +129,15 @@ export default Ember.Object.create({
     })
     postStream.set('loadedAllPosts', true)
     postStream.stagePost(post, user)
+    this.scrollTo(this.get('latestPost.post_number'))
     this.set('latestPost', post)
+    this.rerender()
   },
 
   handleNewPost: function(data) {
-    let postStream = this.get('currentTopic.postStream')
+    let postStream     = this.get('currentTopic.postStream'),
+        performScroll  = false
+
     if (data.user_id != Discourse.User.current().id) {
       _.each(['can_edit', 'can_delete'], function(key) { delete data[key] })
     }
@@ -101,19 +149,38 @@ export default Ember.Object.create({
       postStream.findLoadedPost(post.id).updateFromPost(post)
       this.set('loadingEditId', null)
     } else {
+      performScroll = lastVisibleElement(this.get('scrollContainer'), '.babble-post', 'post-number') ==
+                      this.get('latestPost.post_number')
+
       post.set('created_at', data.created_at)
       this.set('latestPost', post)
 
       if (this.lastPostIsMine()) {
         this.clearStagedPost()
         postStream.commitPost(post)
-        this.set('unreadCount', 0)
       } else {
         postStream.appendPost(post)
-        var topic = this.get('currentTopic')
       }
+
     }
+    this.setUnreadCount()
     this.rerender()
+    if(performScroll) { this.scrollTo(post.post_number) }
+  },
+
+  scrollTo(postNumber, speed = 400) {
+    Ember.run.scheduleOnce('afterRender', () => {
+      let container = this.get('scrollContainer')
+      if (!container.length) { return }
+
+      let post      = container.find(`.babble-post[data-post-number=${postNumber}]`)
+      if (!post.length) { return }
+
+      container.animate({ scrollTop: post.position().top }, speed)
+
+      let input = post.find('textarea')
+      if (input) { input.focus() }
+    })
   },
 
   handleNotification: function (data) {

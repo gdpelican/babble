@@ -51,7 +51,7 @@ export default createWidget('babble-composer', {
   },
 
   cancel() {
-    Babble.set('editingPostId', null)
+    Babble.editPost(null)
   },
 
   eventToggleFor(selector, event, namespace) {
@@ -96,7 +96,7 @@ export default createWidget('babble-composer', {
 
   update(text) {
     var post = this.state.post
-    Babble.set('editingPostId', null)
+    Babble.editPost(null)
     Babble.set('loadingEditId', post.id)
     this.state.submitDisabled = true
     Discourse.ajax(`/babble/topics/${post.topic_id}/post/${post.id}`, {
@@ -117,7 +117,7 @@ export default createWidget('babble-composer', {
       let myLastPost = _.last(_.select(this.state.topic.postStream.posts, function(post) {
         return post.user_id == Discourse.User.current().id
       }))
-      if (myLastPost) { Babble.set('editingPostId', myLastPost.id) }
+      if (myLastPost) { Babble.editPost(myLastPost) }
       return false
     }
 
