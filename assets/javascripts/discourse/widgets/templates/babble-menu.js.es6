@@ -30,7 +30,7 @@ export default Ember.Object.create({
         this.visibilityButton(),
         this.exchangeTopicsButton()
       ])),
-      h('div.babble-list', h('ul', {className: 'babble-posts'}, this.chatView())),
+      h('div.babble-list', { attributes: { 'scroll-container': 'inactive' } }, h('ul', {className: 'babble-posts'}, this.chatView())),
       this.widget.attach('babble-composer', { topic: Babble.currentTopic })
     ]
   },

@@ -13,13 +13,7 @@ export default Ember.Object.create({
   },
 
   container() {
-    return h('div.babble-post-container', {
-      attributes: {
-        'data-post-id':     this.post.id,
-        'data-user-id':     this.post.user_id,
-        'data-post-number': this.post.post_number
-      }
-    }, this.contents())
+    return h('div.babble-post-container', this.contents())
   },
 
   contents() {

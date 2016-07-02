@@ -1,6 +1,8 @@
 import Post from 'discourse/models/post'
 import PostStream from 'discourse/models/post-stream'
 import Topic from 'discourse/models/topic'
+import lastVisibleElement from '../lib/last-visible-element'
+import debounce from 'discourse/lib/debounce'
 
 export default Ember.Object.create({
 
@@ -40,12 +42,9 @@ export default Ember.Object.create({
       topic.notifications = this.get('currentTopic.notifications')
     }
 
-    var totalUnreadCount = topic.highest_post_number - topic.last_read_post_number
-    var windowUnreadCount = _.min([totalUnreadCount, topic.postStream.posts.length])
-
-    this.set('unreadCount', windowUnreadCount)
-    this.set('hasAdditionalUnread', totalUnreadCount > windowUnreadCount)
     this.set('currentTopic', topic)
+    this.set('latestPost', _.last(topic.postStream.posts))
+    this.setUnreadCount()
     this.rerender()
   },
 
@@ -64,8 +63,36 @@ export default Ember.Object.create({
     messageBus.subscribe(apiPath(topicId, 'notifications'), (data) => { this.handleNotification(data) })
   },
 
+  setScrollContainer: function(container) {
+    // Set up scroll listener
+    $(container).on('scroll.discourse-babble-scroll', debounce((e) => {
+      let postNumber = lastVisibleElement(container, '.babble-post', 'post-number')
+      if (postNumber <= this.get('currentTopic.last_read_post_number')) { return }
+      Discourse.ajax(`/babble/topics/${this.get('currentTopicId')}/read/${postNumber}.json`).then((data) => {
+        this.setCurrentTopic(data)
+      })
+    }, 500))
+
+    // Mark scroll container as activated
+    container.attr('scroll-container', 'active')
+  },
+
   setAvailableTopics: function(data) {
     this.set('availableTopics', (data || {}).topics || [])
+  },
+
+  setUnreadCount: function() {
+    if (this.lastPostIsMine()) {
+      var unreadCount       = 0,
+          additionalUnread  = false
+    } else {
+      var totalUnreadCount  = this.get('latestPost.post_number') - this.get('currentTopic.last_read_post_number'),
+          windowUnreadCount = _.min([totalUnreadCount, this.get('currentTopic.postStream.posts.length')]),
+          unreadCount       = windowUnreadCount,
+          additionalUnread  = totalUnreadCount > windowUnreadCount
+    }
+    this.set('unreadCount', unreadCount)
+    this.set('hasAdditionalUnread', additionalUnread)
   },
 
   lastPostIsMine: function() {
@@ -113,12 +140,11 @@ export default Ember.Object.create({
       if (this.lastPostIsMine()) {
         this.clearStagedPost()
         postStream.commitPost(post)
-        this.set('unreadCount', 0)
       } else {
         postStream.appendPost(post)
-        var topic = this.get('currentTopic')
       }
     }
+    this.setUnreadCount()
     this.rerender()
   },
 

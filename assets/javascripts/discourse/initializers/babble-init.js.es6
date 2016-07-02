@@ -39,6 +39,8 @@ export default {
 
       afterPatch() {
         Ember.run.scheduleOnce('afterRender', () => {
+          const $scrollContainer = this.$('.babble-list[scroll-container=inactive]')
+          if ($scrollContainer.length) { Babble.setScrollContainer($scrollContainer) }
           const $textarea = this.$('.babble-post-container .babble-post-composer textarea')
           if ($textarea.length) {
             if (!$textarea.val()) {
