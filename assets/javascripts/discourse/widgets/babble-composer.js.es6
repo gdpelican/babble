@@ -8,10 +8,11 @@ export default createWidget('babble-composer', {
 
   defaultState(attrs) {
     return {
-      editing: attrs.isEditing,
-      submitDisabled: attrs.submitDisabled,
-      post: attrs.post,
-      topic: attrs.topic,
+      editing:         attrs.isEditing,
+      submitDisabled:  attrs.submitDisabled,
+      post:            attrs.post,
+      topic:           attrs.topic,
+      raw:             attrs.raw,
       lastInteraction: new Date(0)
     }
   },
@@ -97,6 +98,7 @@ export default createWidget('babble-composer', {
   update(text) {
     var post = this.state.post
     Babble.editPost(null)
+    if (post.raw.trim() === text.trim()) { return }
     Babble.set('loadingEditId', post.id)
     this.state.submitDisabled = true
     Discourse.ajax(`/babble/topics/${post.topic_id}/post/${post.id}`, {

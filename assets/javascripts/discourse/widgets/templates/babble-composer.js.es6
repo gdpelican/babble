@@ -19,7 +19,7 @@ export default Ember.Object.create({
         rows:        this.state.editing ? 1 : 2,
         disabled:    this.state.submitDisabled
       }
-    })
+    }, this.state.raw)
   },
 
   emojiButton() {
