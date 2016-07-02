@@ -49,6 +49,15 @@ export default Ember.Object.create({
     this.rerender()
   },
 
+  editPost(post) {
+    if (!post) {
+      this.set('editingPostId', null)
+    } else {
+      this.set('editingPostId', post.id)
+      this.scrollTo(post.post_number)
+    }
+  },
+
   handleMessageBusSubscriptions(topicId) {
     if (this.get('currentTopicId') == topicId) { return }
     const messageBus = Discourse.__container__.lookup('message-bus:main')
@@ -162,10 +171,15 @@ export default Ember.Object.create({
   scrollTo(postNumber, speed = 400) {
     Ember.run.scheduleOnce('afterRender', () => {
       let container = this.get('scrollContainer')
+      if (!container.length) { return }
+
       let post      = container.find(`.babble-post[data-post-number=${postNumber}]`)
       if (!post.length) { return }
 
       container.animate({ scrollTop: post.position().top }, speed)
+
+      let input = post.find('textarea')
+      if (input) { input.focus() }
     })
   },
 

@@ -22,7 +22,7 @@ export default createWidget('babble-post', {
   },
 
   edit() {
-    Babble.set('editingPostId', this.state.post.id)
+    Babble.editPost(this.state.post)
   },
 
   delete() {
