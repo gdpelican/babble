@@ -2,7 +2,6 @@ import { withPluginApi } from 'discourse/lib/plugin-api';
 import Babble from "../lib/babble";
 import SiteHeader from 'discourse/components/site-header';
 import autosize from 'discourse/lib/autosize';
-import { default as computed, on, observes } from 'ember-addons/ember-computed-decorators';
 
 export default {
   name: 'babble-init',
@@ -35,6 +34,9 @@ export default {
 
           const $textarea = this.$('.babble-post-composer textarea[babble-composer=inactive]')
           Babble.prepareComposer($textarea)
+
+          const $editing = this.$('.babble-post-composer textarea[babble-composer=active]')
+          autosize($editing)
         })
       }
     })

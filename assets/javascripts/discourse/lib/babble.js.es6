@@ -53,6 +53,7 @@ export default Ember.Object.create({
   editPost(post) {
     if (!post) {
       this.set('editingPostId', null)
+      $('.babble-post-composer textarea').focus()
     } else {
       this.set('editingPostId', post.id)
       this.scrollTo(post.post_number)

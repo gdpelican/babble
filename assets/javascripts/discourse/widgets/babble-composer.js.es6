@@ -17,59 +17,36 @@ export default createWidget('babble-composer', {
     }
   },
 
+  composerElement() {
+    if (this.state.editing) {
+      return $('.babble-post-container > .babble-post-composer textarea')
+    } else {
+      return $('.babble-chat > .babble-post-composer textarea')
+    }
+  },
+
   selectEmoji() {
-    const self = this,
-          outsideClickEvent = self.eventToggleFor('html', 'click', 'close-menu-panel'),
-          escKeyEvent = self.eventToggleFor('body', 'keydown', 'discourse-menu-panel');
-    outsideClickEvent.off()
-    escKeyEvent.off()
+    let $composer = this.composerElement()
     showSelector({
-      container: self.container,
+      container: this.container,
       onSelect: function(emoji) {
-        var $composer = $('.babble-post-composer textarea'),
-            text = $composer.val();
-        text = text.trimRight() + ' :' + emoji + ':'
-        $composer.val(text)
-        $('.emoji-modal, .emoji-modal-wrapper').remove()
+        $composer.val(`${$composer.val().trimRight()} :${emoji}:`)
         $composer.focus()
-        outsideClickEvent.on()
-        escKeyEvent.on()
+        $('.emoji-modal, .emoji-modal-wrapper').remove()
         return false
       }
     })
 
-    $('.emoji-modal-wrapper').on('click', function(event) {
-      outsideClickEvent.on()
-      escKeyEvent.on()
-      event.stopPropagation()
-    })
-    $('body').on('keydown.emoji', function(event) {
-      if (event.which != 27) { return; }
-      outsideClickEvent.on()
-      escKeyEvent.on()
-      event.stopPropagation()
-    })
+    $('.emoji-modal-wrapper').on('click', (e) => { e.stopPropagation() })
+    $('body').on('keydown.emoji',         (e) => { e.stopPropagation() })
   },
 
   cancel() {
     Babble.editPost(null)
   },
 
-  eventToggleFor(selector, event, namespace) {
-    let elem = $(selector)
-    let handler = _.find($._data(elem[0], 'events')[event], function(e) {
-      return e.namespace == namespace
-    })
-    return {
-      element: elem,
-      handler: handler,
-      on: function() { elem.on(`${event}.${namespace}`, handler)},
-      off: function() { elem.off(`${event}.${namespace}`) }
-    }
-  },
-
   submit() {
-    var $composer = $('.babble-post-composer textarea'),
+    let $composer = this.composerElement(),
         text = $composer.val();
     $composer.val('')
     if (!text) { return; }
@@ -145,19 +122,6 @@ export default createWidget('babble-composer', {
     //     data: {state: 'editing'}
     //   })
     // }
-  },
-
-  eventToggleFor(selector, event, namespace) {
-    let elem = $(selector)
-    let handler = _.find($._data(elem[0], 'events')[event], function(e) {
-      return e.namespace == namespace
-    })
-    return {
-      element: elem,
-      handler: handler,
-      on: function() {  elem.on(`${event}.${namespace}`, handler) },
-      off: function() { elem.off(`${event}.${namespace}`) }
-    }
   },
 
   html() { return template.render(this) }
