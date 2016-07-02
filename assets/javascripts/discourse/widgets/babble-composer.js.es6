@@ -113,7 +113,9 @@ export default createWidget('babble-composer', {
   keyUp(event) {
     this.state.showError = false
     this.checkInteraction()
-    if (event.keyCode == 38 && !this.state.editing) {
+    if (event.keyCode == 38 &&                               // key pressed is up key
+        !this.state.editing &&                               // post is not being edited
+        !$(event.target).siblings('.autocomplete').length) { // autocomplete is not active
       let myLastPost = _.last(_.select(this.state.topic.postStream.posts, function(post) {
         return post.user_id == Discourse.User.current().id
       }))
