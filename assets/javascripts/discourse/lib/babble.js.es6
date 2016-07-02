@@ -15,6 +15,7 @@ export default Ember.Object.create({
       this.set('currentTopic', null)
       this.set('currentTopicId', null)
       this.set('latestPost', null)
+      this.set('scrollContainer', null)
       return
     }
 
@@ -63,10 +64,10 @@ export default Ember.Object.create({
     messageBus.subscribe(apiPath(topicId, 'notifications'), (data) => { this.handleNotification(data) })
   },
 
-  setScrollContainer: function(container) {
+  setScrollContainer: function(scrollContainer) {
     // Set up scroll listener
-    $(container).on('scroll.discourse-babble-scroll', debounce((e) => {
-      let postNumber = lastVisibleElement(container, '.babble-post', 'post-number')
+    $(scrollContainer).on('scroll.discourse-babble-scroll', debounce((e) => {
+      let postNumber = lastVisibleElement(scrollContainer, '.babble-post', 'post-number')
       if (postNumber <= this.get('currentTopic.last_read_post_number')) { return }
       Discourse.ajax(`/babble/topics/${this.get('currentTopicId')}/read/${postNumber}.json`).then((data) => {
         this.setCurrentTopic(data)
@@ -74,7 +75,8 @@ export default Ember.Object.create({
     }, 500))
 
     // Mark scroll container as activated
-    container.attr('scroll-container', 'active')
+    scrollContainer.attr('scroll-container', 'active')
+    this.set('scrollContainer', scrollContainer)
   },
 
   setAvailableTopics: function(data) {
@@ -118,11 +120,15 @@ export default Ember.Object.create({
     })
     postStream.set('loadedAllPosts', true)
     postStream.stagePost(post, user)
+    this.scrollTo(this.get('latestPost.post_number'))
     this.set('latestPost', post)
+    this.rerender()
   },
 
   handleNewPost: function(data) {
-    let postStream = this.get('currentTopic.postStream')
+    let postStream     = this.get('currentTopic.postStream'),
+        performScroll  = false
+
     if (data.user_id != Discourse.User.current().id) {
       _.each(['can_edit', 'can_delete'], function(key) { delete data[key] })
     }
@@ -134,6 +140,9 @@ export default Ember.Object.create({
       postStream.findLoadedPost(post.id).updateFromPost(post)
       this.set('loadingEditId', null)
     } else {
+      performScroll = lastVisibleElement(this.get('scrollContainer'), '.babble-post', 'post-number') ==
+                      this.get('latestPost.post_number')
+
       post.set('created_at', data.created_at)
       this.set('latestPost', post)
 
@@ -143,9 +152,21 @@ export default Ember.Object.create({
       } else {
         postStream.appendPost(post)
       }
+
     }
     this.setUnreadCount()
     this.rerender()
+    if(performScroll) { this.scrollTo(post.post_number) }
+  },
+
+  scrollTo(postNumber, speed = 400) {
+    Ember.run.scheduleOnce('afterRender', () => {
+      let container = this.get('scrollContainer')
+      let post      = container.find(`.babble-post[data-post-number=${postNumber}]`)
+      if (!post.length) { return }
+
+      container.animate({ scrollTop: post.position().top }, speed)
+    })
   },
 
   handleNotification: function (data) {

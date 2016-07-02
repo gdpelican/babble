@@ -31,7 +31,10 @@ export default {
       afterPatch() {
         Ember.run.scheduleOnce('afterRender', () => {
           const $scrollContainer = this.$('.babble-list[scroll-container=inactive]')
-          if ($scrollContainer.length) { Babble.setScrollContainer($scrollContainer) }
+          if ($scrollContainer.length) {
+            Babble.setScrollContainer($scrollContainer)
+            Babble.scrollTo(Babble.currentTopic.last_read_post_number, 0)
+          }
 
           const $textarea = this.$('.babble-post-container .babble-post-composer textarea')
           if ($textarea.length) {
@@ -68,7 +71,7 @@ export default {
             active:        headerState.babbleVisible,
             action:        'toggleBabble',
             contents() {
-              if (!Babble.get('unreadCount')) { return }
+              if (!Babble.get('unreadCount') || headerState.babbleVisible) { return }
               return this.attach('link', {
                 action:    'toggleBabble',
                 className: 'badge-notification unread-notifications',
