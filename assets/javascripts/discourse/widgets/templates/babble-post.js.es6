@@ -20,7 +20,7 @@ export default Ember.Object.create({
     if (this.post.deleted_at) {
       return h('div.babble-deleted-post', I18n.t('babble.post_deleted_by', {username: this.post.deleted_by.username}))
     } else if (Babble.get('editingPostId') === this.post.id ){
-      return this.widget.attach('babble-composer', {post: this.post, isEditing: true})
+      return this.widget.attach('babble-composer', {post: this.post, isEditing: true, raw: this.post.raw})
     } else if (Babble.get('loadingEditId') === this.post.id) {
       return h('div.spinner-container', h('div.spinner'))
     } else {

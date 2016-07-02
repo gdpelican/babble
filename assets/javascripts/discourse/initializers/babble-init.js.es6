@@ -2,7 +2,6 @@ import { withPluginApi } from 'discourse/lib/plugin-api';
 import Babble from "../lib/babble";
 import SiteHeader from 'discourse/components/site-header';
 import autosize from 'discourse/lib/autosize';
-import { default as computed, on, observes } from 'ember-addons/ember-computed-decorators';
 
 export default {
   name: 'babble-init',
@@ -31,26 +30,13 @@ export default {
       afterPatch() {
         Ember.run.scheduleOnce('afterRender', () => {
           const $scrollContainer = this.$('.babble-list[scroll-container=inactive]')
-          if ($scrollContainer.length) {
-            Babble.setScrollContainer($scrollContainer)
-            Babble.scrollTo(Babble.currentTopic.last_read_post_number, 0)
-          }
+          Babble.prepareScrollContainer($scrollContainer)
 
-          const $textarea = this.$('.babble-post-container .babble-post-composer textarea')
-          if ($textarea.length) {
-            if (!$textarea.val()) {
-              const editingId = Babble.editingPostId
-              if (editingId) {
-                var post = Babble.currentTopic.postStream.findLoadedPost(editingId)
-                $textarea.val(post.raw)
-                autosize($textarea)
-              } else {
-                $textarea.css('height', 'initial')
-              }
-            } else {
-              autosize($textarea)
-            }
-          }
+          const $textarea = this.$('.babble-post-composer textarea[babble-composer=inactive]')
+          Babble.prepareComposer($textarea)
+
+          const $editing = this.$('.babble-post-composer textarea[babble-composer=active]')
+          autosize($editing)
         })
       }
     })
@@ -99,6 +85,8 @@ export default {
         } else {
           this.state.lastReadPostNumber = null
         }
+
+        Babble.editPost(null)
 
         this.state.babbleVisible = !this.state.babbleVisible
       })

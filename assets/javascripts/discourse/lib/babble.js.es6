@@ -3,6 +3,7 @@ import PostStream from 'discourse/models/post-stream'
 import Topic from 'discourse/models/topic'
 import lastVisibleElement from '../lib/last-visible-element'
 import debounce from 'discourse/lib/debounce'
+import setupComposer from '../lib/setup-composer'
 
 export default Ember.Object.create({
 
@@ -52,6 +53,7 @@ export default Ember.Object.create({
   editPost(post) {
     if (!post) {
       this.set('editingPostId', null)
+      $('.babble-post-composer textarea').focus()
     } else {
       this.set('editingPostId', post.id)
       this.scrollTo(post.post_number)
@@ -73,10 +75,12 @@ export default Ember.Object.create({
     messageBus.subscribe(apiPath(topicId, 'notifications'), (data) => { this.handleNotification(data) })
   },
 
-  setScrollContainer: function(scrollContainer) {
+  prepareScrollContainer(container) {
+    if (!container.length) { return }
+
     // Set up scroll listener
-    $(scrollContainer).on('scroll.discourse-babble-scroll', debounce((e) => {
-      let postNumber = lastVisibleElement(scrollContainer, '.babble-post', 'post-number')
+    $(container).on('scroll.discourse-babble-scroll', debounce((e) => {
+      let postNumber = lastVisibleElement(container, '.babble-post', 'post-number')
       if (postNumber <= this.get('currentTopic.last_read_post_number')) { return }
       Discourse.ajax(`/babble/topics/${this.get('currentTopicId')}/read/${postNumber}.json`).then((data) => {
         this.setCurrentTopic(data)
@@ -84,8 +88,17 @@ export default Ember.Object.create({
     }, 500))
 
     // Mark scroll container as activated
-    scrollContainer.attr('scroll-container', 'active')
-    this.set('scrollContainer', scrollContainer)
+    container.attr('scroll-container', 'active')
+    this.set('scrollContainer', container)
+
+    // Perform initial scroll
+    this.scrollTo(this.currentTopic.last_read_post_number, 0)
+  },
+
+  prepareComposer(textarea) {
+    if (!textarea.length) { return }
+    setupComposer(textarea, { mentions: true, emojis: true, topicId: this.currentTopic.id })
+    textarea.attr('babble-composer', 'active')
   },
 
   setAvailableTopics: function(data) {
@@ -177,9 +190,6 @@ export default Ember.Object.create({
       if (!post.length) { return }
 
       container.animate({ scrollTop: post.position().top }, speed)
-
-      let input = post.find('textarea')
-      if (input) { input.focus() }
     })
   },
 

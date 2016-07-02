@@ -14,16 +14,17 @@ export default Ember.Object.create({
   textarea() {
     return h('textarea', {
       attributes: {
+        'babble-composer': 'inactive',
         placeholder: Discourse.SiteSettings.babble_placeholder || I18n.t('babble.placeholder'),
         rows:        this.state.editing ? 1 : 2,
         disabled:    this.state.submitDisabled
       }
-    })
+    }, this.state.raw)
   },
 
   emojiButton() {
     return this.widget.attach('button', {
-      className: 'emoji',
+      className: 'emoji-button',
       icon: 'smile-o',
       action: 'selectEmoji'
     })
