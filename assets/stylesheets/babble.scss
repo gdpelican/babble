@@ -155,10 +155,9 @@
 }
 
 .babble-post-container {
+  margin-right: 10px;
   &:hover {
-    .babble-post-actions {
-      opacity: 1;
-    }
+    .babble-post-actions { opacity: 1; }
   }
   .babble-post-actions {
     position: absolute;
