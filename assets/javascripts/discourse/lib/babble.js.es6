@@ -7,11 +7,11 @@ import setupComposer from '../lib/setup-composer'
 
 export default Ember.Object.create({
 
-  disabled: function() {
+  disabled() {
     return _.contains(Discourse.Site.current().disabled_plugins, 'babble')
   },
 
-  setCurrentTopic: function(data) {
+  setCurrentTopic(data) {
     if (!data.id) {
       this.set('currentTopic', null)
       this.set('currentTopicId', null)
@@ -101,11 +101,11 @@ export default Ember.Object.create({
     textarea.attr('babble-composer', 'active')
   },
 
-  setAvailableTopics: function(data) {
+  setAvailableTopics(data) {
     this.set('availableTopics', (data || {}).topics || [])
   },
 
-  setUnreadCount: function() {
+  setUnreadCount() {
     if (this.lastPostIsMine()) {
       var unreadCount       = 0,
           additionalUnread  = false
@@ -119,11 +119,18 @@ export default Ember.Object.create({
     this.set('hasAdditionalUnread', additionalUnread)
   },
 
-  lastPostIsMine: function() {
+  notificationCount() {
+    if (!this.get('unreadCount')) { return }
+    let result = this.get('unreadCount') || 0
+    if (result && this.get('hasAdditionalUnread')) { result += '+' }
+    return result
+  },
+
+  lastPostIsMine() {
     return this.get('latestPost.user_id') == Discourse.User.current().id
   },
 
-  stagePost: function(text) {
+  stagePost(text) {
     const user = Discourse.User.current()
 
     var postStream = this.get('currentTopic.postStream')
@@ -147,7 +154,7 @@ export default Ember.Object.create({
     this.rerender()
   },
 
-  handleNewPost: function(data) {
+  handleNewPost(data) {
     let postStream     = this.get('currentTopic.postStream'),
         performScroll  = false
 
@@ -194,7 +201,7 @@ export default Ember.Object.create({
     })
   },
 
-  handleNotification: function (data) {
+  handleNotification(data) {
     const notifications = this.get('currentTopic.notifications')
     const username = data.user.username
     data.user.template = data.user.avatar_template
@@ -207,7 +214,7 @@ export default Ember.Object.create({
     }, 30 * 1000)
   },
 
-  clearStagedPost: function() {
+  clearStagedPost() {
     var postStream = this.get('currentTopic.postStream')
     var staged = postStream.findLoadedPost(-1)
     if (staged) { postStream.removePosts([staged]) }
