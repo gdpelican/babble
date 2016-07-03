@@ -41,9 +41,10 @@ export default Ember.Object.create({
 
   visibilityButton() {
     return h('div.babble-context-toggle.for-chat', this.widget.attach('button', {
-      className: 'normalized',
-      icon:      'eye',
-      title:     'babble.topic_visibility_tooltip'
+      className:    'normalized',
+      icon:         'eye',
+      title:        'babble.topic_visibility_tooltip',
+      titleOptions: { groupNames: Babble.currentTopic.group_names }
     }))
   },
 
