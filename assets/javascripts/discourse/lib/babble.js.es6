@@ -14,7 +14,6 @@ export default Ember.Object.create({
   setCurrentTopic(data) {
     if (!data.id) {
       this.set('currentTopic', null)
-      this.set('currentTopicId', null)
       this.set('latestPost', null)
       this.set('scrollContainer', null)
       return
@@ -29,9 +28,8 @@ export default Ember.Object.create({
     resetTopicField(topic, 'last_read_post_number')
     resetTopicField(topic, 'highest_post_number')
 
-    if (this.get('currentTopicId') != topic.id) {
+    if (this.get('currentTopic.id') != topic.id) {
       this.handleMessageBusSubscriptions(topic.id)
-      this.set('currentTopicId', topic.id)
 
       let postStream = PostStream.create(topic.post_stream)
       postStream.topic = topic
@@ -61,14 +59,15 @@ export default Ember.Object.create({
   },
 
   handleMessageBusSubscriptions(topicId) {
-    if (this.get('currentTopicId') == topicId) { return }
+    if (this.get('currentTopic.id') == topicId) { return }
     const messageBus = Discourse.__container__.lookup('message-bus:main')
     let apiPath = function(topicId, action) { return `/babble/topics/${topicId}/${action}` }
+    let currentTopicId = this.get('currentTopic.id')
 
-    if (this.currentTopicId) {
-      messageBus.unsubscribe(apiPath(this.currentTopicId))
-      messageBus.unsubscribe(apiPath(this.currentTopicId), 'posts')
-      messageBus.unsubscribe(apiPath(this.currentTopicId), 'notifications')
+    if (this.get('currentTopic.id')) {
+      messageBus.unsubscribe(apiPath(currentTopicId))
+      messageBus.unsubscribe(apiPath(currentTopicId), 'posts')
+      messageBus.unsubscribe(apiPath(currentTopicId), 'notifications')
     }
     messageBus.subscribe(apiPath(topicId),                  (data) => { this.setCurrentTopic(data) })
     messageBus.subscribe(apiPath(topicId, 'posts'),         (data) => { this.handleNewPost(data) })
@@ -82,7 +81,7 @@ export default Ember.Object.create({
     $(container).on('scroll.discourse-babble-scroll', debounce((e) => {
       let postNumber = lastVisibleElement(container, '.babble-post', 'post-number')
       if (postNumber <= this.get('currentTopic.last_read_post_number')) { return }
-      Discourse.ajax(`/babble/topics/${this.get('currentTopicId')}/read/${postNumber}.json`).then((data) => {
+      Discourse.ajax(`/babble/topics/${this.get('currentTopic.id')}/read/${postNumber}.json`).then((data) => {
         this.setCurrentTopic(data)
       })
     }, 500))
@@ -157,6 +156,8 @@ export default Ember.Object.create({
   handleNewPost(data) {
     let postStream     = this.get('currentTopic.postStream'),
         performScroll  = false
+
+    if (data.topic_id != this.get('currentTopic.id')) { return }
 
     if (data.user_id != Discourse.User.current().id) {
       _.each(['can_edit', 'can_delete'], function(key) { delete data[key] })

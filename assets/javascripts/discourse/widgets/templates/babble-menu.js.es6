@@ -8,7 +8,8 @@ export default Ember.Object.create({
   },
 
   availableTopics() {
-    return Babble.availableTopics.filter(function(t) { return t.id !== Babble.currentTopicId })
+    let currentTopicId = Babble.get('currentTopic.id')
+    return Babble.availableTopics.filter(function(t) { return t.id !== currentTopicId })
   },
 
   panel() {
