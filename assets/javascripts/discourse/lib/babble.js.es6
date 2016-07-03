@@ -85,6 +85,7 @@ export default Ember.Object.create({
         this.setCurrentTopic(data)
       })
     }, 500))
+    $(container).trigger('scroll.discourse-babble-scroll')
 
     // Mark scroll container as activated
     container.attr('scroll-container', 'active')
