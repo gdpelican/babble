@@ -181,15 +181,16 @@ export default Ember.Object.create({
     if(performScroll) { this.scrollTo(post.post_number) }
   },
 
-  scrollTo(postNumber, speed = 400) {
+  scrollTo(postNumber, speed = 400, offset = 30) {
     Ember.run.scheduleOnce('afterRender', () => {
       let container = this.get('scrollContainer')
       if (!container.length) { return }
 
-      let post      = container.find(`.babble-post[data-post-number=${postNumber}]`)
+      let post = container.find(`.babble-post[data-post-number=${postNumber}]`)
       if (!post.length) { return }
 
-      container.animate({ scrollTop: post.position().top }, speed)
+      let animateTarget = post.position().top + container.scrollTop() - offset
+      container.animate({ scrollTop: animateTarget }, speed)
     })
   },
 
