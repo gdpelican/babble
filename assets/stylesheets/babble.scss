@@ -154,6 +154,15 @@
   }
 }
 
+.babble-staged-post {
+  opacity: 0.5;
+  .spinner-container {
+    position: absolute;
+    top: 2px;
+    right: 0;
+  }
+}
+
 .babble-post-container {
   margin-right: 10px;
   &:hover {
