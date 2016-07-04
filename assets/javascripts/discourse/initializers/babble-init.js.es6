@@ -46,8 +46,7 @@ export default {
         let headerState = helper.widget.parentWidget.state
         let contents    = []
 
-        if (!helper.widget.site.mobileView &&
-            !Babble.disabled() &&
+        if (!Babble.disabled() &&
             api.getCurrentUser() &&
             Discourse.SiteSettings.babble_enabled) {
           contents.push(helper.attach('header-dropdown', {
