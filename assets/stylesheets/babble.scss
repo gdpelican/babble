@@ -19,7 +19,7 @@
 
 .babble-title h4 {
   display: inline-block;
-  margin-right: 5px;
+  margin: 0 5px 0 0;
 }
 
 .babble-title i {
@@ -319,10 +319,6 @@ li.babble-post .babble-post-content a.mention {
   padding: 0;
 }
 
-.babble-post-composer .btn-submit {
-  margin-top: 5px;
-}
-
 .babble-post-composer .btn-cancel {
   margin-top: 5px;
   margin-right: 5px;
@@ -425,7 +421,6 @@ li.babble-post .babble-post-content a.mention {
 @media (min-width: 700px) {
   .babble-post       button.dropdown-toggle { opacity: 0; }
   .babble-post:hover button.dropdown-toggle { opacity: 1; }
-  .babble-chat > .babble-post-composer .btn-submit { display: none; }
 }
 
 .babble-chat button.normalized {

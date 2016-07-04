@@ -4,7 +4,7 @@ export default Ember.Object.create({
   render(widget) {
     this.widget = widget
     this.state  = widget.state
-    return [this.composer(), this.sendButton(), this.cancelButton()]
+    return [this.composer(), this.cancelButton()]
   },
 
   composer() {
@@ -27,15 +27,6 @@ export default Ember.Object.create({
       className: 'emoji-button',
       icon: 'smile-o',
       action: 'selectEmoji'
-    })
-  },
-
-  sendButton() {
-    return this.widget.attach('button', {
-      className: 'btn btn-primary btn-submit pull-right',
-      action: 'submit',
-      label: this.state.editing ? 'babble.save' : 'babble.send',
-      attributes: { disabled: this.state.submitDisabled }
     })
   },
 
