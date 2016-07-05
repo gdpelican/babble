@@ -89,6 +89,16 @@ export default createWidget('babble-composer', {
     })
   },
 
+  keyDown(event) {
+    if (event.keyCode == 13 && !(event.ctrlKey || event.altKey || event.shiftKey)) {
+      event.preventDefault()
+      if (!this.state.submitDisabled) { // ignore if submit is disabled
+        this.submit(this) // submit on enter
+      }
+      return false
+    }
+  },
+
   keyUp(event) {
     this.state.showError = false
     this.checkInteraction()
@@ -99,14 +109,6 @@ export default createWidget('babble-composer', {
         return post.user_id == Discourse.User.current().id
       }))
       if (myLastPost) { Babble.editPost(myLastPost) }
-      return false
-    }
-
-    if (event.keyCode == 13 && !(event.ctrlKey || event.altKey || event.shiftKey)) {
-      event.preventDefault()
-      if (!this.state.submitDisabled) { // ignore if submit is disabled
-        this.submit(this) // submit on enter
-      }
       return false
     }
   },
