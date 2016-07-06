@@ -21,7 +21,7 @@ export default Ember.Object.create({
 
     var resetTopicField = (topic, field) => {
       topic[field] = data[field]
-      if (!topic[field] && this.get('currentTopic')) { topic[field] = this.get('currentTopic')[field] }
+      if (topic[field] == null && this.get('currentTopic')) { topic[field] = this.get('currentTopic')[field] }
     }
 
     var topic = Topic.create(data)

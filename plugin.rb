@@ -416,6 +416,10 @@ after_initialize do
       end
     end
 
+    def last_read_post_number
+      super || 0
+    end
+
     # details are expensive to calculate and we don't use them
     def include_details?
       false
