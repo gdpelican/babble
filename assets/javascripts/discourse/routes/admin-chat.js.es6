@@ -1,4 +1,4 @@
-import initializeBabble from "../../discourse/lib/babble"
+import Babble from "../../discourse/lib/babble"
 import Topic from 'discourse/models/topic'
 import Group from 'discourse/models/group'
 
@@ -8,13 +8,12 @@ export default Discourse.Route.extend({
     if (params.id === 'new') {
       return Topic.create()
     } else {
-      if (!Discourse.Babble) { Discourse.Babble = initializeBabble }
-      return Discourse.ajax('/babble/topics/' + params.id + '.json').then(function(data) { return Topic.create(data) })
+      return Discourse.ajax(`/babble/topics/${params.id}.json`).then(function(data) { return Topic.create(data) })
     }
   },
 
   setupController: function(controller, model) {
-    if (Discourse.Babble.disabled()) { return }
+    if (Babble.disabled()) { return }
     const self = this
 
     var setup = function(selected, available) {
