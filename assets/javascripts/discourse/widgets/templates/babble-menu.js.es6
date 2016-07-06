@@ -25,6 +25,7 @@ export default Ember.Object.create({
   },
 
   chatContents() {
+    const topic = Babble.currentTopic;
     return [
       h('div.babble-title-wrapper', h('div.babble-title', [
         this.chatTitle(),
@@ -32,7 +33,8 @@ export default Ember.Object.create({
         this.exchangeTopicsButton()
       ])),
       h('div.babble-list', { attributes: { 'scroll-container': 'inactive' } }, h('ul', {className: 'babble-posts'}, this.chatView())),
-      this.widget.attach('babble-composer', { topic: Babble.currentTopic })
+      this.notificationsList(topic),
+      this.widget.attach('babble-composer', { topic })
     ]
   },
 
@@ -126,6 +128,19 @@ export default Ember.Object.create({
   loadingSpinner(visible) {
     if (!visible) { return }
     return h('div.spinner-container', h('div.spinner'))
-  }
+  },
+
+  notificationsList(topic) {
+    const {notifications} = topic
+    const currentUserName = Discourse.User.currentProp('username')
+    const users = Object.keys(notifications).filter(username => currentUserName !== username)
+    if (users.length) {
+      return this.widget.attach('small-user-list', {
+        users: users.map(user => notifications[user].user),
+        listClassName: 'who-liked',
+        description: 'babble.is_typing'
+      });
+    }
+  },
 
 })
