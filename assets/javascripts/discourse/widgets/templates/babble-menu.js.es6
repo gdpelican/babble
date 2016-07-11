@@ -128,6 +128,6 @@ export default Ember.Object.create({
   loadingSpinner(visible) {
     if (!visible) { return }
     return h('div.spinner-container', h('div.spinner'))
-  },
+  }
 
 })

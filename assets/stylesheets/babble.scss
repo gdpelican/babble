@@ -373,6 +373,21 @@ li.babble-post .babble-post-content a.mention {
   float: none;
 }
 
+.babble-no-one-is-typing {
+  min-height: 15px;
+}
+
+.babble-is-typing {
+  text-align: right;
+  font-size: 12px;
+  margin-right: 10px;
+  a.trigger-user-card img {
+    width: 15px;
+    height: 15px;
+    margin: 0 5px;
+  }
+}
+
 /* Dropdown styles */
 
 .babble-menu {
