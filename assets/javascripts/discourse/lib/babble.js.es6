@@ -211,9 +211,11 @@ export default Ember.Object.create({
       clearTimeout(notifications[username].timeout)
     }
     notifications[username] = data
-    data.timeout = setTimeout(function () {
+    data.timeout = setTimeout(() => {
       delete notifications[username]
-    }, 30 * 1000)
+      this.rerender()
+    }, 3 * 1000) // clear is typing message after 3 seconds
+    this.rerender()
   },
 
   clearStagedPost() {

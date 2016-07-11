@@ -15,7 +15,7 @@ en:
       view_chat_tooltip: "Back to the current chat"
       select_topic: "Select another chat channel"
       post_deleted_by: "Post deleted by {{username}}"
-      is_typing: "is typing"
+      is_typing: "is typing..."
       admin:
         disabled: "Babble has been disabled. Please re-enable it to continue."
         new: "New Channel"
