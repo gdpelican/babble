@@ -3,7 +3,7 @@ import Babble from '../../lib/babble'
 import RawHtml from 'discourse/widgets/raw-html';
 import { dateNode } from 'discourse/helpers/node';
 import { avatarImg } from 'discourse/widgets/post'
-
+import { emojiUnescape } from 'discourse/lib/text'
 
 export default Ember.Object.create({
   render(widget) {
@@ -61,7 +61,7 @@ export default Ember.Object.create({
   },
 
   cooked() {
-    return new RawHtml({ html: `<div class="babble-post-cooked">${Discourse.Emoji.unescape(this.post.cooked)}</div>` })
+    return new RawHtml({ html: `<div class="babble-post-cooked">${emojiUnescape(this.post.cooked)}</div>` })
   },
 
   unreadLine() {

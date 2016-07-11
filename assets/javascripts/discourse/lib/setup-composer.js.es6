@@ -1,5 +1,8 @@
 import Babble from '../lib/babble'
 import userSearch from 'discourse/lib/user-search'
+import { translations } from 'pretty-text/emoji/data'
+import { emojiSearch } from 'pretty-text/emoji'
+import { emojiUrlFor } from 'discourse/lib/text'
 
 export default function ($textarea, opts = {}) {
   if (!$textarea) { return }
@@ -18,11 +21,11 @@ export default function ($textarea, opts = {}) {
         return new Ember.RSVP.Promise(resolve => {
           term = term.toLowerCase()
           var options = (term === "" && ['smile', 'smiley', 'wink', 'sunny', 'blush']) ||
-                        Discourse.Emoji.translations[`:${term}`] ||
-                        Discourse.Emoji.search(term, {maxResults: 5})
+                        translations[`:${term}`] ||
+                        emojiSearch(term, {maxResults: 5})
           return resolve(options)
         }).then(list => list.map(code => {
-          return {code, src: Discourse.Emoji.urlFor(code)};
+          return {code, src: emojiUrlFor(code)};
         }))
       }
     })
