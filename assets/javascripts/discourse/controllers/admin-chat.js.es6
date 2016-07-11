@@ -1,4 +1,5 @@
 import Babble from '../lib/babble'
+import { ajax } from 'discourse/lib/ajax'
 
 export default Ember.Controller.extend({
   needs: ['adminChats'],
@@ -25,7 +26,7 @@ export default Ember.Controller.extend({
       var route = '/babble/topics/'
       if (topic.id) { route += topic.id }
 
-      Discourse.ajax(route, {
+      ajax(route, {
         type: "POST",
         data: {
           topic: {
@@ -65,7 +66,7 @@ export default Ember.Controller.extend({
         I18n.t("yes_value"),
         function(confirmed) {
           if (confirmed) {
-            Discourse.ajax('/babble/topics/' + topic.id + '.json', { type: "DELETE" }).then(function() {
+            ajax(`/babble/topics/${topic.id}.json`, { type: "DELETE" }).then(function() {
               var deleted = _.find(allTopics, function(t) { return t.id === topic.id })
               allTopics.removeObject(deleted)
               self.transitionToRoute('adminChats.index')

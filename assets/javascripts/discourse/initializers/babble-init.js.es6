@@ -2,17 +2,18 @@ import { withPluginApi } from 'discourse/lib/plugin-api';
 import Babble from "../lib/babble";
 import SiteHeader from 'discourse/components/site-header';
 import autosize from 'discourse/lib/autosize';
+import { ajax } from 'discourse/lib/ajax'
 
 export default {
   name: 'babble-init',
   initialize(){
 
-    Discourse.ajax('/babble/topics.json').then(
+    ajax('/babble/topics.json').then(
       (data)  => { Babble.setAvailableTopics(data) },
       (error) => { console.log(error) }
     )
 
-    Discourse.ajax('/babble/topics/default.json').then(
+    ajax('/babble/topics/default.json').then(
       (data)  => { Babble.setCurrentTopic(data) },
       (error) => {
         if (e.status === 404) { console.log('No chat channels are available') }

@@ -1,7 +1,8 @@
 import { createWidget } from 'discourse/widgets/widget'
-import { showSelector } from "discourse/lib/emoji/emoji-toolbar"
+import { showSelector } from "discourse/lib/emoji/toolbar"
 import Babble from "../lib/babble"
 import template from "../widgets/templates/babble-composer"
+import { ajax } from 'discourse/lib/ajax'
 
 export default createWidget('babble-composer', {
   tagName: 'div.babble-post-composer',
@@ -62,7 +63,7 @@ export default createWidget('babble-composer', {
     var topic = this.state.topic
     this.state.submitDisabled = true
     Babble.stagePost(text)
-    Discourse.ajax(`/babble/topics/${topic.id}/post`, {
+    ajax(`/babble/topics/${topic.id}/post`, {
       type: 'POST',
       data: { raw: text }
     }).then((data) => {
@@ -78,7 +79,7 @@ export default createWidget('babble-composer', {
     if (post.raw.trim() === text.trim()) { return }
     Babble.set('loadingEditId', post.id)
     this.state.submitDisabled = true
-    Discourse.ajax(`/babble/topics/${post.topic_id}/post/${post.id}`, {
+    ajax(`/babble/topics/${post.topic_id}/post/${post.id}`, {
       type: 'POST',
       data: { raw: text }
     }).then((data) => {
@@ -119,7 +120,7 @@ export default createWidget('babble-composer', {
     const now = new Date
     if (now - lastInteraction > 5000) {
       this.state.lastInteraction = now
-      Discourse.ajax(`/babble/topics/${topicId}/notification`, {
+      ajax(`/babble/topics/${topicId}/notification`, {
         type: 'POST',
         data: {state: 'editing'}
       })
