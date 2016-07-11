@@ -3,8 +3,6 @@ A Shoutbox style plugin for [Discourse](http://discourse.org).
 [![Code Climate](https://codeclimate.com/github/gdpelican/babble/badges/gpa.svg)](https://codeclimate.com/github/gdpelican/babble)
 [![Gitter](https://img.shields.io/badge/GITTER-join%20chat-green.svg)](https://gitter.im/gdpelican/babble)
 
-Currently still under development!
-
 #### Demo
 
 Check out a live instance of Discourse with Babble installed on it here: [http://discourse-babble.com](http://discourse-babble.com)
@@ -13,6 +11,11 @@ Check out a live instance of Discourse with Babble installed on it here: [http:/
 #### Installation
  - Edit your web template and add the project clone url. (https://meta.discourse.org/t/install-a-plugin/19157)
  - Rebuild your web container so that the plugin installs.
+ - NB: If you're running a recent version of Discourse (you should be!), you'll need to track the beta branch instead of master. To do this, use the following git clone url in your app.yml:
+ 
+ ```
+ - git clone -b beta https://github.com/gdpelican/babble.git
+ ```
 
 #### Adding a chat channel
  - This has been added to the admin panel; simply visit `/admin/chats` to create, update, and delete your chat channels.
