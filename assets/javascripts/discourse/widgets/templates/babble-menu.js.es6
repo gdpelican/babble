@@ -25,6 +25,7 @@ export default Ember.Object.create({
   },
 
   chatContents() {
+    const topic = Babble.currentTopic;
     return [
       h('div.babble-title-wrapper', h('div.babble-title', [
         this.chatTitle(),
@@ -32,7 +33,8 @@ export default Ember.Object.create({
         this.exchangeTopicsButton()
       ])),
       h('div.babble-list', { attributes: { 'scroll-container': 'inactive' } }, h('ul', {className: 'babble-posts'}, this.chatView())),
-      this.widget.attach('babble-composer', { topic: Babble.currentTopic })
+      this.widget.attach('babble-notifications', { notifications: topic.notifications }),
+      this.widget.attach('babble-composer', { topic })
     ]
   },
 
@@ -126,6 +128,6 @@ export default Ember.Object.create({
   loadingSpinner(visible) {
     if (!visible) { return }
     return h('div.spinner-container', h('div.spinner'))
-  }
+  },
 
 })
