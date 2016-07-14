@@ -16,8 +16,8 @@ export default {
     ajax('/babble/topics/default.json').then(
       (data)  => { Babble.setCurrentTopic(data) },
       (error) => {
-        if (e.status === 404) { console.log('No chat channels are available') }
-        else                  { console.log(error) }
+        if (error.status === 404) { console.log('No chat channels are available') }
+        else                      { console.log(error) }
       }
     )
 
