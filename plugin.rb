@@ -1,6 +1,6 @@
 # name: babble
 # about: Shoutbox plugin for Discourse
-# version: 1.0.0
+# version: 1.1.0
 # authors: James Kiesel (gdpelican)
 # url: https://github.com/gdpelican/babble
 
@@ -414,6 +414,10 @@ after_initialize do
         ps.topic_view = object
         ps.as_json
       end
+    end
+
+    def last_read_post_number
+      super || 0
     end
 
     # details are expensive to calculate and we don't use them

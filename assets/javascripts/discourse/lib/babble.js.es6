@@ -4,6 +4,7 @@ import Topic from 'discourse/models/topic'
 import lastVisibleElement from '../lib/last-visible-element'
 import debounce from 'discourse/lib/debounce'
 import setupComposer from '../lib/setup-composer'
+import { ajax } from 'discourse/lib/ajax'
 
 export default Ember.Object.create({
 
@@ -21,7 +22,7 @@ export default Ember.Object.create({
 
     var resetTopicField = (topic, field) => {
       topic[field] = data[field]
-      if (!topic[field] && this.get('currentTopic')) { topic[field] = this.get('currentTopic')[field] }
+      if (topic[field] == null && this.get('currentTopic')) { topic[field] = this.get('currentTopic')[field] }
     }
 
     var topic = Topic.create(data)
@@ -81,7 +82,7 @@ export default Ember.Object.create({
     $(container).on('scroll.discourse-babble-scroll', debounce((e) => {
       let postNumber = lastVisibleElement(container, '.babble-post', 'post-number')
       if (postNumber <= this.get('currentTopic.last_read_post_number')) { return }
-      Discourse.ajax(`/babble/topics/${this.get('currentTopic.id')}/read/${postNumber}.json`).then((data) => {
+      ajax(`/babble/topics/${this.get('currentTopic.id')}/read/${postNumber}.json`).then((data) => {
         this.setCurrentTopic(data)
       })
     }, 500))
@@ -211,9 +212,11 @@ export default Ember.Object.create({
       clearTimeout(notifications[username].timeout)
     }
     notifications[username] = data
-    data.timeout = setTimeout(function () {
+    data.timeout = setTimeout(() => {
       delete notifications[username]
-    }, 30 * 1000)
+      this.rerender()
+    }, 3 * 1000) // clear is typing message after 3 seconds
+    this.rerender()
   },
 
   clearStagedPost() {

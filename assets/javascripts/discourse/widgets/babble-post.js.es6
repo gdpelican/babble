@@ -1,7 +1,8 @@
 import { createWidget } from 'discourse/widgets/widget';
-import Babble from '../lib/babble';
-import template from '../widgets/templates/babble-post';
-import showModal from 'discourse/lib/show-modal';
+import Babble from '../lib/babble'
+import template from '../widgets/templates/babble-post'
+import { ajax } from 'discourse/lib/ajax'
+import showModal from 'discourse/lib/show-modal'
 
 export default createWidget('babble-post', {
   tagName: 'li.babble-post',
@@ -30,7 +31,7 @@ export default createWidget('babble-post', {
   delete() {
     let post = this.state.post
     Babble.set('loadingEditId', post.id)
-    Discourse.ajax(`/babble/topics/${post.topic_id}/destroy/${post.id}`, {
+    ajax(`/babble/topics/${post.topic_id}/destroy/${post.id}`, {
       type: 'DELETE'
     }).finally(() => {
       Babble.set('loadingEditId', null)

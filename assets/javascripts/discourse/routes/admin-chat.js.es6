@@ -1,6 +1,7 @@
 import Babble from "../../discourse/lib/babble"
 import Topic from 'discourse/models/topic'
 import Group from 'discourse/models/group'
+import { ajax } from 'discourse/lib/ajax'
 
 export default Discourse.Route.extend({
 
@@ -8,7 +9,7 @@ export default Discourse.Route.extend({
     if (params.id === 'new') {
       return Topic.create()
     } else {
-      return Discourse.ajax(`/babble/topics/${params.id}.json`).then(function(data) { return Topic.create(data) })
+      return ajax(`/babble/topics/${params.id}.json`).then(function(data) { return Topic.create(data) })
     }
   },
 
@@ -32,7 +33,7 @@ export default Discourse.Route.extend({
     }
 
     if (model.id) {
-      Discourse.ajax('/babble/topics/' + model.id + '/groups.json').then(function(data) { setup(data.topics, null) })
+      ajax(`/babble/topics/${model.id}/groups.json`).then(function(data) { setup(data.topics, null) })
     } else {
       setup([], null)
     }

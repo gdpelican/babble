@@ -1,6 +1,7 @@
 import { createWidget } from 'discourse/widgets/widget'
 import template from '../widgets/templates/babble-menu'
 import Babble from '../lib/babble'
+import { ajax } from 'discourse/lib/ajax'
 
 export default createWidget('babble-menu', {
   tagName: 'li.babble-menu',
@@ -19,7 +20,7 @@ export default createWidget('babble-menu', {
 
   changeTopic(topic) {
     Babble.set('loadingTopicId', topic.id)
-    Discourse.ajax('/babble/topics/' + topic.id + '.json').then(
+    ajax(`/babble/topics/${topic.id}.json`).then(
       (data)  => {
         Babble.setCurrentTopic(data)
         Babble.set('loadingTopic', null)
