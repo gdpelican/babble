@@ -1,6 +1,7 @@
 import { createWidget } from 'discourse/widgets/widget';
-import Babble from '../lib/babble'
-import template from '../widgets/templates/babble-post'
+import Babble from '../lib/babble';
+import template from '../widgets/templates/babble-post';
+import showModal from 'discourse/lib/show-modal';
 
 export default createWidget('babble-post', {
   tagName: 'li.babble-post',
@@ -34,6 +35,11 @@ export default createWidget('babble-post', {
     }).finally(() => {
       Babble.set('loadingEditId', null)
     })
+  },
+
+  flag() {
+    let post = this.state.post
+    showModal('flag', {model: this.state.post}).setProperties({ selected: null, flagTopic: false })
   },
 
   html() { return template.render(this) }
