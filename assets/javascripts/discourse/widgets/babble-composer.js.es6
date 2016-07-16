@@ -3,6 +3,7 @@ import { showSelector } from "discourse/lib/emoji/toolbar"
 import Babble from "../lib/babble"
 import template from "../widgets/templates/babble-composer"
 import { ajax } from 'discourse/lib/ajax'
+import debounce from 'discourse/lib/debounce'
 
 export default createWidget('babble-composer', {
   tagName: 'div.babble-post-composer',
@@ -114,18 +115,12 @@ export default createWidget('babble-composer', {
     }
   },
 
-  checkInteraction() {
-    const topicId = this.state.topic.id
-    const lastInteraction = this.state.lastInteraction
-    const now = new Date
-    if (now - lastInteraction > 5000) {
-      this.state.lastInteraction = now
-      ajax(`/babble/topics/${topicId}/notification`, {
-        type: 'POST',
-        data: {state: 'editing'}
-      })
-    }
-  },
+  checkInteraction: debounce(function() {
+    ajax(`/babble/topics/${this.state.topic.id}/notification`, {
+      type: 'POST',
+      data: {state: 'editing'}
+    })
+  }, 300),
 
   html() { return template.render(this) }
 })
