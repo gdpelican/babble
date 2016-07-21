@@ -436,7 +436,7 @@ after_initialize do
   end
 
   class ::Guardian
-    def can_see_topic?(topic)
+    def can_see_topic?(topic, hide_deleted=true)
       super && (is_admin? ||
                !Babble::Topic.available_topics.include?(topic) ||
                 Babble::Topic.available_topics_for(user).include?(topic))
