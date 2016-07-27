@@ -127,6 +127,18 @@ export default Ember.Object.create({
     return result
   },
 
+  highlightCount() {
+    if (!this.get('currentTopic.postStream')) { return }
+    const username = Discourse.User.current().username.toLowerCase();
+    // Interestingly, link_is_a_mention? method does something really similar to this.
+    // This is O(N), but this should be fast enough in practice.
+    return this.get('currentTopic.postStream.posts')
+      .filter(({cooked, post_number}) => {
+        return post_number > this.get('currentTopic.last_read_post_number')
+          && cooked.indexOf(`<a class="mention" href="/users/${username}"`) !== -1
+      }).length;
+  },
+
   lastPostIsMine() {
     return this.get('latestPost.user_id') == Discourse.User.current().id
   },
