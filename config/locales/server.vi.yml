@@ -1,0 +1,9 @@
+vi:
+  site_settings:
+    babble_enabled: "Bật plugin Babble Shoutbox."
+    babble_max_topic_size: "Số lượng tối đa tin nhắn được lưu trữ tại một thời điểm nhất định"
+    babble_placeholder: "Để trống nếu muốn sử dụng placeholder text mặc định. Nếu không thì nhập custom text vào đây."
+    babble_icon: "Font Awesome code (fa- omitted) cho Babble icon ờ góc trên bên trái. Xem tại http://fontawesome.io/cheatsheet/ để xem danh sách các icon."
+    babble_category_name: "Thể loại trên Discourse cho kênh chat Babble."
+    babble_remote_post: "Bật tính năng gửi phương thức POST từ xa."
+    babble_remote_url: "POST URL"
