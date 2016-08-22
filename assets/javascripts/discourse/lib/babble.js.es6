@@ -135,7 +135,7 @@ export default Ember.Object.create({
     return this.get('currentTopic.postStream.posts')
       .filter(({cooked, post_number}) => {
         return post_number > this.get('currentTopic.last_read_post_number')
-          && cooked.indexOf(`<a class="mention" href="/users/${username}"`) !== -1
+          && cooked.includes(`<a class="mention" href="/users/${username}"`)
       }).length;
   },
 
