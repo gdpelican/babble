@@ -35,6 +35,7 @@ after_initialize do
 
   Discourse::Application.routes.append do
     mount ::Babble::Engine, at: "/babble"
+    get '/chat' => 'chats#index'
     namespace :admin, constraints: StaffConstraint.new do
       resources :chats, only: [:show, :index]
     end
@@ -224,6 +225,11 @@ after_initialize do
     def notification_params
       params.require(:state)
     end
+  end
+
+  class ::ChatsController < ::ApplicationController
+    requires_plugin BABBLE_PLUGIN_NAME
+    define_method :index, ->{}
   end
 
   class ::Admin::ChatsController < ::ApplicationController

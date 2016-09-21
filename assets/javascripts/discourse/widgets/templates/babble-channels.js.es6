@@ -5,8 +5,7 @@ import Babble from '../../lib/babble'
 export default Ember.Object.create({
   render(widget) {
     this.widget          = widget
-    this.topic           = this.widget.topic
-    this.availableTopics = this.widget.attrs.availableTopics
+    this.availableTopics = this.widget.attrs.availableTopics || []
     return [this.topicsHeader(), this.topicsList()]
   },
 
