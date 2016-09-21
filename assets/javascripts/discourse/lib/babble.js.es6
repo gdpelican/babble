@@ -7,6 +7,7 @@ import setupComposer from '../lib/setup-composer'
 import { ajax } from 'discourse/lib/ajax'
 
 export default Ember.Object.create({
+  availableTopics: [],
 
   disabled() {
     return _.contains(Discourse.Site.current().disabled_plugins, 'babble')
@@ -104,6 +105,12 @@ export default Ember.Object.create({
 
   setAvailableTopics(data) {
     this.set('availableTopics', (data || {}).topics || [])
+  },
+
+  getAvailableTopics(excludeCurrent) {
+    return this.get('availableTopics').filter((topic) => {
+      return !excludeCurrent || topic.id !== this.get('currentTopic.id')
+    })
   },
 
   setUnreadCount() {

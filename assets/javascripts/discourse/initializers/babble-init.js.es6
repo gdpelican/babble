@@ -72,6 +72,8 @@ export default {
             headerState.babbleViewingChat = true
           }
           contents.push(helper.attach('babble-menu', {
+            topic:              Babble.get('currentTopic'),
+            availableTopics:    Babble.getAvailableTopics(true),
             viewingChat:        headerState.babbleViewingChat,
             lastReadPostNumber: headerState.lastReadPostNumber
           }))
