@@ -1,10 +1,10 @@
 <div class="chat">
   {{#if topic.id}}
     <div class="chat-sidebar">
-      {{mount-widget widget="babble-channels" availableTopics=availableTopics}}
+      {{mount-widget widget="babble-channels" args=(as-hash availableTopics=availableTopics)}}
     </div>
     <div class="chat-pane">
-      {{mount-widget widget="babble-chat" topic=topic}}
+      {{mount-widget widget="babble-chat" args=(as-hash topic=topic)}}
     </div>
   {{else}}
     {{loading-spinner}}
