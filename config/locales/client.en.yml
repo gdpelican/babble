@@ -16,9 +16,11 @@ en:
       select_topic: "Select another chat channel"
       post_deleted_by: "Post deleted by {{username}}"
       is_typing: "is typing..."
+      nav_title: "Chat"
       admin:
         disabled: "Babble has been disabled. Please re-enable it to continue."
         new: "New Channel"
+        new_category: "New Category Channel"
         none_selected: "Select a channel to get started"
         title: "Channel Title"
         allowed_groups: "Visible to:"

@@ -1,8 +1,9 @@
 import { withPluginApi } from 'discourse/lib/plugin-api';
 import Babble from "../lib/babble";
 import SiteHeader from 'discourse/components/site-header';
+import BreadCrumbs from 'discourse/components/bread-crumbs';
 import autosize from 'discourse/lib/autosize';
-import { ajax } from 'discourse/lib/ajax'
+import { ajax } from 'discourse/lib/ajax';
 
 export default {
   name: 'babble-init',
@@ -98,6 +99,16 @@ export default {
         this.state.babbleViewingChat = !this.state.babbleViewingChat
       })
 
+    })
+
+    BreadCrumbs.reopen({
+      actions: {
+        toggleChat() {
+          let category = this.get('category')
+          let url = Discourse.getURL("/chat/c/") + Discourse.Category.slugFor(category)
+          DiscourseURL.routeTo(url)
+        }
+      }
     })
   }
 }

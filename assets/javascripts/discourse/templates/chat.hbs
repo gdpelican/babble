@@ -1,8 +1,5 @@
 <div class="chat">
   {{#if topic.id}}
-    <div class="chat-sidebar">
-      {{mount-widget widget="babble-channels" args=(as-hash availableTopics=availableTopics)}}
-    </div>
     <div class="chat-pane">
       {{mount-widget widget="babble-chat" args=(as-hash topic=topic)}}
     </div>

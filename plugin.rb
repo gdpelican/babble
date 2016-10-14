@@ -34,20 +34,32 @@ after_initialize do
   end
 
   Discourse::Application.routes.append do
-    mount ::Babble::Engine, at: "/babble"
-    get '/chat' => 'chats#index'
+    mount ::Babble::Engine, at: "/babble", :as => "babble"
+    scope '/chat' do
+      get '/'                             => 'babble/topics#index'
+      get '/c/:category'                  => 'babble/topics#show'
+      get '/c/:parent_category/:category' => 'babble/topics#show'
+    end
     namespace :admin, constraints: StaffConstraint.new do
       resources :chats, only: [:show, :index]
     end
   end
+
+  class ::Admin::ChatsController < ::ApplicationController
+    requires_plugin BABBLE_PLUGIN_NAME
+    define_method :index, ->{}
+    define_method :show, ->{}
+  end
+
+  Category.register_custom_field_type('has_chat', :boolean)
+  add_to_serializer(:basic_category, :has_chat) {object.custom_fields['has_chat']}
+  add_to_serializer(:basic_topic, :category_id) {object.category.id}
 
   require_dependency "application_controller"
   class ::Babble::TopicsController < ::ApplicationController
     requires_plugin BABBLE_PLUGIN_NAME
     before_filter :ensure_logged_in
     before_filter :set_default_id, only: :default
-
-    rescue_from('StandardError') { |e| render_json_error e.message, status: 422 }
 
     def index
       if current_user.blank?
@@ -194,7 +206,9 @@ after_initialize do
     end
 
     def topic
-      @topic ||= Babble::Topic.find(params[:id])
+      return @topic if @topic
+      return Babble::Topic.find({id: params[:id]}) if params[:id]
+      return Babble::Topic.find({category_id: Category.find_by(slug: params[:category])}) if params[:category]
     end
 
     def topic_post
@@ -211,7 +225,7 @@ after_initialize do
     end
 
     def topic_params
-      params.require(:topic).permit(:title, allowed_group_ids: [])
+      params.require(:topic).permit(:title, :category_id, allowed_group_ids: [])
     end
 
     def post_creator_params
@@ -225,17 +239,6 @@ after_initialize do
     def notification_params
       params.require(:state)
     end
-  end
-
-  class ::ChatsController < ::ApplicationController
-    requires_plugin BABBLE_PLUGIN_NAME
-    define_method :index, ->{}
-  end
-
-  class ::Admin::ChatsController < ::ApplicationController
-    requires_plugin BABBLE_PLUGIN_NAME
-    define_method :index, ->{}
-    define_method :show, ->{}
   end
 
   class ::Babble::PostCreator < ::PostCreator
@@ -330,22 +333,29 @@ after_initialize do
   class ::Babble::Topic
 
     def self.create_topic(params)
-      return false unless params[:title].present?
+      return false unless params[:title].present? || params[:category_id].present?
       save_topic Topic.new, {
         user: Discourse.system_user,
         category: Babble::Category.instance,
         title: params[:title],
-        visible: false,
+        archetype: 'chat',
         allowed_groups: get_allowed_groups(params[:allowed_group_ids])
       }
     end
 
     def self.update_topic(topic, params)
-      return false unless params[:title].present?
-      save_topic topic, {
+      return false unless params[:title].present? || params[:category_id].present?
+      topic_opts = {
         title: params[:title],
         allowed_groups: get_allowed_groups(params[:allowed_group_ids])
       }
+      if params[:category_id]
+        topic_opts['category_id'] = params[:category_id]
+        category = Category.find(topic_opts['category_id'])
+        category.custom_fields['has_chat'] = true
+        category.save!
+      end
+      save_topic topic, topic_opts
     end
 
     def self.save_topic(topic, params)
@@ -378,17 +388,22 @@ after_initialize do
     end
 
     def self.available_topics
-      Babble::Category.instance.topics.includes(:allowed_groups)
+      t = Topic.arel_table
+      Topic.where(t[:archetype].eq("chat").or(t[:category_id].eq(Babble::Category.instance.id))).includes(:allowed_groups)
     end
 
     def self.available_topics_for(user)
-      available_topics.joins(:allowed_group_users).where("? OR group_users.user_id = ?", user.admin, user.id).uniq
+      available_for = available_topics.joins(:allowed_group_users).where("? OR group_users.user_id = ?", user.admin, user.id).uniq
+      p "THESE ARE THE TOPICs"
+      p available_topics
+      p available_for
+      available_for
     end
 
     # NB: the set_default_allowed_groups block is passed for backwards compatibility,
     # so that we never have a topic which has no allowed groups.
-    def self.find(id)
-      available_topics.find_by(id: id).tap { |topic| set_default_allowed_groups(topic) if topic }
+    def self.find(param)
+      available_topics.find_by(param).tap { |topic| set_default_allowed_groups(topic) if topic }
     end
   end
 
@@ -449,4 +464,9 @@ after_initialize do
     end
   end
 
+  Archetype.class_eval do
+    def self.chat
+      'chat'
+    end
+  end
 end

@@ -1,9 +1,16 @@
 {{#if model}}
   <form class="form-horizontal">
-    <div>
-      <label for="title">{{i18n 'babble.admin.title'}}</label>
-      {{input value=model.title}}
-    </div>
+    {{#if isCategory}}
+      <div>
+        {{category-drop-chat categories=parentCategories category=firstCategory selectCategory='selectCategory'}}
+        {{category-drop-chat categories=childCategories subCategory="true" category=secondCategory selectCategory='selectCategory'}}
+      </div>
+    {{else}}
+      <div>
+        <label for="title">{{i18n 'babble.admin.title'}}</label>
+        {{input value=model.title}}
+      </div>
+    {{/if}}
 
     <div>
       <label for="allowed_groups">{{i18n 'babble.admin.allowed_groups'}}</label>

@@ -4,6 +4,17 @@ import { ajax } from 'discourse/lib/ajax'
 export default Ember.Controller.extend({
   needs: ['adminChats'],
 
+  childCategories: function() {
+    let firstCategory = this.get('firstCategory');
+    return Discourse.Category.list().filter(function(c) {
+      return firstCategory ? c.get('parentCategory') === firstCategory : c.get('parentCategory')
+    });
+  }.property('firstCategory'),
+
+  parentCategories: function() {
+    return Discourse.Category.list().filter(function(c) { return !c.get('parentCategory') });
+  }.property(),
+
   actions: {
 
     groupAdded(group) {
@@ -16,23 +27,42 @@ export default Ember.Controller.extend({
       this.set('model.allowed_group_ids', groupIds.removeObject(groupId))
     },
 
+    selectCategory(category) {
+      if (category.parentCategory) {
+        this.setProperties({
+          'firstCategory': category.parentCategory,
+          'secondCategory': category
+        })
+      } else {
+        this.set('firstCategory', category)
+      }
+      this.set('category', category)
+    },
+
     save() {
       const topic = this.get('model')
       const allTopics = this.get('controllers.adminChats.model')
       const self = this
+      const category = this.get('category')
 
       self.set('disableSave', true);
 
       var route = '/babble/topics/'
       if (topic.id) { route += topic.id }
 
+      let topicAttrs = {
+        title: topic.get('title'),
+        allowed_group_ids: topic.get('allowed_group_ids')
+      }
+
+      if (category) {
+        topicAttrs['category_id'] = category.id
+      }
+
       ajax(route, {
         type: "POST",
         data: {
-          topic: {
-            title: topic.get('title'),
-            allowed_group_ids: topic.get('allowed_group_ids')
-          }
+          topic: topicAttrs
         }
       }).then(function(saved) {
         saved = Discourse.Topic.create(saved)

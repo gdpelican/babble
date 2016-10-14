@@ -1,15 +1,23 @@
 import Babble from "../../discourse/lib/babble"
 import Topic from 'discourse/models/topic'
+import Category from 'discourse/models/category'
 import Group from 'discourse/models/group'
 import { ajax } from 'discourse/lib/ajax'
 
 export default Discourse.Route.extend({
 
   model: function(params) {
-    if (params.id === 'new') {
+    if (params.id === 'new' || params.id === 'new-category') {
+      this.set('isCategory', params.id === 'new-category')
       return Topic.create()
     } else {
-      return ajax(`/babble/topics/${params.id}.json`).then(function(data) { return Topic.create(data) })
+      let self = this
+      return ajax(`/babble/topics/${params.id}.json`).then(function(data) {
+        if (data.title === "") {
+          self.setProperties({'isCategory': true, 'category': Category.findById(data.category_id)})
+        }
+        return Topic.create(data)
+      })
     }
   },
 
@@ -29,7 +37,22 @@ export default Discourse.Route.extend({
       self._available = _.reject(self._available, function(g) { return g.id == everyoneGroupId; })
 
       model.allowed_group_ids = _.pluck(self._selected, 'id')
-      controller.setProperties({ model: model, available: self._available, selected: self._selected })
+
+      let props = {
+        model: model,
+        available: self._available,
+        selected: self._selected,
+        isCategory: self.get('isCategory')
+      }
+
+      if (props['isCategory']) {
+        let category = self.get('category')
+        props['category'] = category || ''
+        props['firstCategory'] = category ? category.hasParent ? category.parentCategory : category : ''
+        props['secondCategory'] = category ? category.hasParent ? category : '' : ''
+      }
+
+      controller.setProperties(props)
     }
 
     if (model.id) {

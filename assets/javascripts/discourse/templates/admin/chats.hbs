@@ -8,7 +8,13 @@
         <ul>
           {{#each topic in model}}
             <li>
-              {{#link-to 'adminChat' topic.id}}{{topic.title}}{{/link-to}}
+              {{#link-to 'adminChat' topic.id}}
+                {{#if topic.title}}
+                  {{topic.title}}
+                {{else}}
+                  {{category-badge-chat-list categoryId=topic.category_id}}
+                {{/if}}
+              {{/link-to}}
             </li>
           {{/each}}
         </ul>
@@ -18,6 +24,9 @@
       <div class="controls">
         {{#link-to 'adminChat' 'new' class="btn"}}
           {{fa-icon "plus"}} {{i18n 'babble.admin.new'}}
+        {{/link-to}}
+        {{#link-to 'adminChat' 'new-category' class="btn"}}
+          {{fa-icon "plus"}} {{i18n 'babble.admin.new_category'}}
         {{/link-to}}
       </div>
     </div>
