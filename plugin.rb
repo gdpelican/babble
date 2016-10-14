@@ -394,9 +394,6 @@ after_initialize do
 
     def self.available_topics_for(user)
       available_for = available_topics.joins(:allowed_group_users).where("? OR group_users.user_id = ?", user.admin, user.id).uniq
-      p "THESE ARE THE TOPICs"
-      p available_topics
-      p available_for
       available_for
     end
 
