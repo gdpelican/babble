@@ -376,6 +376,7 @@ after_initialize do
     end
 
     def self.available_topics_for(user)
+      return Topic.none unless user
       available_topics.joins(:allowed_group_users).where("? OR group_users.user_id = ?", user.admin, user.id).uniq
     end
 
