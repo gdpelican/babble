@@ -7,6 +7,7 @@ import { ajax } from 'discourse/lib/ajax'
 export default {
   name: 'babble-init',
   initialize(){
+    if (!Discourse.User.current()) { return }
 
     ajax('/babble/topics.json').then(
       (data)  => { Babble.setAvailableTopics(data) },
