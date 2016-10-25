@@ -1,0 +1,11 @@
+# Babble
+
+en:
+  site_settings:
+    babble_enabled: "Włącz Plugin Babble Shoutbox."
+    babble_max_topic_size: "Maksymalna ilość przechowywanych wiadomości."
+    babble_placeholder: "Leave blank for default placeholder text in empty chat textarea. Or enter your custom text here. Zostaw puste aby używać domyślnego "
+    babble_icon: "Kod dla czcionki Font Awesome (fa- ...) dla ikony w prawym górnym rogu. Zobacz http://fontawesome.io/cheatsheet/ dla pełnej listy dostępnych ikon."
+    babble_category_name: "Kategoria w której będą przechowane archiwa czatu."
+    babble_remote_post: "Włącz zdalne dodawanie wiadomości."
+    babble_remote_url: "POST URL"
