@@ -1,6 +1,6 @@
 # Babble
 
-en:
+pl:
   site_settings:
     babble_enabled: "Włącz Plugin Babble Shoutbox."
     babble_max_topic_size: "Maksymalna ilość przechowywanych wiadomości."
