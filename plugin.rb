@@ -392,8 +392,13 @@ after_initialize do
     end
 
     def self.available_topics_for(user)
-      guardian = Guardian.new(user)
-      available_topics.select { |topic| guardian.can_see?(topic) }
+      return available_topics if user.admin
+      category_ids = Category.post_create_allowed(Guardian.new(user)).pluck(:id)
+      available_topics
+        .joins("LEFT OUTER JOIN topic_allowed_groups tg ON tg.topic_id = topics.id")
+        .joins("LEFT OUTER JOIN group_users gu ON gu.group_id = tg.group_id")
+        .where("gu.user_id = ? OR topics.category_id IN (?)", user.id, category_ids)
+        .uniq
     end
 
     # NB: the set_default_allowed_groups block is passed for backwards compatibility,
