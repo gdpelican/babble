@@ -48,7 +48,7 @@ after_initialize do
   end
 
   Category.register_custom_field_type('chat_topic_id', :integer)
-  add_to_serializer(:basic_category, :chat_topic_id) { object.custom_fields['chat_topic_id'] }
+  add_to_serializer(:basic_category, :chat_topic_id) { object.custom_fields['chat_topic_id'] unless object.custom_fields['chat_topic_id'].to_i == 0 }
   add_to_serializer(:basic_topic, :category_id)      { object.category_id }
 
   require_dependency "application_controller"
@@ -88,7 +88,7 @@ after_initialize do
         Babble::PostDestroyer.new(current_user, topic.ordered_posts.first).destroy
         respond_with nil
       else
-        Babble::Topic.destroy(topic)
+        Babble::Topic.destroy_topic(topic)
         respond_with nil
       end
     end
@@ -225,7 +225,7 @@ after_initialize do
     end
 
     def topic_params
-      params.require(:topic).permit(:title, :category_id, allowed_group_ids: [])
+      params.require(:topic).permit(:title, :permissions, :category_id, allowed_group_ids: [])
     end
 
     def post_creator_params
@@ -335,13 +335,14 @@ after_initialize do
   class ::Babble::Topic
 
     def self.save_topic(params, topic = Topic.new)
-      case params.fetch(:permissions, 'group').to_s
+      case params.fetch(:permissions, 'group')
       when 'category'
+        return false if params[:allowed_group_ids].present?
         params[:allowed_groups] = Group.none
         params[:title]        ||= Category.find(params[:category_id]).name
       when 'group'
+        return false if params[:category_id].present? || !params[:title].present?
         params[:allowed_groups] = get_allowed_groups(params[:allowed_group_ids])
-        params[:title]        ||= params[:allowed_groups].first.name
         params[:category_id] = nil
       end
 
@@ -350,7 +351,7 @@ after_initialize do
         t.assign_attributes params.except(:permissions, :allowed_group_ids)
         if t.valid? || t.errors.to_hash.except(:title).empty?
           t.save(validate: false)
-          update_category(params[:category_id], t.reload.id)
+          update_category(params[:category_id], t.reload.id) if params[:category_id]
         end
       end
     end
@@ -360,7 +361,7 @@ after_initialize do
     end
 
     def self.update_category(category_id, topic_id)
-      Category.find(category_id).tap { |c| c.custom_fields[:chat_topic_id] = topic_id }.save if category_id
+      Category.find(category_id).tap { |c| c.custom_fields['chat_topic_id'] = topic_id }.save
     end
 
     def self.get_allowed_groups(ids)
@@ -385,8 +386,7 @@ after_initialize do
     end
 
     def self.available_topics
-      t = Topic.arel_table
-      Topic.where(t[:archetype].eq("chat").or(t[:category_id].eq(Babble::Category.instance.id))).includes(:allowed_groups)
+      Topic.where(archetype: :chat).includes(:allowed_groups)
     end
 
     def self.available_topics_for(user)

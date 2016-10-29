@@ -15,6 +15,7 @@ describe ::Babble::TopicsController do
   let(:group) { Fabricate :group }
   let(:another_group) { Fabricate :group, name: 'group_name' }
   let!(:topic) { Babble::Topic.save_topic title: "test topic for babble", allowed_group_ids: [group.id] }
+  let(:category_topic) { Babble::Topic.save_topic category_chat_params }
   let!(:topic_post) { topic.posts.create(raw: "I am a post", user: user)}
   let!(:another_post) { topic.posts.create(raw: "I am another post", user: another_user) }
   let!(:another_topic) { Babble::Topic.save_topic title: "another test topic", allowed_group_ids: [another_group.id] }
@@ -224,70 +225,68 @@ describe ::Babble::TopicsController do
     end
   end
 
-  # describe "create" do
-  #   before do
-  #     user.update(admin: true)
-  #   end
-  #
-  #   it "creates a new chat topic" do
-  #     xhr :post, :create, topic: chat_params
-  #     expect(response).to be_success
-  #
-  #     new_topic = Babble::Topic.available_topics.last
-  #     expect(new_topic.user).to eq Discourse.system_user
-  #     expect(new_topic.title).to eq chat_params[:title]
-  #     expect(new_topic.category).to be_nil
-  #     expect(new_topic.allowed_groups.length).to eq 1
-  #     expect(new_topic.allowed_groups).to include allowed_group_a
-  #   end
-  #
-  #   it "can create a new category chat topic" do
-  #     xhr :post, :create, topic: category_chat_params
-  #     expect(response).to be_success
-  #
-  #     new_topic = Babble::Topic.available_topics.last
-  #     expect(category.reload.custom_fields[:chat_topic_id]).to eq new_topic.id
-  #     expect(new_topic.user).to eq Discourse.system_user
-  #     expect(new_topic.title).to eq category_chat_params[:title]
-  #     expect(new_topic.category).to eq category
-  #     expect(new_topic.allowed_groups).to be_empty
-  #   end
-  #
-  #   it "respects the permissions parameter" do
-  #     category_chat_params[:permissions] = "group"
-  #     xhr :post, :create, topic: category_chat_params
-  #     expect(response.status).to eq 422
-  #   end
-  #
-  #   it "can create a chat topic with a short name" do
-  #     chat_params[:title] = 'short'
-  #     expect { xhr :post, :create, topic: chat_params }.to change { Topic.count }.by(1)
-  #     expect(response).to be_success
-  #   end
-  #
-  #   it 'defaults to trust level 0 for a group' do
-  #     chat_params[:allowed_group_ids] = []
-  #     xhr :post, :create, topic: chat_params
-  #     expect(response).to be_success
-  #
-  #     new_topic = Babble::Topic.available_topics.last
-  #     expect(new_topic.allowed_groups).to include Group.find Group::AUTO_GROUPS[:trust_level_0]
-  #   end
-  #
-  #   it "does not create an invalid chat topic" do
-  #     chat_params[:title] = ''
-  #     xhr :post, :create, topic: chat_params
-  #     expect(response.status).to eq 422
-  #     expect(Babble::Topic.available_topics.last.title).not_to eq chat_params[:title]
-  #   end
-  #
-  #   it 'does not allow non-admins to create topics' do
-  #     user.update(admin: false)
-  #     xhr :post, :create, topic: chat_params
-  #     expect(response.status).to eq 403
-  #     expect(Babble::Topic.available_topics.last.title).not_to eq chat_params[:title]
-  #   end
-  # end
+  describe "create" do
+    before { user.update(admin: true) }
+
+    it "creates a new chat topic" do
+      expect { xhr :post, :create, topic: chat_params }.to change { Topic.where(archetype: :chat).count }.by(1)
+      expect(response).to be_success
+
+      new_topic = Babble::Topic.available_topics.last
+      expect(new_topic.user).to eq Discourse.system_user
+      expect(new_topic.title).to eq chat_params[:title]
+      expect(new_topic.category).to be_nil
+      expect(new_topic.allowed_groups.length).to eq 1
+      expect(new_topic.allowed_groups).to include allowed_group_a
+    end
+
+    it "can create a new category chat topic" do
+      expect { xhr :post, :create, topic: category_chat_params }.to change { Topic.where(archetype: :chat).count }.by(1)
+      expect(response).to be_success
+
+      new_topic = Babble::Topic.available_topics.last
+      expect(category.reload.custom_fields['chat_topic_id']).to eq new_topic.id
+      expect(new_topic.user).to eq Discourse.system_user
+      expect(new_topic.title).to eq category_chat_params[:title]
+      expect(new_topic.category).to eq category
+      expect(new_topic.allowed_groups).to be_empty
+    end
+
+    it "respects the permissions parameter" do
+      category_chat_params[:permissions] = "group"
+      xhr :post, :create, topic: category_chat_params
+      expect(response.status).to eq 422
+    end
+
+    it "can create a chat topic with a short name" do
+      chat_params[:title] = 'short'
+      expect { xhr :post, :create, topic: chat_params }.to change { Topic.where(archetype: :chat).count }.by(1)
+      expect(response).to be_success
+    end
+
+    it 'defaults to trust level 0 for a group' do
+      chat_params[:allowed_group_ids] = []
+      xhr :post, :create, topic: chat_params
+      expect(response).to be_success
+
+      new_topic = Babble::Topic.available_topics.last
+      expect(new_topic.allowed_groups).to include Group.find Group::AUTO_GROUPS[:trust_level_0]
+    end
+
+    it "does not create an invalid chat topic" do
+      chat_params[:title] = ''
+      expect{ xhr :post, :create, topic: chat_params }.to_not change { Topic.where(archetype: :chat).count }
+      expect(response.status).to eq 422
+      expect(Babble::Topic.available_topics.last.title).not_to eq chat_params[:title]
+    end
+
+    it 'does not allow non-admins to create topics' do
+      user.update(admin: false)
+      xhr :post, :create, topic: chat_params
+      expect(response.status).to eq 403
+      expect(Babble::Topic.available_topics.last.title).not_to eq chat_params[:title]
+    end
+  end
 
   describe 'update' do
     before do
@@ -328,6 +327,13 @@ describe ::Babble::TopicsController do
       xhr :delete, :destroy, id: topic.id
       expect(response).to be_success
       expect(Babble::Topic.available_topics).not_to include topic
+    end
+
+    it "reverts a category's chat topic id" do
+      xhr :delete, :destroy, id: category_topic.id
+      expect(response).to be_success
+      expect(Babble::Topic.available_topics).not_to include category_topic
+      expect(category_topic.category.reload.custom_fields['chat_topic_id']).to_not eq category_topic.id
     end
 
     it "can destroy a chat topic with posts" do
