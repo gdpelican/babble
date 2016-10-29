@@ -3,6 +3,7 @@ import Babble from "../lib/babble";
 import SiteHeader from 'discourse/components/site-header';
 import BreadCrumbs from 'discourse/components/bread-crumbs';
 import { ajax } from 'discourse/lib/ajax';
+import Category from 'discourse/models/category';
 
 export default {
   name: 'babble-init',
@@ -96,13 +97,13 @@ export default {
       actions: {
         toggleChat() {
           let category = this.get('category')
-          let url = Discourse.getURL("/chat/c/") + Discourse.Category.slugFor(category)
+          let url = Discourse.getURL(["", "chat", Category.slugFor(category), category.get('chat_topic_id')].join('/'))
           DiscourseURL.routeTo(url)
         }
       },
 
       showChatToggle: function() {
-        return Discourse.SiteSettings.babble_full_page && this.get('category.has_chat')
+        return Discourse.SiteSettings.babble_full_page && this.get('category.chat_topic_id')
       }.property(),
 
       chatToggleClasses: function() {
