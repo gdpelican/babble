@@ -339,7 +339,7 @@ after_initialize do
       when 'category'
         category = Category.find(params[:category_id])
         return false if params[:allowed_group_ids].present?
-        return false if category.custom_fields['chat_topic_id'].to_i != 0 # don't allow multiple channels on a single category
+        return false unless [0, topic.id].include?(category.custom_fields['chat_topic_id']) # don't allow multiple channels on a single category
         params[:allowed_groups] = Group.none
         params[:title]        ||= category.name
       when 'group'
