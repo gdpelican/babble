@@ -304,7 +304,7 @@ li.babble-post .babble-post-content a.mention {
   resize: none;
   width: 100%;
   min-height: 30px;
-  padding: 6px 24px 6px 6px;
+  padding: 10px 24px 10px 10px;
 }
 
 .babble-post-composer .emoji-button {
@@ -496,10 +496,11 @@ li.babble-chat.drop-container {
   .babble-posts {
     margin: 0;
     bottom: 0;
+    position: absolute;
   }
   .babble-post-composer .emoji-button {
-    bottom: 6px;
-    right: 6px;
+    bottom: 10px;
+    right: 10px;
     font-size: 16px;
   }
 }
