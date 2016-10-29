@@ -33,7 +33,8 @@ export default Ember.Controller.extend({
 
       let topicAttrs = {
         title: topic.get('title'),
-        allowed_group_ids: topic.get('allowed_group_ids')
+        allowed_group_ids: topic.get('allowed_group_ids'),
+        permissions: topic.get('permissions')
       }
 
       if (category) {
