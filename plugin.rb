@@ -47,7 +47,7 @@ after_initialize do
     define_method :show, ->{}
   end
 
-  Category.register_custom_field_type(:chat_topic_id, :integer)
+  Category.register_custom_field_type('chat_topic_id', :integer)
   add_to_serializer(:basic_category, :chat_topic_id) { object.custom_fields['chat_topic_id'] }
   add_to_serializer(:basic_topic, :category_id)      { object.category_id }
 
