@@ -104,15 +104,15 @@ export default Ember.Object.create({
     textarea.attr('babble-composer', 'active')
   },
 
-  setupAfterRender(context) {
+  setupAfterRender() {
     Ember.run.scheduleOnce('afterRender', () => {
-      const $scrollContainer = context.$('.babble-list[scroll-container=inactive]')
+      const $scrollContainer = $('.babble-list[scroll-container=inactive]')
       this.prepareScrollContainer($scrollContainer)
 
-      const $textarea = context.$('.babble-post-composer textarea[babble-composer=inactive]')
+      const $textarea = $('.babble-post-composer textarea[babble-composer=inactive]')
       this.prepareComposer($textarea)
 
-      const $editing = context.$('.babble-post-composer textarea[babble-composer=active]')
+      const $editing = $('.babble-post-composer textarea[babble-composer=active]')
       autosize($editing)
     })
   },

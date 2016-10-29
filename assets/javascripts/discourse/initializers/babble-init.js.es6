@@ -31,7 +31,7 @@ export default {
       },
 
       afterPatch() {
-        Babble.setupAfterRender(this)
+        Babble.setupAfterRender()
       }
     })
 

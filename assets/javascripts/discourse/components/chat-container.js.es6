@@ -14,6 +14,6 @@ export default MountWidget.extend({
   },
 
   afterPatch() {
-    Babble.setupAfterRender(this)
+    Babble.setupAfterRender()
   }
 });
