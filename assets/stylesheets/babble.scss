@@ -503,3 +503,8 @@ li.babble-chat.drop-container {
     font-size: 16px;
   }
 }
+
+.chat-toggle.active {
+  color: $secondary;
+  background-color: $quaternary;
+}

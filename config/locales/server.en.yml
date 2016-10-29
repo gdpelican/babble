@@ -9,3 +9,4 @@ en:
     babble_category_name: "Discourse category for Babble topics."
     babble_remote_post: "Enable remote POST on message."
     babble_remote_url: "POST URL"
+    babble_full_page: "Full page chat mode."

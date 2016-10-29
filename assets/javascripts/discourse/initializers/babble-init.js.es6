@@ -41,7 +41,8 @@ export default {
 
         if (!Babble.disabled() &&
             api.getCurrentUser() &&
-            Discourse.SiteSettings.babble_enabled) {
+            Discourse.SiteSettings.babble_enabled &&
+            !Discourse.SiteSettings.babble_full_page) {
           contents.push(helper.attach('header-dropdown', {
             title:         'babble.title',
             icon:          Discourse.SiteSettings.babble_icon,
@@ -98,7 +99,18 @@ export default {
           let url = Discourse.getURL("/chat/c/") + Discourse.Category.slugFor(category)
           DiscourseURL.routeTo(url)
         }
-      }
+      },
+
+      showChatToggle: function() {
+        return Discourse.SiteSettings.babble_full_page && this.get('category.has_chat')
+      }.property(),
+
+      chatToggleClasses: function() {
+        let classes = 'chat-toggle'
+        const controller = this.get('targetObject')
+        if (controller.isChat) { classes += ' active' }
+        return classes
+      }.property('targetObject.isChat')
     })
   }
 }

@@ -16,3 +16,6 @@ plugins:
     default: false
   babble_remote_url:
     default: http://example.com/api/message/add
+  babble_full_page:
+    default: false
+    client: true

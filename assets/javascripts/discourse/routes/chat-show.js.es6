@@ -29,16 +29,8 @@ export default Discourse.Route.extend({
       return;
     }
 
-    this._setupNavigation(model.category);
     return Em.RSVP.all([this._createSubcategoryList(model.category),
                         this._retrieveChat(model.category, transition)]);
-  },
-
-  _setupNavigation(category) {
-    this.controllerFor('navigation/category').setProperties({
-      category,
-      filterMode: ''
-    });
   },
 
   _createSubcategoryList(category) {
@@ -63,6 +55,9 @@ export default Discourse.Route.extend({
           canCreateTopicOnCategory = category.get('permission') === PermissionType.FULL;
 
     this.controllerFor('navigation/category').setProperties({
+      category,
+      filterMode: '',
+      isChat: true,
       canCreateTopicOnCategory: canCreateTopicOnCategory,
       cannotCreateTopicOnCategory: !canCreateTopicOnCategory,
       canCreateTopic: true
@@ -82,6 +77,7 @@ export default Discourse.Route.extend({
 
   deactivate() {
     this._super();
+    this.controllerFor('navigation/category').set('isChat', false)
     this.searchService.set('searchContext', null);
   },
 
