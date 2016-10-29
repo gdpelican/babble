@@ -357,7 +357,7 @@ after_initialize do
     end
 
     def self.destroy_topic(topic)
-      topic.tap { |t| update_category(topic.category_id, nil) }.destroy
+      topic.tap { |t| update_category(topic.category_id, nil) if topic.category_id }.destroy
     end
 
     def self.update_category(category_id, topic_id)
