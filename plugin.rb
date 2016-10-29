@@ -424,7 +424,7 @@ after_initialize do
     end
 
     def permissions
-      object.topic.category_id != Babble::Category.instance.id ? 'category' : 'group'
+      [nil, Babble::Category.instance.id].include?(object.topic.category_id) ? 'group' : 'category'
     end
 
     def posts
