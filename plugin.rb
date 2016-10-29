@@ -463,14 +463,26 @@ after_initialize do
   end
 
   class ::Guardian
-    def can_see_topic?(topic, hide_deleted=true)
-      super || topic.archetype == Archetype.chat && (can_see?(topic.category) || topic.allowed_group_users.include?(user))
+    module CanSeeTopic
+      def can_see_topic?(topic, hide_deleted=true)
+        super || topic.archetype == Archetype.chat && (can_see?(topic.category) || topic.allowed_group_users.include?(user))
+      end
     end
+    prepend CanSeeTopic
   end
 
-  Archetype.class_eval do
+  class ::Archetype
     def self.chat
       'chat'
     end
+  end
+
+  class ::TopicQuery
+    module DefaultResults
+      def default_results(options={})
+        super(options).where('archetype <> ?', Archetype.chat)
+      end
+    end
+    prepend DefaultResults
   end
 end
