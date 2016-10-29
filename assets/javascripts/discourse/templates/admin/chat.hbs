@@ -22,12 +22,11 @@
         <label for="allowed_groups">{{i18n 'babble.admin.allowed_groups_label'}}</label>
         {{admin-group-selector selected=selected available=available}}
       </div>
+      <div>
+        <label for="title">{{i18n 'babble.admin.title'}}</label>
+        {{input value=model.title}}
+      </div>
     {{/if}}
-
-    <div>
-      <label for="title">{{i18n 'babble.admin.title'}}</label>
-      {{input value=model.title}}
-    </div>
 
     <div class='buttons'>
       <button {{action "save"}} {{bind-attr disabled="disableSave"}} class='btn btn-primary'>{{i18n 'admin.customize.save'}}</button>
