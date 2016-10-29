@@ -337,9 +337,11 @@ after_initialize do
     def self.save_topic(params, topic = Topic.new)
       case params.fetch(:permissions, 'group')
       when 'category'
+        category = Category.find(params[:category_id])
         return false if params[:allowed_group_ids].present?
+        return false if category.custom_fields['chat_topic_id'].to_i != 0 # don't allow multiple channels on a single category
         params[:allowed_groups] = Group.none
-        params[:title]        ||= Category.find(params[:category_id]).name
+        params[:title]        ||= category.name
       when 'group'
         return false if params[:category_id].present? || !params[:title].present?
         params[:allowed_groups] = get_allowed_groups(params[:allowed_group_ids])
