@@ -10,16 +10,21 @@ export default Ember.Object.create({
   },
 
   chatContents() {
-    return [
-      h('div.babble-title-wrapper', h('div.babble-title', [
-        this.chatTitle(),
-        this.visibilityButton(),
-        this.exchangeTopicsButton()
-      ])),
+    let contents = [
       h('div.babble-list', { attributes: { 'scroll-container': 'inactive' } }, h('ul', {className: 'babble-posts'}, this.chatView())),
       this.widget.attach('babble-notifications', { notifications: this.topic.notifications }),
       this.widget.attach('babble-composer', { topic: this.topic })
     ]
+    if (!this.widget.attrs.fullpage) {
+      contents.unshift(
+        h('div.babble-title-wrapper', h('div.babble-title', [
+          this.chatTitle(),
+          this.visibilityButton(),
+          this.exchangeTopicsButton()
+        ]))
+      )
+    }
+    return contents
   },
 
   chatTitle() {

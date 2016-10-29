@@ -7,6 +7,7 @@ export default createWidget('babble-chat', {
   defaultState(attrs) {
     return {
       topic: attrs.topic,
+      fullpage: attrs.fullpage,
       lastReadPostNumber: attrs.lastReadPostNumber
     }
   },
