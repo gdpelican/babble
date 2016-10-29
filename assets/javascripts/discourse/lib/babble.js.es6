@@ -117,6 +117,13 @@ export default Ember.Object.create({
     })
   },
 
+  resetComposer() {
+    let evt = document.createEvent('Event'),
+        ele = $('.babble-post-composer textarea[babble-composer=active]')[0];
+    evt.initEvent('autosize:update', true, false);
+    ele.dispatchEvent(evt);
+  },
+
   setAvailableTopics(data) {
     this.set('availableTopics', (data || {}).topics || [])
   },
@@ -173,6 +180,7 @@ export default Ember.Object.create({
     postStream.stagePost(post, user)
     this.scrollTo(this.get('latestPost.post_number'))
     this.set('latestPost', post)
+    this.resetComposer()
     this.rerender()
   },
 
