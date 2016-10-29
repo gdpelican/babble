@@ -1,7 +1,7 @@
-<div class="chat">
+<div class="chat {{typeClass}}">
   {{#if topic.id}}
     <div class="chat-pane">
-      {{mount-widget widget="babble-chat" args=(as-hash topic=topic fullpage=fullpage)}}
+      {{chat-container topic=topic fullpage=fullpage}}
     </div>
   {{else}}
     {{loading-spinner}}

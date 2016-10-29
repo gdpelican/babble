@@ -4,6 +4,7 @@ import Topic from 'discourse/models/topic'
 import lastVisibleElement from '../lib/last-visible-element'
 import debounce from 'discourse/lib/debounce'
 import setupComposer from '../lib/setup-composer'
+import autosize from 'discourse/lib/autosize'
 import { ajax } from 'discourse/lib/ajax'
 
 export default Ember.Object.create({
@@ -101,6 +102,19 @@ export default Ember.Object.create({
     if (!textarea.length) { return }
     setupComposer(textarea, { mentions: true, emojis: true, topicId: this.currentTopic.id })
     textarea.attr('babble-composer', 'active')
+  },
+
+  setupAfterRender(context) {
+    Ember.run.scheduleOnce('afterRender', () => {
+      const $scrollContainer = context.$('.babble-list[scroll-container=inactive]')
+      this.prepareScrollContainer($scrollContainer)
+
+      const $textarea = context.$('.babble-post-composer textarea[babble-composer=inactive]')
+      this.prepareComposer($textarea)
+
+      const $editing = context.$('.babble-post-composer textarea[babble-composer=active]')
+      autosize($editing)
+    })
   },
 
   setAvailableTopics(data) {
@@ -233,7 +247,9 @@ export default Ember.Object.create({
   },
 
   rerender() {
-    if (!this.get('header')) { return }
-    this.get('header').queueRerender()
+    const header = this.get('header')
+    const container = this.get('container')
+    if (header) {header.queueRerender()}
+    if (container) {container.queueRerender()}
   }
 })

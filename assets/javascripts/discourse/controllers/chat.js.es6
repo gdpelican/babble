@@ -5,6 +5,12 @@ export default Ember.Controller.extend({
 
   topic: function() {
     return Babble.get('currentTopic')
+  }.property(),
+
+  typeClass: function() {
+    if (this.get('fullpage')) {
+      return 'fullpage'
+    }
   }.property()
 
 })

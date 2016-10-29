@@ -2,7 +2,6 @@ import { withPluginApi } from 'discourse/lib/plugin-api';
 import Babble from "../lib/babble";
 import SiteHeader from 'discourse/components/site-header';
 import BreadCrumbs from 'discourse/components/bread-crumbs';
-import autosize from 'discourse/lib/autosize';
 import { ajax } from 'discourse/lib/ajax';
 
 export default {
@@ -31,16 +30,7 @@ export default {
       },
 
       afterPatch() {
-        Ember.run.scheduleOnce('afterRender', () => {
-          const $scrollContainer = this.$('.babble-list[scroll-container=inactive]')
-          Babble.prepareScrollContainer($scrollContainer)
-
-          const $textarea = this.$('.babble-post-composer textarea[babble-composer=inactive]')
-          Babble.prepareComposer($textarea)
-
-          const $editing = this.$('.babble-post-composer textarea[babble-composer=active]')
-          autosize($editing)
-        })
+        Babble.setupAfterRender(this)
       }
     })
 
