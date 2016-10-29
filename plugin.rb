@@ -390,8 +390,8 @@ after_initialize do
     end
 
     def self.available_topics_for(user)
-      g = Guardian.new(user)
-      available_topics.select { |t| g.can_see?(t) }
+      guardian = Guardian.new(user)
+      available_topics.select { |topic| guardian.can_see?(topic) }
     end
 
     # NB: the set_default_allowed_groups block is passed for backwards compatibility,
@@ -462,7 +462,7 @@ after_initialize do
 
   class ::Guardian
     def can_see_topic?(topic, hide_deleted=true)
-      super || Babble::Topic.available_topics_for(user).include?(topic)
+      super || topic.archetype == Archetype.chat && (can_see?(topic.category) || topic.allowed_group_users.include?(user))
     end
   end
 

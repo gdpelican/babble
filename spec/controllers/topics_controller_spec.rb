@@ -280,6 +280,13 @@ describe ::Babble::TopicsController do
       expect(Babble::Topic.available_topics.last.title).not_to eq chat_params[:title]
     end
 
+    it "does not allow multiple chat channels on a single category" do
+      category_topic
+      expect{ xhr :post, :create, topic: category_chat_params }.to_not change { Topic.where(archetype: :chat).count }
+      expect(response.status).to eq 422
+      expect(Babble::Topic.available_topics.last.title).not_to eq chat_params[:title]
+    end
+
     it 'does not allow non-admins to create topics' do
       user.update(admin: false)
       xhr :post, :create, topic: chat_params
@@ -314,6 +321,13 @@ describe ::Babble::TopicsController do
       xhr :post, :update, id: topic.id, topic: chat_params
       expect(response.status).to eq 403
       expect(Babble::Topic.find(id: topic.id).title).to_not eq chat_params[:title]
+    end
+
+    it "does not allow multiple chat channels on a single category" do
+      category_topic
+      expect{ xhr :post, :update, id: topic.id, topic: category_chat_params }.to_not change { Topic.where(archetype: :chat).count }
+      expect(response.status).to eq 422
+      expect(Babble::Topic.available_topics.last.title).not_to eq chat_params[:title]
     end
   end
 
