@@ -8,13 +8,15 @@ export default Discourse.Route.extend({
 
   model: function(params) {
     if (params.id === 'new') {
-      return Topic.create({ permissions: 'category' })
+      return Topic.create({ category: null, allowed_group_ids: [], permissions: 'category' })
     } else {
       return ajax(`/babble/topics/${params.id}.json`).then((data) => {
         if (data.category_id) {
           data.category = Category.findById(data.category_id)
         }
-        return Topic.create(data)
+        let topic = Topic.create(data)
+        topic.set('permissions', data.permissions)
+        return topic
       })
     }
   },

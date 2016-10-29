@@ -390,9 +390,8 @@ after_initialize do
     end
 
     def self.available_topics_for(user)
-      available_topics.joins(:allowed_group_users)
-                      .where("? OR group_users.user_id = ?", user.admin, user.id)
-                      .uniq
+      g = Guardian.new(user)
+      available_topics.select { |t| g.can_see?(t) }
     end
 
     # NB: the set_default_allowed_groups block is passed for backwards compatibility,
