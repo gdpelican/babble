@@ -4,16 +4,9 @@ import { ajax } from 'discourse/lib/ajax'
 export default Ember.Controller.extend({
   needs: ['adminChats'],
 
-  childCategories: function() {
-    let firstCategory = this.get('firstCategory');
-    return Discourse.Category.list().filter(function(c) {
-      return firstCategory ? c.get('parentCategory') === firstCategory : c.get('parentCategory')
-    });
-  }.property('firstCategory'),
-
-  parentCategories: function() {
-    return Discourse.Category.list().filter(function(c) { return !c.get('parentCategory') });
-  }.property(),
+  categoryPermissions: function() {
+    return this.get('model.permissions') == 'category'
+  }.property('model.permissions'),
 
   actions: {
 
@@ -25,18 +18,6 @@ export default Ember.Controller.extend({
     groupRemoved(groupId) {
       var groupIds = this.get('model.allowed_group_ids') || []
       this.set('model.allowed_group_ids', groupIds.removeObject(groupId))
-    },
-
-    selectCategory(category) {
-      if (category.parentCategory) {
-        this.setProperties({
-          'firstCategory': category.parentCategory,
-          'secondCategory': category
-        })
-      } else {
-        this.set('firstCategory', category)
-      }
-      this.set('category', category)
     },
 
     save() {

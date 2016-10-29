@@ -7,14 +7,12 @@ import { ajax } from 'discourse/lib/ajax'
 export default Discourse.Route.extend({
 
   model: function(params) {
-    if (params.id === 'new' || params.id === 'new-category') {
-      this.set('isCategory', params.id === 'new-category')
-      return Topic.create()
+    if (params.id === 'new') {
+      return Topic.create({ permissions: 'category' })
     } else {
-      let self = this
-      return ajax(`/babble/topics/${params.id}.json`).then(function(data) {
-        if (data.title === "") {
-          self.setProperties({'isCategory': true, 'category': Category.findById(data.category_id)})
+      return ajax(`/babble/topics/${params.id}.json`).then((data) => {
+        if (data.category_id) {
+          data.category = Category.findById(data.category_id)
         }
         return Topic.create(data)
       })
