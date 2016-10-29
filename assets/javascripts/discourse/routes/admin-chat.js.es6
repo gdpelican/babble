@@ -36,18 +36,13 @@ export default Discourse.Route.extend({
 
       model.allowed_group_ids = _.pluck(self._selected, 'id')
 
+      let category = model.category ? [model.category] : []
+
       let props = {
         model: model,
         available: self._available,
         selected: self._selected,
-        isCategory: self.get('isCategory')
-      }
-
-      if (props['isCategory']) {
-        let category = self.get('category')
-        props['category'] = category || ''
-        props['firstCategory'] = category ? category.hasParent ? category.parentCategory : category : ''
-        props['secondCategory'] = category ? category.hasParent ? category : '' : ''
+        category: category
       }
 
       controller.setProperties(props)

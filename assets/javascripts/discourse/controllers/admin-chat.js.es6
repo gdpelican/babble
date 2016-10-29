@@ -24,7 +24,7 @@ export default Ember.Controller.extend({
       const topic = this.get('model')
       const allTopics = this.get('controllers.adminChats.model')
       const self = this
-      const category = this.get('category')
+      const category = this.get('category')[0]
 
       self.set('disableSave', true);
 
