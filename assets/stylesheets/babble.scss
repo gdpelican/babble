@@ -487,13 +487,19 @@ li.babble-chat.drop-container {
 
 /* Fullpage styles */
 
-.chat.fullpage .babble-list {
-  height: calc(100vh - 300px);
-  position: relative;
-  overflow-y: scroll;
-}
-
-.chat.fullpage .babble-posts {
-  margin: 0;
-  bottom: 0;
+.chat.fullpage {
+  .babble-list {
+    height: calc(100vh - 230px);
+    position: relative;
+    overflow-y: scroll;
+  }
+  .babble-posts {
+    margin: 0;
+    bottom: 0;
+  }
+  .babble-post-composer .emoji-button {
+    bottom: 6px;
+    right: 6px;
+    font-size: 16px;
+  }
 }
