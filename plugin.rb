@@ -35,7 +35,7 @@ after_initialize do
 
   Discourse::Application.routes.append do
     mount ::Babble::Engine, at: "/babble", :as => "babble"
-    scope '/chat/:slug/:id' => 'babble/topics#show'
+    get '/chat/:slug/:id' => 'babble/topics#show'
     namespace :admin, constraints: StaffConstraint.new do
       resources :chats, only: [:show, :index]
     end
