@@ -11,11 +11,11 @@ export default Discourse.Route.extend({
       return Topic.create({ category: null, allowed_group_ids: [], permissions: 'category' })
     } else {
       return ajax(`/babble/topics/${params.id}.json`).then((data) => {
-        if (data.category_id) {
-          data.category = Category.findById(data.category_id)
-        }
         let topic = Topic.create(data)
         topic.set('permissions', data.permissions)
+        if(data.category_id) {
+          topic.set('category', Category.findById(data.category_id))
+        }
         return topic
       })
     }
