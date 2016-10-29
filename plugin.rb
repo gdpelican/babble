@@ -35,11 +35,7 @@ after_initialize do
 
   Discourse::Application.routes.append do
     mount ::Babble::Engine, at: "/babble", :as => "babble"
-    scope '/chat' do
-      get '/'                             => 'babble/topics#index'
-      get '/c/:category'                  => 'babble/topics#show'
-      get '/c/:parent_category/:category' => 'babble/topics#show'
-    end
+    scope '/chat/:slug/:id' => 'babble/topics#show'
     namespace :admin, constraints: StaffConstraint.new do
       resources :chats, only: [:show, :index]
     end
@@ -51,9 +47,9 @@ after_initialize do
     define_method :show, ->{}
   end
 
-  Category.register_custom_field_type('has_chat', :boolean)
-  add_to_serializer(:basic_category, :has_chat) { object.custom_fields['has_chat'] }
-  add_to_serializer(:basic_topic, :category_id) { object.category_id }
+  Category.register_custom_field_type(:chat_topic_id, :integer)
+  add_to_serializer(:basic_category, :chat_topic_id) { object.custom_fields['chat_topic_id'] }
+  add_to_serializer(:basic_topic, :category_id)      { object.category_id }
 
   require_dependency "application_controller"
   class ::Babble::TopicsController < ::ApplicationController
@@ -92,7 +88,7 @@ after_initialize do
         Babble::PostDestroyer.new(current_user, topic.ordered_posts.first).destroy
         respond_with nil
       else
-        topic.destroy
+        Babble::Topic.destroy(topic)
         respond_with nil
       end
     end
@@ -339,8 +335,7 @@ after_initialize do
   class ::Babble::Topic
 
     def self.save_topic(params, topic = Topic.new)
-
-      case params.fetch(:permissions, 'group')
+      case params.fetch(:permissions, 'group').to_s
       when 'category'
         params[:allowed_groups] = Group.none
         params[:title]        ||= Category.find(params[:category_id]).name
@@ -354,15 +349,18 @@ after_initialize do
         t.assign_attributes archetype: :chat, user_id: Discourse::SYSTEM_USER_ID, last_post_user_id: Discourse::SYSTEM_USER_ID
         t.assign_attributes params.except(:permissions, :allowed_group_ids)
         if t.valid? || t.errors.to_hash.except(:title).empty?
-          update_category(params[:category_id], params[:permissions] == 'category')
           t.save(validate: false)
+          update_category(params[:category_id], t.reload.id)
         end
       end
     end
 
-    def self.update_category(category_id, has_chat)
-      return unless category_id
-      Category.find(category_id).tap { |c| c.custom_fields[:has_chat] = has_chat }.save
+    def self.destroy_topic(topic)
+      topic.tap { |t| update_category(topic.category_id, nil) }.destroy
+    end
+
+    def self.update_category(category_id, topic_id)
+      Category.find(category_id).tap { |c| c.custom_fields[:chat_topic_id] = topic_id }.save if category_id
     end
 
     def self.get_allowed_groups(ids)

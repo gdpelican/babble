@@ -8,16 +8,13 @@ import { ajax } from 'discourse/lib/ajax';
 export default Discourse.Route.extend({
 
   model(params) {
-    const category = Category.findBySlug(params.category, params.parentCategory);
+    const category = Category.findBySlug(params.category);
     if (!category) {
-      return Category.reloadBySlug(params.category, params.parentCategory).then((atts) => {
-        if (params.parentCategory) {
-          atts.category.parentCategory = Category.findBySlug(params.parentCategory);
-        }
-        const record = this.store.createRecord('category', atts.category);
+      return Category.reloadBySlug(params.category).then((attrs) => {
+        const record = this.store.createRecord('category', attrs.category);
         record.setupGroupsAndPermissions();
         this.site.updateCategory(record);
-        return { category: Category.findBySlug(params.category, params.parentCategory) };
+        return { category: Category.findBySlug(params.category) };
       });
     };
     return { category };
@@ -31,7 +28,7 @@ export default Discourse.Route.extend({
 
     this._setupNavigation(model.category);
     return Em.RSVP.all([this._createSubcategoryList(model.category),
-                        this._retrieveChat(model.category, transition)]);
+                        this._retrieveChat(model.category)]);
   },
 
   _setupNavigation(category) {
@@ -52,7 +49,7 @@ export default Discourse.Route.extend({
   },
 
   _retrieveChat(category) {
-    return ajax(`/chat/c/${category.slug}.json`).then(function(data) {
+    return ajax(`/chat/${category.slug}/${category.chat_topic_id}.json`).then(function(data) {
       Babble.setCurrentTopic(data)
       return Em.RSVP.resolve();
     })

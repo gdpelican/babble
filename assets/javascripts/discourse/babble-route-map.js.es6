@@ -3,8 +3,7 @@ export default {
   path: '/chat',
   map() {
     this.resource('chat', {path: '/'}, function() {
-      this.route('showCategory', {path: '/c/:category'});
-      this.route('showParentCategory', {path: '/c/:parent_category/:category'});
+      this.route('showCategory', {path: '/:category/:id'});
     })
   }
 };

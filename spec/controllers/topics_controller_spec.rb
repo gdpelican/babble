@@ -246,7 +246,7 @@ describe ::Babble::TopicsController do
   #     expect(response).to be_success
   #
   #     new_topic = Babble::Topic.available_topics.last
-  #     expect(category.reload.custom_fields[:has_chat]).to eq true
+  #     expect(category.reload.custom_fields[:chat_topic_id]).to eq new_topic.id
   #     expect(new_topic.user).to eq Discourse.system_user
   #     expect(new_topic.title).to eq category_chat_params[:title]
   #     expect(new_topic.category).to eq category
