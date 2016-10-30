@@ -1,7 +1,7 @@
 import { withPluginApi } from 'discourse/lib/plugin-api';
 import Babble from "../lib/babble";
 import SiteHeader from 'discourse/components/site-header';
-import BreadCrumbs from 'discourse/components/bread-crumbs';
+import NavigationBar from 'discourse/components/navigation-bar';
 import { ajax } from 'discourse/lib/ajax';
 import Category from 'discourse/models/category';
 
@@ -12,24 +12,21 @@ export default {
 
     if (Discourse.SiteSettings.babble_full_page) {
       // Add full page chat to category breadcrumbs
-      BreadCrumbs.reopen({
+      NavigationBar.reopen({
         actions: {
           toggleChat() {
-            let category = this.get('category')
+            let category = this.get('targetObject.category')
             let url = Discourse.getURL(["", "chat", Category.slugFor(category), category.get('chat_topic_id')].join('/'))
             DiscourseURL.routeTo(url)
           }
         },
 
         showChatToggle: function() {
-          return this.get('category.chat_topic_id')
+          return this.get('targetObject.category.chat_topic_id')
         }.property(),
 
-        chatToggleClasses: function() {
-          let classes = 'chat-toggle'
-          const controller = this.get('targetObject')
-          if (controller.isChat) { classes += ' active' }
-          return classes
+        chatIsActive: function() {
+          return this.get('targetObject.isChat')
         }.property('targetObject.isChat')
       })
 
