@@ -70,11 +70,11 @@ export default Ember.Object.create({
     if (this.get('currentTopic.id')) {
       messageBus.unsubscribe(apiPath(currentTopicId))
       messageBus.unsubscribe(apiPath(currentTopicId), 'posts')
-      messageBus.unsubscribe(apiPath(currentTopicId), 'notifications')
+      // messageBus.unsubscribe(apiPath(currentTopicId), 'notifications')
     }
     messageBus.subscribe(apiPath(topicId),                  (data) => { this.setCurrentTopic(data) })
     messageBus.subscribe(apiPath(topicId, 'posts'),         (data) => { this.handleNewPost(data) })
-    messageBus.subscribe(apiPath(topicId, 'notifications'), (data) => { this.handleNotification(data) })
+    // messageBus.subscribe(apiPath(topicId, 'notifications'), (data) => { this.handleNotification(data) })
   },
 
   prepareScrollContainer(container) {
