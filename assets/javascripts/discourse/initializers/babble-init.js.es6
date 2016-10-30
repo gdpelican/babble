@@ -23,7 +23,7 @@ export default {
 
         showChatToggle: function() {
           return this.get('targetObject.category.chat_topic_id')
-        }.property(),
+        }.property('targetObject.category.chat_topic_id'),
 
         chatIsActive: function() {
           return this.get('targetObject.isChat')
