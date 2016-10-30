@@ -431,7 +431,7 @@ after_initialize do
     end
 
     def permissions
-      [nil, Babble::Category.instance.id].include?(object.topic.category_id) ? 'group' : 'category'
+      object.topic.category_id.present? ? 'category' : 'group'
     end
 
     def posts
@@ -458,13 +458,10 @@ after_initialize do
     end
   end
 
-  class ::Babble::Category
-    def self.instance
-      Category.find_by(name: SiteSetting.babble_category_name) ||
-      Category.new(    name: SiteSetting.babble_category_name,
-                       slug: SiteSetting.babble_category_name,
-                       user: Discourse.system_user).tap { |t| t.save(validate: false) }
-    end
+  # NB: We're migrating from a category to an archetype to track chats
+  if old_chat_category = Category.find_by(name: SiteSetting.babble_category_name)
+    old_chat_category.topics.update_all(archetype: :chat)
+    old_chat_category.destroy
   end
 
   class ::Guardian
