@@ -1,7 +1,7 @@
 <div class="chat {{typeClass}}">
-  {{#if topic.id}}
+  {{#if model.id}}
     <div class="chat-pane">
-      {{chat-container topic=topic fullpage=fullpage}}
+      {{chat-container topic=model fullpage=fullpage}}
     </div>
   {{else}}
     {{loading-spinner}}

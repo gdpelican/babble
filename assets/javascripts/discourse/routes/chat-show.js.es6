@@ -8,51 +8,35 @@ import { ajax } from 'discourse/lib/ajax';
 export default Discourse.Route.extend({
 
   model(params) {
-    const category = Category.findBySlug(params.category);
-    if (!category) {
-      return Category.reloadBySlug(params.category).then((attrs) => {
-        const record = this.store.createRecord('category', attrs.category);
-        record.setupGroupsAndPermissions();
-        this.site.updateCategory(record);
-        return { category: Category.findBySlug(params.category) };
-      });
-    };
-    return { category };
+    let category = Category.findBySlug(params.category)
+    if (category) { return category }
+
+    Category.reloadBySlug(params.category).then((response) => {
+      const record = this.store.createRecord('category', response.category);
+      record.setupGroupsAndPermissions();
+      this.site.updateCategory(record);
+      return Category.findBySlug(params.category)
+    })
   },
 
-  afterModel(model, transition) {
+  afterModel(model) {
     if (!model) {
       this.replaceWith('/404');
       return;
     }
-
-    return Em.RSVP.all([this._createSubcategoryList(model.category),
-                        this._retrieveChat(model.category)]);
+    this._categoryList = this._createSubcategoryList(model)
   },
 
   _createSubcategoryList(category) {
-    this._categoryList = null;
-    if (Em.isNone(category.get('parentCategory')) && Discourse.SiteSettings.show_subcategory_list) {
-      return CategoryList.listForParent(this.store, category).then(list => this._categoryList = list);
-    }
-
-    // If we're not loading a subcategory list just resolve
-    return Em.RSVP.resolve();
-  },
-
-  _retrieveChat(category) {
-    return ajax(`/chat/${category.slug}/${category.chat_topic_id}.json`).then(function(data) {
-      Babble.setCurrentTopic(data)
-      return Em.RSVP.resolve();
-    })
+    if (!category || !category.get('parentCategory') || !Discourse.SiteStettings.show_subcategory_list) { return }
+    return CategoryList.listForParent(this.store, category)
   },
 
   setupController(controller, model) {
-    const category = model.category,
-          canCreateTopicOnCategory = category.get('permission') === PermissionType.FULL;
+    const canCreateTopicOnCategory = model.get('permission') === PermissionType.FULL;
 
     this.controllerFor('navigation/category').setProperties({
-      category,
+      category: model,
       filterMode: '',
       isChat: true,
       canCreateTopicOnCategory: canCreateTopicOnCategory,
@@ -60,7 +44,14 @@ export default Discourse.Route.extend({
       canCreateTopic: true
     });
 
-    this.searchService.set('searchContext', category.get('searchContext'));
+    ajax(`/babble/topics/${model.chat_topic_id}.json`).then((data) => {
+      Babble.setCurrentTopic(data)
+      this.controllerFor('chat').setProperties({
+        model: Babble.get('currentTopic')
+      })
+    })
+
+    this.searchService.set('searchContext', model.get('searchContext'));
   },
 
   renderTemplate() {
@@ -75,6 +66,7 @@ export default Discourse.Route.extend({
   deactivate() {
     this._super();
     this.controllerFor('navigation/category').set('isChat', false)
+    this.controllerFor('chat').set('model', null);
     this.searchService.set('searchContext', null);
   },
 
