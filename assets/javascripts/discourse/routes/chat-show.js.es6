@@ -37,8 +37,7 @@ export default Discourse.Route.extend({
 
     this.controllerFor('navigation/category').setProperties({
       category: model,
-      filterMode: '',
-      isChat: true,
+      filterMode: 'chat',
       canCreateTopicOnCategory: canCreateTopicOnCategory,
       cannotCreateTopicOnCategory: !canCreateTopicOnCategory,
       canCreateTopic: true

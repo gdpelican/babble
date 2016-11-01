@@ -2,6 +2,8 @@ import { withPluginApi } from 'discourse/lib/plugin-api';
 import Babble from "../lib/babble";
 import SiteHeader from 'discourse/components/site-header';
 import NavigationBar from 'discourse/components/navigation-bar';
+import NavItem from 'discourse/models/nav-item';
+import { customNavItemHref } from 'discourse/models/nav-item';
 import { ajax } from 'discourse/lib/ajax';
 import Category from 'discourse/models/category';
 
@@ -11,23 +13,39 @@ export default {
     if (!Discourse.User.current()) { return }
 
     if (Discourse.SiteSettings.babble_full_page) {
-      // Add full page chat to category breadcrumbs
-      NavigationBar.reopen({
-        actions: {
-          toggleChat() {
-            let category = this.get('targetObject.category')
-            let url = Discourse.getURL(["", "chat", Category.slugFor(category), category.get('chat_topic_id')].join('/'))
-            DiscourseURL.routeTo(url)
+      // Add full page chat to category navigation bar
+      customNavItemHref(function(navItem) {
+        if (navItem.get('name') != 'chat') { return }
+        return Discourse.getURL(["", "chat", Category.slugFor(navItem.category), navItem.category.chat_topic_id].join('/'))
+      })
+
+      NavItem.reopen({
+        displayName: function() {
+          if (this.get('name') != 'chat') { return this._super() }
+          let title = I18n.t('babble.nav_title')
+
+          if (this.get('count') > 0) {
+            title += `(${this.get('count')})`
           }
-        },
+          return title
+        }.property('categoryName', 'name', 'count')
+      })
 
-        showChatToggle: function() {
-          return this.get('targetObject.category.chat_topic_id')
-        }.property('targetObject.category.chat_topic_id'),
+      NavItem.reopenClass({
+        buildList(category, args) {
+          let list = this._super(category, args);
 
-        chatIsActive: function() {
-          return this.get('targetObject.isChat')
-        }.property('targetObject.isChat')
+          if (category && category.get('chat_topic_id')) {
+            const store = Discourse.__container__.lookup('store:main');
+            list.push(store.createRecord('nav-item', {
+              name: 'chat',
+              filterMode: 'chat',
+              category: category
+            }));
+          }
+
+          return list
+        }
       })
 
     } else {
