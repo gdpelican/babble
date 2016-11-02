@@ -1,3 +1,4 @@
+import computed from "ember-addons/ember-computed-decorators";
 import { withPluginApi } from 'discourse/lib/plugin-api';
 import Babble from "../lib/babble";
 import SiteHeader from 'discourse/components/site-header';
@@ -6,6 +7,7 @@ import NavItem from 'discourse/models/nav-item';
 import { customNavItemHref } from 'discourse/models/nav-item';
 import { ajax } from 'discourse/lib/ajax';
 import Category from 'discourse/models/category';
+import CategoryController from 'discourse/controllers/navigation/category';
 
 export default {
   name: 'babble-init',
@@ -25,23 +27,30 @@ export default {
           let title = I18n.t('babble.nav_title')
 
           if (this.get('count') > 0) {
-            title += `(${this.get('count')})`
+            title += ` (${this.get('count')})`
           }
           return title
         }.property('categoryName', 'name', 'count')
       })
 
-      NavItem.reopenClass({
-        buildList(category, args) {
-          let list = this._super(category, args);
+      CategoryController.reopen({
+        @computed("showingSubcategoryList", "category", "noSubcategories")
+        navItems(showingSubcategoryList, category, noSubcategories) {
+          let list = this._super(showingSubcategoryList, category, noSubcategories)
 
-          if (category && category.get('chat_topic_id')) {
-            const store = Discourse.__container__.lookup('store:main');
-            list.push(store.createRecord('nav-item', {
-              name: 'chat',
+          if (category.get('chat_topic_id') > 0) {
+            let navItem = Discourse.__container__.lookup('store:main').createRecord('nav-item', {
+              name:       'chat',
               filterMode: 'chat',
-              category: category
-            }));
+              category:   category
+            })
+
+            Babble.removeObserver('unreadCount')
+            Babble.addObserver('unreadCount', () => {
+              navItem.set('count', Babble.get('unreadCount'))
+            })
+
+            list.push(navItem)
           }
 
           return list
