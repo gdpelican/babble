@@ -54,7 +54,9 @@ export default Ember.Object.create({
     if (this.topic.postStream.loadingBelow) {
       return this.loadingSpinner()
     } else if (this.topic.postStream.posts.length) {
-      return this.topic.postStream.posts.map(p => { return this.widget.attach('babble-post', {
+      return this.topic.postStream.posts
+        .sort((a, b) => { return a.post_number - b.post_number })
+        .map(p => { return this.widget.attach('babble-post', {
         post: p,
         topic: this.topic,
         isLastRead: this.widget.state.lastReadPostNumber == p.post_number

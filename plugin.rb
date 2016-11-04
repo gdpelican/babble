@@ -374,7 +374,7 @@ after_initialize do
     end
 
     def self.prune_topic(topic)
-      topic.posts.order(created_at: :desc).offset(SiteSetting.babble_max_topic_size).destroy_all
+      topic.posts.order(post_number: :asc).offset(SiteSetting.babble_max_topic_size).destroy_all
       topic.update(user: Discourse.system_user)
     end
 
@@ -490,7 +490,7 @@ after_initialize do
     private
 
     def posts
-      @posts ||= object.posts.includes(:user).order(created_at: :desc)
+      @posts ||= object.posts.includes(:user).order(post_number: :desc)
     end
 
     def topic_user
