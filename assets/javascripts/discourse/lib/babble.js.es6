@@ -46,7 +46,7 @@ export default Ember.Object.create({
     }
 
     this.set('currentTopic', topic)
-    this.set('latestPost', _.last(topic.postStream.posts))
+    this.set('latestPost', _.max(topic.postStream.posts, function(p) { return p.post_number }))
     this.setUnreadCount()
     this.rerender()
   },
