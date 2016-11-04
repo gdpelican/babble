@@ -13,8 +13,10 @@ export default {
   name: 'babble-init',
   initialize(){
     if (!Discourse.User.current()) { return }
+    console.log('performing init function...')
 
     if (Discourse.SiteSettings.babble_full_page) {
+      console.log('performing full page init')
       // Add full page chat to category navigation bar
       customNavItemHref(function(navItem) {
         if (navItem.get('name') != 'chat') { return }
@@ -58,6 +60,8 @@ export default {
       })
 
     } else {
+      console.log('performing shoutbox init')
+
       // Add shoutbox widget to header
       ajax('/babble/topics.json').then(
         (data)  => { Babble.setAvailableTopics(data) },
