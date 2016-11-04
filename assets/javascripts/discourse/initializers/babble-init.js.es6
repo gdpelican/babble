@@ -124,6 +124,8 @@ export default {
               viewingChat:        headerState.babbleViewingChat,
               lastReadPostNumber: headerState.lastReadPostNumber
             }))
+            console.log(headerState)
+            console.log(contents)
           }
           return contents
         })
