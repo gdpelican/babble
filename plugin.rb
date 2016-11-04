@@ -68,7 +68,7 @@ after_initialize do
     def show
       perform_fetch do
         TopicUser.find_or_create_by(user: current_user, topic: topic)
-        respond_with topic_view, serializer: Babble::TopicViewSerializer
+        respond_with topic, serializer: Babble::TopicSerializer
       end
     end
     alias :default :show
@@ -96,7 +96,7 @@ after_initialize do
     def read
       perform_fetch do
         topic_user.update(last_read_post_number: params[:post_number]) if topic_user.last_read_post_number.to_i < params[:post_number].to_i
-        respond_with topic_view, serializer: Babble::TopicViewSerializer
+        respond_with topic, serializer: Babble::TopicSerializer
       end
     end
 
@@ -174,7 +174,7 @@ after_initialize do
       elsif !yield
         respond_with_unprocessable
       else
-        respond_with topic_view, serializer: Babble::TopicViewSerializer
+        respond_with topic, serializer: Babble::TopicSerializer
       end
     end
 
@@ -217,11 +217,6 @@ after_initialize do
 
     def topic_user
       @topic_user ||= TopicUser.find_or_initialize_by(user: current_user, topic: topic)
-    end
-
-    def topic_view
-      opts = { post_number: topic.highest_post_number } if topic.highest_post_number > 0
-      @topic_view ||= TopicView.new(topic.id, current_user, opts || {})
     end
 
     def topic_params
@@ -316,15 +311,15 @@ after_initialize do
     end
 
     def self.serialized_topic(topic, user, extras = {})
-      serialize(Babble::AnonymousTopicView.new(topic.id, user), user, extras, Babble::TopicViewSerializer)
+      serialize(topic, user, extras, Babble::TopicSerializer)
     end
 
     def self.serialized_post(post, user, extras = {})
-      serialize(post, user, extras, Babble::PostSerializer).as_json.merge(extras)
+      serialize(post, user, extras, Babble::PostSerializer)
     end
 
     def self.serialized_notification(user, extras = {})
-      UserSerializer.new(user, scope: Guardian.new).as_json.merge(extras)
+      serialize(user, nil, extras, UserSerializer)
     end
 
     def self.serialize(obj, user, extras, serializer)
@@ -408,53 +403,100 @@ after_initialize do
     end
   end
 
-  # anonymous topic_view for sending out via Message Bus
-  # (otherwise we end up serializing out the current user's read data to other people)
-  class ::Babble::AnonymousTopicView < ::TopicView
-    def topic_user
-      nil
-    end
-  end
+  class ::Babble::PostSerializer < ActiveModel::Serializer
+    attributes :id,
+               :user_id,
+               :name,
+               :username,
+               :avatar_template,
+               :can_delete,
+               :can_edit,
+               :cooked,
+               :raw,
+               :post_number,
+               :topic_id,
+               :created_at,
+               :updated_at,
+               :deleted_at,
+               :deleted_by_username,
+               :yours
 
-  class ::Babble::PostSerializer < ::PostSerializer
-    attributes :image_count
-
-    def initialize(object, opts = {})
-      super object, opts.merge(add_raw: true)
-    end
-  end
-
-  class ::Babble::TopicViewSerializer < ::TopicViewSerializer
-    attributes :group_names, :last_posted_at, :permissions
-    def group_names
-      object.topic.allowed_groups.pluck(:name).map(&:humanize)
-    end
-
-    def permissions
-      object.topic.category_id.present? ? 'category' : 'group'
+    def yours
+      scope.user == object.user
     end
 
-    def posts
-      @posts ||= object.posts.map do |p|
-        ps = Babble::PostSerializer.new(p, scope: scope, root: false)
-        ps.topic_view = object
-        ps.as_json
-      end
+    def can_edit
+      scope.can_edit?(object)
     end
 
-    def last_read_post_number
-      super || 0
+    def can_delete
+      scope.can_delete?(object)
+    end
+
+    def deleted_by_username
+      object.deleted_by.username
+    end
+
+    def avatar_template
+      object.user.try(:avatar_template)
+    end
+
+    def name
+      object.user.try(:name)
+    end
+
+    def username
+      object.user.try(:username)
     end
 
     private
 
-    def include_group_names?
-      permissions == 'group'
+    def include_deleted_by_username?
+      object.deleted_at.present?
+    end
+  end
+
+  class ::Babble::TopicSerializer < ActiveModel::Serializer
+    attributes :id,
+               :title,
+               :post_stream,
+               :group_names,
+               :last_posted_at,
+               :permissions,
+               :highest_post_number,
+               :last_read_post_number
+
+    def group_names
+      object.allowed_groups.pluck(:name).map(&:humanize)
     end
 
-    # details are expensive to calculate and we don't use them
-    def include_details?
-      false
+    def permissions
+      object.category_id.present? ? 'category' : 'group'
+    end
+
+    def post_stream
+      @post_stream ||= {
+        posts: ActiveModel::ArraySerializer.new(posts, each_serializer: Babble::PostSerializer, scope: scope, root: false),
+        stream: posts.pluck(:id).sort
+      }
+    end
+
+    def last_read_post_number
+      @last_read_post_number ||= topic_user.last_read_post_number.to_i if topic_user.present?
+    end
+
+    private
+
+    def posts
+      @posts ||= object.posts.includes(:user)
+    end
+
+    def topic_user
+      @topic_user ||= scope.try(:user) && TopicUser.find_by(user: scope.user, topic: object)
+    end
+
+    def include_group_names?
+      permissions == 'group'
     end
   end
 
