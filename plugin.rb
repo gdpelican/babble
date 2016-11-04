@@ -34,19 +34,28 @@ after_initialize do
   end
 
   Discourse::Application.routes.append do
-    mount ::Babble::Engine, at: "/babble"
+    mount ::Babble::Engine, at: "/babble", :as => "babble"
+    get '/chat/:slug/:id' => 'babble/topics#show'
     namespace :admin, constraints: StaffConstraint.new do
       resources :chats, only: [:show, :index]
     end
   end
+
+  class ::Admin::ChatsController < ::ApplicationController
+    requires_plugin BABBLE_PLUGIN_NAME
+    define_method :index, ->{}
+    define_method :show, ->{}
+  end
+
+  Category.register_custom_field_type('chat_topic_id', :integer)
+  add_to_serializer(:basic_category, :chat_topic_id) { object.custom_fields['chat_topic_id'] unless object.custom_fields['chat_topic_id'].to_i == 0 }
+  add_to_serializer(:basic_topic, :category_id)      { object.category_id }
 
   require_dependency "application_controller"
   class ::Babble::TopicsController < ::ApplicationController
     requires_plugin BABBLE_PLUGIN_NAME
     before_filter :ensure_logged_in
     before_filter :set_default_id, only: :default
-
-    rescue_from('StandardError') { |e| render_json_error e.message, status: 422 }
 
     def index
       if current_user.blank?
@@ -59,17 +68,17 @@ after_initialize do
     def show
       perform_fetch do
         TopicUser.find_or_create_by(user: current_user, topic: topic)
-        respond_with topic_view, serializer: Babble::TopicViewSerializer
+        respond_with topic, serializer: Babble::TopicSerializer
       end
     end
     alias :default :show
 
     def create
-      perform_update { @topic = Babble::Topic.create_topic(topic_params) }
+      perform_update { @topic = Babble::Topic.save_topic(topic_params) }
     end
 
     def update
-      perform_update { Babble::Topic.update_topic(topic, topic_params) }
+      perform_update { Babble::Topic.save_topic(topic_params, topic) }
     end
 
     def destroy
@@ -79,7 +88,7 @@ after_initialize do
         Babble::PostDestroyer.new(current_user, topic.ordered_posts.first).destroy
         respond_with nil
       else
-        topic.destroy
+        Babble::Topic.destroy_topic(topic)
         respond_with nil
       end
     end
@@ -87,7 +96,7 @@ after_initialize do
     def read
       perform_fetch do
         topic_user.update(last_read_post_number: params[:post_number]) if topic_user.last_read_post_number.to_i < params[:post_number].to_i
-        respond_with topic_view, serializer: Babble::TopicViewSerializer
+        respond_with topic, serializer: Babble::TopicSerializer
       end
     end
 
@@ -113,7 +122,7 @@ after_initialize do
       perform_fetch do
         if !guardian.can_edit_post?(topic_post)
           respond_with_forbidden
-        elsif params[:raw].present? && Babble::PostRevisor.new(topic_post, topic).revise!(current_user, params.slice(:raw))
+        elsif Babble::PostRevisor.new(topic_post, topic).revise!(current_user, params.slice(:raw))
           respond_with topic_post, serializer: Babble::PostSerializer
         else
           respond_with_unprocessable
@@ -165,7 +174,7 @@ after_initialize do
       elsif !yield
         respond_with_unprocessable
       else
-        respond_with topic_view, serializer: Babble::TopicViewSerializer
+        respond_with topic, serializer: Babble::TopicSerializer
       end
     end
 
@@ -193,24 +202,25 @@ after_initialize do
     end
 
     def topic
-      @topic ||= Babble::Topic.find(params[:id])
+      @topic ||= begin
+        if params[:id]
+          Babble::Topic.find(id: params[:id])
+        elsif params[:category]
+          Babble::Topic.find(category_id: Category.find_by(slug: params[:category]))
+        end
+      end
     end
 
     def topic_post
-      @topic_post ||= topic.posts.find_by(id: params[:post_id])
+      @topic_post ||= Post.find_by(id: params[:post_id])
     end
 
     def topic_user
       @topic_user ||= TopicUser.find_or_initialize_by(user: current_user, topic: topic)
     end
 
-    def topic_view
-      opts = { post_number: topic.highest_post_number } if topic.highest_post_number > 0
-      @topic_view ||= TopicView.new(topic.id, current_user, opts || {})
-    end
-
     def topic_params
-      params.require(:topic).permit(:title, allowed_group_ids: [])
+      params.require(:topic).permit(:title, :permissions, :category_id, allowed_group_ids: [])
     end
 
     def post_creator_params
@@ -226,12 +236,6 @@ after_initialize do
     end
   end
 
-  class ::Admin::ChatsController < ::ApplicationController
-    requires_plugin BABBLE_PLUGIN_NAME
-    define_method :index, ->{}
-    define_method :show, ->{}
-  end
-
   class ::Babble::PostCreator < ::PostCreator
 
     def self.create(user, opts)
@@ -240,7 +244,8 @@ after_initialize do
 
     def valid?
       setup_post
-      @post.raw.present?
+      errors.add :base, "No post content" unless @post.raw.present?
+      errors.empty?
     end
 
     def setup_post
@@ -270,6 +275,7 @@ after_initialize do
   class ::Babble::PostRevisor < ::PostRevisor
 
     def revise!(editor, fields, opts={})
+      return false unless fields[:raw].present? && @post.topic == @topic
       opts[:validate_post] = false # don't validate length etc of chat posts
       super
     end
@@ -305,15 +311,15 @@ after_initialize do
     end
 
     def self.serialized_topic(topic, user, extras = {})
-      serialize(Babble::AnonymousTopicView.new(topic.id, user), user, extras, Babble::TopicViewSerializer)
+      serialize(topic, user, extras, Babble::TopicSerializer)
     end
 
     def self.serialized_post(post, user, extras = {})
-      serialize(post, user, extras, Babble::PostSerializer).as_json.merge(extras)
+      serialize(post, user, extras, Babble::PostSerializer)
     end
 
     def self.serialized_notification(user, extras = {})
-      UserSerializer.new(user, scope: Guardian.new).as_json.merge(extras)
+      serialize(user, nil, extras, UserSerializer)
     end
 
     def self.serialize(obj, user, extras, serializer)
@@ -323,32 +329,37 @@ after_initialize do
 
   class ::Babble::Topic
 
-    def self.create_topic(params)
-      return false unless params[:title].present?
-      save_topic Topic.new, {
-        user: Discourse.system_user,
-        category: Babble::Category.instance,
-        title: params[:title],
-        visible: false,
-        allowed_groups: get_allowed_groups(params[:allowed_group_ids])
-      }
-    end
+    def self.save_topic(params, topic = Topic.new)
+      case params.fetch(:permissions, 'group')
+      when 'category'
+        category = Category.find(params[:category_id])
+        return false if params[:allowed_group_ids].present?
+        return false unless [0, topic.id].include?(category.custom_fields['chat_topic_id']) # don't allow multiple channels on a single category
+        params[:allowed_groups] = Group.none
+        params[:title]        ||= category.name
+      when 'group'
+        return false if params[:category_id].present? || !params[:title].present?
+        params[:allowed_groups] = get_allowed_groups(params[:allowed_group_ids])
+        params[:category_id] = nil
+      end
 
-    def self.update_topic(topic, params)
-      return false unless params[:title].present?
-      save_topic topic, {
-        title: params[:title],
-        allowed_groups: get_allowed_groups(params[:allowed_group_ids])
-      }
-    end
-
-    def self.save_topic(topic, params)
       topic.tap do |t|
-        t.assign_attributes(params)
-        t.save(validate: false) if t.valid? || t.errors.to_hash.except(:title).empty?
+        t.assign_attributes archetype: :chat, user_id: Discourse::SYSTEM_USER_ID, last_post_user_id: Discourse::SYSTEM_USER_ID
+        t.assign_attributes params.except(:permissions, :allowed_group_ids)
+        if t.valid? || t.errors.to_hash.except(:title).empty?
+          t.save(validate: false)
+          update_category(params[:category_id], t.reload.id) if params[:category_id]
+        end
       end
     end
-    private_class_method :save_topic
+
+    def self.destroy_topic(topic)
+      topic.tap { |t| update_category(topic.category_id, nil) if topic.category_id }.destroy
+    end
+
+    def self.update_category(category_id, topic_id)
+      Category.find(category_id).tap { |c| c.custom_fields['chat_topic_id'] = topic_id }.save
+    end
 
     def self.get_allowed_groups(ids)
       Group.where(id: Array(ids)).presence || default_allowed_groups
@@ -372,76 +383,151 @@ after_initialize do
     end
 
     def self.available_topics
-      Babble::Category.instance.topics.includes(:allowed_groups)
+      Topic.where(archetype: :chat).includes(:allowed_groups)
     end
 
     def self.available_topics_for(user)
-      return Topic.none unless user
-      available_topics.joins(:allowed_group_users).where("? OR group_users.user_id = ?", user.admin, user.id).uniq
+      return available_topics if user.admin
+      category_ids = Category.post_create_allowed(Guardian.new(user)).pluck(:id)
+      available_topics
+        .joins("LEFT OUTER JOIN topic_allowed_groups tg ON tg.topic_id = topics.id")
+        .joins("LEFT OUTER JOIN group_users gu ON gu.group_id = tg.group_id")
+        .where("gu.user_id = ? OR topics.category_id IN (?)", user.id, category_ids)
+        .uniq
     end
 
     # NB: the set_default_allowed_groups block is passed for backwards compatibility,
     # so that we never have a topic which has no allowed groups.
-    def self.find(id)
-      available_topics.find_by(id: id).tap { |topic| set_default_allowed_groups(topic) if topic }
+    def self.find(param)
+      available_topics.find_by(param).tap { |topic| set_default_allowed_groups(topic) if topic }
     end
   end
 
-  # anonymous topic_view for sending out via Message Bus
-  # (otherwise we end up serializing out the current user's read data to other people)
-  class ::Babble::AnonymousTopicView < ::TopicView
-    def topic_user
-      nil
+  class ::Babble::PostSerializer < ActiveModel::Serializer
+    attributes :id,
+               :user_id,
+               :name,
+               :username,
+               :user_deleted,
+               :avatar_template,
+               :can_delete,
+               :can_edit,
+               :cooked,
+               :raw,
+               :post_number,
+               :topic_id,
+               :created_at,
+               :updated_at,
+               :deleted_at,
+               :deleted_by_username,
+               :yours
+
+    def yours
+      scope.user == object.user
+    end
+
+    def can_edit
+      scope.can_edit?(object)
+    end
+
+    def can_delete
+      scope.can_delete?(object)
+    end
+
+    def deleted_by_username
+      object.deleted_by.username
+    end
+
+    def avatar_template
+      object.user.try(:avatar_template)
+    end
+
+    def name
+      object.user.try(:name)
+    end
+
+    def username
+      object.user.try(:username)
+    end
+
+    private
+
+    def include_deleted_by_username?
+      object.deleted_at.present?
     end
   end
 
-  class ::Babble::PostSerializer < ::PostSerializer
-    attributes :image_count
+  class ::Babble::TopicSerializer < ActiveModel::Serializer
+    attributes :id,
+               :title,
+               :post_stream,
+               :group_names,
+               :last_posted_at,
+               :permissions,
+               :highest_post_number,
+               :last_read_post_number
 
-    def initialize(object, opts = {})
-      super object, opts.merge(add_raw: true)
-    end
-  end
-
-  class ::Babble::TopicViewSerializer < ::TopicViewSerializer
-    attributes :group_names, :last_posted_at
     def group_names
-      object.topic.allowed_groups.pluck(:name).map(&:humanize)
+      object.allowed_groups.pluck(:name).map(&:humanize)
     end
 
-    def posts
-      @posts ||= object.posts.map do |p|
-        ps = Babble::PostSerializer.new(p, scope: scope, root: false)
-        ps.topic_view = object
-        ps.as_json
-      end
+    def permissions
+      object.category_id.present? ? 'category' : 'group'
+    end
+
+    def post_stream
+      @post_stream ||= {
+        posts: ActiveModel::ArraySerializer.new(posts, each_serializer: Babble::PostSerializer, scope: scope, root: false),
+        stream: posts.pluck(:id).sort
+      }
     end
 
     def last_read_post_number
-      super || 0
+      @last_read_post_number ||= topic_user.last_read_post_number.to_i if topic_user.present?
     end
 
-    # details are expensive to calculate and we don't use them
-    def include_details?
-      false
+    private
+
+    def posts
+      @posts ||= object.posts.includes(:user)
+    end
+
+    def topic_user
+      @topic_user ||= scope.try(:user) && TopicUser.find_by(user: scope.user, topic: object)
+    end
+
+    def include_group_names?
+      permissions == 'group'
     end
   end
 
-  class ::Babble::Category
-    def self.instance
-      Category.find_by(name: SiteSetting.babble_category_name) ||
-      Category.new(    name: SiteSetting.babble_category_name,
-                       slug: SiteSetting.babble_category_name,
-                       user: Discourse.system_user).tap { |t| t.save(validate: false) }
-    end
+  # NB: We're migrating from a category to an archetype to track chats
+  if old_chat_category = Category.find_by(name: SiteSetting.babble_category_name)
+    old_chat_category.topics.update_all(archetype: :chat)
+    old_chat_category.destroy
   end
 
   class ::Guardian
-    def can_see_topic?(topic, hide_deleted=true)
-      super && (is_admin? ||
-               !Babble::Topic.available_topics.include?(topic) ||
-                Babble::Topic.available_topics_for(user).include?(topic))
+    module CanSeeTopic
+      def can_see_topic?(topic, hide_deleted=true)
+        super || topic.archetype == Archetype.chat && (can_see?(topic.category) || topic.allowed_group_users.include?(user))
+      end
+    end
+    prepend CanSeeTopic
+  end
+
+  class ::Archetype
+    def self.chat
+      'chat'
     end
   end
 
+  class ::TopicQuery
+    module DefaultResults
+      def default_results(options={})
+        super(options).where('archetype <> ?', Archetype.chat)
+      end
+    end
+    prepend DefaultResults
+  end
 end

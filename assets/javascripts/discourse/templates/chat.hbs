@@ -1,0 +1,9 @@
+<div class="chat {{typeClass}}">
+  {{#if model.id}}
+    <div class="chat-pane">
+      {{chat-container topic=model fullpage=fullpage}}
+    </div>
+  {{else}}
+    {{loading-spinner}}
+  {{/if}}
+</div>

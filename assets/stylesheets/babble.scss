@@ -137,6 +137,7 @@
 }
 
 .babble-post-avatar {
+  cursor: pointer;
   float: left;
   margin-right: 6px;
 }
@@ -304,7 +305,7 @@ li.babble-post .babble-post-content a.mention {
   resize: none;
   width: 100%;
   min-height: 30px;
-  padding: 6px 24px 6px 6px;
+  padding: 10px 24px 10px 10px;
 }
 
 .babble-post-composer .emoji-button {
@@ -445,4 +446,68 @@ li.babble-post .babble-post-content a.mention {
   @media (max-width: 700px) {
     font-size: 17px;
   }
+}
+
+
+li.babble-chat.drop-container {
+  margin: 0;
+  display: inline-block;
+  position: relative;
+  .badge-category {
+    padding: 6px 12px;
+    width: 150px;
+    display: inline-block;
+    line-height: 18px;
+  }
+  .badge-category.category-dropdown-button {
+    margin-left: -4px;
+    padding: 6px 7px 6px 0;
+    width: 6px;
+  }
+  .category-dropdown-menu {
+    border: none;
+    background: dark-light-diff($primary, $secondary, 90%, -65%);
+    width: 100%;
+    position: absolute;
+    z-index: 3000;
+    box-shadow: 0 1px 5px rgba(0, 0, 0, 0.4);
+    .cat {
+      width: 100%;
+    }
+    .cat:first-of-type {
+      display: none;
+    }
+    .cat:hover {
+      background-color: dark-light-diff($primary, $secondary, 90%, -65%);
+    }
+    .badge-wrapper {
+      display: block;
+    }
+  }
+}
+
+/* Fullpage styles */
+
+.chat.fullpage {
+  .babble-chat {
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+  }
+  .babble-list {
+    overflow: auto;
+  }
+  .babble-posts {
+    margin: 0;
+  }
+  .babble-post-composer .emoji-button {
+    bottom: 10px;
+    right: 10px;
+    font-size: 16px;
+  }
+}
+
+.chat-toggle.active {
+  color: $secondary;
+  background-color: $quaternary;
 }

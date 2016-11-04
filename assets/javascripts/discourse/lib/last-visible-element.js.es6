@@ -2,8 +2,11 @@ export default function (container, selector, attr) {
   if (!container) { return }
   return _.max(_.map(container.find(selector), function(e) {
     let elem = $(e)
-    let elemPosition = elem.position().top
-    if (elemPosition + elem.height() <= 0 || elemPosition > container.height()) { return }
+    let elemTop         = elem.position().top
+    let elemBottom      = elemTop + elem.height()
+    let containerTop    = container.position().top
+    let containerBottom = containerTop + container.height()
+    if (elemBottom <= containerTop || elemTop > containerBottom) { return }
     return parseInt(elem.data(attr))
   }))
 }

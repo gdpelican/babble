@@ -8,7 +8,13 @@
         <ul>
           {{#each topic in model}}
             <li>
-              {{#link-to 'adminChat' topic.id}}{{topic.title}}{{/link-to}}
+              {{#link-to 'adminChat' topic.id}}
+                {{#if topic.title}}
+                  {{topic.title}}
+                {{else}}
+                  {{category-badge-chat-list categoryId=topic.category_id}}
+                {{/if}}
+              {{/link-to}}
             </li>
           {{/each}}
         </ul>

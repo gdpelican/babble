@@ -4,9 +4,11 @@ import Topic from 'discourse/models/topic'
 import lastVisibleElement from '../lib/last-visible-element'
 import debounce from 'discourse/lib/debounce'
 import setupComposer from '../lib/setup-composer'
+import autosize from 'discourse/lib/autosize'
 import { ajax } from 'discourse/lib/ajax'
 
 export default Ember.Object.create({
+  availableTopics: [],
 
   disabled() {
     return _.contains(Discourse.Site.current().disabled_plugins, 'babble')
@@ -68,11 +70,11 @@ export default Ember.Object.create({
     if (this.get('currentTopic.id')) {
       messageBus.unsubscribe(apiPath(currentTopicId))
       messageBus.unsubscribe(apiPath(currentTopicId), 'posts')
-      messageBus.unsubscribe(apiPath(currentTopicId), 'notifications')
+      // messageBus.unsubscribe(apiPath(currentTopicId), 'notifications')
     }
     messageBus.subscribe(apiPath(topicId),                  (data) => { this.setCurrentTopic(data) })
     messageBus.subscribe(apiPath(topicId, 'posts'),         (data) => { this.handleNewPost(data) })
-    messageBus.subscribe(apiPath(topicId, 'notifications'), (data) => { this.handleNotification(data) })
+    // messageBus.subscribe(apiPath(topicId, 'notifications'), (data) => { this.handleNotification(data) })
   },
 
   prepareScrollContainer(container) {
@@ -102,8 +104,34 @@ export default Ember.Object.create({
     textarea.attr('babble-composer', 'active')
   },
 
+  setupAfterRender() {
+    Ember.run.scheduleOnce('afterRender', () => {
+      const $scrollContainer = $('.babble-list[scroll-container=inactive]')
+      this.prepareScrollContainer($scrollContainer)
+
+      const $textarea = $('.babble-post-composer textarea[babble-composer=inactive]')
+      this.prepareComposer($textarea)
+
+      const $editing = $('.babble-post-composer textarea[babble-composer=active]')
+      autosize($editing)
+    })
+  },
+
+  resetComposer() {
+    let evt = document.createEvent('Event'),
+        ele = $('.babble-post-composer textarea[babble-composer=active]')[0];
+    evt.initEvent('autosize:update', true, false);
+    ele.dispatchEvent(evt);
+  },
+
   setAvailableTopics(data) {
     this.set('availableTopics', (data || {}).topics || [])
+  },
+
+  getAvailableTopics(excludeCurrent) {
+    return this.get('availableTopics').filter((topic) => {
+      return !excludeCurrent || topic.id !== this.get('currentTopic.id')
+    })
   },
 
   setUnreadCount() {
@@ -152,6 +180,7 @@ export default Ember.Object.create({
     postStream.stagePost(post, user)
     this.scrollTo(this.get('latestPost.post_number'))
     this.set('latestPost', post)
+    this.resetComposer()
     this.rerender()
   },
 
@@ -188,7 +217,10 @@ export default Ember.Object.create({
     }
     this.setUnreadCount()
     this.rerender()
-    if(performScroll) { this.scrollTo(post.post_number) }
+    if(performScroll) {
+      this.scrollTo(post.post_number)
+      this.set('unreadCount', 0)
+    }
   },
 
   scrollTo(postNumber, speed = 400, offset = 30) {
@@ -226,7 +258,9 @@ export default Ember.Object.create({
   },
 
   rerender() {
-    if (!this.get('header')) { return }
-    this.get('header').queueRerender()
+    const header = this.get('header')
+    const container = this.get('container')
+    if (header) {header.queueRerender()}
+    if (container) {container.queueRerender()}
   }
 })

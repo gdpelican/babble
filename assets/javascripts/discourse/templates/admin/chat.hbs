@@ -1,14 +1,32 @@
 {{#if model}}
   <form class="form-horizontal">
     <div>
-      <label for="title">{{i18n 'babble.admin.title'}}</label>
-      {{input value=model.title}}
+      <label for="permissions">{{i18n 'babble.admin.permissions'}}</label>
+      <div class="permissions-option">
+        {{radio-button value="category" name="permissions" selection=model.permissions}}
+        <strong>{{i18n 'babble.admin.category'}}</strong>
+      </div>
+      <div class="permissions-option">
+        {{radio-button value="group" name="permissions" selection=model.permissions}}
+        <strong>{{i18n 'babble.admin.groups'}}</strong>
+      </div>
     </div>
 
-    <div>
-      <label for="allowed_groups">{{i18n 'babble.admin.allowed_groups'}}</label>
-      {{admin-group-selector selected=selected available=available}}
-    </div>
+    {{#if categoryPermissions}}
+      <div>
+        <label for="category">{{i18n 'babble.admin.category_label'}}</label>
+        {{category-selector categories=category single=true canReceiveUpdates="true"}}
+      </div>
+    {{else}}
+      <div>
+        <label for="allowed_groups">{{i18n 'babble.admin.allowed_groups_label'}}</label>
+        {{admin-group-selector selected=selected available=available}}
+      </div>
+      <div>
+        <label for="title">{{i18n 'babble.admin.title'}}</label>
+        {{input value=model.title}}
+      </div>
+    {{/if}}
 
     <div class='buttons'>
       <button {{action "save"}} {{bind-attr disabled="disableSave"}} class='btn btn-primary'>{{i18n 'admin.customize.save'}}</button>

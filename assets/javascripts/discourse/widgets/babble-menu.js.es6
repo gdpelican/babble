@@ -18,19 +18,6 @@ export default createWidget('babble-menu', {
     this.sendWidgetAction('toggleBabbleViewingChat')
   },
 
-  changeTopic(topic) {
-    Babble.set('loadingTopicId', topic.id)
-    ajax(`/babble/topics/${topic.id}.json`).then(
-      (data)  => {
-        Babble.setCurrentTopic(data)
-        Babble.set('loadingTopic', null)
-        this.state.viewingChat = true
-        this.sendWidgetAction('toggleBabbleViewingChat')
-      },
-      (error) => { console.log(error) }
-    )
-  },
-
   clickOutside() {
     this.sendWidgetAction('toggleBabble');
   },

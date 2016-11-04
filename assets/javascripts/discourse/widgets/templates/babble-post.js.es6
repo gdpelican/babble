@@ -18,7 +18,9 @@ export default Ember.Object.create({
 
   contents() {
     if (this.post.deleted_at) {
-      return h('div.babble-staged-post.babble-deleted-post', [this.avatarWrapper(), I18n.t('babble.post_deleted_by', {username: this.post.deleted_by.username})])
+      return h('div.babble-staged-post.babble-deleted-post', [this.avatarWrapper(), I18n.t('babble.post_deleted_by', {username: this.post.deleted_by_username})])
+    } else if (this.post.user_deleted) {
+      return h('div.babble-staged-post.babble-deleted-post', [this.avatarWrapper(), this.bodyWrapper()] )
     } else if (Babble.get('editingPostId') === this.post.id ){
       return this.widget.attach('babble-composer', {
         post:      this.post,
@@ -33,7 +35,7 @@ export default Ember.Object.create({
   },
 
   avatarWrapper() {
-    return h('div.babble-post-avatar', this.avatar())
+    return h('div.babble-post-avatar', { attributes: { 'data-user-card': this.post.username } }, this.avatar())
   },
 
   avatar() {

@@ -1,8 +1,9 @@
 export default {
-  resource: 'admin',
+  resource: 'discovery',
+  path: '/chat',
   map() {
-    this.resource('adminChats', { path: '/chats' }, function() {
-      this.resource('adminChat', { path: '/:id' });
-    });
+    this.resource('chat', {path: '/'}, function() {
+      this.route('showCategory', {path: '/:category/:id'});
+    })
   }
 };

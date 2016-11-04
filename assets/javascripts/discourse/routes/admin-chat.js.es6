@@ -1,5 +1,6 @@
 import Babble from "../../discourse/lib/babble"
 import Topic from 'discourse/models/topic'
+import Category from 'discourse/models/category'
 import Group from 'discourse/models/group'
 import { ajax } from 'discourse/lib/ajax'
 
@@ -7,9 +8,16 @@ export default Discourse.Route.extend({
 
   model: function(params) {
     if (params.id === 'new') {
-      return Topic.create()
+      return Topic.create({ category: null, allowed_group_ids: [], permissions: 'category' })
     } else {
-      return ajax(`/babble/topics/${params.id}.json`).then(function(data) { return Topic.create(data) })
+      return ajax(`/babble/topics/${params.id}.json`).then((data) => {
+        let topic = Topic.create(data)
+        topic.set('permissions', data.permissions)
+        if(data.category_id) {
+          topic.set('category', Category.findById(data.category_id))
+        }
+        return topic
+      })
     }
   },
 
@@ -29,7 +37,17 @@ export default Discourse.Route.extend({
       self._available = _.reject(self._available, function(g) { return g.id == everyoneGroupId; })
 
       model.allowed_group_ids = _.pluck(self._selected, 'id')
-      controller.setProperties({ model: model, available: self._available, selected: self._selected })
+
+      let category = model.category ? [model.category] : []
+
+      let props = {
+        model: model,
+        available: self._available,
+        selected: self._selected,
+        category: category
+      }
+
+      controller.setProperties(props)
     }
 
     if (model.id) {
