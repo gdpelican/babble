@@ -490,7 +490,7 @@ after_initialize do
     private
 
     def posts
-      @posts ||= object.posts.includes(:user)
+      @posts ||= object.posts.includes(:user).order(created_at: :desc)
     end
 
     def topic_user
