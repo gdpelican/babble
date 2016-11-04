@@ -217,7 +217,10 @@ export default Ember.Object.create({
     }
     this.setUnreadCount()
     this.rerender()
-    if(performScroll) { this.scrollTo(post.post_number) }
+    if(performScroll) {
+      this.scrollTo(post.post_number)
+      this.set('unreadCount', 0)
+    }
   },
 
   scrollTo(postNumber, speed = 400, offset = 30) {
