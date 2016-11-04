@@ -460,6 +460,7 @@ after_initialize do
   class ::Babble::TopicSerializer < ActiveModel::Serializer
     attributes :id,
                :title,
+               :category_id,
                :post_stream,
                :group_names,
                :last_posted_at,
