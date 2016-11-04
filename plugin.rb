@@ -504,7 +504,7 @@ after_initialize do
 
   # NB: We're migrating from a category to an archetype to track chats
   if old_chat_category = Category.find_by(name: SiteSetting.babble_category_name)
-    old_chat_category.topics.update_all(archetype: :chat)
+    Topic.where(category_id: old_chat_category.id).update_all(archetype: :chat, category_id: nil)
     old_chat_category.destroy
   end
 
