@@ -408,6 +408,7 @@ after_initialize do
                :user_id,
                :name,
                :username,
+               :user_deleted,
                :avatar_template,
                :can_delete,
                :can_edit,
