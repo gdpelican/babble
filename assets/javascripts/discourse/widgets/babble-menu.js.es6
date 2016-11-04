@@ -22,5 +22,8 @@ export default createWidget('babble-menu', {
     this.sendWidgetAction('toggleBabble');
   },
 
-  html() { return template.render(this) }
+  html() {
+    console.log('rendering babble-menu template...')
+    return template.render(this)
+  }
 });

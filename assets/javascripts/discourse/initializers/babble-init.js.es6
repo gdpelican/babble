@@ -112,10 +112,12 @@ export default {
               }
             }));
           }
+          console.log('Babble visible: ' + headerState.babbleVisible)
           if (headerState.babbleVisible) {
             if (headerState.babbleViewingChat === undefined) {
               headerState.babbleViewingChat = true
             }
+            console.log('attaching babble menu...')
             contents.push(helper.attach('babble-menu', {
               topic:              Babble.get('currentTopic'),
               availableTopics:    Babble.getAvailableTopics(true),
