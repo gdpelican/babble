@@ -33,7 +33,7 @@ export default Ember.Object.create({
   },
 
   avatarWrapper() {
-    return h('div.babble-post-avatar', this.avatar())
+    return h('div.babble-post-avatar', { attributes: { 'data-user-card': this.post.username } }, this.avatar())
   },
 
   avatar() {
