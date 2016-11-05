@@ -13,10 +13,8 @@ export default {
   name: 'babble-init',
   initialize(){
     if (!Discourse.User.current()) { return }
-    console.log('performing init function...')
 
     if (Discourse.SiteSettings.babble_full_page) {
-      console.log('performing full page init')
       // Add full page chat to category navigation bar
       customNavItemHref(function(navItem) {
         if (navItem.get('name') != 'chat') { return }
@@ -60,7 +58,6 @@ export default {
       })
 
     } else {
-      console.log('performing shoutbox init')
 
       // Add shoutbox widget to header
       ajax('/babble/topics.json').then(
@@ -112,20 +109,16 @@ export default {
               }
             }));
           }
-          console.log('Babble visible: ' + headerState.babbleVisible)
           if (headerState.babbleVisible) {
             if (headerState.babbleViewingChat === undefined) {
               headerState.babbleViewingChat = true
             }
-            console.log('attaching babble menu...')
             contents.push(helper.attach('babble-menu', {
               topic:              Babble.get('currentTopic'),
               availableTopics:    Babble.getAvailableTopics(true),
               viewingChat:        headerState.babbleViewingChat,
               lastReadPostNumber: headerState.lastReadPostNumber
             }))
-            console.log(headerState)
-            console.log(contents)
           }
           return contents
         })
