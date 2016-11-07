@@ -254,16 +254,17 @@ after_initialize do
     end
 
     def update_user_counts
-      return false
+      false
     end
 
     def enqueue_jobs
-      return false
+      false
     end
 
     def trigger_after_events(post)
       super
 
+      post.trigger_post_process(true)
       TopicUser.update_last_read(@user, @topic.id, @post.post_number, PostTiming::MAX_READ_TIME_PER_BATCH)
       Babble::Topic.prune_topic(@topic)
 
