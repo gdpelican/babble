@@ -38,7 +38,7 @@ export default {
         navItems(showingSubcategoryList, category, noSubcategories) {
           let list = this._super(showingSubcategoryList, category, noSubcategories)
 
-          if (category.get('chat_topic_id') > 0) {
+          if (category && category.get('chat_topic_id') > 0) {
             let navItem = Discourse.__container__.lookup('store:main').createRecord('nav-item', {
               name:       'chat',
               filterMode: 'chat',
