@@ -40,26 +40,40 @@ export default Ember.Object.create({
 
   avatar() {
     if (this.post.user_id) {
-      return avatarImg('small', {template: this.post.avatar_template, username: this.post.username})
+      return avatarImg('medium', {template: this.post.avatar_template, username: this.post.username})
     } else {
       return h('i.fa.fa-trash-o.deleted-user-avatar')
     }
   },
 
+  postName() {
+    return h('div.babble-post-name', this.widget.attach('poster-name', this.post))
+  },
+
+  postDate() {
+    return h('div.babble-post-date', dateNode(this.post.created_at))
+  },
+
+  postMetaData() {
+    return h('div.babble-post-meta-data', [
+      this.postName(),
+      this.postDate()
+    ])
+  },
+
   bodyWrapper(staged) {
-    return h('div.babble-post-content', this.body(staged))
+    return h('div.babble-post-content', [
+      this.postMetaData(),
+      this.body(staged)
+    ])
   },
 
   body(staged) {
     if (staged) {
       return [this.cooked(), this.loadingSpinner()]
     } else {
-      return [this.postDate(), this.cooked(), this.unreadLine(), this.actions()]
+      return [this.cooked(), this.unreadLine(), this.actions()]
     }
-  },
-
-  postDate() {
-    return h('div.babble-post-date', dateNode(this.post.created_at))
   },
 
   cooked() {

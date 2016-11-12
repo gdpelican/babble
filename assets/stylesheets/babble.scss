@@ -145,13 +145,17 @@
 .babble-post-content {
   overflow: hidden;
   position: relative;
-  .babble-post-cooked {
-    overflow: hidden;
-    margin-top: 4px;
-  }
-  .babble-post-date {
-    float: right;
-    line-height: 25px;
+  .babble-post-meta-data {
+    width: 100%;
+    display: inline-block;
+    line-height: 14px;
+    height: 14px;
+    .babble-post-name {
+      float: left;
+    }
+    .babble-post-date {
+      float: right;
+    }
   }
   .onebox {
     margin-right: 20px;
@@ -175,7 +179,7 @@
   .babble-post-actions {
     position: absolute;
     right: 0;
-    top: 5px;
+    top: 1px;
     opacity: 0;
     background-color: #f8f8ff;
     i.fa {
@@ -402,14 +406,19 @@ li.babble-post .babble-post-content a.mention {
   }
   .babble-chat {
     display: flex;
-    flex-flow: column;
+    display: -webkit-flex;
+    flex-direction: column;
     height: 100%;
   }
   .babble-title-wrapper {
-    flex: 0 1 auto;
+    flex-grow: 0;
+    flex-shrink: 1;
+    flex-basis: auto;
   }
   .babble-list {
-    flex: 1 1 auto;
+    flex-grow: 1;
+    flex-shrink: 1;
+    flex-basis: auto;
     overflow-x: hidden;
     overflow-y: auto;
     height: 500px;
