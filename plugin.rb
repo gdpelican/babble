@@ -266,7 +266,6 @@ after_initialize do
 
       post.trigger_post_process(true)
       TopicUser.update_last_read(@user, @topic.id, @post.post_number, PostTiming::MAX_READ_TIME_PER_BATCH)
-      Babble::Topic.prune_topic(@topic)
 
       Babble::Broadcaster.publish_to_posts(@post, @user)
       Babble::Broadcaster.publish_to_topic(@topic, @user)
@@ -372,11 +371,6 @@ after_initialize do
 
     def self.default_allowed_groups
       Group.find Array Group::AUTO_GROUPS[:trust_level_0]
-    end
-
-    def self.prune_topic(topic)
-      topic.posts.order(post_number: :asc).offset(SiteSetting.babble_max_topic_size).destroy_all
-      topic.update(user: Discourse.system_user)
     end
 
     def self.default_topic_for(user)
