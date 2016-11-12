@@ -12,8 +12,6 @@ import CategoryController from 'discourse/controllers/navigation/category';
 export default {
   name: 'babble-init',
   initialize(){
-    if (!Discourse.User.current()) { return }
-
     if (Discourse.SiteSettings.babble_full_page) {
       // Add full page chat to category navigation bar
       customNavItemHref(function(navItem) {
@@ -58,6 +56,7 @@ export default {
       })
 
     } else {
+      if (!Discourse.User.current()) { return }
 
       // Add shoutbox widget to header
       ajax('/babble/topics.json').then(
