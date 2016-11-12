@@ -8,8 +8,6 @@ plugins:
   babble_icon:
     default: "bullhorn"
     client: true
-  babble_max_topic_size:
-    default: 200
   babble_category_name:
     default: chat
   babble_remote_post:

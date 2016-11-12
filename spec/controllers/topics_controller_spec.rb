@@ -133,22 +133,6 @@ describe ::Babble::TopicsController do
       group.users << user
       expect { xhr :post, :create_post, raw: "I am a test post", id: topic.id }.not_to change { user.post_count }
     end
-
-    it "deletes old posts in a rolling window" do
-      group.users << user
-      group.users << another_user
-      SiteSetting.babble_max_topic_size = 10
-
-      xhr :post, :create_post, raw: "I am the original post", id: topic.id
-      9.times { make_a_post(topic) }
-
-      expect { xhr :post, :create_post, raw: "I've stepped over the post limit!", id: topic.id }.not_to change { topic.posts.count}
-      expect(response.status).to eq 200
-
-      post_contents = topic.posts.map(&:raw).uniq
-      expect(post_contents).to include "I've stepped over the post limit!"
-      expect(post_contents).to_not include "I am the original post"
-    end
   end
 
   describe "flag_post" do
