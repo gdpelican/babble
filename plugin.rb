@@ -55,20 +55,20 @@ after_initialize do
   require_dependency "application_controller"
   class ::Babble::TopicsController < ::ApplicationController
     requires_plugin BABBLE_PLUGIN_NAME
-    before_filter :ensure_logged_in
     before_filter :set_default_id, only: :default
+    before_filter :ensure_logged_in, except: [:show, :posts]
 
     def index
       if current_user.blank?
         respond_with_forbidden
       else
-        respond_with Babble::Topic.available_topics_for(current_user), serializer: BasicTopicSerializer
+        respond_with Babble::Topic.available_topics_for(guardian), serializer: BasicTopicSerializer
       end
     end
 
     def show
       perform_fetch do
-        TopicUser.find_or_create_by(user: current_user, topic: topic)
+        TopicUser.find_or_create_by(user: current_user, topic: topic) if current_user
         respond_with topic, serializer: Babble::TopicSerializer
       end
     end
@@ -162,13 +162,13 @@ after_initialize do
     private
 
     def set_default_id
-      params[:id] = Babble::Topic.default_topic_for(current_user).try(:id)
+      params[:id] = Babble::Topic.default_topic_for(guardian).try(:id)
     end
 
     def perform_fetch(require_admin: false)
       if topic.blank?
         respond_with_not_found
-      elsif !current_user.admin && (require_admin || !Babble::Topic.available_topics_for(current_user).include?(topic))
+      elsif ((require_admin && !current_user.admin) || !Babble::Topic.available_topics_for(guardian).include?(topic))
         respond_with_forbidden
       else
         yield
@@ -209,13 +209,7 @@ after_initialize do
     end
 
     def topic
-      @topic ||= begin
-        if params[:id]
-          Babble::Topic.find(id: params[:id])
-        elsif params[:category]
-          Babble::Topic.find(category_id: Category.find_by(slug: params[:category]))
-        end
-      end
+      @topic ||= Babble::Topic.find_by(id: params[:id])
     end
 
     def topic_post
@@ -387,27 +381,28 @@ after_initialize do
       Group.find Array Group::AUTO_GROUPS[:trust_level_0]
     end
 
-    def self.default_topic_for(user)
-      available_topics_for(user).first
+    def self.default_topic_for(guardian)
+      available_topics_for(guardian).first
     end
 
     def self.available_topics
       Topic.where(archetype: :chat).includes(:allowed_groups)
     end
 
-    def self.available_topics_for(user)
-      return available_topics if user.admin
-      category_ids = Category.post_create_allowed(Guardian.new(user)).pluck(:id)
+    def self.available_topics_for(guardian)
+      return available_topics if guardian.is_admin?
+      user_id = guardian.anonymous? ? nil : guardian.user.id
+      category_ids = Category.scoped_to_permissions(guardian, [:readonly]).pluck(:id)
       available_topics
         .joins("LEFT OUTER JOIN topic_allowed_groups tg ON tg.topic_id = topics.id")
         .joins("LEFT OUTER JOIN group_users gu ON gu.group_id = tg.group_id")
-        .where("gu.user_id = ? OR topics.category_id IN (?)", user.id, category_ids)
+        .where("gu.user_id = ? OR topics.category_id IN (?)", user_id, category_ids)
         .uniq
     end
 
     # NB: the set_default_allowed_groups block is passed for backwards compatibility,
     # so that we never have a topic which has no allowed groups.
-    def self.find(param)
+    def self.find_by(param)
       available_topics.find_by(param).tap { |topic| set_default_allowed_groups(topic) if topic }
     end
   end

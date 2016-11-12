@@ -181,6 +181,7 @@ export default Ember.Object.create({
   },
 
   lastPostIsMine() {
+    if (!Discourse.User.current()) { return false }
     return this.get('latestPost.user_id') == Discourse.User.current().id
   },
 
@@ -215,7 +216,7 @@ export default Ember.Object.create({
 
     if (data.topic_id != this.get('currentTopic.id')) { return }
 
-    if (data.user_id != Discourse.User.current().id) {
+    if (!Discourse.User.current() || data.user_id != Discourse.User.current().id) {
       _.each(['can_edit', 'can_delete'], function(key) { delete data[key] })
     }
 

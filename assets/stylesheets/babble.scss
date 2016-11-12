@@ -315,10 +315,16 @@ li.babble-post .babble-post-content a.mention {
 
 .babble-post-composer {
   margin: 0 1px 8px;
+  text-align: center;
 }
 
 .babble-composer-wrapper {
   position: relative;
+}
+
+.babble-post-composer .widget-button {
+  margin: 5px;
+  padding: 5px 7px;
 }
 
 .babble-post-composer textarea {

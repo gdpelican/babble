@@ -6,6 +6,7 @@ export default Ember.Object.create({
     this.widget          = widget
     this.topic           = this.widget.attrs.topic
     this.availableTopics = this.widget.attrs.availableTopics || []
+    this.canSignUp       = this.widget.attrs.canSignUp
     if (!this.topic) { return }
     return this.chatContents()
   },
@@ -17,7 +18,7 @@ export default Ember.Object.create({
         h('ul', {className: 'babble-posts'}, this.chatView())
       ]),
       this.widget.attach('babble-notifications', { notifications: this.topic.notifications }),
-      this.widget.attach('babble-composer', { topic: this.topic })
+      this.widget.attach('babble-composer', { topic: this.topic, canSignUp: this.canSignUp })
     ]
     if (!this.widget.attrs.fullpage) {
       contents.unshift(
@@ -32,11 +33,12 @@ export default Ember.Object.create({
   },
 
   pressurePlate() {
+    if (!this.topic.postStream.posts.length) { return }
     return h('div.babble-load-history', this.pressurePlateMessage())
   },
 
   pressurePlateMessage() {
-    if (Babble.get('leadingPreviousPosts')) {
+    if (Babble.get('loadingPreviousPosts')) {
       return h('div.babble-load-history-message', I18n.t('babble.loading_history'))
     } else if (Babble.firstLoadedPostNumber() > 1) {
       return this.widget.attach('button', {

@@ -9,7 +9,8 @@ export default MountWidget.extend({
     this.args = {
       topic: this.get('topic'),
       fullpage: this.get('fullpage'),
-      lastReadPostNumber: this.lastReadPostNumber()
+      lastReadPostNumber: this.lastReadPostNumber(),
+      canSignUp: this.get('application.canSignUp')
     };
     Babble.set('container', this)
   },
