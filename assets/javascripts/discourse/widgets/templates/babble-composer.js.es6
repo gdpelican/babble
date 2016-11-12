@@ -4,7 +4,7 @@ export default Ember.Object.create({
   render(widget) {
     this.widget = widget
     this.state  = widget.state
-    return [this.composer(), this.cancelButton()]
+    return this.composer()
   },
 
   composer() {
@@ -16,7 +16,7 @@ export default Ember.Object.create({
       attributes: {
         'babble-composer': 'inactive',
         placeholder: Discourse.SiteSettings.babble_placeholder || I18n.t('babble.placeholder'),
-        rows:        this.state.editing ? 1 : 1,
+        rows:        1,
         disabled:    this.state.submitDisabled
       }
     }, this.state.raw)
@@ -27,15 +27,6 @@ export default Ember.Object.create({
       className: 'emoji-button',
       icon: 'smile-o',
       action: 'selectEmoji'
-    })
-  },
-
-  cancelButton() {
-    if (!this.state.editing) { return }
-    return this.widget.attach('button', {
-      className: 'btn btn-cancel pull-right',
-      action: 'cancel',
-      label: 'babble.cancel'
     })
   }
 })

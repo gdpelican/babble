@@ -98,6 +98,10 @@ export default createWidget('babble-composer', {
         this.submit(this) // submit on enter
       }
       return false
+    } else if (event.keyCode == 27) {
+      event.preventDefault()
+      Babble.editPost(null)
+      return false
     }
   },
 
