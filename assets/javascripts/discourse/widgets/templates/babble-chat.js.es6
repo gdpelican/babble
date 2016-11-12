@@ -1,4 +1,5 @@
 import { h } from 'virtual-dom'
+import Babble from '../../lib/babble'
 
 export default Ember.Object.create({
   render(widget) {
@@ -11,7 +12,10 @@ export default Ember.Object.create({
 
   chatContents() {
     let contents = [
-      h('div.babble-list', { attributes: { 'scroll-container': 'inactive' } }, h('ul', {className: 'babble-posts'}, this.chatView())),
+      h('div.babble-list', { attributes: { 'scroll-container': 'inactive' } }, [
+        this.pressurePlate(),
+        h('ul', {className: 'babble-posts'}, this.chatView())
+      ]),
       this.widget.attach('babble-notifications', { notifications: this.topic.notifications }),
       this.widget.attach('babble-composer', { topic: this.topic })
     ]
@@ -25,6 +29,24 @@ export default Ember.Object.create({
       )
     }
     return contents
+  },
+
+  pressurePlate() {
+    return h('div.babble-load-history', this.pressurePlateMessage())
+  },
+
+  pressurePlateMessage() {
+    if (Babble.get('leadingPreviousPosts')) {
+      return h('div.babble-load-history-message', I18n.t('babble.loading_history'))
+    } else if (Babble.firstLoadedPostNumber() > 1) {
+      return this.widget.attach('button', {
+        label:     'babble.load_more',
+        className: 'babble-load-history-message babble-pressure-plate',
+        action:    'loadPreviousPosts'
+      })
+    } else {
+      return h('div.babble-load-history-message', I18n.t('babble.no_more_history'))
+    }
   },
 
   chatTitle() {

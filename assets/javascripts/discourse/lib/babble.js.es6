@@ -1,6 +1,7 @@
 import Post from 'discourse/models/post'
 import PostStream from 'discourse/models/post-stream'
 import Topic from 'discourse/models/topic'
+import elementIsVisible from '../lib/element-is-visible'
 import lastVisibleElement from '../lib/last-visible-element'
 import debounce from 'discourse/lib/debounce'
 import setupComposer from '../lib/setup-composer'
@@ -82,11 +83,8 @@ export default Ember.Object.create({
 
     // Set up scroll listener
     $(container).on('scroll.discourse-babble-scroll', debounce((e) => {
-      let postNumber = lastVisibleElement(container, '.babble-post', 'post-number')
-      if (postNumber <= this.get('currentTopic.last_read_post_number')) { return }
-      ajax(`/babble/topics/${this.get('currentTopic.id')}/read/${postNumber}.json`).then((data) => {
-        this.setCurrentTopic(data)
-      })
+      this.readLastVisiblePost()
+      this.loadPreviousPosts()
     }, 500))
     $(container).trigger('scroll.discourse-babble-scroll')
 
@@ -96,6 +94,33 @@ export default Ember.Object.create({
 
     // Perform initial scroll
     this.scrollTo(this.currentTopic.last_read_post_number, 0)
+  },
+
+  readLastVisiblePost() {
+    let postNumber = lastVisibleElement(this.get('scrollContainer', '.babble-post', 'post-number'))
+    if (postNumber <= this.get('currentTopic.last_read_post_number')) { return }
+    ajax(`/babble/topics/${this.get('currentTopic.id')}/read/${postNumber}.json`).then((data) => {
+      this.setCurrentTopic(data)
+    })
+  },
+
+  loadPreviousPosts() {
+    if (!elementIsVisible(this.get('scrollContainer'), $('.babble-pressure-plate'))) { return }
+    this.set('leadingPreviousPosts', true)
+    this.rerender()
+    ajax(`/babble/topics/${this.get('currentTopic.id')}/posts/${this.firstLoadedPostNumber()}`).then((data) => {
+      // NB: these are wrapped in a 'topics' root and I don't know why.
+      let newPosts = data.topics.map(function(post) { return Post.create(post) })
+      let currentPosts = this.get('currentTopic.postStream.posts')
+      this.set('currentTopic.postStream.posts', newPosts.concat(currentPosts))
+    }).finally(() => {
+      this.rerender()
+      this.set('leadingPreviousPosts', false)
+    })
+  },
+
+  firstLoadedPostNumber() {
+    return _.min(this.get('currentTopic.postStream.posts').map(function(post) { return post.post_number }))
   },
 
   prepareComposer(textarea) {

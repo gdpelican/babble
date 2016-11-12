@@ -1,12 +1,9 @@
-export default function (container, selector, attr) {
-  if (!container) { return }
-  return _.max(_.map(container.find(selector), function(e) {
-    let elem = $(e)
-    let elemTop         = elem.position().top
-    let elemBottom      = elemTop + elem.height()
-    let containerTop    = container.position().top
-    let containerBottom = containerTop + container.height()
-    if (elemBottom <= containerTop || elemTop > containerBottom) { return }
-    return parseInt(elem.data(attr))
+import elementIsVisible from './element-is-visible'
+
+export default function ($container, selector, attr) {
+  if (!$container) { return }
+  return _.max($container.find(selector).map(function(index, element) {
+    let $element = $(element)
+    if (elementIsVisible($container, $element)) { return $element.data(attr) }
   }))
 }

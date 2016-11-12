@@ -17,6 +17,9 @@ en:
       post_deleted_by: "Post deleted by {{username}}"
       is_typing: "is typing..."
       nav_title: "Chat"
+      load_more: "Load more"
+      loading_history: "Loading chat history..."
+      no_more_history: "That's all there is!"
       admin:
         disabled: "Babble has been disabled. Please re-enable it to continue."
         new: "New Channel"

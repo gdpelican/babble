@@ -124,6 +124,25 @@
   overflow-y: auto;
 }
 
+.babble-load-history {
+  text-align: center;
+  border-bottom: 1px solid #ccc;
+  margin-bottom: 10px;
+}
+
+.babble-load-history-message {
+  display: inline-block;
+  color: #ccc;
+  border: 0;
+  text-align: center;
+  position: relative;
+  top: 10px;
+  margin: auto;
+  background: white;
+  padding: 0 10px;
+  font-size: 12px;
+}
+
 .babble-empty-topic-message {
   color: #ccc;
   text-align: center;

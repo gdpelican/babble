@@ -19,18 +19,19 @@ after_initialize do
   end
 
   Babble::Engine.routes.draw do
-    get    "/topics"                       => "topics#index"
-    post   "/topics"                       => "topics#create"
-    get    "/topics/default"               => "topics#default"
-    get    "/topics/:id"                   => "topics#show"
-    post   "/topics/:id"                   => "topics#update"
-    delete "/topics/:id"                   => "topics#destroy"
-    get    "/topics/:id/read/:post_number" => "topics#read"
-    post   "/topics/:id/post"              => "topics#create_post"
-    post   "/topics/:id/post/:post_id"     => "topics#update_post"
-    delete "/topics/:id/destroy/:post_id"  => "topics#destroy_post"
-    get    "/topics/:id/groups"            => "topics#groups"
-    post   "/topics/:id/notification"      => "topics#send_notification"
+    get    "/topics"                        => "topics#index"
+    post   "/topics"                        => "topics#create"
+    get    "/topics/default"                => "topics#default"
+    get    "/topics/:id"                    => "topics#show"
+    post   "/topics/:id"                    => "topics#update"
+    delete "/topics/:id"                    => "topics#destroy"
+    get    "/topics/:id/read/:post_number"  => "topics#read"
+    get    "/topics/:id/posts/:post_number" => "topics#posts"
+    post   "/topics/:id/post"               => "topics#create_post"
+    post   "/topics/:id/post/:post_id"      => "topics#update_post"
+    delete "/topics/:id/destroy/:post_id"   => "topics#destroy_post"
+    get    "/topics/:id/groups"             => "topics#groups"
+    post   "/topics/:id/notification"       => "topics#send_notification"
   end
 
   Discourse::Application.routes.append do
@@ -97,6 +98,12 @@ after_initialize do
       perform_fetch do
         topic_user.update(last_read_post_number: params[:post_number]) if topic_user.last_read_post_number.to_i < params[:post_number].to_i
         respond_with topic, serializer: Babble::TopicSerializer
+      end
+    end
+
+    def posts
+      perform_fetch do
+        respond_with previous_posts, serializer: Babble::PostSerializer
       end
     end
 
@@ -217,6 +224,13 @@ after_initialize do
 
     def topic_user
       @topic_user ||= TopicUser.find_or_initialize_by(user: current_user, topic: topic)
+    end
+
+    def previous_posts
+      @previous_posts ||= topic.posts.includes(:user)
+                                     .order(post_number: :desc)
+                                     .where('post_number < ?', params[:post_number].to_i)
+                                     .limit(SiteSetting.babble_page_size)
     end
 
     def topic_params
@@ -485,7 +499,7 @@ after_initialize do
     private
 
     def posts
-      @posts ||= object.posts.includes(:user).order(post_number: :desc)
+      @posts ||= object.posts.includes(:user).order(post_number: :desc).limit(SiteSetting.babble_page_size)
     end
 
     def topic_user
