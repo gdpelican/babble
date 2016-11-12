@@ -433,17 +433,24 @@ li.babble-post .babble-post-content a.mention {
     display: flex;
     display: -webkit-flex;
     flex-direction: column;
+    -webkit-flex-direction: column;
     height: 100%;
   }
   .babble-title-wrapper {
     flex-grow: 0;
     flex-shrink: 1;
     flex-basis: auto;
+    -webkit-flex-grow: 0;
+    -webkit-flex-shrink: 1;
+    -webkit-flex-basis: auto;
   }
   .babble-list {
     flex-grow: 1;
     flex-shrink: 1;
     flex-basis: auto;
+    -webkit-flex-grow: 1;
+    -webkit-flex-shrink: 1;
+    -webkit-flex-basis: auto;
     overflow-x: hidden;
     overflow-y: auto;
     height: 500px;
@@ -452,6 +459,9 @@ li.babble-post .babble-post-content a.mention {
     display: flex;
     flex-direction: row;
     align-items: flex-end;
+    display: -webkit-flex;
+    -webkit-flex-direction: row;
+    -webkit-align-items: flex-end;
   }
 }
 
@@ -533,7 +543,10 @@ li.babble-chat.drop-container {
     right: 0;
     left: 0;
     display: flex;
+    display: -webkit-flex;
+    -webkit-flex-direction: column;
     flex-direction: column;
+    -webkit-justify-content: flex-end;
     justify-content: flex-end;
   }
   .babble-list {

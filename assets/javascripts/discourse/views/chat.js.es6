@@ -4,7 +4,7 @@ export default Ember.View.extend({
   @on("didInsertElement")
   setUp() {
     $('#main-outlet').css({
-      display: 'flex',
+      display: '-webkit-flex',
       flexDirection: 'column',
       height: 'calc(100vh - 100px)'
     });
