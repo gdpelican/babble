@@ -18,7 +18,7 @@ export default Ember.View.extend({
   @on("willDestroyElement")
   cleanUp() {
     $('#main-outlet').css({
-      display: 'initial',
+      display: 'block',
       flexDirection: 'initial',
       height: 'auto'
     });
