@@ -555,10 +555,20 @@ li.babble-chat.drop-container {
   .babble-posts {
     margin: 0;
   }
-  .babble-post-composer .emoji-button {
-    bottom: 10px;
-    right: 10px;
-    font-size: 16px;
+  .babble-post-composer {
+    .autocomplete {
+      left: 0 !important;
+      width: 300px;
+      text-align: left;
+      span {
+        vertical-align: middle;
+      }
+    }
+    .emoji-button {
+      bottom: 10px;
+      right: 10px;
+      font-size: 16px;
+    }
   }
 }
 
