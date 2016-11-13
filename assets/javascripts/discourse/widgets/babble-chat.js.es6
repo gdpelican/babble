@@ -9,7 +9,10 @@ export default createWidget('babble-chat', {
     return {
       topic: attrs.topic,
       fullpage: attrs.fullpage,
-      lastReadPostNumber: attrs.lastReadPostNumber
+      firstLoadedPostNumber: attrs.firstLoadedPostNumber,
+      lastReadPostNumber: attrs.lastReadPostNumber,
+      loadingPreviousPosts: Babble.get('loadingPreviousPosts'),
+      firstLoadedPostNumber: Babble.firstLoadedPostNumber()
     }
   },
 

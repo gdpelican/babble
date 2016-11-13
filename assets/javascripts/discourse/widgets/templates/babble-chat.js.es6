@@ -1,5 +1,4 @@
 import { h } from 'virtual-dom'
-import Babble from '../../lib/babble'
 
 export default Ember.Object.create({
   render(widget) {
@@ -38,9 +37,9 @@ export default Ember.Object.create({
   },
 
   pressurePlateMessage() {
-    if (Babble.get('loadingPreviousPosts')) {
+    if (this.widget.state.loadingPreviousPosts) {
       return h('div.babble-load-history-message', I18n.t('babble.loading_history'))
-    } else if (Babble.firstLoadedPostNumber() > 1) {
+    } else if (this.widget.state.firstLoadedPostNumber > 1) {
       return this.widget.attach('button', {
         label:     'babble.load_more',
         className: 'babble-load-history-message babble-pressure-plate',
