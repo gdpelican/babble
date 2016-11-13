@@ -18,6 +18,7 @@ export default createWidget('babble-post', {
   defaultState(attrs) {
     return {
       post:       attrs.post,
+      isFollowOn: attrs.isFollowOn,
       isLastRead: attrs.isLastRead,
       editedRaw:  attrs.post.raw
     }
