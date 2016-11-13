@@ -424,7 +424,8 @@ after_initialize do
                :updated_at,
                :deleted_at,
                :deleted_by_username,
-               :yours
+               :yours,
+               :self_edits
 
     def yours
       scope.user == object.user
