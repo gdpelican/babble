@@ -106,7 +106,7 @@ export default Ember.Object.create({
 
   loadPreviousPosts() {
     if (!elementIsVisible(this.get('scrollContainer'), $('.babble-pressure-plate'))) { return }
-    this.set('leadingPreviousPosts', true)
+    this.set('loadingPreviousPosts', true)
     this.rerender()
     ajax(`/babble/topics/${this.get('currentTopic.id')}/posts/${this.firstLoadedPostNumber()}`).then((data) => {
       // NB: these are wrapped in a 'topics' root and I don't know why.
@@ -114,8 +114,8 @@ export default Ember.Object.create({
       let currentPosts = this.get('currentTopic.postStream.posts')
       this.set('currentTopic.postStream.posts', newPosts.concat(currentPosts))
     }).finally(() => {
+      this.set('loadingPreviousPosts', false)
       this.rerender()
-      this.set('leadingPreviousPosts', false)
     })
   },
 
