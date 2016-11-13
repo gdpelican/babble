@@ -7,8 +7,9 @@ import { emojiUnescape } from 'discourse/lib/text'
 
 export default Ember.Object.create({
   render(widget) {
-    this.widget = widget
-    this.post   = widget.state.post
+    this.widget     = widget
+    this.post       = widget.state.post
+    this.isFollowOn = widget.state.isFollowOn
     return this.container()
   },
 
@@ -39,7 +40,9 @@ export default Ember.Object.create({
   },
 
   avatar() {
-    if (this.post.user_id) {
+    if (this.isFollowOn) {
+      return
+    } else if (this.post.user_id) {
       return avatarImg('medium', {template: this.post.avatar_template, username: this.post.username})
     } else {
       return h('i.fa.fa-trash-o.deleted-user-avatar')
@@ -55,6 +58,7 @@ export default Ember.Object.create({
   },
 
   postMetaData() {
+    if (this.isFollowOn) { return }
     return h('div.babble-post-meta-data', [
       this.postName(),
       this.postDate()
