@@ -8,9 +8,10 @@ export default Ember.Object.create({
 
   presenceSentence(presence) {
     const usernames = _.keys(_.select(presence, (lastSeen) => {
-      return lastSeen > moment().add(-3, 'second')
+      return lastSeen > moment().add(-2, 'second')
     }))
     if (usernames.length) {
+      setTimeout(() => { this.widget.scheduleRerender() }, 2000)
       return this.widget.attach('small-user-list', {
         users: usernames,
         listClassName: 'babble-is-typing',
