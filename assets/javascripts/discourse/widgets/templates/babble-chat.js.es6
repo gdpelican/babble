@@ -16,7 +16,7 @@ export default Ember.Object.create({
         this.pressurePlate(),
         h('ul', {className: 'babble-posts'}, this.chatView())
       ]),
-      this.widget.attach('babble-notifications', { notifications: this.topic.notifications }),
+      this.widget.attach('babble-presence', { topic: this.topic }),
       this.widget.attach('babble-composer', { topic: this.topic, canSignUp: this.canSignUp })
     ]
     if (!this.widget.attrs.fullpage) {

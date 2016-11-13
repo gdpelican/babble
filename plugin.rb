@@ -31,7 +31,7 @@ after_initialize do
     post   "/topics/:id/post/:post_id"      => "topics#update_post"
     delete "/topics/:id/destroy/:post_id"   => "topics#destroy_post"
     get    "/topics/:id/groups"             => "topics#groups"
-    post   "/topics/:id/notification"       => "topics#send_notification"
+    post   "/topics/:id/presence"           => "topics#presence"
   end
 
   Discourse::Application.routes.append do
@@ -152,9 +152,9 @@ after_initialize do
       perform_fetch(require_admin: true) { respond_with topic.allowed_groups, serializer: BasicGroupSerializer }
     end
 
-    def send_notification
+    def presence
       perform_fetch do
-        Babble::Broadcaster.publish_to_notifications(topic, current_user, notification_params)
+        Babble::Broadcaster.publish_to_presence(topic, current_user)
         respond_with nil
       end
     end
@@ -238,10 +238,6 @@ after_initialize do
         skip_validations: true
       }
     end
-
-    def notification_params
-      params.require(:state)
-    end
   end
 
   class ::Babble::PostCreator < ::PostCreator
@@ -314,8 +310,8 @@ after_initialize do
       MessageBus.publish "/babble/topics/#{post.topic_id}/posts", serialized_post(post, user, extras)
     end
 
-    def self.publish_to_notifications(topic, user, status)
-      MessageBus.publish "/babble/topics/#{topic.id}/notifications", serialized_notification(user, {status: status})
+    def self.publish_to_presence(topic, user, extras = {})
+      MessageBus.publish "/babble/topics/#{topic.id}/presence", serialized_presence(user, extras)
     end
 
     def self.serialized_topic(topic, user, extras = {})
@@ -326,8 +322,8 @@ after_initialize do
       serialize(post, user, extras, Babble::PostSerializer)
     end
 
-    def self.serialized_notification(user, extras = {})
-      serialize(user, nil, extras, UserSerializer)
+    def self.serialized_presence(user, extras = {})
+      serialize(user, nil, extras, BasicUserSerializer)
     end
 
     def self.serialize(obj, user, extras, serializer)

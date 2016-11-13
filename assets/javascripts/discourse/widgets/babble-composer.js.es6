@@ -120,7 +120,7 @@ export default createWidget('babble-composer', {
   },
 
   checkInteraction: debounce(function() {
-    ajax(`/babble/topics/${this.state.topic.id}/notification`, {
+    ajax(`/babble/topics/${this.state.topic.id}/presence`, {
       type: 'POST',
       data: {state: 'editing'}
     })

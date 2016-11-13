@@ -40,10 +40,10 @@ export default Ember.Object.create({
       postStream.updateFromJson(topic.post_stream)
 
       topic.postStream = postStream
-      topic.notifications = {}
+      topic.presence = {}
     } else {
       topic.postStream = this.get('currentTopic.postStream')
-      topic.notifications = this.get('currentTopic.notifications')
+      topic.presence = this.get('currentTopic.presence')
     }
 
     this.set('currentTopic', topic)
@@ -71,11 +71,11 @@ export default Ember.Object.create({
     if (this.get('currentTopic.id')) {
       messageBus.unsubscribe(apiPath(currentTopicId))
       messageBus.unsubscribe(apiPath(currentTopicId), 'posts')
-      // messageBus.unsubscribe(apiPath(currentTopicId), 'notifications')
+      messageBus.unsubscribe(apiPath(currentTopicId), 'presence')
     }
-    messageBus.subscribe(apiPath(topicId),                  (data) => { this.setCurrentTopic(data) })
-    messageBus.subscribe(apiPath(topicId, 'posts'),         (data) => { this.handleNewPost(data) })
-    // messageBus.subscribe(apiPath(topicId, 'notifications'), (data) => { this.handleNotification(data) })
+    messageBus.subscribe(apiPath(topicId),             (data) => { this.setCurrentTopic(data) })
+    messageBus.subscribe(apiPath(topicId, 'posts'),    (data) => { this.handleNewPost(data) })
+    messageBus.subscribe(apiPath(topicId, 'presence'), (data) => { this.handlePresence(data) })
   },
 
   prepareScrollContainer(container) {
@@ -216,6 +216,8 @@ export default Ember.Object.create({
 
     if (data.topic_id != this.get('currentTopic.id')) { return }
 
+    this.set(`currentTopic.presence.${data.username}`, null)
+
     if (!Discourse.User.current() || data.user_id != Discourse.User.current().id) {
       _.each(['can_edit', 'can_delete'], function(key) { delete data[key] })
     }
@@ -262,18 +264,9 @@ export default Ember.Object.create({
     })
   },
 
-  handleNotification(data) {
-    const notifications = this.get('currentTopic.notifications')
-    const username = data.user.username
-    data.user.template = data.user.avatar_template
-    if (notifications[username]) {
-      clearTimeout(notifications[username].timeout)
-    }
-    notifications[username] = data
-    data.timeout = setTimeout(() => {
-      delete notifications[username]
-      this.rerender()
-    }, 3 * 1000) // clear is typing message after 3 seconds
+  handlePresence(data) {
+    if (Discourse.User.current() && data.id == Discourse.User.current().id) { return }
+    this.get('currentTopic.presence')[data.username] = moment()
     this.rerender()
   },
 
