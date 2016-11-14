@@ -18,7 +18,6 @@ Check out a live instance of Discourse with Babble installed on it here: [http:/
  ```
 
 #### Adding a chat channel
-This has been added to the admin panel; simply visit `/admin/chats` to create, update, and delete your chat channels.
 
 **Experimental**: Full page chat mode!
 There is now a site setting for 'full page' chat mode in Babble. This will allow you to tie chat channels to a particular category, and expose a 'chat' route within your category, like so:
