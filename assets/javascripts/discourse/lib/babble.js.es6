@@ -97,7 +97,7 @@ export default Ember.Object.create({
   },
 
   readLastVisiblePost() {
-    let postNumber = lastVisibleElement(this.get('scrollContainer', '.babble-post', 'post-number'))
+    let postNumber = lastVisibleElement(this.get('scrollContainer'), '.babble-post', 'post-number')
     if (postNumber <= this.get('currentTopic.last_read_post_number')) { return }
     ajax(`/babble/topics/${this.get('currentTopic.id')}/read/${postNumber}.json`).then((data) => {
       this.setCurrentTopic(data)
