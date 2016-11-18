@@ -568,14 +568,12 @@ after_initialize do
   end
 
   NotificationSerializer.class_eval do
-    def slug
-      if object.topic.present?
-        if object.topic.archetype == Archetype.chat
-        "chat/" + Slug.for(object.topic.title)
-        else
-          Slug.for(object.topic.title)
-        end
+    module ChatSlug
+      def slug
+        return super unless object.topic && object.topic.archetype == Archetype.chat
+        "chat/#{super}"
       end
     end
+    prepend ChatSlug
   end
 end
