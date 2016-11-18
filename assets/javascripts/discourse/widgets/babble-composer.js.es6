@@ -107,7 +107,6 @@ export default createWidget('babble-composer', {
 
   keyUp(event) {
     this.state.showError = false
-    this.announcePresence()
     if (event.keyCode == 38 &&                               // key pressed is up key
         !this.state.editing &&                               // post is not being edited
         !$(event.target).siblings('.autocomplete').length) { // autocomplete is not active
@@ -119,15 +118,14 @@ export default createWidget('babble-composer', {
     }
   },
 
-  keyPress(event) {
-    // TODO: Make this work for all typeable characters, not just alphanumeric
-    if (!/[a-zA-Z0-9\s]/.test(String.fromCharCode(event.keyCode))) { return }
+  keyPress() {
+    if (this.state.editing) { return }
     this.announcePresence()
   },
 
   announcePresence: debounce(function() {
     ajax(`/babble/topics/${this.state.topic.id}/presence`, { type: 'POST' })
-  }, 300),
+  }, 250),
 
   html() { return template.render(this) }
 })
