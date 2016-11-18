@@ -10,11 +10,21 @@ export default Ember.Object.create({
     this.widget     = widget
     this.post       = widget.state.post
     this.isFollowOn = widget.state.isFollowOn
+    this.isNewDay   = widget.state.isNewDay
     return this.container()
   },
 
   container() {
-    return h('div.babble-post-container', this.contents())
+    return h('div.babble-post-container', [this.daySeparator(), this.contents()])
+  },
+
+  daySeparator() {
+    if (!this.isNewDay) { return }
+    let date = moment(this.post.created_at)
+                     .startOf('day')
+                     .calendar({ lastWeek: 'dddd' })
+                     .replace('at 12:00 AM', '')
+    return h('div.babble-post-new-day', h('div.babble-post-new-day-message', date))
   },
 
   contents() {

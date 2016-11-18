@@ -3,10 +3,11 @@ import { on } from "ember-addons/ember-computed-decorators";
 export default Ember.View.extend({
   @on("didInsertElement")
   setUp() {
+    let buffer = this.site.mobileView ? '70px' : '100px'
     $('#main-outlet').css({
       display: '-webkit-flex',
       flexDirection: 'column',
-      height: 'calc(100vh - 100px)'
+      height: `calc(100vh - ${buffer})`
     });
     $('.list-container').css({
       position: 'relative',

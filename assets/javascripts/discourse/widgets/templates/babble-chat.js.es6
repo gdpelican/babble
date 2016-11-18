@@ -86,7 +86,10 @@ export default Ember.Object.create({
         // a post is a 'follow-on' if it's another post by the same author within 2 minutes
         isFollowOn: posts[index-1] &&
                     posts[index-1].user_id == p.user_id &&
-                    moment(posts[index-1].created_at) > moment(p.created_at).add(-2, 'minute')
+                    moment(posts[index-1].created_at) > moment(p.created_at).add(-2, 'minute'),
+        // a post displays a date separator if it's the first post of the day
+        isNewDay: posts[index-1] &&
+                  moment(posts[index-1].created_at).date() != moment(p.created_at).date()
       }) })
     } else {
       return h('li.babble-empty-topic-message', I18n.t('babble.empty_topic_message'))

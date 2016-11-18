@@ -37,6 +37,8 @@ after_initialize do
   Discourse::Application.routes.append do
     mount ::Babble::Engine, at: "/babble", :as => "babble"
     get '/chat/:slug/:id' => 'babble/topics#show'
+    get '/t/chat/:slug/:id' => 'babble/topics#show'
+    get '/t/chat/:slug/:id/:post_id' => 'babble/topics#show'
     namespace :admin, constraints: StaffConstraint.new do
       resources :chats, only: [:show, :index]
     end
@@ -270,6 +272,7 @@ after_initialize do
 
       post.trigger_post_process(true)
       TopicUser.update_last_read(@user, @topic.id, @post.post_number, PostTiming::MAX_READ_TIME_PER_BATCH)
+      PostAlerter.post_created(post)
 
       Babble::Broadcaster.publish_to_posts(@post, @user)
       Babble::Broadcaster.publish_to_topic(@topic, @user)
@@ -560,4 +563,15 @@ after_initialize do
     prepend RemoveChatTopics
   end
 
+  NotificationSerializer.class_eval do
+    def slug
+      if object.topic.present?
+        if object.topic.archetype == Archetype.chat
+        "chat/" + Slug.for(object.topic.title)
+        else
+          Slug.for(object.topic.title)
+        end
+      end
+    end
+  end
 end
