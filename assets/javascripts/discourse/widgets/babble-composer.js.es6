@@ -107,7 +107,6 @@ export default createWidget('babble-composer', {
 
   keyUp(event) {
     this.state.showError = false
-    this.checkInteraction()
     if (event.keyCode == 38 &&                               // key pressed is up key
         !this.state.editing &&                               // post is not being edited
         !$(event.target).siblings('.autocomplete').length) { // autocomplete is not active
@@ -119,12 +118,14 @@ export default createWidget('babble-composer', {
     }
   },
 
-  checkInteraction: debounce(function() {
-    ajax(`/babble/topics/${this.state.topic.id}/notification`, {
-      type: 'POST',
-      data: {state: 'editing'}
-    })
-  }, 300),
+  keyPress() {
+    if (this.state.editing) { return }
+    this.announcePresence()
+  },
+
+  announcePresence: debounce(function() {
+    ajax(`/babble/topics/${this.state.topic.id}/presence`, { type: 'POST' })
+  }, 250),
 
   html() { return template.render(this) }
 })
