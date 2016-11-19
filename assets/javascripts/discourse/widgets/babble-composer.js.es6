@@ -118,7 +118,7 @@ export default createWidget('babble-composer', {
     }
   },
 
-  keyPress() {
+  input() {
     if (this.state.editing) { return }
     this.announcePresence()
   },
