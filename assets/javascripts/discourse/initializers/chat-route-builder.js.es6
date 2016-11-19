@@ -7,6 +7,6 @@ export default {
     const ChatShowRoute = container.lookupFactory('route:chat-show');
 
     app["ChatShowCategoryRoute"] = ChatShowRoute.extend();
-    app["ChatShowParentCategoryRoute"] = ChatShowRoute.extend();
+    app["ChatShowCategoryNearRoute"] = ChatShowRoute.extend();
   }
 };

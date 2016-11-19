@@ -21,6 +21,6 @@ export default MountWidget.extend({
   },
 
   afterPatch() {
-    Babble.setupAfterRender()
+    Babble.setupAfterRender(this.get('nearPost'))
   }
 });

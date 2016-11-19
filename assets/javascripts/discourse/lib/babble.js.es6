@@ -78,7 +78,7 @@ export default Ember.Object.create({
     messageBus.subscribe(apiPath(topicId, 'presence'), (data) => { this.handlePresence(data) })
   },
 
-  prepareScrollContainer(container) {
+  prepareScrollContainer(container, nearPost) {
     if (!container.length) { return }
 
     // Set up scroll listener
@@ -93,7 +93,7 @@ export default Ember.Object.create({
     this.set('scrollContainer', container)
 
     // Perform initial scroll
-    this.scrollTo(this.currentTopic.last_read_post_number, 0)
+    this.scrollTo(nearPost || this.currentTopic.last_read_post_number, 0)
   },
 
   readLastVisiblePost() {
@@ -129,10 +129,10 @@ export default Ember.Object.create({
     textarea.attr('babble-composer', 'active')
   },
 
-  setupAfterRender() {
+  setupAfterRender(nearPost) {
     Ember.run.scheduleOnce('afterRender', () => {
       const $scrollContainer = $('.babble-list[scroll-container=inactive]')
-      this.prepareScrollContainer($scrollContainer)
+      this.prepareScrollContainer($scrollContainer, nearPost)
 
       const $textarea = $('.babble-post-composer textarea[babble-composer=inactive]')
       this.prepareComposer($textarea)

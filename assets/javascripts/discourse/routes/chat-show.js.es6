@@ -9,6 +9,7 @@ export default Discourse.Route.extend({
 
   model(params) {
     let category = Category.findBySlug(params.category)
+    this.set('nearPost', params.post_number)
     if (category) { return category }
 
     Category.reloadBySlug(params.category).then((response) => {
@@ -46,7 +47,8 @@ export default Discourse.Route.extend({
     ajax(`/babble/topics/${model.chat_topic_id}.json`).then((data) => {
       Babble.setCurrentTopic(data)
       this.controllerFor('chat').setProperties({
-        model: Babble.get('currentTopic')
+        model: Babble.get('currentTopic'),
+        nearPost: this.get('nearPost')
       })
     })
 
