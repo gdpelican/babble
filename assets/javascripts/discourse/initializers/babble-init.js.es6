@@ -115,10 +115,11 @@ export default {
             contents.push(helper.attach('babble-menu', {
               topic:                 Babble.get('currentTopic'),
               availableTopics:       Babble.getAvailableTopics(true),
-              loadingPreviousPosts:  Babble.get('loadingPreviousPosts'),
-              firstLoadedPostNumber: Babble.firstLoadedPostNumber(),
+              loadingPosts:          Babble.get('loadingPosts'),
+              firstLoadedPostNumber: Babble.get('firstLoadedPostNumber'),
+              lastLoadedPostNumber:  Babble.get('lastLoadedPostNumber'),
+              lastReadPostNumber:    headerState.lastReadPostNumber,
               viewingChat:           headerState.babbleViewingChat,
-              lastReadPostNumber:    headerState.lastReadPostNumber
             }))
           }
           return contents

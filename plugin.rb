@@ -19,27 +19,27 @@ after_initialize do
   end
 
   Babble::Engine.routes.draw do
-    get    "/topics"                        => "topics#index"
-    post   "/topics"                        => "topics#create"
-    get    "/topics/default"                => "topics#default"
-    get    "/topics/:id"                    => "topics#show"
-    post   "/topics/:id"                    => "topics#update"
-    delete "/topics/:id"                    => "topics#destroy"
-    get    "/topics/:id/read/:post_number"  => "topics#read"
-    get    "/topics/:id/posts/:post_number" => "topics#posts"
-    post   "/topics/:id/post"               => "topics#create_post"
-    post   "/topics/:id/post/:post_id"      => "topics#update_post"
-    delete "/topics/:id/destroy/:post_id"   => "topics#destroy_post"
-    get    "/topics/:id/groups"             => "topics#groups"
-    post   "/topics/:id/presence"           => "topics#presence"
+    get    "/topics"                                   => "topics#index"
+    post   "/topics"                                   => "topics#create"
+    get    "/topics/default"                           => "topics#default"
+    get    "/topics/:id"                               => "topics#show"
+    post   "/topics/:id"                               => "topics#update"
+    delete "/topics/:id"                               => "topics#destroy"
+    get    "/topics/:id/read/:post_number"             => "topics#read"
+    get    "/topics/:id/posts/:post_number/:direction" => "topics#posts"
+    post   "/topics/:id/post"                          => "topics#create_post"
+    post   "/topics/:id/post/:post_id"                 => "topics#update_post"
+    delete "/topics/:id/destroy/:post_id"              => "topics#destroy_post"
+    get    "/topics/:id/groups"                        => "topics#groups"
+    post   "/topics/:id/presence"                      => "topics#presence"
   end
 
   Discourse::Application.routes.append do
     mount ::Babble::Engine, at: "/babble", :as => "babble"
     get '/chat/:slug/:id' => 'babble/topics#show'
-    get '/chat/:slug/:id/:post_number' => 'babble/topics#show'
+    get '/chat/:slug/:id/:near_post' => 'babble/topics#show'
     get '/t/chat/:slug/:id' => 'babble/topics#show'
-    get '/t/chat/:slug/:id/:post_number' => 'babble/topics#show'
+    get '/t/chat/:slug/:id/:near_post' => 'babble/topics#show'
     namespace :admin, constraints: StaffConstraint.new do
       resources :chats, only: [:show, :index]
     end
@@ -106,7 +106,7 @@ after_initialize do
 
     def posts
       perform_fetch do
-        respond_with previous_posts, serializer: Babble::PostSerializer
+        respond_with load_posts(params[:direction]), serializer: Babble::PostSerializer
       end
     end
 
@@ -191,11 +191,11 @@ after_initialize do
     def respond_with(object, serializer: nil)
       case object
       when Array, ActiveRecord::Relation
-        render json: ActiveModel::ArraySerializer.new(object, each_serializer: serializer, scope: guardian, root: false).as_json
+        render json: ActiveModel::ArraySerializer.new(object, each_serializer: serializer, scope: guardian, params: params, root: false).as_json
       when nil
         render json: { success: :ok }
       else
-        render json: serializer.new(object, scope: guardian, root: false).as_json
+        render json: serializer.new(object, scope: guardian, params: params, root: false).as_json
       end
     end
 
@@ -223,11 +223,12 @@ after_initialize do
       @topic_user ||= TopicUser.find_or_initialize_by(user: current_user, topic: topic)
     end
 
-    def previous_posts
-      @previous_posts ||= topic.posts.includes(:user)
-                                     .order(post_number: :desc)
-                                     .where('post_number < ?', params[:post_number].to_i)
-                                     .limit(SiteSetting.babble_page_size)
+    def load_posts(direction)
+      operator = direction == 'previous' ? '<' : '>'
+      @load_posts ||= topic.posts.includes(:user)
+                                 .order(post_number: :desc)
+                                 .where("post_number #{operator} ?", params[:post_number].to_i)
+                                 .limit(SiteSetting.babble_page_size)
     end
 
     def topic_params
@@ -473,6 +474,11 @@ after_initialize do
                :highest_post_number,
                :last_read_post_number
 
+    def initialize(object, opts)
+      super(object, opts)
+      @params = opts[:params]
+    end
+
     def group_names
       object.allowed_groups.pluck(:name).map(&:humanize)
     end
@@ -495,7 +501,32 @@ after_initialize do
     private
 
     def posts
-      @posts ||= object.posts.includes(:user).order(post_number: :desc).limit(SiteSetting.babble_page_size)
+      posts = object.posts.includes(:user).order(post_number: :desc)
+      nearPost = @params[:near_post].present? && @params[:near_post].to_i
+      highestPost = object.highest_post_number
+      limit = SiteSetting.babble_page_size
+
+      if nearPost && (highestPost > limit)
+        buffer = limit / 2
+        nearBeginning = nearPost < buffer
+        nearEnd = nearPost > (highestPost - buffer)
+
+        if nearBeginning
+          startRange = 0
+          endRange = limit
+        elsif nearEnd
+          startRange = highestPost - limit
+          endRange = highestPost
+        else
+          startRange = nearPost - buffer
+          endRange = nearPost + buffer
+        end
+
+        posts = posts.where(:post_number => (startRange)..(endRange))
+      else
+        posts = posts.limit(limit)
+      end
+      posts
     end
 
     def topic_user

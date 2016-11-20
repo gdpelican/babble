@@ -47,6 +47,7 @@ export default Ember.Object.create({
     }
 
     this.set('currentTopic', topic)
+    this.setPostRange()
     this.set('latestPost', _.max(topic.postStream.posts, function(p) { return p.post_number }))
     this.setUnreadCount()
     this.rerender()
@@ -78,22 +79,34 @@ export default Ember.Object.create({
     messageBus.subscribe(apiPath(topicId, 'presence'), (data) => { this.handlePresence(data) })
   },
 
-  prepareScrollContainer(container, nearPost) {
+  prepareScrollContainer(container) {
     if (!container.length) { return }
 
     // Set up scroll listener
-    $(container).on('scroll.discourse-babble-scroll', debounce((e) => {
-      this.readLastVisiblePost()
-      this.loadPreviousPosts()
+    var lastScroll = 0
+    var self = this
+    $(container).on('scroll.discourse-babble-scroll', debounce(function(e) {
+      // detect direction of scroll
+      var scroll = $(this).scrollTop();
+      let direction = scroll > lastScroll ? 'next' : 'previous'
+      lastScroll = scroll
+
+      self.readLastVisiblePost()
+      self.loadPosts(direction)
     }, 500))
     $(container).trigger('scroll.discourse-babble-scroll')
 
     // Mark scroll container as activated
     container.attr('scroll-container', 'active')
     this.set('scrollContainer', container)
+  },
 
-    // Perform initial scroll
-    this.scrollTo(nearPost || this.currentTopic.last_read_post_number, 0)
+  initialScroll(scrollToPost) {
+    const topic = this.currentTopic
+    const container = this.get('scrollContainer')
+    if (!topic || !container) {return}
+
+    this.scrollTo(scrollToPost || topic.last_read_post_number, 0)
   },
 
   readLastVisiblePost() {
@@ -104,23 +117,33 @@ export default Ember.Object.create({
     })
   },
 
-  loadPreviousPosts() {
-    if (!elementIsVisible(this.get('scrollContainer'), $('.babble-pressure-plate'))) { return }
-    this.set('loadingPreviousPosts', true)
+  loadPosts(direction) {
+    if (!elementIsVisible(this.get('scrollContainer'), $(`.babble-pressure-plate.${direction}`))) { return }
+    this.set('loadingPosts', direction)
     this.rerender()
-    ajax(`/babble/topics/${this.get('currentTopic.id')}/posts/${this.firstLoadedPostNumber()}`).then((data) => {
+
+    let firstLoadedPostNumber = this.get('firstLoadedPostNumber')
+    let lastLoadedPostNumber = this.get('lastLoadedPostNumber')
+    let postNumber = direction === 'previous' ? firstLoadedPostNumber : lastLoadedPostNumber
+
+    ajax(`/babble/topics/${this.get('currentTopic.id')}/posts/${postNumber}/${direction}`).then((data) => {
       // NB: these are wrapped in a 'topics' root and I don't know why.
       let newPosts = data.topics.map(function(post) { return Post.create(post) })
       let currentPosts = this.get('currentTopic.postStream.posts')
       this.set('currentTopic.postStream.posts', newPosts.concat(currentPosts))
+      this.setPostRange()
     }).finally(() => {
-      this.set('loadingPreviousPosts', false)
+      this.set('loadingPosts', null)
       this.rerender()
     })
   },
 
-  firstLoadedPostNumber() {
-    return _.min(this.get('currentTopic.postStream.posts').map(function(post) { return post.post_number }))
+  setPostRange() {
+    const postNumbers = this.get('currentTopic.postStream.posts').map(function(post) { return post.post_number })
+    this.setProperties({
+      'firstLoadedPostNumber': _.min(postNumbers),
+      'lastLoadedPostNumber': _.max(postNumbers)
+    })
   },
 
   prepareComposer(textarea) {
@@ -129,10 +152,11 @@ export default Ember.Object.create({
     textarea.attr('babble-composer', 'active')
   },
 
-  setupAfterRender(nearPost) {
+  setupAfterRender(scrollToPost) {
     Ember.run.scheduleOnce('afterRender', () => {
       const $scrollContainer = $('.babble-list[scroll-container=inactive]')
-      this.prepareScrollContainer($scrollContainer, nearPost)
+      this.prepareScrollContainer($scrollContainer)
+      this.initialScroll(scrollToPost)
 
       const $textarea = $('.babble-post-composer textarea[babble-composer=inactive]')
       this.prepareComposer($textarea)

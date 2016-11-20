@@ -13,8 +13,9 @@ export default Ember.Object.create({
   chatContents() {
     let contents = [
       h('div.babble-list', { attributes: { 'scroll-container': 'inactive' } }, [
-        this.pressurePlate(),
-        h('ul', {className: 'babble-posts'}, this.chatView())
+        this.pressurePlate('previous'),
+        h('ul', {className: 'babble-posts'}, this.chatView()),
+        this.pressurePlate('next')
       ]),
       this.widget.attach('babble-presence', { topic: this.topic }),
       this.widget.attach('babble-composer', { topic: this.topic, canSignUp: this.canSignUp })
@@ -31,22 +32,30 @@ export default Ember.Object.create({
     return contents
   },
 
-  pressurePlate() {
-    if (!this.topic.postStream.posts.length) { return }
-    return h('div.babble-load-history', this.pressurePlateMessage())
+  pressurePlate(direction) {
+    if (!this.topic.postStream.posts.length ||
+        (direction === 'next' && this.topic.highest_post_number === this.widget.state.lastLoadedPostNumber)) { return }
+    return h('div.babble-load-more', this.pressurePlateMessage(direction))
   },
 
-  pressurePlateMessage() {
-    if (this.widget.state.loadingPreviousPosts) {
-      return h('div.babble-load-history-message', I18n.t('babble.loading_history'))
-    } else if (this.widget.state.firstLoadedPostNumber > 1) {
+  pressurePlateMessage(direction) {
+    let state = this.widget.state
+    let previous = direction === 'previous'
+    let limit = previous ? 1 : this.topic.highest_post_number
+    let endRange = previous ? state.firstLoadedPostNumber : state.lastLoadedPostNumber
+    let canLoadMore = previous ? endRange > limit : endRange < limit
+
+    if (state.loadingPosts) {
+      return h('div.babble-load-message', I18n.t('babble.loading_messages'))
+    } else if (canLoadMore) {
       return this.widget.attach('button', {
         label:     'babble.load_more',
-        className: 'babble-load-history-message babble-pressure-plate',
-        action:    'loadPreviousPosts'
+        className: `babble-load-message babble-pressure-plate ${direction}`,
+        action:    'loadPosts',
+        actionParam: direction
       })
     } else {
-      return h('div.babble-load-history-message', I18n.t('babble.no_more_history'))
+      return h('div.babble-load-message', I18n.t('babble.no_more_messages'))
     }
   },
 

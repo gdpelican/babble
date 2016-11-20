@@ -6,13 +6,18 @@ export default MountWidget.extend({
 
   init() {
     this._super();
-    this.args = {
+    Babble.set('container', this)
+  },
+
+  buildArgs() {
+    return {
       topic: this.get('topic'),
       fullpage: this.get('fullpage'),
+      firstLoadedPostNumber: Babble.get('firstLoadedPostNumber'),
+      lastLoadedPostNumber: Babble.get('lastLoadedPostNumber'),
       lastReadPostNumber: this.lastReadPostNumber(),
       canSignUp: this.get('application.canSignUp')
     };
-    Babble.set('container', this)
   },
 
   lastReadPostNumber() {
@@ -20,7 +25,12 @@ export default MountWidget.extend({
     return this.get('topic.last_read_post_number')
   },
 
-  afterPatch() {
+  didInsertElement() {
+    this._super();
     Babble.setupAfterRender(this.get('nearPost'))
+  },
+
+  afterPatch() {
+    Babble.setupAfterRender()
   }
 });

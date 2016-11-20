@@ -10,14 +10,14 @@ export default createWidget('babble-chat', {
       topic: attrs.topic,
       fullpage: attrs.fullpage,
       firstLoadedPostNumber: attrs.firstLoadedPostNumber,
+      lastLoadedPostNumber: attrs.lastLoadedPostNumber,
       lastReadPostNumber: attrs.lastReadPostNumber,
-      loadingPreviousPosts: Babble.get('loadingPreviousPosts'),
-      firstLoadedPostNumber: Babble.firstLoadedPostNumber()
+      loadingPosts: Babble.get('loadingPosts')
     }
   },
 
-  loadPreviousPosts() {
-    Babble.loadPreviousPosts()
+  loadPosts(direction) {
+    Babble.loadPosts(direction)
   },
 
   html() { return template.render(this) }

@@ -44,11 +44,18 @@ export default Discourse.Route.extend({
       canCreateTopic: true
     });
 
-    ajax(`/babble/topics/${model.chat_topic_id}.json`).then((data) => {
+    const nearPost = this.get('nearPost')
+    let path = `/chat/${model.slug}/${model.chat_topic_id}`
+    if (nearPost) {
+      path += `/${nearPost}`
+    }
+    path += '.json'
+
+    ajax(path).then((data) => {
       Babble.setCurrentTopic(data)
       this.controllerFor('chat').setProperties({
         model: Babble.get('currentTopic'),
-        nearPost: this.get('nearPost')
+        nearPost: nearPost
       })
     })
 

@@ -9,7 +9,9 @@ export default createWidget('babble-menu', {
   defaultState(attrs) {
     return {
       viewingChat: attrs.viewingChat,
-      lastReadPostNumber: attrs.lastReadPostNumber
+      lastReadPostNumber: attrs.lastReadPostNumber,
+      firstLoadedPostNumber: attrs.firstLoadedPostNumber,
+      lastReadPostNumber: attrs.lastLoadedPostNumber
     }
   },
 
