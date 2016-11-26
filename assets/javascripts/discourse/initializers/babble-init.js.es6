@@ -90,6 +90,7 @@ export default {
           let contents    = []
 
           if (!Babble.disabled() &&
+          Babble.get('currentTopic') &&
           api.getCurrentUser() &&
           Discourse.SiteSettings.babble_enabled) {
             contents.push(helper.attach('header-dropdown', {
