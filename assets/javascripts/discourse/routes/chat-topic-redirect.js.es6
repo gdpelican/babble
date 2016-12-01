@@ -1,5 +1,5 @@
 export default Discourse.Route.extend({
-  beforeModel(transition) {
+  beforeModel() {
     const params = this.paramsFor('topic')
     this.replaceWith('chat.showCategory', params.slug, params.id);
   }
