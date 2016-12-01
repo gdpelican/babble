@@ -13,7 +13,11 @@ export default Ember.Object.create({
   },
 
   container() {
-    return h('div.babble-post-container', this.contents())
+    const contents = [this.contents()]
+    if (Babble.get('sharedPostId') === this.post.id) {
+      contents.push(this.widget.attach('babble-share', {post: this.post}))
+    }
+    return h('div.babble-post-container', contents)
   },
 
   contents() {
@@ -76,7 +80,8 @@ export default Ember.Object.create({
     let actions = []
     if (this.post.can_delete) { actions.push(this.widget.attach('link', { icon: 'trash-o', action: 'delete'})) }
     if (this.post.can_edit)   { actions.push(this.widget.attach('link', { icon: 'pencil', action: 'edit'})) }
-    if (this.post.deleted_at || !actions.length) { return }
+    actions.push(this.widget.attach('link', { icon: 'link', action: 'share' }))
+    if (this.post.deleted_at) { return }
     return h('div.babble-post-actions', actions)
   },
 

@@ -37,5 +37,9 @@ export default createWidget('babble-post', {
     })
   },
 
+  share() {
+    Babble.set('sharedPostId', this.state.post.id)
+  },
+
   html() { return template.render(this) }
 })

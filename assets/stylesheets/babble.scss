@@ -120,8 +120,6 @@
 /* Post styles */
 .babble-posts {
   width: 100%;
-  overflow-x: hidden;
-  overflow-y: auto;
 }
 
 .babble-empty-topic-message {
@@ -165,6 +163,7 @@
 
 .babble-post-container {
   margin-right: 10px;
+  position: relative;
   &:hover {
     .babble-post-actions { opacity: 1; }
   }
@@ -183,6 +182,9 @@
       color: dark-light-choose(scale-color($primary, $lightness: 50%), scale-color($secondary, $lightness: 50%));
       margin-left: 3px;
     }
+  }
+  #share-link {
+    width: 220px;
   }
 }
 
