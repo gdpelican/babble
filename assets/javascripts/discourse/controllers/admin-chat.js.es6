@@ -2,7 +2,7 @@ import Babble from '../lib/babble'
 import { ajax } from 'discourse/lib/ajax'
 
 export default Ember.Controller.extend({
-  needs: ['adminChats'],
+  adminChats: Ember.inject.controller(),
 
   categoryPermissions: function() {
     return this.get('model.permissions') == 'category'
@@ -22,9 +22,9 @@ export default Ember.Controller.extend({
 
     save() {
       const topic = this.get('model')
-      const allTopics = this.get('controllers.adminChats.model')
+      const allTopics = this.get('adminChats.model')
       const self = this
-      const category = this.get('category')[0]
+      const category = this.get('categories')[0]
 
       self.set('disableSave', true);
 
@@ -66,7 +66,7 @@ export default Ember.Controller.extend({
 
     destroy() {
       const topic = this.get('model')
-      const allTopics = this.get('controllers.adminChats.model')
+      const allTopics = this.get('adminChats.model')
       const self = this
       const confirm = bootbox
 

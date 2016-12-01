@@ -1,8 +1,8 @@
 export default {
   resource: 'admin',
   map() {
-    this.resource('adminChats', { path: '/chats' }, function() {
-      this.resource('adminChat', { path: '/:id' });
+    this.route('adminChats', { path: '/chats', resetNamespace: true }, function() {
+      this.route('adminChat', { path: '/:id', resetNamespace: true });
     });
   }
 };

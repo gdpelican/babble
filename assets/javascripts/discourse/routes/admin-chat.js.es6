@@ -1,63 +1,37 @@
 import Babble from "../../discourse/lib/babble"
 import Topic from 'discourse/models/topic'
-import Category from 'discourse/models/category'
 import Group from 'discourse/models/group'
+import Category from 'discourse/models/category'
 import { ajax } from 'discourse/lib/ajax'
 
 export default Discourse.Route.extend({
 
-  model: function(params) {
-    if (params.id === 'new') {
-      return Topic.create({ category: null, allowed_group_ids: [], permissions: 'category' })
-    } else {
-      return ajax(`/babble/topics/${params.id}.json`).then((data) => {
-        let topic = Topic.create(data)
-        topic.set('permissions', data.permissions)
-        if(data.category_id) {
-          topic.set('category', Category.findById(data.category_id))
-        }
-        return topic
-      })
-    }
-  },
-
-  setupController: function(controller, model) {
+  setupController: function(controller) {
     if (Babble.disabled()) { return }
-    const self = this
+    Group.findAll().then((groupsResponse) => {
+      const id = this.paramsFor('adminChat').id
+      // don't include the everyone group, and set automatic to false so groups can be removed
+      let groups = _.reject(groupsResponse.map((g) => { g.automatic = false; return g; }), (g) => { return g.id == 0 })
 
-    var setup = function(selected, available) {
-      const everyoneGroupId = 0;
+      if (id === 'new') {
+        controller.setProperties({ model: Topic.create(), available: groups, selected: [], categories: [] })
+      } else {
+        ajax(`/babble/topics/${id}.json`).then((data) => {
+          let topic = Topic.create(data)
+          topic.set('permissions', data.permissions)
 
-      if (selected) { self._selected = selected }
-      if (available) { self._available = available }
-      if (!self._available || !self._selected) { return }
-
-      self._available = _.map(self._available, function(g) { g.automatic = false; return g })
-      self._selected  = _.map(self._selected,  function(g) { g.automatic = false; return g })
-      self._available = _.reject(self._available, function(g) { return g.id == everyoneGroupId; })
-
-      model.allowed_group_ids = _.pluck(self._selected, 'id')
-
-      let category = model.category ? [model.category] : []
-
-      let props = {
-        model: model,
-        available: self._available,
-        selected: self._selected,
-        category: category
+          if(topic.get('permissions') == 'category') {
+            topic.set('category', Category.findById(data.category_id))
+            controller.setProperties({ model: topic, available: groups, selected: [], categories: [topic.get('category')] })
+          } else {
+            ajax(`/babble/topics/${id}/groups.json`).then((response) => {
+              let selected = response.topics.map((g) => { g.automatic = false; return g }) // ...yeah whoops. This should be in a separate controller.
+              topic.allowed_group_ids = _.pluck(selected, 'id')
+              controller.setProperties({ model: topic, available: groups, selected: selected, categories: [] })
+            })
+          }
+        })
       }
-
-      controller.setProperties(props)
-    }
-
-    if (model.id) {
-      ajax(`/babble/topics/${model.id}/groups.json`).then(function(data) { setup(data.topics, null) })
-    } else {
-      setup([], null)
-    }
-
-    Group.findAll().then(function(groups) {
-      setup(null, groups)
     })
   }
 });

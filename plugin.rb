@@ -476,7 +476,7 @@ after_initialize do
 
     def initialize(object, opts)
       super(object, opts)
-      @params = opts[:params]
+      @params = opts[:params] || {}
     end
 
     def group_names
@@ -502,7 +502,7 @@ after_initialize do
 
     def posts
       posts = object.posts.includes(:user).order(post_number: :desc)
-      nearPost = @params[:near_post].present? && @params[:near_post].to_i
+      nearPost = @params.fetch(:near_post, nil).to_i
       highestPost = object.highest_post_number
       limit = SiteSetting.babble_page_size
 
