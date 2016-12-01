@@ -59,12 +59,23 @@ export default {
             active:        headerState.babbleVisible,
             action:        'toggleBabble',
             contents() {
-              if (!Babble.notificationCount() || headerState.babbleVisible) { return }
-              return this.attach('link', {
-                action:    'toggleBabble',
-                className: 'badge-notification unread-notifications',
-                rawLabel:  Babble.notificationCount()
-              })
+              if (headerState.babbleVisible) { return }
+              const links = []
+              if (Babble.notificationCount()) {
+                links.push(this.attach('link', {
+                  action:    'toggleBabble',
+                  className: 'badge-notification unread-notifications',
+                  rawLabel:  Babble.notificationCount()
+                }))
+              }
+              if (Babble.highlightCount()) {
+                links.push(this.attach('link', {
+                  action:    'toggleBabble',
+                  className: 'badge-notification unread-private-messages',
+                  rawLabel:  Babble.highlightCount(),
+                }))
+              }
+              return links
             }
           }));
         }
