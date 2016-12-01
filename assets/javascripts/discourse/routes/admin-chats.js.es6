@@ -1,12 +1,10 @@
 import Babble from "../../discourse/lib/babble"
+import { ajax } from "discourse/lib/ajax"
 
 export default Discourse.Route.extend({
-
-  model: function() {
-    return Babble.get('availableTopics')
-  },
-
-  setupController: function(controller, model) {
-    controller.setProperties({ model: model, disabled: Babble.disabled() })
+  setupController: function(controller) {
+    ajax(`/babble/topics.json`).then(function() {
+      controller.setProperties({ model: Babble.get('availableTopics'), disabled: Babble.disabled() })
+    })
   }
 });

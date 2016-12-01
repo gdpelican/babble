@@ -6,7 +6,7 @@
       <h3>{{i18n 'babble.admin.page_title'}}</h3>
       {{#if model}}
         <ul>
-          {{#each topic in model}}
+          {{#each model as |topic|}}
             <li>
               {{#link-to 'adminChat' topic.id}}{{topic.title}}{{/link-to}}
             </li>
