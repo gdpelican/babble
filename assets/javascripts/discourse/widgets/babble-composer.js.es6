@@ -14,8 +14,7 @@ export default createWidget('babble-composer', {
       submitDisabled:  attrs.submitDisabled,
       post:            attrs.post,
       topic:           attrs.topic,
-      raw:             attrs.raw,
-      lastInteraction: new Date(0)
+      raw:             attrs.raw
     }
   },
 
@@ -106,7 +105,7 @@ export default createWidget('babble-composer', {
   },
 
   keyUp(event) {
-    this.state.showError = false
+    if (this.state.showError) { this.state.showError = false }
     if (event.keyCode == 38 &&                               // key pressed is up key
         !this.state.editing &&                               // post is not being edited
         !$(event.target).siblings('.autocomplete').length) { // autocomplete is not active
@@ -116,11 +115,10 @@ export default createWidget('babble-composer', {
       if (myLastPost) { Babble.editPost(myLastPost) }
       return false
     }
-  },
 
-  input() {
-    if (this.state.editing) { return }
-    this.announcePresence()
+    // only fire typing events if input has changed
+    // TODO: expand this to account for backspace / delete keys too
+    if (event.key.length === 1) { this.announcePresence() }
   },
 
   announcePresence: debounce(function() {
