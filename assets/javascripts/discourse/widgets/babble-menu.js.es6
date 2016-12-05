@@ -25,7 +25,6 @@ export default createWidget('babble-menu', {
   },
 
   html() {
-    console.log('rendering babble-menu template...')
     return template.render(this)
   }
 });
