@@ -502,7 +502,7 @@ after_initialize do
 
     def posts
       posts = object.posts.includes(:user).order(post_number: :desc)
-      nearPost = @params.fetch(:near_post, nil).to_i
+      nearPost = (@params || {}).fetch(:near_post, nil).to_i
       highestPost = object.highest_post_number
       limit = SiteSetting.babble_page_size
 
