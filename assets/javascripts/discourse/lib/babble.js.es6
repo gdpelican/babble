@@ -6,6 +6,7 @@ import lastVisibleElement from '../lib/last-visible-element'
 import debounce from 'discourse/lib/debounce'
 import setupComposer from '../lib/setup-composer'
 import autosize from 'discourse/lib/autosize'
+import resizeChat from '../lib/resize-chat'
 import { ajax } from 'discourse/lib/ajax'
 
 export default Ember.Object.create({
@@ -163,6 +164,7 @@ export default Ember.Object.create({
 
       const $editing = $('.babble-post-composer textarea[babble-composer=active]')
       autosize($editing)
+      resizeChat()
     })
   },
 

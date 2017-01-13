@@ -570,11 +570,6 @@ li.babble-chat.drop-container {
 
 .chat.fullpage {
   .babble-chat {
-    position: absolute;
-    top: 0;
-    bottom: 0;
-    right: 0;
-    left: 0;
     display: flex;
     display: -webkit-flex;
     -webkit-flex-direction: column;

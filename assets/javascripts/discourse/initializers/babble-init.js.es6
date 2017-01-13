@@ -1,6 +1,7 @@
 import computed from "ember-addons/ember-computed-decorators";
 import { withPluginApi } from 'discourse/lib/plugin-api';
 import Babble from "../lib/babble";
+import resizeChat from '../lib/resize-chat';
 import SiteHeader from 'discourse/components/site-header';
 import NavigationBar from 'discourse/components/navigation-bar';
 import NavItem from 'discourse/models/nav-item';
@@ -13,6 +14,10 @@ export default {
   name: 'babble-init',
   initialize(){
     if (Discourse.SiteSettings.babble_full_page) {
+
+      // Listen for window changes and adjust chat page accordingly
+      $(window).on('resize', _.debounce(resizeChat, 250))
+
       // Add full page chat to category navigation bar
       customNavItemHref(function(navItem) {
         if (navItem.get('name') != 'chat') { return }
