@@ -95,7 +95,7 @@ export default {
           let contents    = []
 
           if (!Babble.disabled() &&
-          Babble.get('currentTopic') &&
+          headerState.topic &&
           api.getCurrentUser() &&
           Discourse.SiteSettings.babble_enabled) {
             contents.push(helper.attach('header-dropdown', {
@@ -119,23 +119,22 @@ export default {
               headerState.babbleViewingChat = true
             }
             contents.push(helper.attach('babble-menu', {
-              topic:                 Babble.get('currentTopic'),
-              availableTopics:       Babble.getAvailableTopics(true),
+              availableTopics:       Babble.get('availableTopics'),
               loadingPosts:          Babble.get('loadingPosts'),
               viewingChat:           headerState.babbleViewingChat,
+              topic:                 headerState.topic
             }))
           }
           return contents
         })
 
         api.attachWidgetAction('header', 'toggleBabble', function() {
-          let topic = Babble.currentTopic
           Babble.editPost(null)
-
           this.state.babbleVisible = !this.state.babbleVisible
         })
 
-        api.attachWidgetAction('header', 'toggleBabbleViewingChat', function() {
+        api.attachWidgetAction('header', 'toggleBabbleViewingChat', function(topic) {
+          if (topic) { this.state.topic = topic }
           this.state.babbleViewingChat = !this.state.babbleViewingChat
         })
       })

@@ -88,21 +88,28 @@ export default Ember.Object.create({
       return this.loadingSpinner()
     } else if (stream.posts.length) {
       let posts = stream.posts.sort((a,b) => { return a.post_number - b.post_number })
-      return posts.map((p, index) => { return this.widget.attach('babble-post', {
-        post: p,
-        topic: this.topic,
-        isLastRead: this.topic.last_read_post_number == p.post_number,
-        // a post is a 'follow-on' if it's another post by the same author within 2 minutes
-        isFollowOn: posts[index-1] &&
-                    posts[index-1].user_id == p.user_id &&
-                    moment(posts[index-1].created_at) > moment(p.created_at).add(-2, 'minute'),
-        // a post displays a date separator if it's the first post of the day
-        isNewDay: posts[index-1] &&
-                  moment(posts[index-1].created_at).date() != moment(p.created_at).date()
-      }) })
+      return posts.map((post, index) => {
+        return this.widget.attach('babble-post', {
+          post: post,
+          topic: this.topic,
+          isLastRead: this.isLastRead(post),
+          // a post is a 'follow-on' if it's another post by the same author within 2 minutes
+          isFollowOn: posts[index-1] &&
+                      posts[index-1].user_id == post.user_id &&
+                      moment(posts[index-1].created_at) > moment(post.created_at).add(-2, 'minute'),
+          // a post displays a date separator if it's the first post of the day
+          isNewDay: posts[index-1] &&
+                    moment(posts[index-1].created_at).date() != moment(post.created_at).date()
+        })
+      })
     } else {
       return h('li.babble-empty-topic-message', I18n.t('babble.empty_topic_message'))
     }
+  },
+
+  isLastRead(post) {
+    return post.post_number == this.topic.last_read_post_number &&
+           post.post_number <  this.topic.lastLoadedPostNumber
   },
 
   loadingSpinner() {

@@ -52,9 +52,8 @@ export default Discourse.Route.extend({
     path += '.json'
 
     ajax(path).then((data) => {
-      Babble.setCurrentTopic(data)
       this.controllerFor('chat').setProperties({
-        model: Babble.get('currentTopic'),
+        model: Babble.buildTopic(data),
         nearPost: nearPost
       })
     })

@@ -3,13 +3,14 @@ import userSearch from 'discourse/lib/user-search'
 import { translations } from 'pretty-text/emoji/data'
 import { emojiSearch } from 'pretty-text/emoji'
 import { emojiUrlFor } from 'discourse/lib/text'
+import { findRawTemplate } from 'discourse/lib/raw-templates';
 
 export default function ($textarea, opts = {}) {
   if (!$textarea) { return }
 
   if (opts.emojis) {
     $textarea.autocomplete({
-      template: Discourse.__container__.lookup('template:emoji-selector-autocomplete.raw'),
+      template: findRawTemplate('emoji-selector-autocomplete'),
       key: ":",
 
       transformComplete(v) {
@@ -33,7 +34,7 @@ export default function ($textarea, opts = {}) {
 
   if (opts.mentions) {
     $textarea.autocomplete({
-      template: Discourse.__container__.lookup('template:user-selector-autocomplete.raw'),
+      template: findRawTemplate('user-selector-autocomplete'),
       key: '@',
       dataSource(term) {
         return userSearch({

@@ -16,24 +16,26 @@ export default Ember.Object.create({
     return _.contains(Discourse.Site.current().disabled_plugins, 'babble')
   },
 
-  setCurrentTopic(data) {
+  buildTopic(data, previousTopic) {
     if (!data.id) {
-      this.set('currentTopic', null)
       this.set('scrollContainer', null)
       return
     }
 
     var resetTopicField = (topic, field) => {
       topic[field] = data[field]
-      if (topic[field] == null && this.get('currentTopic')) { topic[field] = this.get('currentTopic')[field] }
+      if (topic[field] == null && previousTopic) { topic[field] = previousTopic[field] }
     }
 
     var topic = Topic.create(data)
     resetTopicField(topic, 'last_read_post_number')
     resetTopicField(topic, 'highest_post_number')
 
-    if (this.get('currentTopic.id') != topic.id) {
-      this.handleMessageBusSubscriptions(this.get('currentTopic'), topic)
+    if (previousTopic && previousTopic.id == topic.id) {
+      topic.postStream = previousTopic.postStream
+      topic.presence   = previousTopic.presence
+    } else {
+      this.handleMessageBusSubscriptions(topic, previousTopic)
 
       let postStream = PostStream.create(topic.post_stream)
       postStream.topic = topic
@@ -41,15 +43,11 @@ export default Ember.Object.create({
 
       topic.postStream = postStream
       topic.presence = {}
-    } else {
-      topic.postStream = this.get('currentTopic.postStream')
-      topic.presence = this.get('currentTopic.presence')
     }
 
-    this.set('currentTopic', topic)
     this.setPostRange(topic)
     this.setUnreadCount(topic)
-    this.rerender()
+    return topic
   },
 
   latestPostFor(topic) {
@@ -64,6 +62,11 @@ export default Ember.Object.create({
     }).then((data) => {
       this.handleNewPost(topic, data)
     })
+  },
+
+  loadTopic(id) {
+    this.set('loadingTopicId', id)
+    return ajax(`/babble/topics/${id}.json`).finally(() => { this.set('loadingTopicId', null) })
   },
 
   editPost(post) {
@@ -98,7 +101,7 @@ export default Ember.Object.create({
     })
   },
 
-  handleMessageBusSubscriptions(oldTopic, newTopic) {
+  handleMessageBusSubscriptions(newTopic, oldTopic) {
     if (oldTopic && newTopic && oldTopic.id == newTopic.id) { return }
     const messageBus = Discourse.__container__.lookup('message-bus:main')
     let apiPath = function(topic, action) { return `/babble/topics/${topic.id}/${action}` }
@@ -108,7 +111,7 @@ export default Ember.Object.create({
       messageBus.unsubscribe(apiPath(oldTopic), 'posts')
       messageBus.unsubscribe(apiPath(oldTopic), 'presence')
     }
-    messageBus.subscribe(apiPath(newTopic),             (data) => { this.setCurrentTopic(data) })
+    messageBus.subscribe(apiPath(newTopic),             (data) => { this.buildTopic(data) })
     messageBus.subscribe(apiPath(newTopic, 'posts'),    (data) => { this.handleNewPost(newTopic, data) })
     messageBus.subscribe(apiPath(newTopic, 'presence'), (data) => { this.handlePresence(newTopic, data) })
   },
@@ -144,9 +147,7 @@ export default Ember.Object.create({
   readLastVisiblePost(topic) {
     let postNumber = lastVisibleElement(this.get('scrollContainer'), '.babble-post', 'post-number')
     if (postNumber <= topic.last_read_post_number) { return }
-    ajax(`/babble/topics/${topic.id}/read/${postNumber}.json`).then((data) => {
-      this.setCurrentTopic(data)
-    })
+    return ajax(`/babble/topics/${topic.id}/read/${postNumber}.json`)
   },
 
   loadPosts(topic, direction) {
@@ -159,7 +160,7 @@ export default Ember.Object.create({
     ajax(`/babble/topics/${topic.id}/posts/${postNumber}/${direction}`).then((data) => {
       // NB: these are wrapped in a 'topics' root and I don't know why.
       let newPosts = data.topics.map(function(post) { return Post.create(post) })
-      let currentPosts = topic.get('postStream.posts')
+      let currentPosts = topic.postStream.posts
       topic.set('postStream.posts', newPosts.concat(currentPosts))
       this.setPostRange(topic)
     }).finally(() => {
@@ -169,14 +170,14 @@ export default Ember.Object.create({
   },
 
   setPostRange(topic) {
-    const postNumbers = topic.get('postStream.posts').map(function(post) { return post.post_number })
+    const postNumbers = topic.postStream.posts.map(function(post) { return post.post_number })
     topic.set('firstLoadedPostNumber', _.min(postNumbers))
     topic.set('lastLoadedPostNumber',  _.max(postNumbers))
   },
 
-  prepareComposer(textarea) {
+  prepareComposer(topic, textarea) {
     if (!textarea.length) { return }
-    setupComposer(textarea, { mentions: true, emojis: true, topicId: this.currentTopic.id })
+    setupComposer(textarea, { mentions: true, emojis: true, topicId: topic.id })
     textarea.attr('babble-composer', 'active')
   },
 
@@ -187,7 +188,7 @@ export default Ember.Object.create({
       this.initialScroll(topic, scrollToPost)
 
       const $textarea = $('.babble-post-composer textarea[babble-composer=inactive]')
-      this.prepareComposer($textarea)
+      this.prepareComposer(topic, $textarea)
 
       const $editing = $('.babble-post-composer textarea[babble-composer=active]')
       autosize($editing)
@@ -204,12 +205,6 @@ export default Ember.Object.create({
 
   setAvailableTopics(data) {
     this.set('availableTopics', (data || {}).topics || [])
-  },
-
-  getAvailableTopics(excludeCurrent) {
-    return this.get('availableTopics').filter((topic) => {
-      return !excludeCurrent || topic.id !== this.get('currentTopic.id')
-    })
   },
 
   setUnreadCount(topic) {
@@ -255,6 +250,7 @@ export default Ember.Object.create({
       moderator:          user.get('moderator'),
       admin:              user.get('admin')
     })
+    topic.set('isStaging', true)
     topic.postStream.set('loadedAllPosts', true)
     topic.postStream.stagePost(post, user)
     this.scrollTo(post.post_number)
@@ -293,6 +289,7 @@ export default Ember.Object.create({
       }
 
     }
+    this.setPostRange(topic)
     this.setUnreadCount(topic)
     this.rerender()
     if(performScroll) {
