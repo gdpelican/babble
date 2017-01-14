@@ -34,7 +34,7 @@ export default Ember.Object.create({
 
   pressurePlate(direction) {
     if (!this.topic.postStream.posts.length ||
-        (direction === 'next' && this.topic.highest_post_number === this.widget.state.lastLoadedPostNumber)) { return }
+        (direction === 'next' && this.topic.highest_post_number === this.topic.lastLoadedPostNumber)) { return }
     return h('div.babble-load-more', this.pressurePlateMessage(direction))
   },
 
@@ -91,7 +91,7 @@ export default Ember.Object.create({
       return posts.map((p, index) => { return this.widget.attach('babble-post', {
         post: p,
         topic: this.topic,
-        isLastRead: this.widget.state.lastReadPostNumber == p.post_number,
+        isLastRead: this.topic.last_read_post_number == p.post_number,
         // a post is a 'follow-on' if it's another post by the same author within 2 minutes
         isFollowOn: posts[index-1] &&
                     posts[index-1].user_id == p.user_id &&

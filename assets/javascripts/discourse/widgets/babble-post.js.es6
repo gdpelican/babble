@@ -18,6 +18,7 @@ export default createWidget('babble-post', {
   defaultState(attrs) {
     return {
       post:       attrs.post,
+      topic:      attrs.topic,
       isFollowOn: attrs.isFollowOn,
       isNewDay:   attrs.isNewDay,
       isLastRead: attrs.isLastRead,
@@ -30,13 +31,7 @@ export default createWidget('babble-post', {
   },
 
   delete() {
-    let post = this.state.post
-    Babble.set('loadingEditId', post.id)
-    ajax(`/babble/topics/${post.topic_id}/destroy/${post.id}`, {
-      type: 'DELETE'
-    }).finally(() => {
-      Babble.set('loadingEditId', null)
-    })
+    Babble.destroyPost(this.state.post)
   },
 
   html() { return template.render(this) }

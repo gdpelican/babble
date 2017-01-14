@@ -122,9 +122,6 @@ export default {
               topic:                 Babble.get('currentTopic'),
               availableTopics:       Babble.getAvailableTopics(true),
               loadingPosts:          Babble.get('loadingPosts'),
-              firstLoadedPostNumber: Babble.get('firstLoadedPostNumber'),
-              lastLoadedPostNumber:  Babble.get('lastLoadedPostNumber'),
-              lastReadPostNumber:    headerState.lastReadPostNumber,
               viewingChat:           headerState.babbleViewingChat,
             }))
           }
@@ -133,12 +130,6 @@ export default {
 
         api.attachWidgetAction('header', 'toggleBabble', function() {
           let topic = Babble.currentTopic
-          if (topic.last_read_post_number < topic.highest_post_number) {
-            this.state.lastReadPostNumber = topic.last_read_post_number
-          } else {
-            this.state.lastReadPostNumber = null
-          }
-
           Babble.editPost(null)
 
           this.state.babbleVisible = !this.state.babbleVisible

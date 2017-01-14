@@ -13,24 +13,16 @@ export default MountWidget.extend({
     return {
       topic: this.get('topic'),
       fullpage: this.get('fullpage'),
-      firstLoadedPostNumber: Babble.get('firstLoadedPostNumber'),
-      lastLoadedPostNumber: Babble.get('lastLoadedPostNumber'),
-      lastReadPostNumber: this.lastReadPostNumber(),
       canSignUp: this.get('application.canSignUp')
     };
   },
 
-  lastReadPostNumber() {
-    if (this.get('topic.last_read_post_number') == this.get('topic.highest_post_number')) { return }
-    return this.get('topic.last_read_post_number')
-  },
-
   didInsertElement() {
     this._super();
-    Babble.setupAfterRender(this.get('nearPost'))
+    Babble.setupAfterRender(this.get('topic'), this.get('nearPost'))
   },
 
   afterPatch() {
-    Babble.setupAfterRender()
+    Babble.setupAfterRender(this.get('topic'))
   }
 });

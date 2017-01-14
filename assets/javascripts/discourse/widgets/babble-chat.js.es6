@@ -9,15 +9,12 @@ export default createWidget('babble-chat', {
     return {
       topic: attrs.topic,
       fullpage: attrs.fullpage,
-      firstLoadedPostNumber: attrs.firstLoadedPostNumber,
-      lastLoadedPostNumber: attrs.lastLoadedPostNumber,
-      lastReadPostNumber: attrs.lastReadPostNumber,
       loadingPosts: Babble.get('loadingPosts')
     }
   },
 
   loadPosts(direction) {
-    Babble.loadPosts(direction)
+    Babble.loadPosts(this.state.topic, direction)
   },
 
   html() { return template.render(this) }

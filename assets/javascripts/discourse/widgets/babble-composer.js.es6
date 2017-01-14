@@ -60,42 +60,24 @@ export default createWidget('babble-composer', {
   },
 
   create(text) {
-    var topic = this.state.topic
     this.state.submitDisabled = true
-    Babble.stagePost(text)
-    ajax(`/babble/topics/${topic.id}/post`, {
-      type: 'POST',
-      data: { raw: text }
-    }).then((data) => {
-      Babble.handleNewPost(data)
-    }).finally(() => {
+    Babble.createPost(this.state.topic, text).finally(() => {
       this.state.submitDisabled = false
     })
   },
 
   update(text) {
-    var post = this.state.post
-    Babble.editPost(null)
-    if (post.raw.trim() === text.trim()) { return }
-    Babble.set('loadingEditId', post.id)
-    this.state.submitDisabled = true
-    ajax(`/babble/topics/${post.topic_id}/post/${post.id}`, {
-      type: 'POST',
-      data: { raw: text }
-    }).then((data) => {
-      Babble.handleNewPost(data)
-    }).finally(() => {
-      Babble.set('loadingEditId', null)
+    if (this.state.post.raw.trim() == text.trim()) { return }
+    Babble.updatePost(this.state.post, this.state.topic, text).finally(() => {
       this.state.submitDisabled = false
     })
   },
 
   keyDown(event) {
     if (event.keyCode == 13 && !(event.ctrlKey || event.altKey || event.shiftKey)) {
+      if (this.state.submitDisabled) { return }
       event.preventDefault()
-      if (!this.state.submitDisabled) { // ignore if submit is disabled
-        this.submit(this) // submit on enter
-      }
+      this.submit() // submit on enter
       return false
     } else if (event.keyCode == 27) {
       event.preventDefault()

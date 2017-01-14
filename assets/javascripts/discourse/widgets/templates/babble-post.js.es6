@@ -35,7 +35,7 @@ export default Ember.Object.create({
     } else if (Babble.get('editingPostId') === this.post.id ){
       return this.widget.attach('babble-composer', {
         post:      this.post,
-        topic:     Babble.currentTopic,
+        topic:     this.topic,
         isEditing: true,
         raw:       this.post.raw})
     } else if (Babble.get('loadingEditId') === this.post.id) {
