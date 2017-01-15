@@ -9,6 +9,7 @@ export default Ember.Object.create({
   render(widget) {
     this.widget     = widget
     this.post       = widget.state.post
+    this.topic      = widget.state.topic
     this.isFollowOn = widget.state.isFollowOn
     this.isNewDay   = widget.state.isNewDay
     return this.container()
@@ -32,13 +33,13 @@ export default Ember.Object.create({
       return h('div.babble-staged-post.babble-deleted-post', [this.avatarWrapper(), I18n.t('babble.post_deleted_by', {username: this.post.deleted_by_username})])
     } else if (this.post.user_deleted) {
       return h('div.babble-staged-post.babble-deleted-post', [this.avatarWrapper(), this.bodyWrapper()] )
-    } else if (Babble.get('editingPostId') === this.post.id ){
+    } else if (this.topic.get('editingPostId') === this.post.id ){
       return this.widget.attach('babble-composer', {
         post:      this.post,
         topic:     this.topic,
         isEditing: true,
         raw:       this.post.raw})
-    } else if (Babble.get('loadingEditId') === this.post.id) {
+    } else if (this.topic.get('loadingEditId') === this.post.id) {
       return h('div.babble-staged-post', [this.avatarWrapper(), this.bodyWrapper(true)])
     } else {
       return [this.avatarWrapper(), this.bodyWrapper(false)]

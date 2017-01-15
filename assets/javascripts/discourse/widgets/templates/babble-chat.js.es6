@@ -33,19 +33,18 @@ export default Ember.Object.create({
   },
 
   pressurePlate(direction) {
-    if (!this.topic.postStream.posts.length ||
-        (direction === 'next' && this.topic.highest_post_number === this.topic.lastLoadedPostNumber)) { return }
+    if (!this.topic.postStream.posts.length) { return }
+    if (direction === 'next' && this.topic.highest_post_number == this.topic.lastLoadedPostNumber) { return }
     return h('div.babble-load-more', this.pressurePlateMessage(direction))
   },
 
   pressurePlateMessage(direction) {
-    let state = this.widget.state
     let previous = direction === 'previous'
     let limit = previous ? 1 : this.topic.highest_post_number
-    let endRange = previous ? state.firstLoadedPostNumber : state.lastLoadedPostNumber
+    let endRange = previous ? this.topic.firstLoadedPostNumber : this.topic.lastLoadedPostNumber
     let canLoadMore = previous ? endRange > limit : endRange < limit
 
-    if (state.loadingPosts) {
+    if (this.topic.loadingPosts) {
       return h('div.babble-load-message', I18n.t('babble.loading_messages'))
     } else if (canLoadMore) {
       return this.widget.attach('button', {

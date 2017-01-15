@@ -27,11 +27,11 @@ export default createWidget('babble-post', {
   },
 
   edit() {
-    Babble.editPost(this.state.post)
+    Babble.editPost(this.state.topic, this.state.post)
   },
 
   delete() {
-    Babble.destroyPost(this.state.post)
+    Babble.destroyPost(this.state.topic, this.state.post)
   },
 
   html() { return template.render(this) }

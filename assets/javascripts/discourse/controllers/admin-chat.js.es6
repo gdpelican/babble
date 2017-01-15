@@ -54,7 +54,6 @@ export default Ember.Controller.extend({
         } else {
           allTopics.addObject(saved)
         }
-        Babble.setAvailableTopics()
         self.transitionToRoute('adminChat', saved.id)
 
       }).catch(function() {

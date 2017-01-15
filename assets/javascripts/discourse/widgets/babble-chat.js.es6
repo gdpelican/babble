@@ -8,8 +8,8 @@ export default createWidget('babble-chat', {
   defaultState(attrs) {
     return {
       topic: attrs.topic,
-      fullpage: attrs.fullpage,
-      loadingPosts: Babble.get('loadingPosts')
+      container: attrs.container,
+      fullpage: attrs.fullpage
     }
   },
 

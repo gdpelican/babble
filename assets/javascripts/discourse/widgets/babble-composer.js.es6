@@ -43,7 +43,7 @@ export default createWidget('babble-composer', {
   },
 
   cancel() {
-    Babble.editPost(null)
+    Babble.editPost(this.state.topic, null)
   },
 
   submit() {
@@ -68,7 +68,7 @@ export default createWidget('babble-composer', {
 
   update(text) {
     if (this.state.post.raw.trim() == text.trim()) { return }
-    Babble.updatePost(this.state.post, this.state.topic, text).finally(() => {
+    Babble.updatePost(this.state.topic, this.state.post, text).finally(() => {
       this.state.submitDisabled = false
     })
   },
@@ -81,7 +81,7 @@ export default createWidget('babble-composer', {
       return false
     } else if (event.keyCode == 27) {
       event.preventDefault()
-      Babble.editPost(null)
+      Babble.editPost(this.state.topic, null)
       return false
     }
   },
@@ -94,7 +94,7 @@ export default createWidget('babble-composer', {
       let myLastPost = _.last(_.select(this.state.topic.postStream.posts, function(post) {
         return post.user_id == Discourse.User.current().id
       }))
-      if (myLastPost) { Babble.editPost(myLastPost) }
+      if (myLastPost) { Babble.editPost(this.state.topic, myLastPost) }
       return false
     }
 
