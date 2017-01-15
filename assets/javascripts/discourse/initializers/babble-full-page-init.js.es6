@@ -5,6 +5,7 @@ import Category from 'discourse/models/category'
 import CategoryController from 'discourse/controllers/navigation/category'
 import computed from 'ember-addons/ember-computed-decorators'
 import { customNavItemHref } from 'discourse/models/nav-item'
+import ChatComponent from '../components/chat-container'
 
 export default {
   name: 'babble-full-page-init',
@@ -30,6 +31,20 @@ export default {
         }
         return title
       }.property('categoryName', 'name', 'count')
+    })
+
+    ChatComponent.reopen({
+      selector: '#main-outlet .container.list-container',
+
+      didInsertElement() {
+        this._super()
+        Babble.bind(this)
+      },
+
+      didRemoveElement() {
+        this._super()
+        Babble.unbind(this)
+      }
     })
 
     CategoryController.reopen({

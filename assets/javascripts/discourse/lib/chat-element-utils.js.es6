@@ -1,4 +1,4 @@
-import forEachTopicContainer from './for-each-topic-container'
+import { forEachTopicContainer } from './chat-topic-iterators'
 import userSearch from 'discourse/lib/user-search'
 import { translations } from 'pretty-text/emoji/data'
 import { emojiSearch } from 'pretty-text/emoji'
@@ -7,15 +7,16 @@ import { findRawTemplate } from 'discourse/lib/raw-templates'
 
 let resizeChat = function(topic) {
   forEachTopicContainer(topic, function($container) {
-    let $chat = $($container).find('.babble-chat')
+    let $chat = $($container).find('.babble-list')
     if (!$chat) { return }
 
-    let siblings = $($container).siblings().toArray()
-    let nonChatHeight = siblings.reduce(function(height, elem) {
+    let $nonChatElements = $($container).siblings().toArray()
+    $nonChatElements.push($($container).find('.babble-post-composer')[0])
+    let nonChatHeight = $nonChatElements.reduce(function(height, elem) {
       return height + elem.clientHeight
     }, parseInt(window.getComputedStyle(document.getElementById('main-outlet')).paddingTop))
 
-    $($chat).height(window.innerHeight - nonChatHeight + 45)
+    $($chat).height(window.innerHeight - nonChatHeight)
     document.getElementById('list-area').style.marginBottom = 0
   })
 }
@@ -96,8 +97,4 @@ let resetComposer = function(topic) {
   })
 }
 
-let rerender = function(topic) {
-  forEachTopicContainer(topic, function($container) { $container.queueRerender() })
-}
-
-export { resizeChat, scrollToPost, setupComposer, resetComposer, rerender }
+export { resizeChat, scrollToPost, setupComposer, resetComposer }

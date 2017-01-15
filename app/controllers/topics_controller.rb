@@ -166,11 +166,11 @@ class ::Babble::TopicsController < ::ApplicationController
   end
 
   def load_posts(direction)
-    operator = direction == 'previous' ? '<' : '>'
-    @load_posts ||= topic.posts.includes(:user)
-                               .order(post_number: :desc)
-                               .where("post_number #{operator} ?", params[:post_number].to_i)
-                               .limit(SiteSetting.babble_page_size)
+    @load_posts ||= PostStreamWindow.for(
+      topic: topic,
+      from: params[:post_number],
+      order: if direction == 'previous' then :desc else :asc end
+    )
   end
 
   def topic_params

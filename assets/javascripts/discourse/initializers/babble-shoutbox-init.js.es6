@@ -1,4 +1,5 @@
 import Babble from '../lib/babble'
+import SiteHeader from 'discourse/components/site-header'
 import { ajax } from 'discourse/lib/ajax'
 import { withPluginApi } from 'discourse/lib/plugin-api'
 
@@ -13,6 +14,21 @@ export default {
 
       ajax('/babble/topics/default.json').then((data) => {
         let defaultTopic = Babble.buildTopic(data)
+
+        SiteHeader.reopen({
+          selector: '#main header.d-header',
+          topic: defaultTopic,
+
+          didInsertElement() {
+            this._super()
+            Babble.bind(this)
+          },
+
+          didRemoveElement() {
+            this._super()
+            Babble.unbind(this)
+          }
+        })
 
         withPluginApi('0.1', api => {
           api.decorateWidget('header-icons:before', function(helper) {
@@ -47,7 +63,6 @@ export default {
               contents.push(helper.attach('babble-menu', {
                 availableTopics:       availableTopics,
                 viewingChat:           headerState.babbleViewingChat,
-                container:             $('.babble-menu'),
                 topic:                 headerState.babbleTopic
               }))
             }
@@ -55,13 +70,13 @@ export default {
           })
 
           api.attachWidgetAction('header', 'toggleBabble', function() {
+            Babble.editPost(this.state.babbleTopic, null)
             this.state.babbleVisible = !this.state.babbleVisible
-            Babble.editPost(topic, null)
           })
 
           api.attachWidgetAction('header', 'toggleBabbleViewingChat', function(topic) {
-            this.state.babbleViewingChat = !this.state.babbleViewingChat
             if (topic) { this.state.babbleTopic = topic }
+            this.state.babbleViewingChat = !this.state.babbleViewingChat
           })
         })
       }, console.log)

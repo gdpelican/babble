@@ -6,33 +6,45 @@ import lastVisibleElement from '../lib/last-visible-element'
 import debounce from 'discourse/lib/debounce'
 import autosize from 'discourse/lib/autosize'
 import { ajax } from 'discourse/lib/ajax'
-import { scrollToPost, resizeChat, setupComposer, resetComposer, rerender } from '../lib/chat-element-utils'
+import { scrollToPost, resizeChat, setupComposer, resetComposer } from '../lib/chat-element-utils'
 import { syncWithPostStream, latestPostFor, latestPostIsMine } from '../lib/chat-topic-utils'
+import { forEachTopicContainer } from '../lib/chat-topic-iterators'
+import { rerender } from '../lib/chat-component-utils'
 
 export default Ember.Object.create({
-  availableTopics: [],
 
   disabled() {
     return _.contains(Discourse.Site.current().disabled_plugins, 'babble')
   },
 
-  bind(topic, selector) {
+  bind(component) {
     Ember.run.scheduleOnce('afterRender', () => {
-      let currentContainers = topic.get('babbleContainers') || []
-      topic.set('babbleContainers', currentContainers.concat(selector))
+      let topic = component.get('topic')
+      if (!topic) { return }
+
+      let selector = component.get('selector')
+      if (!selector) { console.log("WARN: you initialized a babble component without setting the 'selector' prop on the component. Chat will likely be broken in this component!") }
+
+      let currentComponents = topic.get('babbleComponents') || []
+      topic.set('babbleComponents', currentComponents.concat(component))
 
       const $container = this.prepareScrollContainer(topic, $(selector).find('.babble-list[scroll-container=inactive]'))
       const $editing   = $($container).find('.babble-post-composer textarea[babble-composer=active]')
 
       setupComposer(topic, { mentions: true, emojis: true, topicId: topic.id })
-      scrollToPost(topic, topic.last_read_post_number, 0)
-      autosize($editing)
       resizeChat(topic)
+      autosize($editing)
+      scrollToPost(topic, topic.last_read_post_number, 0)
+      rerender(topic)
     })
   },
 
-  unbind(topic, selector) {
-    console.log('unbinding!')
+  unbind(component) {
+    let topic = component.get('topic')
+    if (!topic) { return }
+
+    topic.set('babbleComponents', (topic.get('babbleComponents') || []).without(component))
+    // TODO: what else needs to be done to unbind?
   },
 
   loadTopic(id) {
@@ -146,7 +158,7 @@ export default Ember.Object.create({
       topic.set('loadingEditId', null)
     } else {
 
-      let performScroll = _.any((topic.get('babbleContainers') || []).filter(($container) => {
+      let performScroll = _.any(forEachTopicContainer(topic, function($container) {
         return lastVisibleElement($container, '.babble-post', 'post-number') == latestPostFor(topic).post_number
       }))
 

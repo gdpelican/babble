@@ -1,10 +1,4 @@
-require "rails_helper"
-
-path = "./plugins/babble/plugin.rb"
-source = File.read(path)
-plugin = Plugin::Instance.new(Plugin::Metadata.parse(source), path)
-plugin.activate!
-plugin.initializers.first.call
+require './plugins/babble/spec/babble_helper'
 
 describe ::TopicGuardian do
 
