@@ -30,7 +30,7 @@ export default Ember.Object.create({
       let currentComponents = topic.get('babbleComponents') || []
       topic.set('babbleComponents', currentComponents.concat(component))
 
-      const $container = this.prepareScrollContainer(topic, $(selector).find('.babble-chat[scroll-container=inactive]'))
+      const $container = this.prepareScrollContainer(topic, $(selector).find('.babble-list[scroll-container=inactive]'))
       const $editing   = $($container).find('.babble-post-composer textarea[babble-composer=active]')
 
       if (listenForResize) {
@@ -202,14 +202,14 @@ export default Ember.Object.create({
   },
 
   prepareScrollContainer(topic, $container) {
-    if (!$container) { return }
+    if (!$container.length) { return }
 
     // Set up scroll listener
     let lastScroll = 0
     $($container).on('scroll.discourse-babble-scroll', debounce((e) => {
       // detect direction of scroll
       let scroll = $(this).scrollTop();
-      let order = scroll > lastScroll ? 'asc' : 'desc'
+      let order = scroll > lastScroll ? 'desc' : 'asc'
       lastScroll = scroll
 
       this.readLastVisiblePost(topic, $container)
@@ -261,7 +261,8 @@ export default Ember.Object.create({
       avatar_template:    user.get('avatar_template'),
       user_custom_fields: user.get('custom_fields'),
       moderator:          user.get('moderator'),
-      admin:              user.get('admin')
+      admin:              user.get('admin'),
+      created_at:         moment()
     })
     topic.set('isStaging', true)
     topic.postStream.set('loadedAllPosts', true)
