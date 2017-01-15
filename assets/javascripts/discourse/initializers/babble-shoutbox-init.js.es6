@@ -8,78 +8,79 @@ export default {
   initialize() {
     if (!Discourse.SiteSettings.babble_shoutbox) { return }
 
-    ajax('/babble/topics.json').then((data) => {
-      let availableTopics = data.topics.map((data) => { return Babble.buildTopic(data) })
-      if (!availableTopics.length) { console.log('No topics available!'); return }
+    SiteHeader.reopen({
+      selector: '#main header.d-header',
 
-      ajax('/babble/topics/default.json').then((data) => {
-        let defaultTopic = Babble.buildTopic(data)
+      didInsertElement() {
+        this._super()
+        Ember.run.scheduleOnce('afterRender',() => {
+          ajax('/babble/topics.json').then((data) => {
+            let availableTopics = data.topics.map((data) => { return Babble.buildTopic(data) })
+            if (!availableTopics.length) { console.log('No topics available!'); return }
 
-        SiteHeader.reopen({
-          selector: '#main header.d-header',
-          topic: defaultTopic,
+            ajax('/babble/topics/default.json').then((data) => {
+              let defaultTopic = Babble.buildTopic(data)
 
-          didInsertElement() {
-            this._super()
-            Babble.bind(this)
-          },
+              withPluginApi('0.1', api => {
+                api.decorateWidget('header-icons:before', function(helper) {
+                  let headerState   = helper.widget.parentWidget.state
+                  if (!headerState.babbleTopic) { headerState.babbleTopic = defaultTopic }
 
-          didRemoveElement() {
-            this._super()
-            Babble.unbind(this)
-          }
-        })
+                  let contents = []
+                  if (!Babble.disabled() &&
+                      api.getCurrentUser() &&
+                      headerState.babbleTopic &&
+                      Discourse.SiteSettings.babble_enabled) {
+                    contents.push(helper.attach('header-dropdown', {
+                      title:         'babble.title',
+                      icon:          Discourse.SiteSettings.babble_icon,
+                      iconId:        'babble-icon',
+                      active:        headerState.babbleVisible,
+                      action:        'toggleBabble',
+                      contents() {
+                        if (!headerState.babbleTopic.unreadCount || headerState.babbleVisible) { return }
+                        return this.attach('link', {
+                          action:    'toggleBabble',
+                          className: 'badge-notification unread-notifications',
+                          rawLabel:  headerState.babbleTopic.visibleUnreadCount
+                        })
+                      }
+                    }));
+                  }
+                  if (headerState.babbleVisible) {
+                    if (headerState.babbleViewingChat === undefined) {
+                      headerState.babbleViewingChat = true
+                    }
+                    contents.push(helper.attach('babble-menu', {
+                      availableTopics:       availableTopics,
+                      viewingChat:           headerState.babbleViewingChat,
+                      topic:                 headerState.babbleTopic
+                    }))
+                  }
+                  return contents
+                })
 
-        withPluginApi('0.1', api => {
-          api.decorateWidget('header-icons:before', function(helper) {
-            let headerState   = helper.widget.parentWidget.state
-            if (!headerState.babbleTopic) { headerState.babbleTopic = defaultTopic }
+                api.attachWidgetAction('header', 'toggleBabble', function() {
+                  Babble.editPost(this.state.babbleTopic, null)
+                  this.state.babbleVisible = !this.state.babbleVisible
+                })
 
-            let contents = []
-            if (!Babble.disabled() &&
-                api.getCurrentUser() &&
-                headerState.babbleTopic &&
-                Discourse.SiteSettings.babble_enabled) {
-              contents.push(helper.attach('header-dropdown', {
-                title:         'babble.title',
-                icon:          Discourse.SiteSettings.babble_icon,
-                iconId:        'babble-icon',
-                active:        headerState.babbleVisible,
-                action:        'toggleBabble',
-                contents() {
-                  if (!headerState.babbleTopic.unreadCount || headerState.babbleVisible) { return }
-                  return this.attach('link', {
-                    action:    'toggleBabble',
-                    className: 'badge-notification unread-notifications',
-                    rawLabel:  headerState.babbleTopic.visibleUnreadCount
-                  })
-                }
-              }));
-            }
-            if (headerState.babbleVisible) {
-              if (headerState.babbleViewingChat === undefined) {
-                headerState.babbleViewingChat = true
-              }
-              contents.push(helper.attach('babble-menu', {
-                availableTopics:       availableTopics,
-                viewingChat:           headerState.babbleViewingChat,
-                topic:                 headerState.babbleTopic
-              }))
-            }
-            return contents
-          })
-
-          api.attachWidgetAction('header', 'toggleBabble', function() {
-            Babble.editPost(this.state.babbleTopic, null)
-            this.state.babbleVisible = !this.state.babbleVisible
-          })
-
-          api.attachWidgetAction('header', 'toggleBabbleViewingChat', function(topic) {
-            if (topic) { this.state.babbleTopic = topic }
-            this.state.babbleViewingChat = !this.state.babbleViewingChat
+                api.attachWidgetAction('header', 'toggleBabbleViewingChat', function(topic) {
+                  if (topic) { this.state.babbleTopic = topic }
+                  this.state.babbleViewingChat = !this.state.babbleViewingChat
+                })
+                
+                this.queueRerender()
+              }, console.log)
+            }, console.log)
           })
         })
-      }, console.log)
-    }, console.log)
+      },
+
+      didRemoveElement() {
+        this._super()
+        Babble.unbind(this)
+      }
+    })
   }
 }
