@@ -21,7 +21,6 @@ export default createWidget('babble-post', {
       topic:      attrs.topic,
       isFollowOn: attrs.isFollowOn,
       isNewDay:   attrs.isNewDay,
-      isLastRead: attrs.isLastRead,
       editedRaw:  attrs.post.raw
     }
   },

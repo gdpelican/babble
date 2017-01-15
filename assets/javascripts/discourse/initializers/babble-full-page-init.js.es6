@@ -12,9 +12,6 @@ export default {
   initialize() {
     if (!Discourse.SiteSettings.babble_full_page) { return }
 
-    // Listen for window changes and adjust chat page accordingly
-    $(window).on('resize', _.debounce(resizeChat, 250))
-
     // Add full page chat to category navigation bar
     customNavItemHref(function(navItem) {
       if (navItem.get('name') != 'chat') { return }
@@ -38,7 +35,7 @@ export default {
 
       didInsertElement() {
         this._super()
-        Babble.bind(this)
+        Babble.bind(this, true) // listens for window size
       },
 
       didRemoveElement() {

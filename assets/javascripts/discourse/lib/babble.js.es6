@@ -17,7 +17,9 @@ export default Ember.Object.create({
     return _.contains(Discourse.Site.current().disabled_plugins, 'babble')
   },
 
-  bind(component) {
+  bind(component, listenForResize) {
+    // Listen for window changes and adjust chat page accordingly
+
     Ember.run.scheduleOnce('afterRender', () => {
       let topic = component.get('topic')
       if (!topic) { return }
@@ -28,11 +30,21 @@ export default Ember.Object.create({
       let currentComponents = topic.get('babbleComponents') || []
       topic.set('babbleComponents', currentComponents.concat(component))
 
-      const $container = this.prepareScrollContainer(topic, $(selector).find('.babble-list[scroll-container=inactive]'))
+      const $container = this.prepareScrollContainer(topic, $(selector).find('.babble-chat[scroll-container=inactive]'))
       const $editing   = $($container).find('.babble-post-composer textarea[babble-composer=active]')
 
+      if (listenForResize) {
+        $(window).on(`resize.babble-${topic.id}`, _.debounce(function() { resizeChat(topic) }, 250))
+        resizeChat(topic)
+      }
+
+      if (topic.last_read_post_number < topic.highest_post_number) {
+        topic.set('lastReadMarker', topic.last_read_post_number)
+      } else {
+        topic.set('lastReadMarker', null)
+      }
+
       setupComposer(topic, { mentions: true, emojis: true, topicId: topic.id })
-      resizeChat(topic)
       autosize($editing)
       scrollToPost(topic, topic.last_read_post_number, 0)
       rerender(topic)
@@ -43,8 +55,10 @@ export default Ember.Object.create({
     let topic = component.get('topic')
     if (!topic) { return }
 
+
     topic.set('babbleComponents', (topic.get('babbleComponents') || []).without(component))
     // TODO: what else needs to be done to unbind?
+    $(window).off(`resize.babble-${topic.id}`)
   },
 
   loadTopic(id) {
@@ -195,11 +209,11 @@ export default Ember.Object.create({
     $($container).on('scroll.discourse-babble-scroll', debounce((e) => {
       // detect direction of scroll
       let scroll = $(this).scrollTop();
-      let direction = scroll > lastScroll ? 'next' : 'previous'
+      let order = scroll > lastScroll ? 'asc' : 'desc'
       lastScroll = scroll
 
       this.readLastVisiblePost(topic, $container)
-      this.loadPosts(topic, $container, direction)
+      this.loadPosts(topic, order)
     }, 500))
     $($container).trigger('scroll.discourse-babble-scroll')
 
@@ -214,19 +228,19 @@ export default Ember.Object.create({
     return ajax(`/babble/topics/${topic.id}/read/${postNumber}.json`)
   },
 
-  loadPosts(topic, $container, direction) {
-    if (!elementIsVisible($container, $(`.babble-pressure-plate.${direction}`))) { return }
-    topic.set('loadingPosts', direction)
+  loadPosts(topic, order) {
+    topic.set('loadingPosts', order)
     rerender(topic)
-    let starterPostField = direction === 'previous' ? 'firstLoadedPostNumber' : 'lastLoadedPostNumber'
+    let starterPostField = order === 'desc' ? 'firstLoadedPostNumber' : 'lastLoadedPostNumber'
     let postNumber = topic.get(starterPostField)
 
-    ajax(`/babble/topics/${topic.id}/posts/${postNumber}/${direction}`).then((data) => {
+    ajax(`/babble/topics/${topic.id}/posts/${postNumber}/${order}`).then((data) => {
       // NB: these are wrapped in a 'topics' root and I don't know why.
       let newPosts = data.topics.map(function(post) { return Post.create(post) })
       let currentPosts = topic.postStream.posts
       topic.set('postStream.posts', newPosts.concat(currentPosts))
       syncWithPostStream(topic)
+      scrollToPost(topic, topic.get(starterPostField))
     }).finally(() => {
       topic.set('loadingPosts', null)
       rerender(topic)
@@ -252,6 +266,7 @@ export default Ember.Object.create({
     topic.set('isStaging', true)
     topic.postStream.set('loadedAllPosts', true)
     topic.postStream.stagePost(post, user)
+    topic.set('lastLoadedPostNumber', post.post_number)
     scrollToPost(topic, post.post_number)
     resetComposer(topic)
     rerender(topic)

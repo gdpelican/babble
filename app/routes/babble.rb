@@ -6,7 +6,7 @@ Babble::Engine.routes.draw do
   post   "/topics/:id"                               => "topics#update"
   delete "/topics/:id"                               => "topics#destroy"
   get    "/topics/:id/read/:post_number"             => "topics#read"
-  get    "/topics/:id/posts/:post_number/:direction" => "topics#posts"
+  get    "/topics/:id/posts/:post_number/:order"     => "topics#posts"
   post   "/topics/:id/post"                          => "topics#create_post"
   post   "/topics/:id/post/:post_id"                 => "topics#update_post"
   delete "/topics/:id/destroy/:post_id"              => "topics#destroy_post"

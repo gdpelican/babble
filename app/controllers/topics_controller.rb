@@ -48,7 +48,7 @@ class ::Babble::TopicsController < ::ApplicationController
 
   def posts
     perform_fetch do
-      respond_with load_posts(params[:direction]), serializer: Babble::PostSerializer
+      respond_with load_posts, serializer: Babble::PostSerializer
     end
   end
 
@@ -165,11 +165,11 @@ class ::Babble::TopicsController < ::ApplicationController
     @topic_user ||= TopicUser.find_or_initialize_by(user: current_user, topic: topic)
   end
 
-  def load_posts(direction)
+  def load_posts
     @load_posts ||= PostStreamWindow.for(
       topic: topic,
-      from: params[:post_number],
-      order: if direction == 'previous' then :desc else :asc end
+      from:  params.fetch(:post_number, topic.highest_post_number+1),
+      order: params.fetch(:order, :desc)
     )
   end
 

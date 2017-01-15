@@ -9,6 +9,11 @@ class ::Babble::TopicSerializer < ActiveModel::Serializer
              :highest_post_number,
              :last_read_post_number
 
+   def initialize(object, opts)
+     super(object, opts)
+     @params = opts[:params] || {}
+   end
+
   def group_names
     object.allowed_groups.pluck(:name).map(&:humanize)
   end
@@ -33,9 +38,9 @@ class ::Babble::TopicSerializer < ActiveModel::Serializer
   def posts
     @posts ||= PostStreamWindow.for(
       topic: object,
-      from:  scope[:near_post],
-      order: scope[:direction]
-    ).limit(SiteSetting.babble_page_size)
+      from:  @params.fetch(:near_post, object.highest_post_number+1),
+      order: @params.fetch(:order, :desc)
+    )
   end
 
   def topic_user
@@ -44,9 +49,5 @@ class ::Babble::TopicSerializer < ActiveModel::Serializer
 
   def include_group_names?
     permissions == 'group'
-  end
-
-  def scope
-    super || {}
   end
 end

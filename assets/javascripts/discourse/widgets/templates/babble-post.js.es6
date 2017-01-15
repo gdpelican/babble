@@ -96,7 +96,7 @@ export default Ember.Object.create({
   },
 
   unreadLine() {
-    if (!this.widget.state.isLastRead) { return }
+    if (this.post.post_number != this.topic.lastReadMarker) { return }
     return h('div.babble-last-read-wrapper', [
       h('div.babble-last-read-post-message', I18n.t('babble.new_messages')),
       h('hr.babble-last-read-post-line')

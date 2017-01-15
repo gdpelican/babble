@@ -7,16 +7,15 @@ import { findRawTemplate } from 'discourse/lib/raw-templates'
 
 let resizeChat = function(topic) {
   forEachTopicContainer(topic, function($container) {
-    let $chat = $($container).find('.babble-list')
+    let $chat = $($container).find('.babble-chat')
     if (!$chat) { return }
 
     let $nonChatElements = $($container).siblings().toArray()
-    $nonChatElements.push($($container).find('.babble-post-composer')[0])
     let nonChatHeight = $nonChatElements.reduce(function(height, elem) {
       return height + elem.clientHeight
     }, parseInt(window.getComputedStyle(document.getElementById('main-outlet')).paddingTop))
 
-    $($chat).height(window.innerHeight - nonChatHeight)
+    $($chat).height(window.innerHeight - nonChatHeight + 40)
     document.getElementById('list-area').style.marginBottom = 0
   })
 }
@@ -25,10 +24,11 @@ let scrollToPost = function(topic, postNumber, speed = 400, offset = 30) {
   Ember.run.scheduleOnce('afterRender', () => {
     forEachTopicContainer(topic, function($container) {
       let $post = $container.find(`.babble-post[data-post-number=${postNumber}]`)
-      if (!$post.length) { return }
+      let $scrollContainer = $container.find('.babble-chat')
+      if (!$post.length || !$scrollContainer.length) { return }
 
       let animateTarget = $post.position().top + $container.scrollTop() - offset
-      $container.animate({ scrollTop: animateTarget }, speed)
+      $scrollContainer.animate({ scrollTop: animateTarget }, speed)
     })
   })
 }

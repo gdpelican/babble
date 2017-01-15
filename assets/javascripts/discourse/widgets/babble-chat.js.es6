@@ -13,8 +13,12 @@ export default createWidget('babble-chat', {
     }
   },
 
-  loadPosts(direction) {
-    Babble.loadPosts(this.state.topic, direction)
+  loadPostsForward() {
+    Babble.loadPosts(this.state.topic, 'asc')
+  },
+
+  loadPostsBackward() {
+    Babble.loadPosts(this.state.topic, 'desc')
   },
 
   html() { return template.render(this) }
