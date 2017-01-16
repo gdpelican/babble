@@ -207,7 +207,6 @@ export default Ember.Object.create({
       scrollToPost(topic, topic.get(starterPostField))
     }).finally(() => {
       topic.set('loadingPosts', null)
-      rerender(topic)
     })
   },
 

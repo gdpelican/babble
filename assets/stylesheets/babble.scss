@@ -517,6 +517,10 @@ li.babble-post .babble-post-content a.mention {
   .babble-post:hover button.dropdown-toggle { opacity: 1; }
 }
 
+.babble-chat {
+  position: relative;
+}
+
 .babble-chat button.normalized {
   background: transparent;
   border: 0;
