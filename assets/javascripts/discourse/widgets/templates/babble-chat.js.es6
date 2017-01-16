@@ -98,8 +98,10 @@ export default Ember.Object.create({
         return this.widget.attach('babble-post', {
           post: post,
           topic: this.topic,
-          // a post is a 'follow-on' if it's another post by the same author within 2 minutes
-          isFollowOn: posts[index-1] &&
+          // a post is a 'follow-on' if it's another post by the same author within 2 minutes.
+          // edited posts cannot be follow-ons, as we want to show that they're edited in the header.
+          isFollowOn: !(post.self_edits > 0) &&
+                      posts[index-1] &&
                       posts[index-1].user_id == post.user_id &&
                       moment(posts[index-1].created_at) > moment(post.created_at).add(-2, 'minute'),
           // a post displays a date separator if it's the first post of the day

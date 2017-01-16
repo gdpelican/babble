@@ -197,6 +197,8 @@
       float: left;
     }
     .babble-post-date {
+      padding-right: 10px;
+      float: left;
       font-size: 0.929em;
       color: #bdbdbd;
     }
@@ -275,6 +277,11 @@
   margin: 0;
 }
 
+.babble-post-edited {
+  font-size: 11px;
+  color: #ccc;
+}
+
 .babble-last-read-post-message {
   font-size: 8px;
   line-height: 10px;
@@ -289,23 +296,6 @@
 li.babble-post .babble-post-content a.mention {
   display: inline;
   padding: 0;
-}
-
-.babble-post-info {
-  padding-top: 5px;
-}
-
-.babble-post .post-info {
-  display: inline-block;
-}
-
-.babble-post .post-date {
-  padding: 5px 0 0 0;
-}
-
-.babble-post .read-state {
-  position: static;
-  display: inline-block;
 }
 
 /* Available topic styles */

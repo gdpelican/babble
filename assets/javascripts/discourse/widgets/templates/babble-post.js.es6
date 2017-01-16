@@ -68,11 +68,17 @@ export default Ember.Object.create({
     return h('div.babble-post-date', dateNode(this.post.created_at))
   },
 
+  postEdited() {
+    if (!this.post.self_edits > 0) { return }
+    return h('div.babble-post-edited', I18n.t('babble.post_edited'))
+  },
+
   postMetaData() {
     if (this.isFollowOn) { return }
     return h('div.babble-post-meta-data', [
       this.postName(),
-      this.postDate()
+      this.postDate(),
+      this.postEdited()
     ])
   },
 

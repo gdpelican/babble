@@ -15,6 +15,7 @@ en:
       view_chat_tooltip: "Back to the current chat"
       select_topic: "Select another chat channel"
       post_deleted_by: "Post deleted by {{username}}"
+      post_edited: (edited)
       is_typing: "is typing..."
       nav_title: "Chat"
       load_more: "Load more"
