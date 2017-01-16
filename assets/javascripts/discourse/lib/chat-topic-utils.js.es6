@@ -1,3 +1,5 @@
+import { rerender } from './chat-component-utils'
+
 let syncWithPostStream = function(topic) {
   let postNumbers = topic.postStream.posts.map(function(post) { return post.post_number })
   let unreadCount = 0
@@ -20,8 +22,7 @@ let syncWithPostStream = function(topic) {
   topic.set('unreadCount',           unreadCount)
   topic.set('hasAdditionalUnread',   additionalUnread)
   topic.set('visibleUnreadCount',    visibleUnreadCount)
-
-  return topic
+  rerender(topic)
 }
 
 let latestPostFor = function(topic) {

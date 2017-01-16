@@ -181,7 +181,6 @@ export default Ember.Object.create({
     }
 
     syncWithPostStream(topic)
-    rerender(topic)
     if (performScroll) { scrollToPost(topic, post.post_number) }
 
     return post
@@ -205,7 +204,7 @@ export default Ember.Object.create({
       let currentPosts = topic.postStream.posts
       topic.set('postStream.posts', newPosts.concat(currentPosts))
       syncWithPostStream(topic)
-      scrollToPost(topic, postNumber)
+      scrollToPost(topic, topic.get(starterPostField))
     }).finally(() => {
       topic.set('loadingPosts', null)
       rerender(topic)
