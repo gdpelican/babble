@@ -75,7 +75,7 @@ class ::Babble::TopicsController < ::ApplicationController
       if !guardian.can_edit_post?(topic_post)
         respond_with_forbidden
       elsif Babble::PostRevisor.new(topic_post, topic).revise!(current_user, params.slice(:raw))
-        respond_with topic_post, serializer: Babble::PostSerializer
+        respond_with topic_post, serializer: Babble::PostSerializer, extras: { is_edit: true }
       else
         respond_with_unprocessable
       end
@@ -88,7 +88,7 @@ class ::Babble::TopicsController < ::ApplicationController
         respond_with_forbidden
       else
         Babble::PostDestroyer.new(current_user, topic_post).destroy
-        respond_with topic_post, serializer: Babble::PostSerializer
+        respond_with topic_post, serializer: Babble::PostSerializer, extras: { is_delete: true }
       end
     end
   end
@@ -130,14 +130,14 @@ class ::Babble::TopicsController < ::ApplicationController
     end
   end
 
-  def respond_with(object, serializer: nil)
+  def respond_with(object, serializer: nil, extras: {})
     case object
     when Array, ActiveRecord::Relation
       render json: ActiveModel::ArraySerializer.new(object, each_serializer: serializer, scope: guardian, params: params, root: false).as_json
     when nil
       render json: { success: :ok }
     else
-      render json: serializer.new(object, scope: guardian, params: params, root: false).as_json
+      render json: serializer.new(object, scope: guardian, params: params, root: false).as_json.merge(extras)
     end
   end
 

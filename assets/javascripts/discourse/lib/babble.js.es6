@@ -202,10 +202,8 @@ export default Ember.Object.create({
     let postNumber = topic.get(starterPostField)
 
     return ajax(`/babble/topics/${topic.id}/posts/${postNumber}/${order}`).then((data) => {
-      // NB: these are wrapped in a 'topics' root and I don't know why.
-      let newPosts = data.topics.map(function(post) { return Post.create(post) })
-      let currentPosts = topic.postStream.posts
-      topic.set('postStream.posts', newPosts.concat(currentPosts))
+      // NB: these are wrapped in a 'topics' root, but they are posts. Should have another controller, but don't. :D
+      data.topics.map(function(post) { topic.postStream.appendPost(Post.create(post)) })
       syncWithPostStream(topic)
       scrollToPost(topic, topic.get(starterPostField))
     }).finally(() => {
