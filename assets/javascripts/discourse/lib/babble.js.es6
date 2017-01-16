@@ -111,7 +111,7 @@ export default Ember.Object.create({
   updatePost(topic, post, text) {
     this.editPost(topic, null)
     topic.set('loadingEditId', post.id)
-    ajax(`/babble/topics/${post.topic_id}/post/${post.id}`, {
+    return ajax(`/babble/topics/${post.topic_id}/post/${post.id}`, {
       type: 'POST',
       data: { raw: text }
     }).then((data) => {
@@ -123,7 +123,7 @@ export default Ember.Object.create({
 
   destroyPost(topic, post) {
     topic.set('loadingEditId', post.id)
-    ajax(`/babble/topics/${post.topic_id}/destroy/${post.id}`, {
+    return ajax(`/babble/topics/${post.topic_id}/destroy/${post.id}`, {
       type: 'DELETE'
     }).finally(() => {
       topic.set('loadingEditId', null)
