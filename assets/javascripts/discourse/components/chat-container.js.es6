@@ -5,9 +5,8 @@ export default MountWidget.extend({
 
   buildArgs() {
     return {
-      topic: this.get('topic'),
-      container: this,
-      lastReadPostNumber: this.get('topic.last_read_post_number'),
+      topic: this.get('babbleTopic'),
+      lastReadPostNumber: this.get('babbleTopic.last_read_post_number'),
       fullpage: this.get('fullpage'),
       canSignUp: this.get('application.canSignUp')
     }

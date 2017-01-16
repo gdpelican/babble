@@ -16,7 +16,9 @@ export default Ember.Object.create({
   },
 
   container() {
-    return h('div.babble-post-container', [this.daySeparator(), this.contents()])
+    let css = 'div.babble-post-container'
+    if (this.isFollowOn) { css += '.babble-follow-on' }
+    return h(css, [this.daySeparator(), this.contents()])
   },
 
   daySeparator() {

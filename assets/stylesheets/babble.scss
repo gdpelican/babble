@@ -174,7 +174,6 @@
 .babble-post {
   width: 100%;
   display: inline-block;
-  margin: 7px 0;
 }
 
 .babble-post-avatar {
@@ -218,7 +217,11 @@
 }
 
 .babble-post-container {
-  margin-right: 10px;
+  margin: 10px 10px 3px 0;
+
+  &.babble-follow-on {
+    margin: 3px 10px 3px 0;
+  }
   &:hover {
     .babble-post-actions { opacity: 1; }
   }

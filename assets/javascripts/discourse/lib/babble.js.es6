@@ -19,8 +19,11 @@ export default Ember.Object.create({
 
   bind(component, listenForResize) {
     Ember.run.scheduleOnce('afterRender', () => {
-      let topic = component.get('topic')
-      if (!topic) { return }
+      let topic = component.get('babbleTopic')
+      if (!topic) {
+        console.log("WARN: you initialized a babble component without setting the 'babbleTopic' prop on the component. Chat will likely be broken in this component!")
+        return
+      }
       if (!component.get('selector')) { console.log("WARN: you initialized a babble component without setting the 'selector' prop on the component. Chat will likely be broken in this component!") }
 
       topic.set('babbleComponents', (topic.get('babbleComponents') || []).concat(component))

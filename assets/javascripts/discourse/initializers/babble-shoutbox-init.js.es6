@@ -12,6 +12,7 @@ export default {
       selector: '#main header.d-header',
 
       didInsertElement() {
+        const component = this
         this._super()
         Ember.run.scheduleOnce('afterRender',() => {
           ajax('/babble/topics.json').then((data) => {
@@ -19,67 +20,67 @@ export default {
             if (!availableTopics.length) { console.log('No topics available!'); return }
 
             ajax('/babble/topics/default.json').then((data) => {
-              let defaultTopic = Babble.buildTopic(data)
+              component.set('babbleTopic', Babble.buildTopic(data))
 
               withPluginApi('0.1', api => {
                 api.decorateWidget('header-icons:before', function(helper) {
-                  let headerState   = helper.widget.parentWidget.state
-                  if (!headerState.babbleTopic) { headerState.babbleTopic = defaultTopic }
-
                   let contents = []
+
                   if (!Babble.disabled() &&
                       api.getCurrentUser() &&
-                      headerState.babbleTopic &&
+                      component.babbleTopic &&
                       Discourse.SiteSettings.babble_enabled) {
+
                     contents.push(helper.attach('header-dropdown', {
                       title:         'babble.title',
                       icon:          Discourse.SiteSettings.babble_icon,
                       iconId:        'babble-icon',
-                      active:        headerState.babbleVisible,
+                      active:        component.babbleVisible,
                       action:        'toggleBabble',
                       contents() {
-                        if (!headerState.babbleTopic.unreadCount || headerState.babbleVisible) { return }
+                        if (!component.babbleTopic.unreadCount || component.babbleVisible) { return }
                         return this.attach('link', {
                           action:    'toggleBabble',
                           className: 'badge-notification unread-notifications',
-                          rawLabel:  headerState.babbleTopic.visibleUnreadCount
+                          rawLabel:  component.babbleTopic.visibleUnreadCount
                         })
                       }
                     }));
                   }
-                  if (headerState.babbleVisible) {
-                    if (headerState.babbleViewingChat === undefined) {
-                      headerState.babbleViewingChat = true
+                  if (component.babbleVisible) {
+                    if (component.babbleViewingChat === undefined) {
+                      component.babbleViewingChat = true
                     }
                     contents.push(helper.attach('babble-menu', {
                       availableTopics:       availableTopics,
-                      viewingChat:           headerState.babbleViewingChat,
-                      topic:                 headerState.babbleTopic
+                      topic:                 component.babbleTopic,
+                      viewingChat:           component.babbleViewingChat
                     }))
                   }
                   return contents
                 })
 
                 api.attachWidgetAction('header', 'toggleBabble', function() {
-                  Babble.editPost(this.state.babbleTopic, null)
-                  this.state.babbleVisible = !this.state.babbleVisible
+                  Babble.editPost(component.babbleTopic, null)
+                  component.babbleVisible = !component.babbleVisible
+
+                  if (component.babbleVisible) {
+                    Babble.bind(component)
+                  } else {
+                    Babble.unbind(component)
+                  }
                 })
 
                 api.attachWidgetAction('header', 'toggleBabbleViewingChat', function(topic) {
-                  if (topic) { this.state.babbleTopic = topic }
-                  this.state.babbleViewingChat = !this.state.babbleViewingChat
+                  if (topic) { component.set('babbleTopic', topic) }
+                  component.babbleViewingChat != component.babbleViewingChat
                 })
-                
-                this.queueRerender()
+
+                component.queueRerender()
               }, console.log)
             }, console.log)
           })
         })
-      },
-
-      didRemoveElement() {
-        this._super()
-        Babble.unbind(this)
       }
     })
   }

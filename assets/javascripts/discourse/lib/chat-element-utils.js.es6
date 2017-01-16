@@ -43,7 +43,7 @@ let setupScrollContainer = function(topic, readFn) {
     $($scrollContainer).on('scroll.discourse-babble-scroll', debounce((e) => {
       readFn(topic, lastVisibleElement($container, '.babble-post', 'post-number'))
     }, 500))
-    $($scrollContainer).trigger('scroll.discourse-babble-scroll')
+    readFn(topic, lastVisibleElement($container, '.babble-post', 'post-number'))
 
     // Mark scroll container as activated
     $container.attr('scroll-container', 'active')
