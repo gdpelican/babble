@@ -39,7 +39,7 @@ export default Ember.Object.create({
         topic:     this.topic,
         isEditing: true,
         raw:       this.post.raw})
-    } else if (this.topic.get('loadingEditId') === this.post.id) {
+    } else if (this.topic.get('loadingEditId') === this.post.id || this.post.id == -1) {
       return h('div.babble-staged-post', [this.avatarWrapper(), this.bodyWrapper(true)])
     } else {
       return [this.avatarWrapper(), this.bodyWrapper(false)]

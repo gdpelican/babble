@@ -4,6 +4,8 @@ import { translations } from 'pretty-text/emoji/data'
 import { emojiSearch } from 'pretty-text/emoji'
 import { emojiUrlFor } from 'discourse/lib/text'
 import { findRawTemplate } from 'discourse/lib/raw-templates'
+import debounce from 'discourse/lib/debounce'
+import lastVisibleElement from '../lib/last-visible-element'
 
 let resizeChat = function(topic) {
   forEachTopicContainer(topic, function($container) {
@@ -30,6 +32,22 @@ let scrollToPost = function(topic, postNumber, speed = 400, offset = 30) {
       let animateTarget = $post.position().top + $container.scrollTop() - offset
       $scrollContainer.animate({ scrollTop: animateTarget }, speed)
     })
+  })
+}
+
+let setupScrollContainer = function(topic, readFn) {
+  forEachTopicContainer(topic, function($container) {
+    let $scrollContainer = $($container).find('.babble-list[scroll-container=inactive]')
+    if (!$scrollContainer) { return }
+
+    $($scrollContainer).on('scroll.discourse-babble-scroll', debounce((e) => {
+      readFn(topic, lastVisibleElement($container, '.babble-post', 'post-number'))
+    }, 500))
+    $($scrollContainer).trigger('scroll.discourse-babble-scroll')
+
+    // Mark scroll container as activated
+    $container.attr('scroll-container', 'active')
+    return $container
   })
 }
 
@@ -69,7 +87,7 @@ let setupComposer = function(topic, opts = {}) {
         dataSource(term) {
           return userSearch({
             term: term,
-            topicId: opts.topicId,
+            topicId: topic.id,
             includeGroups: true,
             exclude: [Discourse.User.current().get('username')]
           })
@@ -97,4 +115,4 @@ let resetComposer = function(topic) {
   })
 }
 
-export { resizeChat, scrollToPost, setupComposer, resetComposer }
+export { resizeChat, scrollToPost, setupScrollContainer, setupComposer, resetComposer }

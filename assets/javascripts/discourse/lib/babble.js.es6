@@ -6,7 +6,7 @@ import lastVisibleElement from '../lib/last-visible-element'
 import debounce from 'discourse/lib/debounce'
 import autosize from 'discourse/lib/autosize'
 import { ajax } from 'discourse/lib/ajax'
-import { scrollToPost, resizeChat, setupComposer, resetComposer } from '../lib/chat-element-utils'
+import { scrollToPost, resizeChat, setupScrollContainer, setupComposer, resetComposer } from '../lib/chat-element-utils'
 import { syncWithPostStream, latestPostFor, latestPostIsMine } from '../lib/chat-topic-utils'
 import { forEachTopicContainer } from '../lib/chat-topic-iterators'
 import { rerender } from '../lib/chat-component-utils'
@@ -18,22 +18,15 @@ export default Ember.Object.create({
   },
 
   bind(component, listenForResize) {
-    // Listen for window changes and adjust chat page accordingly
-
     Ember.run.scheduleOnce('afterRender', () => {
       let topic = component.get('topic')
       if (!topic) { return }
+      if (!component.get('selector')) { console.log("WARN: you initialized a babble component without setting the 'selector' prop on the component. Chat will likely be broken in this component!") }
 
-      let selector = component.get('selector')
-      if (!selector) { console.log("WARN: you initialized a babble component without setting the 'selector' prop on the component. Chat will likely be broken in this component!") }
-
-      let currentComponents = topic.get('babbleComponents') || []
-      topic.set('babbleComponents', currentComponents.concat(component))
-
-      const $container = this.prepareScrollContainer(topic, $(selector).find('.babble-list[scroll-container=inactive]'))
-      const $editing   = $($container).find('.babble-post-composer textarea[babble-composer=active]')
+      topic.set('babbleComponents', (topic.get('babbleComponents') || []).concat(component))
 
       if (listenForResize) {
+        // if full page chat, adjust size of container based on window size
         $(window).on(`resize.babble-${topic.id}`, _.debounce(function() { resizeChat(topic) }, 250))
         resizeChat(topic)
       }
@@ -44,8 +37,8 @@ export default Ember.Object.create({
         topic.set('lastReadMarker', null)
       }
 
-      setupComposer(topic, { mentions: true, emojis: true, topicId: topic.id })
-      autosize($editing)
+      setupScrollContainer(topic, this.readPost)
+      setupComposer(topic, { mentions: true, emojis: true })
       scrollToPost(topic, topic.last_read_post_number, 0)
       rerender(topic)
     })
@@ -54,7 +47,6 @@ export default Ember.Object.create({
   unbind(component) {
     let topic = component.get('topic')
     if (!topic) { return }
-
 
     topic.set('babbleComponents', (topic.get('babbleComponents') || []).without(component))
     // TODO: what else needs to be done to unbind?
@@ -107,12 +99,12 @@ export default Ember.Object.create({
   },
 
   editPost(topic, post) {
-    if (!post) {
-      topic.set('editingPostId', null)
-      $('.babble-post-composer textarea').focus()
-    } else {
+    if (post) {
       topic.set('editingPostId', post.id)
       scrollToPost(topic, post.post_number)
+    } else {
+      topic.set('editingPostId', null)
+      $('.babble-post-composer textarea').focus()
     }
   },
 
@@ -201,50 +193,30 @@ export default Ember.Object.create({
     rerender(topic)
   },
 
-  prepareScrollContainer(topic, $container) {
-    if (!$container.length) { return }
-
-    // Set up scroll listener
-    let lastScroll = 0
-    $($container).on('scroll.discourse-babble-scroll', debounce((e) => {
-      // detect direction of scroll
-      let scroll = $(this).scrollTop();
-      let order = scroll > lastScroll ? 'desc' : 'asc'
-      lastScroll = scroll
-
-      this.readLastVisiblePost(topic, $container)
-      this.loadPosts(topic, order)
-    }, 500))
-    $($container).trigger('scroll.discourse-babble-scroll')
-
-    // Mark scroll container as activated
-    $container.attr('scroll-container', 'active')
-    return $container
-  },
-
-  readLastVisiblePost(topic, $container) {
-    let postNumber = lastVisibleElement($container, '.babble-post', 'post-number')
-    if (postNumber <= topic.last_read_post_number) { return }
-    return ajax(`/babble/topics/${topic.id}/read/${postNumber}.json`)
-  },
-
   loadPosts(topic, order) {
     topic.set('loadingPosts', order)
     rerender(topic)
     let starterPostField = order === 'desc' ? 'firstLoadedPostNumber' : 'lastLoadedPostNumber'
     let postNumber = topic.get(starterPostField)
 
-    ajax(`/babble/topics/${topic.id}/posts/${postNumber}/${order}`).then((data) => {
+    return ajax(`/babble/topics/${topic.id}/posts/${postNumber}/${order}`).then((data) => {
       // NB: these are wrapped in a 'topics' root and I don't know why.
       let newPosts = data.topics.map(function(post) { return Post.create(post) })
       let currentPosts = topic.postStream.posts
       topic.set('postStream.posts', newPosts.concat(currentPosts))
       syncWithPostStream(topic)
-      scrollToPost(topic, topic.get(starterPostField))
+      scrollToPost(topic, postNumber)
     }).finally(() => {
       topic.set('loadingPosts', null)
       rerender(topic)
     })
+  },
+
+  readPost(topic, postNumber) {
+    if (postNumber <= topic.last_read_post_number) { return }
+    topic.set('last_read_post_number', postNumber)
+    syncWithPostStream(topic)
+    return ajax(`/babble/topics/${topic.id}/read/${postNumber}.json`)
   },
 
   stagePost(topic, text) {
