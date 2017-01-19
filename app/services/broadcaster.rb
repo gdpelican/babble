@@ -7,8 +7,12 @@ class Babble::Broadcaster
     MessageBus.publish "/babble/topics/#{post.topic_id}/posts", serialized_post(post, user, extras)
   end
 
-  def self.publish_to_presence(topic, user, extras = {})
-    MessageBus.publish "/babble/topics/#{topic.id}/presence", serialized_presence(user, extras)
+  def self.publish_to_online(topic, user, extras = {})
+    MessageBus.publish "/babble/topics/#{topic.id}/online", serialized_presence(user, extras)
+  end
+
+  def self.publish_to_typing(topic, user, extras = {})
+    MessageBus.publish "/babble/topics/#{topic.id}/typing", serialized_presence(user, extras)
   end
 
   def self.serialized_topic(topic, user, extras = {})

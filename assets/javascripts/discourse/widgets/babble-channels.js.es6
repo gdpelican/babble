@@ -7,11 +7,9 @@ export default createWidget('babble-channels', {
   tagName: 'div.babble-channels',
 
   changeTopic(topic) {
-    Babble.loadTopic(topic.id).then((data) => {
-      this.sendWidgetAction('toggleBabbleViewingChat', Babble.buildTopic(data))
-    }, (error) => {
-      console.log()
-    })
+    Babble.loadTopic(topic.id).then((topic) => {
+      this.sendWidgetAction('toggleBabbleViewingChat', topic)
+    }, console.log)
   },
 
   html() { return template.render(this) }

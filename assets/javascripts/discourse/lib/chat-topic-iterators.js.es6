@@ -1,6 +1,6 @@
 let forEachTopicContainer = function(topic, fn) {
   return forEachTopicComponent(topic, function(component) {
-    return fn($(component.get('selector')))
+    return fn($(component.element))
   })
 }
 

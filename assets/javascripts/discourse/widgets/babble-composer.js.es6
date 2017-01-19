@@ -3,7 +3,6 @@ import { showSelector } from "discourse/lib/emoji/toolbar"
 import Babble from "../lib/babble"
 import template from "../widgets/templates/babble-composer"
 import { ajax } from 'discourse/lib/ajax'
-import debounce from 'discourse/lib/debounce'
 
 export default createWidget('babble-composer', {
   tagName: 'div.babble-post-composer',
@@ -100,12 +99,12 @@ export default createWidget('babble-composer', {
 
     // only fire typing events if input has changed
     // TODO: expand this to account for backspace / delete keys too
-    if (event.key.length === 1) { this.announcePresence() }
+    if (event.key.length === 1) { this.announceTyping() }
   },
 
-  announcePresence: debounce(function() {
-    ajax(`/babble/topics/${this.state.topic.id}/presence`, { type: 'POST' })
-  }, 250),
+  announceTyping: _.throttle(function() {
+    ajax(`/babble/topics/${this.state.topic.id}/typing`, { type: 'POST' })
+  }, 1000),
 
   html() { return template.render(this) }
 })

@@ -4,12 +4,12 @@ import Topic from 'discourse/models/topic'
 import elementIsVisible from '../lib/element-is-visible'
 import lastVisibleElement from '../lib/last-visible-element'
 import debounce from 'discourse/lib/debounce'
-import autosize from 'discourse/lib/autosize'
 import { ajax } from 'discourse/lib/ajax'
-import { scrollToPost, resizeChat, setupScrollContainer, setupComposer, resetComposer } from '../lib/chat-element-utils'
-import { syncWithPostStream, latestPostFor, latestPostIsMine } from '../lib/chat-topic-utils'
+import { scrollToPost, setupResize, teardownResize, setupScrollContainer, setupComposer, teardownComposer } from '../lib/chat-element-utils'
+import { syncWithPostStream, latestPostFor, latestPostIsMine, setupPresence, teardownPresence } from '../lib/chat-topic-utils'
 import { forEachTopicContainer } from '../lib/chat-topic-iterators'
 import { rerender } from '../lib/chat-component-utils'
+import { setupLiveUpdate, teardownLiveUpdate } from '../lib/chat-live-update-utils'
 
 export default Ember.Object.create({
 
@@ -17,22 +17,14 @@ export default Ember.Object.create({
     return _.contains(Discourse.Site.current().disabled_plugins, 'babble')
   },
 
-  bind(component, listenForResize) {
+  bind(component, topic, resize) {
     Ember.run.scheduleOnce('afterRender', () => {
-      let topic = component.get('babbleTopic')
-      if (!topic) {
-        console.log("WARN: you initialized a babble component without setting the 'babbleTopic' prop on the component. Chat will likely be broken in this component!")
-        return
-      }
-      if (!component.get('selector')) { console.log("WARN: you initialized a babble component without setting the 'selector' prop on the component. Chat will likely be broken in this component!") }
+      topic = topic || component.get('babbleTopic')
+      component.set('babbleTopic', topic)
+
+      if (!topic) { console.warn("Initialized a babble component without setting a topic"); return }
 
       topic.set('babbleComponents', (topic.get('babbleComponents') || []).concat(component))
-
-      if (listenForResize) {
-        // if full page chat, adjust size of container based on window size
-        $(window).on(`resize.babble-${topic.id}`, _.debounce(function() { resizeChat(topic) }, 250))
-        resizeChat(topic)
-      }
 
       if (topic.last_read_post_number < topic.highest_post_number) {
         topic.set('lastReadMarker', topic.last_read_post_number)
@@ -40,52 +32,56 @@ export default Ember.Object.create({
         topic.set('lastReadMarker', null)
       }
 
-      setupScrollContainer(topic, this.readPost)
-      setupComposer(topic, { mentions: true, emojis: true })
-      scrollToPost(topic, topic.last_read_post_number, 0)
+      setupLiveUpdate(topic, {
+        '':       ((data) => { this.buildTopic(data) }),
+        'posts':  ((data) => { this.handleNewPost(topic, data) }),
+        'typing': ((data) => { this.handleTyping(topic, data) }),
+        'online': ((data) => { this.handleOnline(topic, data) })
+      })
+
+      if ($(component.element).find('.babble-chat').length) {
+        if (resize) { setupResize(topic) }
+        setupScrollContainer(topic)
+        setupPresence(topic)
+        setupComposer(topic, { mentions: true, emojis: true })
+        scrollToPost(topic, topic.last_read_post_number, 0)
+      }
       rerender(topic)
     })
   },
 
   unbind(component) {
-    let topic = component.get('topic')
+    let topic = component.get('babbleTopic')
     if (!topic) { return }
 
     topic.set('babbleComponents', (topic.get('babbleComponents') || []).without(component))
+    teardownLiveUpdate(topic, '', 'posts', 'typing', 'online')
+    teardownResize(topic)
+    teardownPresence(topic)
+
     // TODO: what else needs to be done to unbind?
     $(window).off(`resize.babble-${topic.id}`)
   },
 
   loadTopic(id) {
     this.set('loadingTopicId', id)
-    return ajax(`/babble/topics/${id}.json`).finally(() => { this.set('loadingTopicId', null) })
+    return ajax(`/babble/topics/${id}.json`).then((data) => {
+      return this.buildTopic(data)
+    }).finally(() => {
+      this.set('loadingTopicId', null)
+    })
   },
 
-  buildTopic(data, previousTopic) {
+  buildTopic(data) {
     if (!data.id) { return }
 
-    var resetTopicField = (topic, field) => {
-      topic[field] = data[field]
-      if (topic[field] == null && previousTopic) { topic[field] = previousTopic[field] }
-    }
-
-    var topic = Topic.create(data)
-    resetTopicField(topic, 'last_read_post_number')
-    resetTopicField(topic, 'highest_post_number')
-
-    if (previousTopic && previousTopic.id == topic.id) {
-      topic.postStream = previousTopic.postStream
-      topic.presence   = previousTopic.presence
-    } else {
-      this.handleMessageBusSubscriptions(topic, previousTopic)
-
-      let postStream = PostStream.create(topic.post_stream)
-      postStream.topic = topic
-      postStream.updateFromJson(topic.post_stream)
-
-      topic.postStream = postStream
-      topic.presence = {}
-    }
+    let topic = Topic.create(data)
+    let postStream = PostStream.create(topic.post_stream)
+    postStream.topic = topic
+    postStream.updateFromJson(topic.post_stream)
+    topic.postStream = postStream
+    topic.typing = {}
+    topic.online = {}
 
     syncWithPostStream(topic)
     return topic
@@ -105,9 +101,9 @@ export default Ember.Object.create({
     if (post) {
       topic.set('editingPostId', post.id)
       scrollToPost(topic, post.post_number)
+      setupComposer(topic)
     } else {
       topic.set('editingPostId', null)
-      $('.babble-post-composer textarea').focus()
     }
   },
 
@@ -133,27 +129,10 @@ export default Ember.Object.create({
     })
   },
 
-  handleMessageBusSubscriptions(newTopic, oldTopic) {
-    if (oldTopic && newTopic && oldTopic.id == newTopic.id) { return }
-    const messageBus = Discourse.__container__.lookup('message-bus:main')
-    let apiPath = function(topic, action) { return `/babble/topics/${topic.id}/${action}` }
-
-    if (oldTopic) {
-      messageBus.unsubscribe(apiPath(oldTopic))
-      messageBus.unsubscribe(apiPath(oldTopic), 'posts')
-      messageBus.unsubscribe(apiPath(oldTopic), 'presence')
-    }
-    messageBus.subscribe(apiPath(newTopic),             (data) => { this.buildTopic(data) })
-    messageBus.subscribe(apiPath(newTopic, 'posts'),    (data) => { this.handleNewPost(newTopic, data) })
-    messageBus.subscribe(apiPath(newTopic, 'presence'), (data) => { this.handlePresence(newTopic, data) })
-  },
-
   handleNewPost(topic, data) {
-    let performScroll  = false
-
     if (data.topic_id != topic.id) { return }
 
-    topic.set(`presence.${data.username}`, null)
+    delete topic.typing[data.username]
 
     if (!Discourse.User.current() || data.user_id != Discourse.User.current().id) {
       _.each(['can_edit', 'can_delete'], function(key) { delete data[key] })
@@ -163,15 +142,11 @@ export default Ember.Object.create({
 
     if (data.is_edit || data.is_delete) {
       topic.postStream.storePost(post)
-      topic.postStream.findLoadedPost(post.id).updateFromPost(post)
-      topic.set('loadingEditId', null)
     } else {
 
       let performScroll = _.any(forEachTopicContainer(topic, function($container) {
-        return lastVisibleElement($container, '.babble-post', 'post-number') == latestPostFor(topic).post_number
+        return lastVisibleElement($container.find('.babble-posts'), '.babble-post', 'post-number') == topic.lastLoadedPostNumber
       }))
-
-      post.set('created_at', data.created_at)
 
       if (latestPostIsMine(topic)) {
         // clear staged post
@@ -181,17 +156,22 @@ export default Ember.Object.create({
       } else {
         topic.postStream.appendPost(post)
       }
+
+      if (performScroll) { scrollToPost(topic, post.post_number) }
     }
 
     syncWithPostStream(topic)
-    if (performScroll) { scrollToPost(topic, post.post_number) }
-
-    return post
   },
 
-  handlePresence(topic, data) {
+  handleTyping(topic, data) {
     if (Discourse.User.current() && data.id == Discourse.User.current().id) { return }
-    topic.set(`presence.${data.username}`, moment())
+    topic.set(`typing.${data.username}`, { user: data, lastTyped: moment() })
+    rerender(topic)
+  },
+
+  handleOnline(topic, data) {
+    if (Discourse.User.current() && data.id == Discourse.User.current().id) { return }
+    topic.set(`online.${data.username}`, { user: data, lastSeen: moment() })
     rerender(topic)
   },
 
@@ -211,13 +191,6 @@ export default Ember.Object.create({
     })
   },
 
-  readPost(topic, postNumber) {
-    if (postNumber <= topic.last_read_post_number) { return }
-    topic.set('last_read_post_number', postNumber)
-    syncWithPostStream(topic)
-    return ajax(`/babble/topics/${topic.id}/read/${postNumber}.json`)
-  },
-
   stagePost(topic, text) {
     const user = Discourse.User.current()
 
@@ -235,12 +208,10 @@ export default Ember.Object.create({
       admin:              user.get('admin'),
       created_at:         moment()
     })
-    topic.set('isStaging', true)
-    topic.postStream.set('loadedAllPosts', true)
     topic.postStream.stagePost(post, user)
     topic.set('lastLoadedPostNumber', post.post_number)
     scrollToPost(topic, post.post_number)
-    resetComposer(topic)
+    teardownComposer(topic)
     rerender(topic)
   }
 })

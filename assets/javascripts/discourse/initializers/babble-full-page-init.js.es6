@@ -1,11 +1,12 @@
-import { resizeChat } from '../lib/chat-element-utils'
 import Babble from '../lib/babble'
 import NavItem from 'discourse/models/nav-item'
 import Category from 'discourse/models/category'
 import CategoryController from 'discourse/controllers/navigation/category'
 import computed from 'ember-addons/ember-computed-decorators'
+import { observes } from 'ember-addons/ember-computed-decorators'
 import { customNavItemHref } from 'discourse/models/nav-item'
 import ChatComponent from '../components/chat-container'
+import NavigationBar from 'discourse/components/navigation-bar'
 
 export default {
   name: 'babble-full-page-init',
@@ -30,12 +31,29 @@ export default {
       }.property('categoryName', 'name', 'count')
     })
 
-    ChatComponent.reopen({
-      selector: '#main-outlet .container.list-container',
+    NavigationBar.reopen({
+      didInsertElement() {
+        let chatItem = this.get('navItems').find((item) => { return item.name == 'chat' })
+        if (!chatItem) { return }
 
+        Babble.loadTopic(chatItem.get('category.chat_topic_id')).then((topic) => {
+          let setUnreadCount = () => { chatItem.set('count', topic.visibleUnreadCount) }
+          topic.removeObserver('visibleUnreadCount')
+          topic.addObserver('visibleUnreadCount', setUnreadCount)
+          setUnreadCount()
+          Babble.bind(this, topic)
+        }, console.log)
+      },
+
+      willDestroy() {
+        Babble.unbind(this)
+      }
+    })
+
+    ChatComponent.reopen({
       didInsertElement() {
         this._super()
-        Babble.bind(this, true) // listens for window size
+        Babble.bind(this, null, true) // listens for window size
       },
 
       didRemoveElement() {
@@ -55,15 +73,8 @@ export default {
             filterMode: 'chat',
             category:   category
           })
-
-          Babble.removeObserver('unreadCount')
-          Babble.addObserver('unreadCount', () => {
-            navItem.set('count', Babble.get('unreadCount'))
-          })
-
           list.push(navItem)
         }
-
         return list
       }
     })

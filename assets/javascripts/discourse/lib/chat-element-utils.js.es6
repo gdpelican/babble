@@ -5,14 +5,19 @@ import { emojiSearch } from 'pretty-text/emoji'
 import { emojiUrlFor } from 'discourse/lib/text'
 import { findRawTemplate } from 'discourse/lib/raw-templates'
 import debounce from 'discourse/lib/debounce'
+import autosize from 'discourse/lib/autosize'
 import lastVisibleElement from '../lib/last-visible-element'
+import { syncWithPostStream } from '../lib/chat-topic-utils'
+import { ajax } from 'discourse/lib/ajax'
+import { rerender } from '../lib/chat-component-utils'
 
 let resizeChat = function(topic) {
   forEachTopicContainer(topic, function($container) {
     let $chat = $($container).find('.babble-chat')
-    if (!$chat) { return }
+    let $listContainer = $($container).closest('.list-container')
+    if (!$chat || !$listContainer) { console.warn("Babble could not initialize chat resize listener"); return }
 
-    let $nonChatElements = $($container).siblings().toArray()
+    let $nonChatElements = $listContainer.siblings().toArray()
     let nonChatHeight = $nonChatElements.reduce(function(height, elem) {
       return height + elem.clientHeight
     }, parseInt(window.getComputedStyle(document.getElementById('main-outlet')).paddingTop))
@@ -20,6 +25,15 @@ let resizeChat = function(topic) {
     $($chat).height(window.innerHeight - nonChatHeight + 40)
     document.getElementById('list-area').style.marginBottom = 0
   })
+}
+
+let setupResize = function(topic) {
+  $(window).on(`resize.babble-${topic.id}`, _.debounce(function() { resizeChat(topic) }, 250))
+  resizeChat(topic)
+}
+
+let teardownResize = function(topic) {
+  $(window).off(`resize.babble-${topic.id}`)
 }
 
 let scrollToPost = function(topic, postNumber, speed = 400, offset = 30) {
@@ -35,15 +49,23 @@ let scrollToPost = function(topic, postNumber, speed = 400, offset = 30) {
   })
 }
 
-let setupScrollContainer = function(topic, readFn) {
+let readPost = function(topic, $container) {
+  let postNumber = lastVisibleElement($container.find('.babble-posts'), '.babble-post', 'post-number')
+  if (postNumber <= topic.last_read_post_number) { return }
+  topic.set('last_read_post_number', postNumber)
+  syncWithPostStream(topic)
+  return ajax(`/babble/topics/${topic.id}/read/${postNumber}.json`)
+}
+
+let setupScrollContainer = function(topic) {
   forEachTopicContainer(topic, function($container) {
     let $scrollContainer = $($container).find('.babble-list[scroll-container=inactive]')
-    if (!$scrollContainer) { return }
+    if (!$scrollContainer.length) { console.warn("Babble scroll container already active or could not be found"); return }
 
-    $($scrollContainer).on('scroll.discourse-babble-scroll', debounce((e) => {
-      readFn(topic, lastVisibleElement($container, '.babble-post', 'post-number'))
+    $($scrollContainer).on('scroll.discourse-babble-scroll', debounce(() => {
+      readPost(topic, $container)
     }, 500))
-    readFn(topic, lastVisibleElement($container, '.babble-post', 'post-number'))
+    readPost(topic, $container)
 
     // Mark scroll container as activated
     $container.attr('scroll-container', 'active')
@@ -52,61 +74,63 @@ let setupScrollContainer = function(topic, readFn) {
 }
 
 let setupComposer = function(topic, opts = {}) {
-  return forEachTopicContainer(topic, function($container) {
-    const $textarea  = $($container).find('.babble-post-composer textarea[babble-composer=inactive]')
-    if (!$textarea) { return }
+  Ember.run.scheduleOnce('afterRender', () => {
+    forEachTopicContainer(topic, function($container) {
+      const $textarea  = $($container).find('.babble-post-composer textarea[babble-composer=inactive]')
+      if (!$textarea.length) { console.warn("Babble composer already active or could not be found"); return }
 
-    if (opts.emojis) {
-      $textarea.autocomplete({
-        template: findRawTemplate('emoji-selector-autocomplete'),
-        key: ":",
+      autosize($textarea)
 
-        transformComplete(v) {
-          if (!v.code) { return }
-          return `${v.code}:`
-        },
+      if (opts.emojis) {
+        $textarea.autocomplete({
+          template: findRawTemplate('emoji-selector-autocomplete'),
+          key: ":",
 
-        dataSource(term) {
-          return new Ember.RSVP.Promise(resolve => {
-            term = term.toLowerCase()
-            var options = (term === "" && ['smile', 'smiley', 'wink', 'sunny', 'blush']) ||
-                          translations[`:${term}`] ||
-                          emojiSearch(term, {maxResults: 5})
-            return resolve(options)
-          }).then(list => list.map(code => {
-            return {code, src: emojiUrlFor(code)};
-          }))
-        }
-      })
-    }
+          transformComplete(v) {
+            if (!v.code) { return }
+            return `${v.code}:`
+          },
 
-    if (opts.mentions) {
-      $textarea.autocomplete({
-        template: findRawTemplate('user-selector-autocomplete'),
-        key: '@',
-        dataSource(term) {
-          return userSearch({
-            term: term,
-            topicId: topic.id,
-            includeGroups: true,
-            exclude: [Discourse.User.current().get('username')]
-          })
-        },
+          dataSource(term) {
+            return new Ember.RSVP.Promise(resolve => {
+              term = term.toLowerCase()
+              var options = (term === "" && ['smile', 'smiley', 'wink', 'sunny', 'blush']) ||
+                            translations[`:${term}`] ||
+                            emojiSearch(term, {maxResults: 5})
+              return resolve(options)
+            }).then(list => list.map(code => {
+              return {code, src: emojiUrlFor(code)};
+            }))
+          }
+        })
+      }
 
-        transformComplete(v) {
-          return v.username || v.name
-        }
-      })
+      if (opts.mentions) {
+        $textarea.autocomplete({
+          template: findRawTemplate('user-selector-autocomplete'),
+          key: '@',
+          dataSource(term) {
+            return userSearch({
+              term: term,
+              topicId: topic.id,
+              includeGroups: true,
+              exclude: [Discourse.User.current().get('username')]
+            })
+          },
 
-      $textarea.attr('babble-composer', 'active')
-      $textarea.focus()
-    }
+          transformComplete(v) {
+            return v.username || v.name
+          }
+        })
 
-    return $textarea
+        $textarea.attr('babble-composer', 'active')
+        $textarea.focus()
+      }
+    })
   })
 }
 
-let resetComposer = function(topic) {
+let teardownComposer = function(topic) {
   forEachTopicContainer(topic, function($container) {
     let event = document.createEvent('Event')
     let $composer = $($container).find('.babble-post-composer textarea[babble-composer=active]')[0]
@@ -115,4 +139,4 @@ let resetComposer = function(topic) {
   })
 }
 
-export { resizeChat, scrollToPost, setupScrollContainer, setupComposer, resetComposer }
+export { setupResize, teardownResize, scrollToPost, setupScrollContainer, setupComposer, teardownComposer }

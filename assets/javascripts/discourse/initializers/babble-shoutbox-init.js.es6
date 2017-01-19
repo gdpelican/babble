@@ -9,7 +9,6 @@ export default {
     if (!Discourse.SiteSettings.babble_shoutbox) { return }
 
     SiteHeader.reopen({
-      selector: '#main header.d-header',
 
       didInsertElement() {
         const component = this
@@ -28,7 +27,6 @@ export default {
 
                   if (!Babble.disabled() &&
                       api.getCurrentUser() &&
-                      component.babbleTopic &&
                       Discourse.SiteSettings.babble_enabled) {
 
                     contents.push(helper.attach('header-dropdown', {
@@ -38,7 +36,7 @@ export default {
                       active:        component.babbleVisible,
                       action:        'toggleBabble',
                       contents() {
-                        if (!component.babbleTopic.unreadCount || component.babbleVisible) { return }
+                        if (!component.babbleTopic.visibleUnreadCount || component.babbleVisible) { return }
                         return this.attach('link', {
                           action:    'toggleBabble',
                           className: 'badge-notification unread-notifications',
@@ -72,8 +70,11 @@ export default {
                 })
 
                 api.attachWidgetAction('header', 'toggleBabbleViewingChat', function(topic) {
-                  if (topic) { component.set('babbleTopic', topic) }
-                  component.babbleViewingChat != component.babbleViewingChat
+                  component.babbleViewingChat = !component.babbleViewingChat
+                  if (topic) {
+                    Babble.unbind(component)
+                    Babble.bind(component, topic)
+                  }
                 })
 
                 component.queueRerender()

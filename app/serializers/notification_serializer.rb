@@ -1,8 +1,8 @@
 NotificationSerializer.class_eval do
   module ChatSlug
-    def slug
+    def data
       return super unless object.topic && object.topic.archetype == Archetype.chat
-      "chat/#{super}"
+      super.merge(chat: true)
     end
   end
   prepend ChatSlug

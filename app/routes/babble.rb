@@ -11,5 +11,6 @@ Babble::Engine.routes.draw do
   post   "/topics/:id/post/:post_id"                 => "topics#update_post"
   delete "/topics/:id/destroy/:post_id"              => "topics#destroy_post"
   get    "/topics/:id/groups"                        => "topics#groups"
-  post   "/topics/:id/presence"                      => "topics#presence"
+  post   "/topics/:id/online"                        => "topics#online"
+  post   "/topics/:id/typing"                        => "topics#typing"
 end

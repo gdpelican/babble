@@ -1,4 +1,5 @@
 import { h } from 'virtual-dom'
+import { isFollowOn, isNewDay } from '../../lib/chat-topic-utils'
 
 export default Ember.Object.create({
   render(widget) {
@@ -17,15 +18,15 @@ export default Ember.Object.create({
         h('ul', {className: 'babble-posts'}, this.chatView()),
         this.pressurePlate('asc')
       ]),
-      this.widget.attach('babble-presence', { topic: this.topic }),
+      this.widget.attach('babble-typing', { topic: this.topic }),
       this.widget.attach('babble-composer', { topic: this.topic, canSignUp: this.canSignUp })
     ]
     if (!this.widget.attrs.fullpage) {
       contents.unshift(
         h('div.babble-title-wrapper', h('div.babble-title', [
+          this.switchTopicsButton(),
           this.chatTitle(),
-          this.visibilityButton(),
-          this.exchangeTopicsButton()
+          this.whosOnline()
         ]))
       )
     }
@@ -69,20 +70,15 @@ export default Ember.Object.create({
     return h('h4.babble-group-title', this.topic.title)
   },
 
-  visibilityButton() {
-    return h('div.babble-context-toggle.for-chat', this.widget.attach('button', {
-      className:    'normalized',
-      icon:         'eye',
-      title:        'babble.topic_visibility_tooltip',
-      titleOptions: { groupNames: this.topic.group_names }
-    }))
+  whosOnline() {
+    return h('div.babble-whos-online', this.widget.attach('babble-online', { topic: this.topic }))
   },
 
-  exchangeTopicsButton() {
+  switchTopicsButton() {
     if (this.availableTopics.length == 0) { return }
     return h('div.babble-context-toggle.for-chat', this.widget.attach('button', {
       className: 'normalized',
-      icon:      'exchange',
+      icon:      'bars',
       action:    'toggleView',
       title:     'babble.view_topics_tooltip'
     }))
@@ -98,15 +94,8 @@ export default Ember.Object.create({
         return this.widget.attach('babble-post', {
           post: post,
           topic: this.topic,
-          // a post is a 'follow-on' if it's another post by the same author within 2 minutes.
-          // edited posts cannot be follow-ons, as we want to show that they're edited in the header.
-          isFollowOn: !(post.self_edits > 0) &&
-                      posts[index-1] &&
-                      posts[index-1].user_id == post.user_id &&
-                      moment(posts[index-1].created_at) > moment(post.created_at).add(-2, 'minute'),
-          // a post displays a date separator if it's the first post of the day
-          isNewDay: posts[index-1] &&
-                    moment(posts[index-1].created_at).date() != moment(post.created_at).date()
+          isFollowOn: isFollowOn(post, posts[index-1]),
+          isNewDay: isNewDay(post, posts[index-1])
         })
       })
     } else {

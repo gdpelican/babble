@@ -97,9 +97,16 @@ class ::Babble::TopicsController < ::ApplicationController
     perform_fetch(require_admin: true) { respond_with topic.allowed_groups, serializer: BasicGroupSerializer }
   end
 
-  def presence
+  def online
     perform_fetch do
-      Babble::Broadcaster.publish_to_presence(topic, current_user)
+      Babble::Broadcaster.publish_to_online(topic, current_user)
+      respond_with nil
+    end
+  end
+
+  def typing
+    perform_fetch do
+      Babble::Broadcaster.publish_to_typing(topic, current_user)
       respond_with nil
     end
   end
