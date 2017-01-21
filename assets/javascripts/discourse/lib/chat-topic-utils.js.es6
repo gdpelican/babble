@@ -41,6 +41,7 @@ let latestPostIsMine = function(topic) {
 // edited posts cannot be follow-ons, as we want to show that they're edited in the header.
 let isFollowOn = function(post, previous) {
   return previous &&
+         !previous.deleted_at &&
          !post.self_edits > 0 &&
          previous.user_id == post.user_id &&
          moment(post.created_at).add(-2, 'minute') < moment(previous.created_at)

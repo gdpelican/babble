@@ -89,7 +89,7 @@ export default Ember.Object.create({
 
   createPost(topic, text) {
     this.stagePost(topic, text)
-    return ajax(`/babble/topics/${topic.id}/post`, {
+    return ajax(`/babble/topics/${topic.id}/posts`, {
       type: 'POST',
       data: { raw: text }
     }).then((data) => {
@@ -110,7 +110,7 @@ export default Ember.Object.create({
   updatePost(topic, post, text) {
     this.editPost(topic, null)
     topic.set('loadingEditId', post.id)
-    return ajax(`/babble/topics/${post.topic_id}/post/${post.id}`, {
+    return ajax(`/babble/topics/${post.topic_id}/posts/${post.id}`, {
       type: 'POST',
       data: { raw: text }
     }).then((data) => {
@@ -122,7 +122,7 @@ export default Ember.Object.create({
 
   destroyPost(topic, post) {
     topic.set('loadingEditId', post.id)
-    return ajax(`/babble/topics/${post.topic_id}/destroy/${post.id}`, {
+    return ajax(`/babble/topics/${post.topic_id}/posts/${post.id}`, {
       type: 'DELETE'
     }).finally(() => {
       topic.set('loadingEditId', null)
@@ -182,8 +182,7 @@ export default Ember.Object.create({
     let postNumber = topic.get(starterPostField)
 
     return ajax(`/babble/topics/${topic.id}/posts/${postNumber}/${order}`).then((data) => {
-      // NB: these are wrapped in a 'topics' root, but they are posts. Should have another controller, but don't. :D
-      data.topics.map(function(post) { topic.postStream.appendPost(Post.create(post)) })
+      data.posts.map(function(post) { topic.postStream.appendPost(Post.create(post)) })
       syncWithPostStream(topic)
       scrollToPost(topic, topic.get(starterPostField))
     }).finally(() => {
