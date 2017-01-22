@@ -8,8 +8,9 @@ export default createWidget('babble-menu', {
 
   defaultState(attrs) {
     return {
-      viewingChat: attrs.viewingChat,
-      lastReadPostNumber: attrs.lastReadPostNumber
+      viewingChat:           attrs.viewingChat,
+      firstLoadedPostNumber: attrs.firstLoadedPostNumber,
+      container:             attrs.container
     }
   },
 
@@ -18,22 +19,11 @@ export default createWidget('babble-menu', {
     this.sendWidgetAction('toggleBabbleViewingChat')
   },
 
-  changeTopic(topic) {
-    Babble.set('loadingTopicId', topic.id)
-    ajax(`/babble/topics/${topic.id}.json`).then(
-      (data)  => {
-        Babble.setCurrentTopic(data)
-        Babble.set('loadingTopic', null)
-        this.state.viewingChat = true
-        this.sendWidgetAction('toggleBabbleViewingChat')
-      },
-      (error) => { console.log(error) }
-    )
-  },
-
   clickOutside() {
     this.sendWidgetAction('toggleBabble');
   },
 
-  html() { return template.render(this) }
+  html() {
+    return template.render(this)
+  }
 });

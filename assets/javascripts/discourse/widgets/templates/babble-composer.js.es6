@@ -4,7 +4,11 @@ export default Ember.Object.create({
   render(widget) {
     this.widget = widget
     this.state  = widget.state
-    return [this.composer(), this.cancelButton()]
+    if (Discourse.User.current()) {
+      return this.composer()
+    } else {
+      return this.loggedOutView()
+    }
   },
 
   composer() {
@@ -16,7 +20,7 @@ export default Ember.Object.create({
       attributes: {
         'babble-composer': 'inactive',
         placeholder: Discourse.SiteSettings.babble_placeholder || I18n.t('babble.placeholder'),
-        rows:        this.state.editing ? 1 : 2,
+        rows:        1,
         disabled:    this.state.submitDisabled
       }
     }, this.state.raw)
@@ -30,12 +34,14 @@ export default Ember.Object.create({
     })
   },
 
-  cancelButton() {
-    if (!this.state.editing) { return }
-    return this.widget.attach('button', {
-      className: 'btn btn-cancel pull-right',
-      action: 'cancel',
-      label: 'babble.cancel'
-    })
+  loggedOutView() {
+    return [
+      h('div.babble-logged-out-message', I18n.t('babble.logged_out')),
+      this.widget.attach('header-buttons', {
+        canSignUp: this.widget.attrs.canSignUp,
+        showLogin: null,
+        showSignUp: null,
+      })
+    ]
   }
 })

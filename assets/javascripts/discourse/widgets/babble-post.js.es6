@@ -18,23 +18,19 @@ export default createWidget('babble-post', {
   defaultState(attrs) {
     return {
       post:       attrs.post,
-      isLastRead: attrs.isLastRead,
+      topic:      attrs.topic,
+      isFollowOn: attrs.isFollowOn,
+      isNewDay:   attrs.isNewDay,
       editedRaw:  attrs.post.raw
     }
   },
 
   edit() {
-    Babble.editPost(this.state.post)
+    Babble.editPost(this.state.topic, this.state.post)
   },
 
   delete() {
-    let post = this.state.post
-    Babble.set('loadingEditId', post.id)
-    ajax(`/babble/topics/${post.topic_id}/destroy/${post.id}`, {
-      type: 'DELETE'
-    }).finally(() => {
-      Babble.set('loadingEditId', null)
-    })
+    Babble.destroyPost(this.state.topic, this.state.post)
   },
 
   html() { return template.render(this) }

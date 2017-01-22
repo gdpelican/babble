@@ -1,31 +1,30 @@
-require "rails_helper"
-
-path = "./plugins/babble/plugin.rb"
-source = File.read(path)
-plugin = Plugin::Instance.new(Plugin::Metadata.parse(source), path)
-plugin.activate!
-plugin.initializers.first.call
+require './plugins/babble/spec/babble_helper'
 
 describe ::Babble::TopicsController do
   routes { ::Babble::Engine.routes }
-
-  before do
-    SiteSetting.load_settings(File.join(Rails.root, 'plugins', 'babble', 'config', 'settings.yml'))
-  end
+  before { SiteSetting.load_settings(File.join(Rails.root, 'plugins', 'babble', 'config', 'settings.yml')) }
 
   let(:user) { log_in }
   let(:another_user) { Fabricate :user }
   let(:group) { Fabricate :group }
   let(:another_group) { Fabricate :group, name: 'group_name' }
-  let!(:topic) { Babble::Topic.create_topic title: "test topic for babble", allowed_group_ids: [group.id] }
+  let!(:topic) { Babble::Topic.save_topic title: "test topic for babble", allowed_group_ids: [group.id] }
+  let(:category_topic) { Babble::Topic.save_topic category_chat_params }
   let!(:topic_post) { topic.posts.create(raw: "I am a post", user: user)}
   let!(:another_post) { topic.posts.create(raw: "I am another post", user: another_user) }
-  let!(:another_topic) { Babble::Topic.create_topic title: "another test topic", allowed_group_ids: [another_group.id] }
+  let!(:another_topic) { Babble::Topic.save_topic title: "another test topic", allowed_group_ids: [another_group.id] }
   let(:non_chat_topic) { Fabricate :topic }
+  let(:category) { Fabricate :category }
 
   let(:chat_params) {{
+    permissions: "group",
     title: "This is a new topic title",
     allowed_group_ids: [allowed_group_a.id]
+  }}
+  let(:category_chat_params) {{
+    permissions: "category",
+    title: "This is a caategory topic",
+    category_id: category.id
   }}
   let(:allowed_group_a) { Fabricate :group, name: 'group_a' }
   let(:allowed_group_b) { Fabricate :group, name: 'group_b' }
@@ -128,26 +127,10 @@ describe ::Babble::TopicsController do
       group.users << user
       expect { xhr :post, :create_post, raw: "I am a test post", id: topic.id }.not_to change { user.post_count }
     end
-
-    it "deletes old posts in a rolling window" do
-      group.users << user
-      group.users << another_user
-      SiteSetting.babble_max_topic_size = 10
-
-      xhr :post, :create_post, raw: "I am the original post", id: topic.id
-      9.times { make_a_post(topic) }
-
-      expect { xhr :post, :create_post, raw: "I've stepped over the post limit!", id: topic.id }.not_to change { topic.posts.count}
-      expect(response.status).to eq 200
-
-      post_contents = topic.posts.map(&:raw).uniq
-      expect(post_contents).to include "I've stepped over the post limit!"
-      expect(post_contents).to_not include "I am the original post"
-    end
   end
 
   describe "flag_post" do
-    
+
   end
 
   describe "destroy_post" do
@@ -221,24 +204,41 @@ describe ::Babble::TopicsController do
   end
 
   describe "create" do
-    before do
-      user.update(admin: true)
-    end
+    before { user.update(admin: true) }
 
     it "creates a new chat topic" do
-      xhr :post, :create, topic: chat_params
+      expect { xhr :post, :create, topic: chat_params }.to change { Topic.where(archetype: :chat).count }.by(1)
       expect(response).to be_success
 
       new_topic = Babble::Topic.available_topics.last
       expect(new_topic.user).to eq Discourse.system_user
       expect(new_topic.title).to eq chat_params[:title]
+      expect(new_topic.category).to be_nil
       expect(new_topic.allowed_groups.length).to eq 1
       expect(new_topic.allowed_groups).to include allowed_group_a
     end
 
+    it "can create a new category chat topic" do
+      expect { xhr :post, :create, topic: category_chat_params }.to change { Topic.where(archetype: :chat).count }.by(1)
+      expect(response).to be_success
+
+      new_topic = Babble::Topic.available_topics.last
+      expect(category.reload.custom_fields['chat_topic_id']).to eq new_topic.id
+      expect(new_topic.user).to eq Discourse.system_user
+      expect(new_topic.title).to eq category_chat_params[:title]
+      expect(new_topic.category).to eq category
+      expect(new_topic.allowed_groups).to be_empty
+    end
+
+    it "respects the permissions parameter" do
+      category_chat_params[:permissions] = "group"
+      xhr :post, :create, topic: category_chat_params
+      expect(response.status).to eq 422
+    end
+
     it "can create a chat topic with a short name" do
       chat_params[:title] = 'short'
-      expect { xhr :post, :create, topic: chat_params }.to change { Topic.count }.by(1)
+      expect { xhr :post, :create, topic: chat_params }.to change { Topic.where(archetype: :chat).count }.by(1)
       expect(response).to be_success
     end
 
@@ -253,7 +253,14 @@ describe ::Babble::TopicsController do
 
     it "does not create an invalid chat topic" do
       chat_params[:title] = ''
-      xhr :post, :create, topic: chat_params
+      expect{ xhr :post, :create, topic: chat_params }.to_not change { Topic.where(archetype: :chat).count }
+      expect(response.status).to eq 422
+      expect(Babble::Topic.available_topics.last.title).not_to eq chat_params[:title]
+    end
+
+    it "does not allow multiple chat channels on a single category" do
+      category_topic
+      expect{ xhr :post, :create, topic: category_chat_params }.to_not change { Topic.where(archetype: :chat).count }
       expect(response.status).to eq 422
       expect(Babble::Topic.available_topics.last.title).not_to eq chat_params[:title]
     end
@@ -287,18 +294,18 @@ describe ::Babble::TopicsController do
       expect(topic.reload.title).to eq chat_params[:title]
     end
 
-    it "does not make invalid updates" do
-      chat_params[:title] = ''
-      xhr :post, :update, id: topic.id, topic: chat_params
-      expect(response.status).to eq 422
-      expect(Babble::Topic.find(topic.id).title).to_not eq chat_params[:title]
-    end
-
     it 'does not allow non-admins to update topics' do
       user.update(admin: false)
       xhr :post, :update, id: topic.id, topic: chat_params
       expect(response.status).to eq 403
-      expect(Babble::Topic.find(topic.id).title).to_not eq chat_params[:title]
+      expect(Babble::Topic.find(id: topic.id).title).to_not eq chat_params[:title]
+    end
+
+    it "does not allow multiple chat channels on a single category" do
+      category_topic
+      expect{ xhr :post, :update, id: topic.id, topic: category_chat_params }.to_not change { Topic.where(archetype: :chat).count }
+      expect(response.status).to eq 422
+      expect(Babble::Topic.available_topics.last.title).not_to eq chat_params[:title]
     end
   end
 
@@ -312,6 +319,13 @@ describe ::Babble::TopicsController do
       xhr :delete, :destroy, id: topic.id
       expect(response).to be_success
       expect(Babble::Topic.available_topics).not_to include topic
+    end
+
+    it "reverts a category's chat topic id" do
+      xhr :delete, :destroy, id: category_topic.id
+      expect(response).to be_success
+      expect(Babble::Topic.available_topics).not_to include category_topic
+      expect(category_topic.category.reload.custom_fields['chat_topic_id']).to_not eq category_topic.id
     end
 
     it "can destroy a chat topic with posts" do

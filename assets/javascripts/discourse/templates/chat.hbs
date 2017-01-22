@@ -1,0 +1,15 @@
+<div class="chat fullpage">
+  {{#if model.id}}
+    <div class="chat-pane">
+      {{chat-container
+        topic=model
+        fullpage=fullpage
+        application=application
+        showCreateAccount="showCreateAccount"
+        showLogin="showLogin"
+        nearPost=nearPost}}
+    </div>
+  {{else}}
+    {{loading-spinner}}
+  {{/if}}
+</div>

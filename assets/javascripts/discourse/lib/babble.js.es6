@@ -1,10 +1,16 @@
 import Post from 'discourse/models/post'
 import PostStream from 'discourse/models/post-stream'
 import Topic from 'discourse/models/topic'
+import elementIsVisible from '../lib/element-is-visible'
 import lastVisibleElement from '../lib/last-visible-element'
 import debounce from 'discourse/lib/debounce'
-import setupComposer from '../lib/setup-composer'
 import { ajax } from 'discourse/lib/ajax'
+import { scrollToPost, setupResize, teardownResize, setupScrollContainer, setupComposer, teardownComposer, hasChatElements } from '../lib/chat-element-utils'
+import { syncWithPostStream, latestPostFor, latestPostIsMine, setupPresence, teardownPresence, setupLastReadMarker } from '../lib/chat-topic-utils'
+import { forEachTopicContainer } from '../lib/chat-topic-iterators'
+import { rerender } from '../lib/chat-component-utils'
+import { setupLiveUpdate, teardownLiveUpdate } from '../lib/chat-live-update-utils'
+import BabbleRegistry from '../lib/babble-registry'
 
 export default Ember.Object.create({
 
@@ -12,221 +18,207 @@ export default Ember.Object.create({
     return _.contains(Discourse.Site.current().disabled_plugins, 'babble')
   },
 
-  setCurrentTopic(data) {
-    if (!data.id) {
-      this.set('currentTopic', null)
-      this.set('latestPost', null)
-      this.set('scrollContainer', null)
-      return
-    }
-
-    var resetTopicField = (topic, field) => {
-      topic[field] = data[field]
-      if (topic[field] == null && this.get('currentTopic')) { topic[field] = this.get('currentTopic')[field] }
-    }
-
-    var topic = Topic.create(data)
-    resetTopicField(topic, 'last_read_post_number')
-    resetTopicField(topic, 'highest_post_number')
-
-    if (this.get('currentTopic.id') != topic.id) {
-      this.handleMessageBusSubscriptions(topic.id)
-
-      let postStream = PostStream.create(topic.post_stream)
-      postStream.topic = topic
-      postStream.updateFromJson(topic.post_stream)
-
-      topic.postStream = postStream
-      topic.notifications = {}
-    } else {
-      topic.postStream = this.get('currentTopic.postStream')
-      topic.notifications = this.get('currentTopic.notifications')
-    }
-
-    this.set('currentTopic', topic)
-    this.set('latestPost', _.last(topic.postStream.posts))
-    this.setUnreadCount()
-    this.rerender()
+  bindById(component, topicId) {
+    return this.loadTopic(topicId).then((topic) => {
+      return this.bind(component, topic)
+    }, console.log)
   },
 
-  editPost(post) {
-    if (!post) {
-      this.set('editingPostId', null)
-      $('.babble-post-composer textarea').focus()
-    } else {
-      this.set('editingPostId', post.id)
-      this.scrollTo(post.post_number)
-    }
-  },
+  bind(component, topic) {
+    if (!topic) { return }
 
-  handleMessageBusSubscriptions(topicId) {
-    if (this.get('currentTopic.id') == topicId) { return }
-    const messageBus = Discourse.__container__.lookup('message-bus:main')
-    let apiPath = function(topicId, action) { return `/babble/topics/${topicId}/${action}` }
-    let currentTopicId = this.get('currentTopic.id')
+    this.unbind(component)
+    topic = BabbleRegistry.bind(component, topic)
 
-    if (this.get('currentTopic.id')) {
-      messageBus.unsubscribe(apiPath(currentTopicId))
-      messageBus.unsubscribe(apiPath(currentTopicId), 'posts')
-      messageBus.unsubscribe(apiPath(currentTopicId), 'notifications')
-    }
-    messageBus.subscribe(apiPath(topicId),                  (data) => { this.setCurrentTopic(data) })
-    messageBus.subscribe(apiPath(topicId, 'posts'),         (data) => { this.handleNewPost(data) })
-    messageBus.subscribe(apiPath(topicId, 'notifications'), (data) => { this.handleNotification(data) })
-  },
-
-  prepareScrollContainer(container) {
-    if (!container.length) { return }
-
-    // Set up scroll listener
-    $(container).on('scroll.discourse-babble-scroll', debounce((e) => {
-      let postNumber = lastVisibleElement(container, '.babble-post', 'post-number')
-      if (postNumber <= this.get('currentTopic.last_read_post_number')) { return }
-      ajax(`/babble/topics/${this.get('currentTopic.id')}/read/${postNumber}.json`).then((data) => {
-        this.setCurrentTopic(data)
+    Ember.run.scheduleOnce('afterRender', () => {
+      setupLastReadMarker(topic)
+      setupLiveUpdate(topic, {
+        '':       ((data) => { this.buildTopic(data) }),
+        'posts':  ((data) => { this.handleNewPost(topic, data) }),
+        'typing': ((data) => { this.handleTyping(topic, data) }),
+        'online': ((data) => { this.handleOnline(topic, data) })
       })
-    }, 500))
-    $(container).trigger('scroll.discourse-babble-scroll')
 
-    // Mark scroll container as activated
-    container.attr('scroll-container', 'active')
-    this.set('scrollContainer', container)
-
-    // Perform initial scroll
-    this.scrollTo(this.currentTopic.last_read_post_number, 0)
-  },
-
-  prepareComposer(textarea) {
-    if (!textarea.length) { return }
-    setupComposer(textarea, { mentions: true, emojis: true, topicId: this.currentTopic.id })
-    textarea.attr('babble-composer', 'active')
-  },
-
-  setAvailableTopics(data) {
-    this.set('availableTopics', (data || {}).topics || [])
-  },
-
-  setUnreadCount() {
-    if (this.lastPostIsMine()) {
-      var unreadCount       = 0,
-          additionalUnread  = false
-    } else {
-      var totalUnreadCount  = this.get('latestPost.post_number') - this.get('currentTopic.last_read_post_number'),
-          windowUnreadCount = _.min([totalUnreadCount, this.get('currentTopic.postStream.posts.length')]),
-          unreadCount       = windowUnreadCount,
-          additionalUnread  = totalUnreadCount > windowUnreadCount
-    }
-    this.set('unreadCount', unreadCount)
-    this.set('hasAdditionalUnread', additionalUnread)
-  },
-
-  notificationCount() {
-    if (!this.get('unreadCount')) { return }
-    let result = this.get('unreadCount') || 0
-    if (result && this.get('hasAdditionalUnread')) { result += '+' }
-    return result
-  },
-
-  lastPostIsMine() {
-    return this.get('latestPost.user_id') == Discourse.User.current().id
-  },
-
-  stagePost(text) {
-    const user = Discourse.User.current()
-
-    var postStream = this.get('currentTopic.postStream')
-    var post = Post.create({
-      raw: text,
-      cooked: text,
-      name: user.get('name'),
-      display_username: user.get('name'),
-      username: user.get('username'),
-      user_id: user.get('id'),
-      user_title: user.get('title'),
-      avatar_template: user.get('avatar_template'),
-      user_custom_fields: user.get('custom_fields'),
-      moderator: user.get('moderator'),
-      admin: user.get('admin')
+      if (hasChatElements(component.element)) {
+        if (component.fullpage) { setupResize(topic) }
+        setupScrollContainer(topic)
+        setupPresence(topic)
+        setupComposer(topic)
+        scrollToPost(topic, topic.last_read_post_number, 0)
+      }
+      rerender(topic)
     })
-    postStream.set('loadedAllPosts', true)
-    postStream.stagePost(post, user)
-    this.scrollTo(this.get('latestPost.post_number'))
-    this.set('latestPost', post)
-    this.rerender()
+    return topic
   },
 
-  handleNewPost(data) {
-    let postStream     = this.get('currentTopic.postStream'),
-        performScroll  = false
+  unbind(component) {
+    let topic = BabbleRegistry.topicForComponent(component)
+    if (!topic) { return }
 
-    if (data.topic_id != this.get('currentTopic.id')) { return }
+    Ember.run.scheduleOnce('afterRender', () => {
+      teardownLiveUpdate(topic, '', 'posts', 'typing', 'online')
 
-    if (data.user_id != Discourse.User.current().id) {
+      if (hasChatElements(component.element)) {
+        if (component.fullpage) { teardownResize(topic) }
+        teardownPresence(topic)
+      }
+      BabbleRegistry.unbind(component)
+    })
+  },
+
+  loadTopic(id) {
+    this.set('loadingTopicId', id)
+    return ajax(`/babble/topics/${id}.json`).then((data) => {
+      return this.buildTopic(data)
+    }).finally(() => {
+      this.set('loadingTopicId', null)
+    })
+  },
+
+  topicForComponent(component) {
+    return BabbleRegistry.topicForComponent(component)
+  },
+
+  buildTopic(data) {
+    if (!data.id) { return }
+
+    let topic = Topic.create(data)
+    let postStream = PostStream.create(topic.post_stream)
+    postStream.topic = topic
+    postStream.updateFromJson(topic.post_stream)
+    topic.postStream = postStream
+    topic.typing = {}
+    topic.online = {}
+
+    syncWithPostStream(topic)
+    return topic
+  },
+
+  createPost(topic, text) {
+    this.stagePost(topic, text)
+    return ajax(`/babble/topics/${topic.id}/posts`, {
+      type: 'POST',
+      data: { raw: text }
+    }).then((data) => {
+      this.handleNewPost(topic, data)
+    })
+  },
+
+  editPost(topic, post) {
+    if (post) {
+      topic.set('editingPostId', post.id)
+      scrollToPost(topic, post.post_number)
+      setupComposer(topic)
+    } else {
+      topic.set('editingPostId', null)
+    }
+  },
+
+  updatePost(topic, post, text) {
+    this.editPost(topic, null)
+    topic.set('loadingEditId', post.id)
+    return ajax(`/babble/topics/${post.topic_id}/posts/${post.id}`, {
+      type: 'POST',
+      data: { raw: text }
+    }).then((data) => {
+      this.handleNewPost(topic, data)
+    }).finally(() => {
+      topic.set('loadingEditId', null)
+    })
+  },
+
+  destroyPost(topic, post) {
+    topic.set('loadingEditId', post.id)
+    return ajax(`/babble/topics/${post.topic_id}/posts/${post.id}`, {
+      type: 'DELETE'
+    }).finally(() => {
+      topic.set('loadingEditId', null)
+    })
+  },
+
+  handleNewPost(topic, data) {
+    if (data.topic_id != topic.id) { return }
+
+    delete topic.typing[data.username]
+
+    if (!Discourse.User.current() || data.user_id != Discourse.User.current().id) {
       _.each(['can_edit', 'can_delete'], function(key) { delete data[key] })
     }
 
     let post = Post.create(data)
 
     if (data.is_edit || data.is_delete) {
-      postStream.storePost(post)
-      postStream.findLoadedPost(post.id).updateFromPost(post)
-      this.set('loadingEditId', null)
+      topic.postStream.storePost(post)
     } else {
-      performScroll = lastVisibleElement(this.get('scrollContainer'), '.babble-post', 'post-number') ==
-                      this.get('latestPost.post_number')
 
-      post.set('created_at', data.created_at)
-      this.set('latestPost', post)
+      let performScroll = _.any(forEachTopicContainer(topic, function($container) {
+        return lastVisibleElement($container.find('.babble-posts'), '.babble-post', 'post-number') == topic.lastLoadedPostNumber
+      }))
 
-      if (this.lastPostIsMine()) {
-        this.clearStagedPost()
-        postStream.commitPost(post)
+      if (latestPostIsMine(topic)) {
+        // clear staged post
+        let staged =  topic.postStream.findLoadedPost(-1)
+        if (staged) { topic.postStream.removePosts([staged]) }
+        topic.postStream.commitPost(post)
       } else {
-        postStream.appendPost(post)
+        if (performScroll) { topic.set('last_read_post_number', post.post_number) }
+        topic.postStream.appendPost(post)
       }
 
+      if (performScroll) { scrollToPost(topic, post.post_number) }
     }
-    this.setUnreadCount()
-    this.rerender()
-    if(performScroll) { this.scrollTo(post.post_number) }
+
+    syncWithPostStream(topic)
   },
 
-  scrollTo(postNumber, speed = 400, offset = 30) {
-    Ember.run.scheduleOnce('afterRender', () => {
-      let container = this.get('scrollContainer')
-      if (!container.length) { return }
+  handleTyping(topic, data) {
+    if (Discourse.User.current() && data.id == Discourse.User.current().id) { return }
+    topic.set(`typing.${data.username}`, { user: data, lastTyped: moment() })
+    rerender(topic)
+  },
 
-      let post = container.find(`.babble-post[data-post-number=${postNumber}]`)
-      if (!post.length) { return }
+  handleOnline(topic, data) {
+    if (Discourse.User.current() && data.id == Discourse.User.current().id) { return }
+    topic.set(`online.${data.username}`, { user: data, lastSeen: moment() })
+    rerender(topic)
+  },
 
-      let animateTarget = post.position().top + container.scrollTop() - offset
-      container.animate({ scrollTop: animateTarget }, speed)
+  loadPosts(topic, order) {
+    topic.set('loadingPosts', order)
+    rerender(topic)
+    let starterPostField = order === 'desc' ? 'firstLoadedPostNumber' : 'lastLoadedPostNumber'
+    let postNumber = topic.get(starterPostField)
+
+    return ajax(`/babble/topics/${topic.id}/posts/${postNumber}/${order}`).then((data) => {
+      data.posts.map(function(post) { topic.postStream.appendPost(Post.create(post)) })
+      syncWithPostStream(topic)
+      scrollToPost(topic, topic.get(starterPostField))
+    }).finally(() => {
+      topic.set('loadingPosts', null)
     })
   },
 
-  handleNotification(data) {
-    const notifications = this.get('currentTopic.notifications')
-    const username = data.user.username
-    data.user.template = data.user.avatar_template
-    if (notifications[username]) {
-      clearTimeout(notifications[username].timeout)
-    }
-    notifications[username] = data
-    data.timeout = setTimeout(() => {
-      delete notifications[username]
-      this.rerender()
-    }, 3 * 1000) // clear is typing message after 3 seconds
-    this.rerender()
-  },
+  stagePost(topic, text) {
+    const user = Discourse.User.current()
 
-  clearStagedPost() {
-    var postStream = this.get('currentTopic.postStream')
-    var staged = postStream.findLoadedPost(-1)
-    if (staged) { postStream.removePosts([staged]) }
-  },
-
-  rerender() {
-    if (!this.get('header')) { return }
-    this.get('header').queueRerender()
+    let post = Post.create({
+      raw:                text,
+      cooked:             text,
+      name:               user.get('name'),
+      display_username:   user.get('name'),
+      username:           user.get('username'),
+      user_id:            user.get('id'),
+      user_title:         user.get('title'),
+      avatar_template:    user.get('avatar_template'),
+      user_custom_fields: user.get('custom_fields'),
+      moderator:          user.get('moderator'),
+      admin:              user.get('admin'),
+      created_at:         moment()
+    })
+    topic.postStream.stagePost(post, user)
+    topic.set('lastLoadedPostNumber', post.post_number)
+    scrollToPost(topic, post.post_number)
+    teardownComposer(topic)
+    rerender(topic)
   }
 })

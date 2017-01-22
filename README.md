@@ -12,34 +12,32 @@ Check out a live instance of Discourse with Babble installed on it here: [http:/
  - Edit your web template and add the project clone url. (https://meta.discourse.org/t/install-a-plugin/19157)
  - Rebuild your web container so that the plugin installs.
  - NB: If you're running a recent version of Discourse (you should be!), you'll need to track the beta branch instead of master. To do this, use the following git clone url in your app.yml:
- 
+
  ```
  - git clone -b beta https://github.com/gdpelican/babble.git
  ```
 
 #### Adding a chat channel
- - This has been added to the admin panel; simply visit `/admin/chats` to create, update, and delete your chat channels.
 
-#### Things that work great
-- Sending messages to other clients
-- Live updating of chat window with new messages
-- Scrolling of window when opening dropdown / new messages come in
-- Updating unread counter when a new message comes in
-- Updating the read counter in the backend when posts are read
-- Live updating the unread counter when posts are read
-- Having multiple chat channels
-- Configuring channels to be accessible to certain groups of people
-- Emojis!
+**Experimental**: Full page chat mode!
+There is now a site setting for 'full page' chat mode in Babble. This will allow you to tie chat channels to a particular category, and expose a 'chat' route within your category, like so:
 
-#### Things that I'd like to add:
-- Pagination (likely load previous page)
-- Editing a recent post of yours
-- Allowing user to mute chat notifications
+![](screenshots/header.png)
+
+To do this, visit the `admin/chats` route, select 'Make a New Channel', and create a chat with 'category' permissions.
+![](screenshots/admin.png)
+
+NB that you can still create group-based chats, which will appear as normal in Shoutbox mode, by selecting 'group' permissions.
+
+To switch between 'Shoutbox' mode (with the icon in the header), and 'Full page' mode (with chats linked to a category), use the 'Use full page chat mode' plugin setting.
+
+![](screenshots/settings.png)
+
 - Check out the [issues list](http://github.com/gdpelican/babble/issues) for a more comprehensive list of what's not working great and what could be improved.
 
 #### Translations
 
-Babble is currently available in English, German, French, Spanish, Italian, Finnish, Russian, and Korean.
+Babble is currently available in English, German, French, Spanish, Italian, Finnish, Russian, Polish, and Korean.
 If you'd like it translated into your language, let me know! Babble is now [on Transifex](http://transifex.com/babble/babble), which should result in a better translation experience for all.
 
 Pull requests welcome! See [CONTRIBUTING.md](./CONTRIBUTING.md)

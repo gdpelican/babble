@@ -4,6 +4,10 @@ import { ajax } from 'discourse/lib/ajax'
 export default Ember.Controller.extend({
   adminChats: Ember.inject.controller(),
 
+  categoryPermissions: function() {
+    return this.get('model.permissions') == 'category'
+  }.property('model.permissions'),
+
   actions: {
 
     groupAdded(group) {
@@ -20,19 +24,27 @@ export default Ember.Controller.extend({
       const topic = this.get('model')
       const allTopics = this.get('adminChats.model')
       const self = this
+      const category = this.get('categories')[0]
 
       self.set('disableSave', true);
 
       var route = '/babble/topics/'
       if (topic.id) { route += topic.id }
 
+      let topicAttrs = {
+        title: topic.get('title'),
+        allowed_group_ids: topic.get('allowed_group_ids'),
+        permissions: topic.get('permissions')
+      }
+
+      if (category) {
+        topicAttrs['category_id'] = category.id
+      }
+
       ajax(route, {
         type: "POST",
         data: {
-          topic: {
-            title: topic.get('title'),
-            allowed_group_ids: topic.get('allowed_group_ids')
-          }
+          topic: topicAttrs
         }
       }).then(function(saved) {
         saved = Discourse.Topic.create(saved)
@@ -42,7 +54,6 @@ export default Ember.Controller.extend({
         } else {
           allTopics.addObject(saved)
         }
-        Babble.setAvailableTopics()
         self.transitionToRoute('adminChat', saved.id)
 
       }).catch(function() {
