@@ -33,30 +33,33 @@ export default {
 
     NavigationBar.reopen({
       didInsertElement() {
-        let chatItem = this.get('navItems').find((item) => { return item.name == 'chat' })
-        if (!chatItem) { return }
+        this._super()
+        Ember.run.scheduleOnce('afterRender', () => {
+          this.set('chatItem', this.navItems.find((item) => { return item.name == 'chat' }))
+          if (!this.chatItem) { return }
 
-        Babble.loadTopic(chatItem.get('category.chat_topic_id')).then((topic) => {
-          let setUnreadCount = () => { chatItem.set('count', topic.visibleUnreadCount) }
-          topic.removeObserver('visibleUnreadCount')
-          topic.addObserver('visibleUnreadCount', setUnreadCount)
-          setUnreadCount()
-          Babble.bind(this, topic)
-        }, console.log)
+          Babble.bindById(this, Discourse.__container__.lookup('controller:navigation/category').category.chat_topic_id)
+        })
       },
 
-      willDestroy() {
+      willDestroyElement() {
+        this._super()
         Babble.unbind(this)
-      }
+      },
+
+      setUnreadCount: function() {
+        if (!this.chatItem) { return }
+        this.chatItem.set('count', this.babbleTopic.visibleUnreadCount)
+      }.property('babbleTopic.visibleUnreadCount')
     })
 
     ChatComponent.reopen({
       didInsertElement() {
         this._super()
-        Babble.bind(this, null, true) // listens for window size
+        Babble.bind(this)
       },
 
-      didRemoveElement() {
+      willDestroyElement() {
         this._super()
         Babble.unbind(this)
       }

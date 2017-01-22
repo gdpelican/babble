@@ -73,7 +73,8 @@ export default {
                   component.babbleViewingChat = !component.babbleViewingChat
                   if (topic) {
                     Babble.unbind(component)
-                    Babble.bind(component, topic)
+                    component.set('babbleTopic', topic)
+                    Babble.bind(component)
                   }
                 })
 

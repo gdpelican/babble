@@ -12,19 +12,26 @@ import { rerender } from '../lib/chat-component-utils'
 import { setupLiveUpdate, teardownLiveUpdate } from '../lib/chat-live-update-utils'
 
 export default Ember.Object.create({
+  _registry: {},
 
   disabled() {
     return _.contains(Discourse.Site.current().disabled_plugins, 'babble')
   },
 
-  bind(component, topic, resize) {
-    Ember.run.scheduleOnce('afterRender', () => {
-      topic = topic || component.get('babbleTopic')
+  bindById(component, topicId) {
+    this.loadTopic(topicId).then((topic) => {
       component.set('babbleTopic', topic)
+      this.bind(component)
+    }, console.log)
+  },
 
+  bind(component) {
+    console.log("binding to:", component.element)
+    Ember.run.scheduleOnce('afterRender', () => {
+      let topic = this._registry[component.get('babbleTopic.id')] || component.babbleTopic
       if (!topic) { console.warn("Initialized a babble component without setting a topic"); return }
 
-      topic.set('babbleComponents', (topic.get('babbleComponents') || []).concat(component))
+      this._registry[topic.id] = topic
 
       if (topic.last_read_post_number < topic.highest_post_number) {
         topic.set('lastReadMarker', topic.last_read_post_number)
@@ -40,10 +47,11 @@ export default Ember.Object.create({
       })
 
       if ($(component.element).find('.babble-chat').length) {
-        if (resize) { setupResize(topic) }
+        topic.set('babbleComponents', (topic.get('babbleComponents') || []).concat(component))
+        if (component.fullpage) { setupResize(topic) }
         setupScrollContainer(topic)
         setupPresence(topic)
-        setupComposer(topic, { mentions: true, emojis: true })
+        setupComposer(topic)
         scrollToPost(topic, topic.last_read_post_number, 0)
       }
       rerender(topic)
@@ -51,16 +59,14 @@ export default Ember.Object.create({
   },
 
   unbind(component) {
+    console.log("unbinding from:", component.element)
     let topic = component.get('babbleTopic')
     if (!topic) { return }
 
-    topic.set('babbleComponents', (topic.get('babbleComponents') || []).without(component))
+    topic.set('babbleComponents', (topic.babbleComponents || []).without(component))
     teardownLiveUpdate(topic, '', 'posts', 'typing', 'online')
     teardownResize(topic)
     teardownPresence(topic)
-
-    // TODO: what else needs to be done to unbind?
-    $(window).off(`resize.babble-${topic.id}`)
   },
 
   loadTopic(id) {

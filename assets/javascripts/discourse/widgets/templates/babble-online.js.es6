@@ -9,7 +9,7 @@ export default Ember.Object.create({
   whosOnline(online) {
     let users = _.pluck(_.select(_.keys(online), function(username) {
       return online[username].lastSeen > moment().add(-1, 'minute')
-    }), 'user')
+    }), 'user') || []
     return _.pluck(users, 'username')
   }
 })

@@ -12,18 +12,20 @@ import { ajax } from 'discourse/lib/ajax'
 import { rerender } from '../lib/chat-component-utils'
 
 let resizeChat = function(topic) {
-  forEachTopicContainer(topic, function($container) {
-    let $chat = $($container).find('.babble-chat')
-    let $listContainer = $($container).closest('.list-container')
-    if (!$chat || !$listContainer) { console.warn("Babble could not initialize chat resize listener"); return }
+  Ember.run.scheduleOnce('afterRender', () => {
+    forEachTopicContainer(topic, function($container) {
+      let $chat = $($container).find('.babble-chat')
+      let $listContainer = $($container).closest('.list-container')
+      if (!$chat || !$listContainer) { console.warn("Babble could not initialize chat resize listener"); return }
 
-    let $nonChatElements = $listContainer.siblings().toArray()
-    let nonChatHeight = $nonChatElements.reduce(function(height, elem) {
-      return height + elem.clientHeight
-    }, parseInt(window.getComputedStyle(document.getElementById('main-outlet')).paddingTop))
+      let $nonChatElements = $listContainer.siblings().toArray()
+      let nonChatHeight = $nonChatElements.reduce(function(height, elem) {
+        return height + elem.clientHeight
+      }, parseInt(window.getComputedStyle(document.getElementById('main-outlet')).paddingTop))
 
-    $($chat).height(window.innerHeight - nonChatHeight + 40)
-    document.getElementById('list-area').style.marginBottom = 0
+      $($chat).height(window.innerHeight - nonChatHeight + 40)
+      document.getElementById('list-area').style.marginBottom = 0
+    })
   })
 }
 
@@ -73,7 +75,7 @@ let setupScrollContainer = function(topic) {
   })
 }
 
-let setupComposer = function(topic, opts = {}) {
+let setupComposer = function(topic, opts = { emojis: true, mentions: true }) {
   Ember.run.scheduleOnce('afterRender', () => {
     forEachTopicContainer(topic, function($container) {
       const $textarea  = $($container).find('.babble-post-composer textarea[babble-composer=inactive]')
