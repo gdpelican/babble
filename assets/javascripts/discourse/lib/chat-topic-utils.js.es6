@@ -68,4 +68,12 @@ let teardownPresence = function(topic) {
   clearInterval(topic.pingWhilePresent)
 }
 
-export { syncWithPostStream, latestPostFor, latestPostIsMine, isFollowOn, isNewDay, setupPresence, teardownPresence }
+let setupLastReadMarker = function(topic) {
+  if (topic.last_read_post_number < topic.highest_post_number) {
+    topic.set('lastReadMarker', topic.last_read_post_number)
+  } else {
+    topic.set('lastReadMarker', null)
+  }
+}
+
+export { syncWithPostStream, latestPostFor, latestPostIsMine, isFollowOn, isNewDay, setupPresence, teardownPresence, setupLastReadMarker }

@@ -19,10 +19,11 @@ export default {
             if (!availableTopics.length) { console.log('No topics available!'); return }
 
             ajax('/babble/topics/default.json').then((data) => {
-              component.set('babbleTopic', Babble.buildTopic(data))
+              Babble.bind(this, Babble.buildTopic(data))
 
               withPluginApi('0.1', api => {
                 api.decorateWidget('header-icons:before', function(helper) {
+                  const topic = Babble.topicForComponent(component)
                   let contents = []
 
                   if (!Babble.disabled() &&
@@ -36,11 +37,11 @@ export default {
                       active:        component.babbleVisible,
                       action:        'toggleBabble',
                       contents() {
-                        if (!component.babbleTopic.visibleUnreadCount || component.babbleVisible) { return }
+                        if (!topic.visibleUnreadCount || component.babbleVisible) { return }
                         return this.attach('link', {
                           action:    'toggleBabble',
                           className: 'badge-notification unread-notifications',
-                          rawLabel:  component.babbleTopic.visibleUnreadCount
+                          rawLabel:  topic.visibleUnreadCount
                         })
                       }
                     }));
@@ -51,7 +52,7 @@ export default {
                     }
                     contents.push(helper.attach('babble-menu', {
                       availableTopics:       availableTopics,
-                      topic:                 component.babbleTopic,
+                      topic:                 topic,
                       viewingChat:           component.babbleViewingChat
                     }))
                   }
@@ -59,23 +60,16 @@ export default {
                 })
 
                 api.attachWidgetAction('header', 'toggleBabble', function() {
-                  Babble.editPost(component.babbleTopic, null)
+                  const topic = Babble.topicForComponent(component)
                   component.babbleVisible = !component.babbleVisible
+                  Babble.bind(component, topic)
 
-                  if (component.babbleVisible) {
-                    Babble.bind(component)
-                  } else {
-                    Babble.unbind(component)
-                  }
+                  if (!component.babbleVisible) { Babble.editPost(topic, null) }
                 })
 
                 api.attachWidgetAction('header', 'toggleBabbleViewingChat', function(topic) {
                   component.babbleViewingChat = !component.babbleViewingChat
-                  if (topic) {
-                    Babble.unbind(component)
-                    component.set('babbleTopic', topic)
-                    Babble.bind(component)
-                  }
+                  Babble.bind(component, topic)
                 })
 
                 component.queueRerender()

@@ -134,11 +134,19 @@ let setupComposer = function(topic, opts = { emojis: true, mentions: true }) {
 
 let teardownComposer = function(topic) {
   forEachTopicContainer(topic, function($container) {
-    let event = document.createEvent('Event')
     let $composer = $($container).find('.babble-post-composer textarea[babble-composer=active]')[0]
+    if (!$composer) { return }
+
+    let event = document.createEvent('Event')
     event.initEvent('autosize:update', true, false)
     $composer.dispatchEvent(event)
   })
 }
 
-export { setupResize, teardownResize, scrollToPost, setupScrollContainer, setupComposer, teardownComposer }
+// A component has chat elements if it renders a 'babble-chat' widget.
+// This won't be the case for navbar counters or other unread tracking components.
+let hasChatElements = function(component) {
+  return $(component.element).find('.babble-chat').length
+}
+
+export { setupResize, teardownResize, scrollToPost, setupScrollContainer, setupComposer, teardownComposer, hasChatElements }

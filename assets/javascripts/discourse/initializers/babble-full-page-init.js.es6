@@ -38,25 +38,25 @@ export default {
           this.set('chatItem', this.navItems.find((item) => { return item.name == 'chat' }))
           if (!this.chatItem) { return }
 
-          Babble.bindById(this, Discourse.__container__.lookup('controller:navigation/category').category.chat_topic_id)
+          let topicId = Discourse.__container__.lookup('controller:navigation/category').get('category.chat_topic_id')
+          Babble.bindById(this, topicId).then((topic) => {
+            const setUnread = () => { this.chatItem.set('count', topic.visibleUnreadCount) }
+            topic.addObserver('visibleUnreadCount', setUnread)
+            setUnread()
+          })
         })
       },
 
       willDestroyElement() {
         this._super()
         Babble.unbind(this)
-      },
-
-      setUnreadCount: function() {
-        if (!this.chatItem) { return }
-        this.chatItem.set('count', this.babbleTopic.visibleUnreadCount)
-      }.property('babbleTopic.visibleUnreadCount')
+      }
     })
 
     ChatComponent.reopen({
       didInsertElement() {
         this._super()
-        Babble.bind(this)
+        Babble.bind(this, this.get('topic'))
       },
 
       willDestroyElement() {

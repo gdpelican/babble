@@ -5,40 +5,41 @@ import elementIsVisible from '../lib/element-is-visible'
 import lastVisibleElement from '../lib/last-visible-element'
 import debounce from 'discourse/lib/debounce'
 import { ajax } from 'discourse/lib/ajax'
-import { scrollToPost, setupResize, teardownResize, setupScrollContainer, setupComposer, teardownComposer } from '../lib/chat-element-utils'
-import { syncWithPostStream, latestPostFor, latestPostIsMine, setupPresence, teardownPresence } from '../lib/chat-topic-utils'
+import { scrollToPost, setupResize, teardownResize, setupScrollContainer, setupComposer, teardownComposer, hasChatElements } from '../lib/chat-element-utils'
+import { syncWithPostStream, latestPostFor, latestPostIsMine, setupPresence, teardownPresence, setupLastReadMarker } from '../lib/chat-topic-utils'
 import { forEachTopicContainer } from '../lib/chat-topic-iterators'
 import { rerender } from '../lib/chat-component-utils'
 import { setupLiveUpdate, teardownLiveUpdate } from '../lib/chat-live-update-utils'
+import BabbleRegistry from '../lib/babble-registry'
 
 export default Ember.Object.create({
-  _registry: {},
+  _registry: {
+    fetch: function(topic) {
+      if (!topic.id) { return }
+      if (!this[topic.id]) { this[topic.id] = topic }
+      return this[topic.id]
+    }
+  },
 
   disabled() {
     return _.contains(Discourse.Site.current().disabled_plugins, 'babble')
   },
 
   bindById(component, topicId) {
-    this.loadTopic(topicId).then((topic) => {
-      component.set('babbleTopic', topic)
-      this.bind(component)
+    return this.loadTopic(topicId).then((topic) => {
+      this.bind(component, topic)
+      return topic
     }, console.log)
   },
 
-  bind(component) {
-    console.log("binding to:", component.element)
+  bind(component, topic) {
+    if (!topic) { return }
+
+    this.unbind(component)
+    BabbleRegistry.bind(component, topic)
+
     Ember.run.scheduleOnce('afterRender', () => {
-      let topic = this._registry[component.get('babbleTopic.id')] || component.babbleTopic
-      if (!topic) { console.warn("Initialized a babble component without setting a topic"); return }
-
-      this._registry[topic.id] = topic
-
-      if (topic.last_read_post_number < topic.highest_post_number) {
-        topic.set('lastReadMarker', topic.last_read_post_number)
-      } else {
-        topic.set('lastReadMarker', null)
-      }
-
+      setupLastReadMarker(topic)
       setupLiveUpdate(topic, {
         '':       ((data) => { this.buildTopic(data) }),
         'posts':  ((data) => { this.handleNewPost(topic, data) }),
@@ -46,8 +47,7 @@ export default Ember.Object.create({
         'online': ((data) => { this.handleOnline(topic, data) })
       })
 
-      if ($(component.element).find('.babble-chat').length) {
-        topic.set('babbleComponents', (topic.get('babbleComponents') || []).concat(component))
+      if (hasChatElements(component)) {
         if (component.fullpage) { setupResize(topic) }
         setupScrollContainer(topic)
         setupPresence(topic)
@@ -59,14 +59,18 @@ export default Ember.Object.create({
   },
 
   unbind(component) {
-    console.log("unbinding from:", component.element)
-    let topic = component.get('babbleTopic')
+    let topic = BabbleRegistry.topicForComponent(component)
     if (!topic) { return }
 
-    topic.set('babbleComponents', (topic.babbleComponents || []).without(component))
-    teardownLiveUpdate(topic, '', 'posts', 'typing', 'online')
-    teardownResize(topic)
-    teardownPresence(topic)
+    Ember.run.scheduleOnce('afterRender', () => {
+      teardownLiveUpdate(topic, '', 'posts', 'typing', 'online')
+
+      if (hasChatElements(component)) {
+        if (component.fullpage) { teardownResize(topic) }
+        teardownPresence(topic)
+      }
+      BabbleRegistry.unbind(component)
+    })
   },
 
   loadTopic(id) {
@@ -76,6 +80,10 @@ export default Ember.Object.create({
     }).finally(() => {
       this.set('loadingTopicId', null)
     })
+  },
+
+  topicForComponent(component) {
+    return BabbleRegistry.topicForComponent(component)
   },
 
   buildTopic(data) {

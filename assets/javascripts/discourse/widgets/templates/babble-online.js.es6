@@ -10,6 +10,6 @@ export default Ember.Object.create({
     let users = _.pluck(_.select(_.keys(online), function(username) {
       return online[username].lastSeen > moment().add(-1, 'minute')
     }), 'user') || []
-    return _.pluck(users, 'username')
+    return _.pluck(_.compact(users), 'username')
   }
 })
