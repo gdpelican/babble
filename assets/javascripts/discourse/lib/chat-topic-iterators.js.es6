@@ -1,7 +1,7 @@
 import BabbleRegistry from './babble-registry'
 
 let forEachTopicComponent = function(topic, fn) {
-  BabbleRegistry.componentsForTopic(topic).map(fn)
+  return BabbleRegistry.componentsForTopic(topic).map(fn)
 }
 
 let forEachTopicContainer = function(topic, fn) {

@@ -13,13 +13,6 @@ import { setupLiveUpdate, teardownLiveUpdate } from '../lib/chat-live-update-uti
 import BabbleRegistry from '../lib/babble-registry'
 
 export default Ember.Object.create({
-  _registry: {
-    fetch: function(topic) {
-      if (!topic.id) { return }
-      if (!this[topic.id]) { this[topic.id] = topic }
-      return this[topic.id]
-    }
-  },
 
   disabled() {
     return _.contains(Discourse.Site.current().disabled_plugins, 'babble')
@@ -27,8 +20,7 @@ export default Ember.Object.create({
 
   bindById(component, topicId) {
     return this.loadTopic(topicId).then((topic) => {
-      this.bind(component, topic)
-      return topic
+      return this.bind(component, topic)
     }, console.log)
   },
 
@@ -36,7 +28,7 @@ export default Ember.Object.create({
     if (!topic) { return }
 
     this.unbind(component)
-    BabbleRegistry.bind(component, topic)
+    topic = BabbleRegistry.bind(component, topic)
 
     Ember.run.scheduleOnce('afterRender', () => {
       setupLastReadMarker(topic)
@@ -47,7 +39,7 @@ export default Ember.Object.create({
         'online': ((data) => { this.handleOnline(topic, data) })
       })
 
-      if (hasChatElements(component)) {
+      if (hasChatElements(component.element)) {
         if (component.fullpage) { setupResize(topic) }
         setupScrollContainer(topic)
         setupPresence(topic)
@@ -56,6 +48,7 @@ export default Ember.Object.create({
       }
       rerender(topic)
     })
+    return topic
   },
 
   unbind(component) {
@@ -65,7 +58,7 @@ export default Ember.Object.create({
     Ember.run.scheduleOnce('afterRender', () => {
       teardownLiveUpdate(topic, '', 'posts', 'typing', 'online')
 
-      if (hasChatElements(component)) {
+      if (hasChatElements(component.element)) {
         if (component.fullpage) { teardownResize(topic) }
         teardownPresence(topic)
       }
@@ -168,6 +161,7 @@ export default Ember.Object.create({
         if (staged) { topic.postStream.removePosts([staged]) }
         topic.postStream.commitPost(post)
       } else {
+        if (performScroll) { topic.set('last_read_post_number', post.post_number) }
         topic.postStream.appendPost(post)
       }
 

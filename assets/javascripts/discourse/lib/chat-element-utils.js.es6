@@ -14,9 +14,10 @@ import { rerender } from '../lib/chat-component-utils'
 let resizeChat = function(topic) {
   Ember.run.scheduleOnce('afterRender', () => {
     forEachTopicContainer(topic, function($container) {
+      if (!hasChatElements($container)) { return }
+
       let $chat = $($container).find('.babble-chat')
       let $listContainer = $($container).closest('.list-container')
-      if (!$chat || !$listContainer) { console.warn("Babble could not initialize chat resize listener"); return }
 
       let $nonChatElements = $listContainer.siblings().toArray()
       let nonChatHeight = $nonChatElements.reduce(function(height, elem) {
@@ -41,6 +42,8 @@ let teardownResize = function(topic) {
 let scrollToPost = function(topic, postNumber, speed = 400, offset = 30) {
   Ember.run.scheduleOnce('afterRender', () => {
     forEachTopicContainer(topic, function($container) {
+      if (!hasChatElements($container)) { return }
+
       let $scrollContainer = $container.find('.babble-list')
       let $post = $container.find(`.babble-post[data-post-number=${postNumber}]`)
       if (!$post.length || !$scrollContainer.length) { return }
@@ -61,6 +64,8 @@ let readPost = function(topic, $container) {
 
 let setupScrollContainer = function(topic) {
   forEachTopicContainer(topic, function($container) {
+    if (!hasChatElements($container)) { return }
+
     let $scrollContainer = $($container).find('.babble-list[scroll-container=inactive]')
     if (!$scrollContainer.length) { console.warn("Babble scroll container already active or could not be found"); return }
 
@@ -78,6 +83,8 @@ let setupScrollContainer = function(topic) {
 let setupComposer = function(topic, opts = { emojis: true, mentions: true }) {
   Ember.run.scheduleOnce('afterRender', () => {
     forEachTopicContainer(topic, function($container) {
+      if (!hasChatElements($container)) { return }
+
       const $textarea  = $($container).find('.babble-post-composer textarea[babble-composer=inactive]')
       if (!$textarea.length) { console.warn("Babble composer already active or could not be found"); return }
 
@@ -134,8 +141,8 @@ let setupComposer = function(topic, opts = { emojis: true, mentions: true }) {
 
 let teardownComposer = function(topic) {
   forEachTopicContainer(topic, function($container) {
+    if (!hasChatElements($container)) { return }
     let $composer = $($container).find('.babble-post-composer textarea[babble-composer=active]')[0]
-    if (!$composer) { return }
 
     let event = document.createEvent('Event')
     event.initEvent('autosize:update', true, false)
@@ -145,8 +152,8 @@ let teardownComposer = function(topic) {
 
 // A component has chat elements if it renders a 'babble-chat' widget.
 // This won't be the case for navbar counters or other unread tracking components.
-let hasChatElements = function(component) {
-  return $(component.element).find('.babble-chat').length
+let hasChatElements = function(element) {
+  return $(element).find('.babble-chat').length
 }
 
 export { setupResize, teardownResize, scrollToPost, setupScrollContainer, setupComposer, teardownComposer, hasChatElements }

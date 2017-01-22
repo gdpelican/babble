@@ -56,7 +56,7 @@ export default {
     ChatComponent.reopen({
       didInsertElement() {
         this._super()
-        Babble.bind(this, this.get('topic'))
+        this.set('topic', Babble.bind(this, this.get('topic')))
       },
 
       willDestroyElement() {

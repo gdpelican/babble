@@ -8,13 +8,12 @@ export default Ember.Object.create({
       this.store(topic, '_topics', 'id').id,
       this.store(component, '_components', 'elementId').elementId
     ])
-    console.log("Bound!", this._bindings)
+    return this.topicForComponent(component)
   },
 
   unbind(component) {
     let componentBinding = _.find(Array.from(this._bindings), ([x, elementId]) => { return elementId == component.elementId })
     this._bindings.delete(componentBinding)
-    console.log("Unbound!", this._bindings)
   },
 
   store(model, cache, field) {
