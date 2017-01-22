@@ -1,6 +1,10 @@
 module ::Babble::Controller
   private
 
+  def topic_user
+    @topic_user ||= TopicUser.find_or_initialize_by(user: current_user, topic: topic)
+  end
+
   def perform_fetch(require_admin: false)
     if topic.blank?
       respond_with_not_found

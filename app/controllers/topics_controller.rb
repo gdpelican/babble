@@ -67,10 +67,6 @@ class ::Babble::TopicsController < ::ApplicationController
     @topic ||= Babble::Topic.find_by(id: params[:id])
   end
 
-  def topic_user
-    @topic_user ||= TopicUser.find_or_initialize_by(user: current_user, topic: topic)
-  end
-
   def set_default_id
     params[:id] = Babble::Topic.default_topic_for(guardian).try(:id)
   end
