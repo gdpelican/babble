@@ -55,15 +55,13 @@ export default Ember.Object.create({
     let topic = BabbleRegistry.topicForComponent(component)
     if (!topic) { return }
 
-    Ember.run.scheduleOnce('afterRender', () => {
-      teardownLiveUpdate(topic, '', 'posts', 'typing', 'online')
+    teardownLiveUpdate(topic, '', 'posts', 'typing', 'online')
 
-      if (hasChatElements(component.element)) {
-        if (component.fullpage) { teardownResize(topic) }
-        teardownPresence(topic)
-      }
-      BabbleRegistry.unbind(component)
-    })
+    if (hasChatElements(component.element)) {
+      if (component.fullpage) { teardownResize(topic) }
+      teardownPresence(topic)
+    }
+    BabbleRegistry.unbind(component)
   },
 
   loadTopic(id) {
