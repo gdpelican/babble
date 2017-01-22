@@ -11,11 +11,20 @@ Check out a live instance of Discourse with Babble installed on it here: [http:/
 #### Installation
  - Edit your web template and add the project clone url. (https://meta.discourse.org/t/install-a-plugin/19157)
  - Rebuild your web container so that the plugin installs.
- - NB: If you're running a recent version of Discourse (you should be!), you'll need to track the beta branch instead of master. To do this, use the following git clone url in your app.yml:
+ - You likely want to be on the master branch, which is the most stable:
 
  ```
- - git clone -b beta https://github.com/gdpelican/babble.git
+ - git clone https://github.com/gdpelican/babble.git
  ```
+
+However, if you want the latest cutting edge features, feel free to track the beta branch:
+ ```
+ - git clone -b https://github.com/gdpelican/babble.git
+ ```
+
+I'll keep the README updated with the differences between the two branches.
+
+(Right now beta and master track the same commit)
 
 #### Adding a chat channel
 
