@@ -1,5 +1,3 @@
-# Babble
-
 fi:
   site_settings:
     babble_enabled: "Ota Babble-pikaviestin käyttöön."

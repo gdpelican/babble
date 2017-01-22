@@ -14,11 +14,9 @@ it:
       admin:
         new: "Nuovo Canale"
         none_selected: "Seleziona un canale per cominciare"
-        title: "Nome del Canale"
-        allowed_groups: "Visibile a:"
+        title: "Nome Canale"
         menu_title: "Chat"
         page_title: "Canali Chat"
-        group: "Visibile A"
         post_count: "Messaggi"
         last_post: "Ultimo messaggio"
         delete_confirm: "Sei sicuro di voler cancellare questo canale? Tutta la cronologia della chat andrà persa."
