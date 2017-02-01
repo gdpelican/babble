@@ -55,7 +55,7 @@ let scrollToPost = function(topic, postNumber, speed = 400, offset = 30) {
 }
 
 let readPost = function(topic, $container) {
-  let postNumber = lastVisibleElement($container.find('.babble-posts'), '.babble-post', 'post-number')
+  let postNumber = lastVisibleElement($container.find('.babble-chat'), '.babble-post', 'post-number')
   if (postNumber <= topic.last_read_post_number) { return }
   topic.set('last_read_post_number', postNumber)
   syncWithPostStream(topic)

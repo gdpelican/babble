@@ -150,7 +150,7 @@ export default Ember.Object.create({
     } else {
 
       let performScroll = _.any(forEachTopicContainer(topic, function($container) {
-        return lastVisibleElement($container.find('.babble-posts'), '.babble-post', 'post-number') == topic.lastLoadedPostNumber
+        return lastVisibleElement($container.find('.babble-chat'), '.babble-post', 'post-number') == topic.lastLoadedPostNumber
       }))
 
       if (latestPostIsMine(topic)) {
