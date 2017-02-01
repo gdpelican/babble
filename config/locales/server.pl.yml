@@ -4,3 +4,8 @@ pl:
     babble_placeholder: "Zostaw to pole puste aby używać domyślnego tekstu zachęty lub wpisz własny."
     babble_icon: "Kod dla czcionki Font Awesome (fa- ...) dla ikony w prawym górnym rogu. Zobacz http://fontawesome.io/cheatsheet/ dla pełnej listy dostępnych ikon."
     babble_category_name: "Kategoria w której będą przechowywane archiwa czatu."
+    babble_remote_post: "Włącz zdalny POST"
+    babble_remote_url: "POST URL"
+    babble_page_size: "Ilość wiadomości na stronę"
+    babble_full_page: "Włącz tryb pełnego czatu (czat będzie dostępny w kategorii)"
+    babble_shoutbox: "Włącz tryb nagłówkowy (czat pojawi się w nagłówku)"
