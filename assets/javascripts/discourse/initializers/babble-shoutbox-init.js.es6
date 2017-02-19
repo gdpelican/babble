@@ -64,7 +64,12 @@ export default {
                   component.babbleVisible = !component.babbleVisible
                   Babble.bind(component, topic)
 
-                  if (!component.babbleVisible) { Babble.editPost(topic, null) }
+                  if (component.babbleVisible) {
+                    $('html, body').css('overflow', 'hidden')
+                  } else {
+                    Babble.editPost(topic, null)
+                    $('html, body').css('overflow', 'auto')
+                  }
                 })
 
                 api.attachWidgetAction('header', 'toggleBabbleViewingChat', function(topic) {
