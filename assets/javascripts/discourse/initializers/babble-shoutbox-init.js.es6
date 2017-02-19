@@ -64,11 +64,12 @@ export default {
                   component.babbleVisible = !component.babbleVisible
                   Babble.bind(component, topic)
 
+                  let page = $('html, body')
                   if (component.babbleVisible) {
-                    $('html, body').css('overflow', 'hidden')
+                    page.css('overflow', 'hidden')
                   } else {
+                    page.css('overflow', 'auto')
                     Babble.editPost(topic, null)
-                    $('html, body').css('overflow', 'auto')
                   }
                 })
 
