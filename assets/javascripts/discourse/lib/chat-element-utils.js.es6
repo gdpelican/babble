@@ -10,6 +10,16 @@ import lastVisibleElement from '../lib/last-visible-element'
 import { syncWithPostStream } from '../lib/chat-topic-utils'
 import { ajax } from 'discourse/lib/ajax'
 import { rerender } from '../lib/chat-component-utils'
+import { applicable } from 'discourse/lib/safari-hacks'
+
+let applyBrowserHacks = function(topic) {
+  Ember.run.scheduleOnce('afterRender', () => {
+    if (!applicable()) { return }
+    forEachTopicContainer(topic, function($container) {
+      $container.find('.babble-menu').find('.menu-panel.slide-in').css('padding-bottom', '40px')
+    })
+  })
+}
 
 let resizeChat = function(topic) {
   Ember.run.scheduleOnce('afterRender', () => {
@@ -156,4 +166,13 @@ let hasChatElements = function(element) {
   return $(element).find('.babble-chat').length
 }
 
-export { setupResize, teardownResize, scrollToPost, setupScrollContainer, setupComposer, teardownComposer, hasChatElements }
+export {
+  applyBrowserHacks,
+  setupResize,
+  teardownResize,
+  scrollToPost,
+  setupScrollContainer,
+  setupComposer,
+  teardownComposer,
+  hasChatElements
+}
