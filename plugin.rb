@@ -5,7 +5,6 @@
 # url: https://github.com/gdpelican/babble
 
 register_asset "stylesheets/babble.scss"
-register_asset "stylesheets/babble-safari.scss"
 
 enabled_site_setting :babble_enabled
 
