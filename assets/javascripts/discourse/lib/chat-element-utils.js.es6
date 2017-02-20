@@ -10,11 +10,11 @@ import lastVisibleElement from '../lib/last-visible-element'
 import { syncWithPostStream } from '../lib/chat-topic-utils'
 import { ajax } from 'discourse/lib/ajax'
 import { rerender } from '../lib/chat-component-utils'
-import { applicable } from 'discourse/lib/safari-hacks'
+import { isAppleDevice } from 'discourse/lib/safari-hacks'
 
 let applyBrowserHacks = function(topic) {
   Ember.run.scheduleOnce('afterRender', () => {
-    if (!applicable()) { return }
+    if (!isAppleDevice()) { return }
     forEachTopicContainer(topic, function($container) {
       $container.find('.babble-menu').find('.menu-panel.slide-in').css('padding-bottom', '40px')
     })
