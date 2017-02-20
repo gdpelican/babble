@@ -65,14 +65,14 @@ export default createWidget('babble-composer', {
   create(text) {
     this.state.submitDisabled = true
     Babble.createPost(this.state.topic, text).finally(() => {
-      this.state.submitDisabled = false
+      this.state.submitDisabled = undefined
     })
   },
 
   update(text) {
     if (this.state.post.raw.trim() == text.trim()) { return }
     Babble.updatePost(this.state.topic, this.state.post, text).finally(() => {
-      this.state.submitDisabled = false
+      this.state.submitDisabled = undefined
     })
   },
 

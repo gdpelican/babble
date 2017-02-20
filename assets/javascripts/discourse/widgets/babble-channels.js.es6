@@ -8,7 +8,7 @@ export default createWidget('babble-channels', {
 
   changeTopic(topic) {
     Babble.loadTopic(topic.id).then((topic) => {
-      this.sendWidgetAction('toggleBabbleViewingChat', topic)
+      this.sendWidgetAction('toggleView', topic)
     }, console.log)
   },
 

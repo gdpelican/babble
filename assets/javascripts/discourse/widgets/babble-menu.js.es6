@@ -18,9 +18,9 @@ export default createWidget('babble-menu', {
     }
   },
 
-  toggleView() {
+  toggleView(topic) {
     this.state.viewingChat = !this.state.viewingChat
-    this.sendWidgetAction('toggleBabbleViewingChat')
+    if(topic) { this.sendWidgetAction('changeTopic', topic) }
   },
 
   clickOutside() {
