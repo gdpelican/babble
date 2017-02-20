@@ -16,7 +16,7 @@ let applyBrowserHacks = function(topic) {
   Ember.run.scheduleOnce('afterRender', () => {
     if (!isAppleDevice()) { return }
     forEachTopicContainer(topic, function($container) {
-      $container.find('.babble-menu').find('.menu-panel.slide-in').css('padding-bottom', '50px')
+      $container.find('.babble-menu').find('.menu-panel.slide-in').css('padding-bottom', '60px')
     })
   })
 }
