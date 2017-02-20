@@ -4,7 +4,11 @@ import Babble from '../lib/babble'
 import { ajax } from 'discourse/lib/ajax'
 
 export default createWidget('babble-menu', {
-  tagName: 'li.babble-menu',
+  tagName:  'div.babble-menu',
+
+  buildKey(attrs) {
+    return `babble-menu`
+  },
 
   defaultState(attrs) {
     return {

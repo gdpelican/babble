@@ -6,6 +6,10 @@ import { ajax } from 'discourse/lib/ajax'
 export default createWidget('babble-post', {
   tagName: 'li.babble-post',
 
+  buildKey(attrs) {
+    return `babble-post-${attrs.post.id}`
+  },
+
   buildAttributes() {
     let post = this.state.post
     return {

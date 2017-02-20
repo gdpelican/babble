@@ -6,7 +6,7 @@ import { withPluginApi } from 'discourse/lib/plugin-api'
 export default {
   name: 'babble-shoutbox-init',
   initialize() {
-    if (!Discourse.SiteSettings.babble_shoutbox) { return }
+    if (Babble.disabled() || !Discourse.SiteSettings.babble_shoutbox) { return }
 
     SiteHeader.reopen({
 

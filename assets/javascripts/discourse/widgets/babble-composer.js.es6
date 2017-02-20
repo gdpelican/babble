@@ -7,6 +7,10 @@ import { ajax } from 'discourse/lib/ajax'
 export default createWidget('babble-composer', {
   tagName: 'div.babble-post-composer',
 
+  buildKey(attrs) {
+    return `babble-composer-${attrs.topic.id}`
+  },
+
   defaultState(attrs) {
     return {
       editing:         attrs.isEditing,
