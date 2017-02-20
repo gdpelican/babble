@@ -5,6 +5,8 @@ import Babble from '../lib/babble'
 export default createWidget('babble-chat', {
   tagName: 'div.babble-chat',
 
+  buildKey(attrs) { return 'babbleChat' },
+
   defaultState(attrs) {
     return {
       topic: attrs.topic,

@@ -11,7 +11,7 @@ import NavigationBar from 'discourse/components/navigation-bar'
 export default {
   name: 'babble-full-page-init',
   initialize() {
-    if (!Discourse.SiteSettings.babble_full_page) { return }
+    if (Babble.disabled() || !Discourse.SiteSettings.babble_full_page) { return }
 
     // Add full page chat to category navigation bar
     customNavItemHref(function(navItem) {

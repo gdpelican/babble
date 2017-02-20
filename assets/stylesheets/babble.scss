@@ -15,6 +15,7 @@
 .babble-title h4 {
   display: inline-block;
   margin: 0 5px 0 0;
+  line-height: 38px;
 }
 
 .babble-title i {
@@ -327,9 +328,9 @@ li.babble-post .babble-post-content a.mention {
 
 .babble-post-composer .emoji-button {
   position: absolute;
-  bottom: -2px;
-  right: -2px;
-  font-size: 12px;
+  bottom: 2px;
+  right: 2px;
+  font-size: 20px;
   background: none;
   border: none;
   display: inline-block;
@@ -413,6 +414,13 @@ li.babble-post .babble-post-content a.mention {
 
   .drop-down { // styles for drop down menu
     padding: 0;
+  }
+
+  .normalized {
+    padding: 0 10px;
+    line-height: 38px;
+    border: none;
+    background: none;
   }
 
   .slide-in { // styles for slide-in menu
@@ -505,16 +513,6 @@ li.babble-post .babble-post-content a.mention {
 .babble-chat {
   position: relative;
 }
-
-.babble-chat button.normalized {
-  background: transparent;
-  border: 0;
-  padding: 0;
-  @media (max-width: 700px) {
-    font-size: 17px;
-  }
-}
-
 
 li.babble-chat.drop-container {
   margin: 0;
