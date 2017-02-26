@@ -14,8 +14,8 @@ describe ::TopicGuardian do
 
   describe "can_see_topic?" do
     let(:normal_topic) { Fabricate :topic }
-    let!(:chat_topic) { Babble::Topic.create_topic title: "A topic I should see!", allowed_group_ids: [group.id] }
-    let!(:hidden_chat_topic) { Babble::Topic.create_topic title: "A topic I should not see!", allowed_group_ids: [another_group.id] }
+    let!(:chat_topic) { Babble::Topic.save_topic title: "A topic I should see!", allowed_group_ids: [group.id] }
+    let!(:hidden_chat_topic) { Babble::Topic.save_topic title: "A topic I should not see!", allowed_group_ids: [another_group.id] }
 
     it "allows a user to see normal topics" do
       expect(guardian.can_see?(normal_topic)).to eq true
