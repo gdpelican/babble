@@ -27,11 +27,8 @@ class ::Babble::TopicsController < ::ApplicationController
   def destroy
     if !current_user.admin?
       respond_with_forbidden
-    elsif topic.ordered_posts.any?
-      Babble::PostDestroyer.new(current_user, topic.ordered_posts.first).destroy
-      respond_with nil
     else
-      Babble::Topic.destroy_topic(topic)
+      Babble::Topic.destroy_topic(topic, current_user)
       respond_with nil
     end
   end

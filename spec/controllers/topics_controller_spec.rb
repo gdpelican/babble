@@ -11,6 +11,7 @@ describe ::Babble::TopicsController do
   let!(:topic) { Babble::Topic.save_topic title: "test topic for babble", allowed_group_ids: [group.id] }
   let(:category_topic) { Babble::Topic.save_topic category_chat_params }
   let!(:topic_post) { topic.posts.create(raw: "I am a post", user: user)}
+  let(:category_topic_post) { category_topic.posts.create(raw: "I am a category post", user: user) }
   let!(:another_post) { topic.posts.create(raw: "I am another post", user: another_user) }
   let!(:another_topic) { Babble::Topic.save_topic title: "another test topic", allowed_group_ids: [another_group.id] }
   let(:non_chat_topic) { Fabricate :topic }
@@ -206,6 +207,14 @@ describe ::Babble::TopicsController do
     end
 
     it "reverts a category's chat topic id" do
+      xhr :delete, :destroy, id: category_topic.id
+      expect(response).to be_success
+      expect(Babble::Topic.available_topics).not_to include category_topic
+      expect(category_topic.category.reload.custom_fields['chat_topic_id']).to_not eq category_topic.id
+    end
+
+    it "reverts a category's chat topic id if the topic has posts" do
+      category_topic_post
       xhr :delete, :destroy, id: category_topic.id
       expect(response).to be_success
       expect(Babble::Topic.available_topics).not_to include category_topic

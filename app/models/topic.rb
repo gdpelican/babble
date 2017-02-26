@@ -24,8 +24,11 @@ class ::Babble::Topic
     end
   end
 
-  def self.destroy_topic(topic)
-    topic.tap { |t| update_category(topic.category_id, nil) if topic.category_id }.destroy
+  def self.destroy_topic(topic, user)
+    topic.tap do |t|
+      Babble::PostDestroyer.new(user, topic.ordered_posts.first).destroy if topic.ordered_posts.any?
+      update_category(topic.category_id, nil)                            if topic.category_id
+    end.destroy
   end
 
   def self.update_category(category_id, topic_id)
