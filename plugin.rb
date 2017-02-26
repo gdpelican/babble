@@ -50,4 +50,14 @@ after_initialize do
     Topic.where(category_id: old_chat_category.id).update_all(archetype: :chat, category_id: nil)
     old_chat_category.destroy
   end
+
+  class ::Topic
+    module ForDigest
+      def for_digest(user, since, opts=nil)
+        super(user, since, opts).where('archetype <> ?', Archetype.chat)
+      end
+    end
+    singleton_class.prepend ForDigest
+  end
+
 end
