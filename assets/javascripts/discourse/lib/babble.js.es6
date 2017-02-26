@@ -172,13 +172,13 @@ export default Ember.Object.create({
 
   handleTyping(topic, data) {
     if (Discourse.User.current() && data.id == Discourse.User.current().id) { return }
-    topic.set(`typing.${data.username}`, { user: data, lastTyped: moment() })
+    topic.typing[data.username] = { user: data, lastTyped: moment() }
     rerender(topic)
   },
 
   handleOnline(topic, data) {
     if (Discourse.User.current() && data.id == Discourse.User.current().id) { return }
-    topic.set(`online.${data.username}`, { user: data, lastSeen: moment() })
+    topic.online[data.username] = { user: data, lastSeen: moment() }
     rerender(topic)
   },
 
