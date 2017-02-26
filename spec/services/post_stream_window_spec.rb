@@ -2,13 +2,12 @@ require './plugins/babble/spec/babble_helper'
 
 describe PostStreamWindow do
   describe 'for' do
-    let(:topic) { Fabricate :topic }
-    let(:post1) { Fabricate :post, topic: topic, post_number: 1 }
-    let(:post2) { Fabricate :post, topic: topic, post_number: 2 }
-    let(:post3) { Fabricate :post, topic: topic, post_number: 3 }
+    let!(:topic) { Fabricate :topic }
+    let!(:post1) { Fabricate :post, topic: topic, post_number: 1 }
+    let!(:post2) { Fabricate :post, topic: topic, post_number: 2 }
+    let!(:post3) { Fabricate :post, topic: topic, post_number: 3 }
 
     before do
-      post1; post2; post3
       Topic.reset_highest(topic.id)
       topic.reload
     end
