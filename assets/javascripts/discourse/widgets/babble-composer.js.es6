@@ -103,7 +103,7 @@ export default createWidget('babble-composer', {
 
     // only fire typing events if input has changed
     // TODO: expand this to account for backspace / delete keys too
-    if (event.key.length === 1) { this.announceTyping() }
+    if (event.key && event.key.length === 1) { this.announceTyping() }
   },
 
   announceTyping: _.throttle(function() {
