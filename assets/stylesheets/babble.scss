@@ -454,7 +454,8 @@ li.babble-post .babble-post-content a.mention {
     -webkit-flex-shrink: 1;
     -webkit-flex-basis: auto;
     overflow-x: hidden;
-    overflow-y: auto;
+    overflow-y: scroll;
+    -webkit-overflow-scrolling: touch;
     height: 500px;
     margin: 0 7px;
   }
