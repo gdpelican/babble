@@ -1,10 +1,10 @@
 export default Ember.Object.create({
   _topics: {},
   _components: {},
-  _bindings: new Set(),
+  _bindings: [],
 
   bind(component, topic) {
-    this._bindings.add([
+    this._bindings.push([
       this.store(topic, '_topics', 'id').id,
       this.store(component, '_components', 'elementId').elementId
     ])
@@ -12,8 +12,8 @@ export default Ember.Object.create({
   },
 
   unbind(component) {
-    let componentBinding = _.find([...this._bindings], ([x, elementId]) => { return elementId == component.elementId })
-    this._bindings.delete(componentBinding)
+    let componentBinding = _.find(this._bindings, ([x, elementId]) => { return elementId == component.elementId })
+    this._bindings = _.without(this._bindings, componentBinding)
   },
 
   store(model, cache, field) {
@@ -22,13 +22,13 @@ export default Ember.Object.create({
   },
 
   componentsForTopic(topic) {
-    let elementIds = _.filter([...this._bindings], ([topicId, x]) => { return topicId == topic.id })
+    let elementIds = _.filter(this._bindings, ([topicId, x]) => { return topicId == topic.id })
                       .map((c) => { return c[1] })
     return _.values(_.pick(this._components, elementIds))
   },
 
   topicForComponent(component) {
-    let [topicId, x] = _.find([...this._bindings], ([x, elementId]) => { return elementId == component.elementId }) || []
+    let [topicId, x] = _.find(this._bindings, ([x, elementId]) => { return elementId == component.elementId }) || []
     return this._topics[topicId]
   }
 })
