@@ -6,7 +6,8 @@ class ::Babble::PostCreator < ::PostCreator
 
   def valid?
     setup_post
-    errors.add :base, "No post content" unless @post.raw.present?
+    errors.add :base, I18n.t(:topic_not_found) unless guardian.can_create?(Post, @topic)
+    errors.add :base, "No post content"        unless @post.raw.present?
     errors.empty?
   end
 

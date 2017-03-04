@@ -58,7 +58,7 @@ class ::Babble::Topic
   def self.available_topics_for(guardian)
     return available_topics if guardian.is_admin?
     user_id = guardian.anonymous? ? nil : guardian.user.id
-    category_ids = Category.scoped_to_permissions(guardian, [:readonly]).pluck(:id)
+    category_ids = Category.post_create_allowed(guardian).pluck(:id)
     available_topics
       .joins("LEFT OUTER JOIN topic_allowed_groups tg ON tg.topic_id = topics.id")
       .joins("LEFT OUTER JOIN group_users gu ON gu.group_id = tg.group_id")

@@ -8,6 +8,10 @@ describe ::Babble::PostsController do
   let!(:another_post) { topic.posts.create(raw: "I am another post", user: another_user) }
   let!(:topic_post) { topic.posts.create(raw: "I am a post", user: user)}
   let(:another_user) { Fabricate :user }
+  let(:public_category) { Fabricate :category, name: "public" }
+  let(:public_category_topic) { Babble::Topic.save_topic permissions: :category, title: "a public category topic", category_id: public_category.id }
+  let(:private_category) { Fabricate :private_category, name: "private", group: group }
+  let(:private_category_topic) { Babble::Topic.save_topic permissions: :category, title: "a category topic", category_id: private_category.id }
 
   let(:group) { Fabricate :group }
   let(:another_group) { Fabricate :group, name: 'group_name' }
@@ -51,6 +55,24 @@ describe ::Babble::PostsController do
     it "does not affect user's post count" do
       group.users << user
       expect { xhr :post, :create, raw: "I am a test post", topic_id: topic.id }.not_to change { user.post_count }
+    end
+
+    it "can create a post in a public category topic" do
+      user
+      expect { xhr :post, :create, raw: "I am a test post", topic_id: public_category_topic.id }.to change { public_category_topic.posts.count }.by(1)
+      expect(response.status).to eq 200
+    end
+
+    it "can create a post in a category topic" do
+      group.users << user
+      expect { xhr :post, :create, raw: "I am a test post", topic_id: private_category_topic.id }.to change { private_category_topic.posts.count }.by(1)
+      expect(response.status).to eq 200
+    end
+
+    it "enforces category permissions" do
+      user
+      expect { xhr :post, :create, raw: "I am a test post", topic_id: private_category_topic.id }.not_to change { private_category_topic.posts.count }
+      expect(response.status).to eq 403
     end
   end
 
