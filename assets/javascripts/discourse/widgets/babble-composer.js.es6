@@ -66,6 +66,7 @@ export default createWidget('babble-composer', {
     this.state.submitDisabled = true
     Babble.createPost(this.state.topic, text).finally(() => {
       this.state.submitDisabled = undefined
+      Ember.run.scheduleOnce('afterRender', () => { this.composerElement().focus() })
     })
   },
 
