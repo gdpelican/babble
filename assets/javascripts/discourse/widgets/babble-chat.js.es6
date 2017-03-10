@@ -26,10 +26,15 @@ export default createWidget('babble-chat', {
     Babble.loadPosts(this.state.topic, 'desc')
   },
 
-  goToChat() {
+  goToChat(e) {
     if (!Discourse.SiteSettings.babble_full_page || !this.state.category || !this.state.topic) { return }
     this.sendWidgetAction('toggleBabble')
-    DiscourseURL.routeTo(`/chat/${this.state.category.slug}/${this.state.topic.id}`)
+    let path = `/chat/${this.state.category.slug}/${this.state.topic.id}`
+    if (e.ctrlKey || e.metaKey) {
+      window.open(path, '_blank', 'height=500,width=200,model=yes')
+    }  else {
+      DiscourseURL.routeTo(path)
+    }
   },
 
   html() { return template.render(this) }

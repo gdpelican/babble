@@ -77,7 +77,8 @@ export default Ember.Object.create({
       className: 'normalized',
       icon:      'external-link',
       action:    'goToChat',
-      title:     'babble.go_to_chat'
+      title:     'babble.go_to_chat',
+      sendActionEvent: true
     }))
   },
 
