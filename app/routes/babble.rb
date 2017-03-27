@@ -8,6 +8,7 @@ Babble::Engine.routes.draw do
   get    "/topics/:id/read/:post_number" => "topics#read"
   get    "/topics/:id/groups"            => "topics#groups"
   post   "/topics/:id/online"            => "topics#online"
+  post   "/topics/:id/offline"           => "topics#offline"
   post   "/topics/:id/typing"            => "topics#typing"
 
   get    "/topics/:topic_id/posts/:post_number/:order" => "posts#index"

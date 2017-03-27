@@ -260,6 +260,47 @@ describe ::Babble::TopicsController do
     end
   end
 
+  describe "online" do
+    it "adds a user to the list of online users" do
+      group.users << user
+      xhr :post, :online, id: topic.id
+      expect($redis.get("babble-online-#{topic.id}")).to eq user.id.to_s
+    end
+
+    it "adds a user when users are already online" do
+      group.users << user
+      $redis.set("babble-online-#{topic.id}", another_user.id.to_s)
+      xhr :post, :online, id: topic.id
+      expect($redis.get("babble-online-#{topic.id}")).to eq "#{another_user.id},#{user.id}"
+    end
+
+    it "responds with forbidden unless a user is logged in" do
+      xhr :post, :offline, id: topic.id
+      expect(response.status).to eq 403
+    end
+  end
+
+  describe "offline" do
+    it "removes a user from the list of online users" do
+      group.users << user
+      $redis.set("babble-online-#{topic.id}", user.id.to_s)
+      xhr :post, :offline, id: topic.id
+      expect($redis.get("babble-online-#{topic.id}")).to be_empty
+    end
+
+    it "removes a user when users are already online" do
+      group.users << user
+      $redis.set("babble-online-#{topic.id}", "#{user.id}, #{another_user.id}")
+      xhr :post, :offline, id: topic.id
+      expect($redis.get("babble-online-#{topic.id}")).to eq another_user.id.to_s
+    end
+
+    it "responds with forbidden unless a user is logged in" do
+      xhr :post, :offline, id: topic.id
+      expect(response.status).to eq 403
+    end
+  end
+
   describe "groups" do
     before do
       user.update(admin: true)

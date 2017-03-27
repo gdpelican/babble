@@ -46,7 +46,16 @@ class ::Babble::TopicsController < ::ApplicationController
 
   def online
     perform_fetch do
-      Babble::Broadcaster.publish_to_online(topic, current_user)
+      $redis.set online_cache_key, online_user_ids.add(current_user.id).to_a.join(',')
+      Babble::Broadcaster.publish_to_online(topic, online_users)
+      respond_with nil
+    end
+  end
+
+  def offline
+    perform_fetch do
+      $redis.set online_cache_key, online_user_ids.delete(current_user.id.to_s).to_a.join(',')
+      Babble::Broadcaster.publish_to_online(topic, online_users)
       respond_with nil
     end
   end
@@ -70,5 +79,17 @@ class ::Babble::TopicsController < ::ApplicationController
 
   def topic_params
     params.require(:topic).permit(:title, :permissions, :category_id, allowed_group_ids: [])
+  end
+
+  def online_user_ids
+    Set.new Array($redis.get(online_cache_key).split(','))
+  end
+
+  def online_users
+    @online_users ||= User.where id: $redis.get(online_cache_key).split(',')
+  end
+
+  def online_cache_key
+    "babble-online-#{topic.id}"
   end
 end
