@@ -7,6 +7,7 @@ export default Ember.Object.create({
     this.topic           = this.widget.attrs.topic
     this.availableTopics = this.widget.attrs.availableTopics || []
     this.canSignUp       = this.widget.attrs.canSignUp
+    this.category        = this.widget.state.category
     if (!this.topic) { return }
     return this.chatContents()
   },
@@ -26,7 +27,7 @@ export default Ember.Object.create({
         h('div.babble-title-wrapper', h('div.babble-title', [
           this.switchTopicsButton(),
           this.chatTitle(),
-          this.whosOnline()
+          this.fullPageLink()
         ]))
       )
     }
@@ -70,8 +71,15 @@ export default Ember.Object.create({
     return h('h4.babble-group-title', this.topic.title)
   },
 
-  whosOnline() {
-    return h('div.babble-whos-online', this.widget.attach('babble-online', { topic: this.topic }))
+  fullPageLink() {
+    if (!this.category || !this.topic.postStream.posts.length) { return }
+    return h('div.babble-context-toggle.babble-full-page-link', this.widget.attach('button', {
+      className: 'normalized',
+      icon:      'external-link',
+      action:    'goToChat',
+      title:     'babble.go_to_chat',
+      sendActionEvent: true
+    }))
   },
 
   switchTopicsButton() {
