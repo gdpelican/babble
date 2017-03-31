@@ -56,7 +56,6 @@ export default {
                 })
 
                 api.decorateWidget('header-icons:before', function(helper) {
-                  if (!api.getCurrentUser()) { return [] }
                   const topic = Babble.topicForComponent(component)
 
                   return helper.attach('header-dropdown', {
