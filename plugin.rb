@@ -33,6 +33,7 @@ after_initialize do
   babble_require 'services/post_revisor'
   babble_require 'services/broadcaster'
   babble_require 'services/post_stream_window'
+  babble_require 'services/whos_online'
 
   babble_require 'models/archetype'
   babble_require 'models/guardian'

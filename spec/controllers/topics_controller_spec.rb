@@ -15,7 +15,7 @@ describe ::Babble::TopicsController do
   let!(:another_post) { topic.posts.create(raw: "I am another post", user: another_user) }
   let!(:another_topic) { Babble::Topic.save_topic title: "another test topic", allowed_group_ids: [another_group.id] }
   let(:non_chat_topic) { Fabricate :topic }
-  let(:category) { Fabricate :category }
+  let(:category) { Fabricate :category, name: "category_name" }
 
   let(:chat_params) {{
     permissions: "group",
@@ -264,14 +264,26 @@ describe ::Babble::TopicsController do
     it "adds a user to the list of online users" do
       group.users << user
       xhr :post, :online, id: topic.id
-      expect($redis.get("babble-online-#{topic.id}")).to eq user.id.to_s
+      online = JSON.parse($redis.get("babble-online-#{topic.id}"))
+      expect(online).to include user.id.to_s
+    end
+
+    it "does not add a duplicate user" do
+      group.users << user
+      Babble::WhosOnline.new(topic).add(user)
+      xhr :post, :online, id: topic.id
+      online = JSON.parse($redis.get("babble-online-#{topic.id}"))
+      expect(online.length).to eq 1
+      expect(online).to include user.id.to_s
     end
 
     it "adds a user when users are already online" do
       group.users << user
-      $redis.set("babble-online-#{topic.id}", another_user.id.to_s)
+      Babble::WhosOnline.new(topic).add(another_user)
       xhr :post, :online, id: topic.id
-      expect($redis.get("babble-online-#{topic.id}")).to eq "#{another_user.id},#{user.id}"
+      online = JSON.parse($redis.get("babble-online-#{topic.id}"))
+      expect(online).to include another_user.id.to_s
+      expect(online).to include user.id.to_s
     end
 
     it "responds with forbidden unless a user is logged in" do
@@ -283,16 +295,19 @@ describe ::Babble::TopicsController do
   describe "offline" do
     it "removes a user from the list of online users" do
       group.users << user
-      $redis.set("babble-online-#{topic.id}", user.id.to_s)
+      Babble::WhosOnline.new(topic).add(user)
       xhr :post, :offline, id: topic.id
-      expect($redis.get("babble-online-#{topic.id}")).to be_empty
+      online = JSON.parse($redis.get("babble-online-#{topic.id}"))
+      expect(online).to_not include user.id.to_s
     end
 
     it "removes a user when users are already online" do
       group.users << user
-      $redis.set("babble-online-#{topic.id}", "#{user.id}, #{another_user.id}")
+      Babble::WhosOnline.new(topic).add(user)
+      Babble::WhosOnline.new(topic).add(another_user)
       xhr :post, :offline, id: topic.id
-      expect($redis.get("babble-online-#{topic.id}")).to eq another_user.id.to_s
+      online = JSON.parse($redis.get("babble-online-#{topic.id}"))
+      expect(online).to_not include user.id.to_s
     end
 
     it "responds with forbidden unless a user is logged in" do
