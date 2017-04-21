@@ -12,14 +12,14 @@ export default createWidget('babble-menu', {
 
   defaultState(attrs) {
     return {
-      viewingChat:           attrs.viewingChat,
+      viewingChannels:       attrs.viewingChannels,
       firstLoadedPostNumber: attrs.firstLoadedPostNumber,
       container:             attrs.container
     }
   },
 
   toggleView(topic) {
-    this.state.viewingChat = !this.state.viewingChat
+    this.state.viewingChannels = !this.state.viewingChannels
     if(topic) { this.sendWidgetAction('changeTopic', topic) }
   },
 

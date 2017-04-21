@@ -9,7 +9,7 @@ export default Ember.Object.create({
   },
 
   visiblePanel() {
-    return this.widget.state.viewingChat ? 'babble-chat' : 'babble-channels'
+    return this.widget.state.viewingChannels ? 'babble-channels' : 'babble-chat'
   }
 
 })

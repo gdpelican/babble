@@ -1,6 +1,13 @@
+# Babble
+
 fi:
   site_settings:
     babble_enabled: "Ota Babble-pikaviestin käyttöön."
     babble_placeholder: "Pikaviestimen tyhjässä viestikentässä näkyvä ohjeteksti. Jos tyhjä, siinä näkyy oletusteksti."
     babble_icon: "Oikeassa ylänurkassa näkyvän pikaviestinkuvakkeen Font Awesome -koodi (ilman fa-etuliitettä). Lista löytyy osoitteesta http://fortawesome.github.io/Font-Awesome/cheatsheet/"
     babble_category_name: "Pikaviestimen keskustelut tallennetaan ketjuina tälle alueelle."
+    babble_remote_post: "Ota käyttöön remote POST viesteissä."
+    babble_remote_url: "POST URL"
+    babble_page_size: "Viestien määrä yhdellä pikaviestimen sivulla"
+    babble_full_page: "Ota käyttöön kokoruututila (jolle pääsee alueen sivulta)"
+    babble_shoutbox: "Ota käyttöön Babble-shoutbox (ilmaantuu sivuston yläpalkkiin)"

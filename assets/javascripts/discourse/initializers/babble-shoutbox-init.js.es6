@@ -23,22 +23,11 @@ export default {
               Babble.bind(this, Babble.buildTopic(data))
 
               withPluginApi('0.1', api => {
-                const _html = queryRegistry('header').prototype.html
-
-                api.reopenWidget('header', {
-                  html(attrs, state) {
-                    const _super  = _html.call(this, attrs, state)
-                    let panels = _super.children[0].children[1].children
-
-                    if (state.babbleViewingChat === undefined) { state.babbleViewingChat = true }
-                    if (state.babbleVisible) {
-                      panels.push(this.attach('babble-menu', {
-                        availableTopics:       availableTopics,
-                        topic:                 Babble.topicForComponent(component),
-                        viewingChat:           state.babbleViewingChat
-                      }))
-                    }
-                    return _super
+                api.addHeaderPanel('babble-menu', 'babbleVisible', function(attrs, state) {
+                  return {
+                    availableTopics: availableTopics,
+                    topic:           Babble.topicForComponent(component),
+                    viewingChannels: state.babbleViewingChannels
                   }
                 })
 
@@ -67,7 +56,6 @@ export default {
                 })
 
                 api.decorateWidget('header-icons:before', function(helper) {
-                  if (!api.getCurrentUser()) { return [] }
                   const topic = Babble.topicForComponent(component)
 
                   return helper.attach('header-dropdown', {

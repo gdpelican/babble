@@ -1,6 +1,6 @@
 # name: babble
 # about: Shoutbox plugin for Discourse
-# version: 2.0.3
+# version: 2.0.4
 # authors: James Kiesel (gdpelican)
 # url: https://github.com/gdpelican/babble
 
