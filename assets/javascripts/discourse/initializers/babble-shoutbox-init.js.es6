@@ -47,7 +47,7 @@ export default {
                     })
                   } else {
                     page.css('overflow', 'auto')
-                    Babble.editPost(topic, null)
+                    Babble.clearEditing(topic)
                   }
                 })
 

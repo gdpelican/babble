@@ -103,35 +103,43 @@ export default Ember.Object.create({
     })
   },
 
+  clearEditing(topic) {
+    _.each(topic.get('postStream.posts'), (post) => { post.set('editing', false) })
+  },
+
   editPost(topic, post) {
-    if (post) {
-      topic.set('editingPostId', post.id)
-      scrollToPost(topic, post.post_number)
-      setupComposer(topic)
-    } else {
-      topic.set('editingPostId', null)
-    }
+    this.clearEditing(topic)
+    post.set('editing', true)
+    scrollToPost(topic, post.post_number)
+    setupComposer(topic)
+  },
+
+  editMyLastPost(topic) {
+    const post = _.last(_.select(topic.get('postStream.posts'), (post) => {
+      return post.user_id == Discourse.User.current().id
+    }))
+    if (post) { this.editPost(topic, post) }
   },
 
   updatePost(topic, post, text) {
-    this.editPost(topic, null)
-    topic.set('loadingEditId', post.id)
+    this.clearEditing(topic)
+    post.set('processing', true)
     return ajax(`/babble/topics/${post.topic_id}/posts/${post.id}`, {
       type: 'POST',
       data: { raw: text }
     }).then((data) => {
       this.handleNewPost(topic, data)
     }).finally(() => {
-      topic.set('loadingEditId', null)
+      post.set('processing', false)
     })
   },
 
   destroyPost(topic, post) {
-    topic.set('loadingEditId', post.id)
+    post.set('processing', true)
     return ajax(`/babble/topics/${post.topic_id}/posts/${post.id}`, {
       type: 'DELETE'
     }).finally(() => {
-      topic.set('loadingEditId', null)
+      post.set('processing', false)
     })
   },
 
