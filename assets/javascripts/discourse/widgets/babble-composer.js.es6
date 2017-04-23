@@ -24,7 +24,7 @@ export default createWidget('babble-composer', {
     if (this.state.post) {
       return $('.babble-post-container > .babble-post-composer textarea')
     } else {
-      return $('.babble-chat > .babble-post-composer textarea')
+      return $('.babble-topic-container > .babble-post-composer textarea')
     }
   },
 
