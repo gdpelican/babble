@@ -1,5 +1,6 @@
 import { createWidget } from 'discourse/widgets/widget';
-import template from '../widgets/templates/babble-online'
+import shoutboxTemplate from '../widgets/templates/babble-online-shoutbox'
+import fullpageTemplate from '../widgets/templates/babble-online-fullpage'
 
 export default createWidget('babble-online', {
   buildKey(attrs) {
@@ -10,5 +11,11 @@ export default createWidget('babble-online', {
     return { topic: attrs.topic, fullpage: attrs.fullpage }
   },
 
-  html() { return template.render(this) },
+  html() {
+    if (this.state.fullpage) {
+      return fullpageTemplate.render(this)
+    } else {
+      return shoutboxTemplate.render(this)
+    }
+  }
 })
