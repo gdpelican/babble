@@ -1,6 +1,6 @@
 class ::Babble::TopicsController < ::ApplicationController
   requires_plugin Babble::BABBLE_PLUGIN_NAME
-  include ::Babble::Controller
+  include ::Babble::BaseController
   before_filter :set_default_id, only: :default
   before_filter :ensure_logged_in, except: [:show, :index]
 
