@@ -62,7 +62,9 @@ export default Ember.Object.create({
   },
 
   postName() {
-    return h('div.babble-post-name', this.widget.attach('poster-name', this.post))
+    return h('div.babble-post-name', this.widget.attach('poster-name', _.merge({}, this.post, {
+      usernameUrl: this.post.get('usernameUrl')
+    })))
   },
 
   postDate() {
