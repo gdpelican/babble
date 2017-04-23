@@ -31,7 +31,6 @@ export default createWidget('babble-composer', {
   selectEmoji() {
     let $composer = this.composerElement()
     showSelector({
-      register: this.register,
       onSelect: function(emoji) {
         $composer.val(`${$composer.val().trimRight()} :${emoji}:`)
         $composer.focus()

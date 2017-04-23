@@ -8,7 +8,7 @@ export default createWidget('babble-shoutbox', {
   tagName:  'div.babble-shoutbox',
 
   buildKey(attrs) {
-    return `babble-shoutbox`
+    return `babble-shoutbox-${attrs.topic.id}`
   },
 
   defaultState(attrs) {

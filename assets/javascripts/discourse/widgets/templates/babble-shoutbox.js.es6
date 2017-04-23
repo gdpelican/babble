@@ -10,17 +10,17 @@ export default Ember.Object.create({
 
     return this.widget.attach('menu-panel', { contents: () => {
       if (this.viewingChannels) {
-        return [
+        return h('div.babble-channels-container', [
           this.channelsHeader(),
-          this.widget.attach('babble-channels', { topic: this.topic, availableTopics: this.availableTopics }),
-          this.widget.attach('babble-composer', { topic: this.topic })
-        ]
+          widget.attach('babble-channels', { topic: this.topic, availableTopics: this.availableTopics })
+        ])
       } else {
-        return [
+        return h('div.babble-topic-container', [
           this.chatHeader(),
-          this.widget.attach('babble-chat',     { topic: this.topic }),
-          this.widget.attach('babble-composer', { topic: this.topic })
-        ]
+          widget.attach('babble-chat',     { topic: this.topic }),
+          widget.attach('babble-typing',   { topic: widget.state.topic }),
+          widget.attach('babble-composer', { topic: this.topic })
+        ])
       }
     }})
   },

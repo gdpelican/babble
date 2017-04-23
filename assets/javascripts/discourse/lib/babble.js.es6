@@ -40,7 +40,7 @@ export default Ember.Object.create({
       })
 
       if (hasChatElements(component.element)) {
-        if (component.fullpage) { setupResize(topic) }
+        setupResize(topic)
         setupScrollContainer(topic)
         setupComposer(topic)
         scrollToPost(topic, topic.last_read_post_number, 0)
@@ -59,7 +59,7 @@ export default Ember.Object.create({
     teardownLiveUpdate(topic, '', 'posts', 'typing', 'online')
 
     if (hasChatElements(component.element)) {
-      if (component.fullpage) { teardownResize(topic) }
+      teardownResize(topic)
       teardownPresence(topic)
     }
     BabbleRegistry.unbind(component)

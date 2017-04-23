@@ -27,25 +27,38 @@ let resizeChat = function(topic) {
   Ember.run.scheduleOnce('afterRender', () => {
     forEachTopicContainer(topic, function($container) {
       if (!hasChatElements($container)) { return }
-
       let $chat = $($container).find('.babble-chat')
-      let $listContainer = $($container).closest('.list-container')
+      var chatHeight = null
 
-      if (!$listContainer.length) { return }
+      let $shoutbox = $chat.closest('.menu-panel.slide-in')
+      if($shoutbox.length) {
+        chatHeight = $shoutbox.innerHeight() - totalElemHeight($chat.siblings()) - 10
+      }
 
-      let $nonChatElements = $listContainer.siblings().toArray()
-      let nonChatHeight = $nonChatElements.reduce(function(height, elem) {
-        return height + elem.clientHeight
-      }, parseInt(window.getComputedStyle(document.getElementById('main-outlet')).paddingTop))
+      let $fullpage = $chat.closest('.list-container')
+      if($fullpage.length) {
+        let mainOutletHeight = window.getComputedStyle(document.getElementById('main-outlet')).paddingTop
+        let nonChatHeight    = totalElemHeight($fullpage.siblings(), parseInt(mainOutletHeight) + 20)
+        document.getElementById('list-area').style.marginBottom = 0
 
-      $($chat).height(window.innerHeight - nonChatHeight - 20)
-      document.getElementById('list-area').style.marginBottom = 0
+        chatHeight = window.innerHeight - nonChatHeight
+      }
+
+      if(chatHeight) { $chat.height(chatHeight) }
     })
   })
 }
 
+let totalElemHeight = function(elements, initial) {
+  return elements.toArray().reduce(function(height, elem) {
+    return height + elem.clientHeight
+  }, initial || 0)
+}
+
 let setupResize = function(topic) {
-  $(window).on(`resize.babble-${topic.id}`, _.debounce(function() { resizeChat(topic) }, 250))
+  $(window).on(`resize.babble-${topic.id}`, _.debounce(function() {
+    resizeChat(topic)
+  }, 250))
   resizeChat(topic)
 }
 

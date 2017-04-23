@@ -8,7 +8,7 @@ export default Ember.Object.create({
     if (!Discourse.SiteSettings.babble_whos_online) { return }
     if (!online.length) { return }
 
-    return h('div.babble-online.babble-online-shoutbox',
+    return h('div.babble-online',
       _.map(_.take(online, displayedUsersCount), this.portrait).concat(this.moreCount(online.length-displayedUsersCount))
     )
   },

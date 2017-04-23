@@ -2,6 +2,10 @@
   position: relative;
 }
 
+.babble-chat {
+  overflow-y: auto;
+}
+
 /* Dropdown styles */
 
 .babble-title-wrapper {
@@ -234,7 +238,7 @@
   background-color: transparent !important; /* sorry mom. */
 }
 
-.babble-post:hover, .babble-available-topic:hover {
+.babble-post:hover, .babble-available-topic:hover, .babble-sidebar-line-item:hover {
   background-color: #f8f8ff;
 }
 
@@ -490,7 +494,6 @@ li.babble-post .babble-post-content a.mention {
     overflow-x: hidden;
     overflow-y: scroll;
     -webkit-overflow-scrolling: touch;
-    height: 500px;
     margin: 0 7px;
   }
   .babble-post-composer-wrapper {
@@ -584,7 +587,12 @@ li.babble-chat.drop-container {
 
 /* Fullpage styles */
 
-.chat.fullpage {
+.babble-fullpage {
+  display: flex;
+  -webkit-display: flex;
+  -webkit-flex-direction: row;
+  flex-direction: row;
+
   .babble-chat {
     display: flex;
     display: -webkit-flex;
@@ -617,4 +625,28 @@ li.babble-chat.drop-container {
       font-size: 18px;
     }
   }
+}
+
+.babble-sidebar {
+  width: 190px;
+  height: 100%;
+  border-left: 1px solid #ccc;
+  margin-left: 5px;
+  padding-left: 5px;
+}
+
+.babble-sidebar-title {
+  text-align: right;
+  margin-bottom: 5px;
+}
+
+.babble-sidebar-line-item {
+  display: flex;
+  -webkit-display: flex;
+  flex-direction: row;
+  -webkit-flex-direction: row;
+  line-height: 25px;
+  padding: 5px;
+  cursor: pointer;
+  img { margin-right: 5px; }
 }
