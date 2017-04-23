@@ -46,8 +46,9 @@ class ::Babble::TopicsController < ::ApplicationController
 
   def online
     perform_fetch do
-      Babble::Broadcaster.publish_to_online(topic, whos_online.add(current_user))
-      respond_with nil
+      online = whos_online.add(current_user)
+      Babble::Broadcaster.publish_to_online(topic, online)
+      respond_with online, serializer: BasicUserSerializer
     end
   end
 
