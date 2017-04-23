@@ -7,7 +7,7 @@ export default createWidget('babble-online', {
   },
 
   defaultState(attrs) {
-    return { topic: attrs.topic }
+    return { topic: attrs.topic, fullpage: attrs.fullpage }
   },
 
   html() { return template.render(this) },

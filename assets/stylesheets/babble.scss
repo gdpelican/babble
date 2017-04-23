@@ -12,18 +12,25 @@
   }
 }
 
+.babble-title {
+  display: flex;
+  -webkit-display: flex;
+  justify-content: space-between;
+  -webkit-justify-content: space-between;
+}
+
+.babble-title-left, .babble-title-right {
+  display: flex;
+  -webkit-display: flex;
+}
+
 .babble-title h4 {
-  display: inline-block;
   margin: 0 5px 0 0;
   line-height: 38px;
 }
 
 .babble-title i {
   color: #ccc;
-}
-
-.babble-full-page-link {
-  float: right;
 }
 
 .d-header .icons .babble-title [class^="fa fa-"] {
@@ -296,8 +303,41 @@ li.babble-post .babble-post-content a.mention {
   min-height: 14px;
 }
 
-.babble-whos-online {
+.chat.fullpage .babble-online {
+  position: absolute;
+  right: 0;
+  top: 0;
+  box-shadow: -2px 2px 5px -4px #444;
+  padding: 2px 2px 2px 8px;
+  background: #fdfdfd;
+  z-index: 10;
+}
+
+.babble-online {
+  cursor: pointer;
+}
+
+.babble-online-avatars {
   float: right;
+}
+
+.babble-online .avatar {
+  width: 20px;
+  height: 20px;
+  margin-left: -6px;
+  border: 2px solid white;
+  display: inline-block;
+}
+
+.babble-more-online {
+  vertical-align: middle;
+  background: #ddd;
+  line-height: 20px;
+  font-weight: bold;
+  text-align: center;
+  font-size: 11px;
+  color: #555;
+  border-radius: 100%;
 }
 
 /* Composer styles */

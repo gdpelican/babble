@@ -8,31 +8,40 @@ export default Ember.Object.create({
     this.availableTopics = this.widget.attrs.availableTopics || []
     this.canSignUp       = this.widget.attrs.canSignUp
     this.category        = this.widget.state.category
+    this.fullpage        = this.widget.attrs.fullpage
     if (!this.topic) { return }
     return this.chatContents()
   },
 
   chatContents() {
-    let contents = [
-      h('div.babble-list', { attributes: { 'scroll-container': 'inactive' } }, [
-        this.pressurePlate('desc'),
-        h('ul', {className: 'babble-posts'}, this.chatView()),
-        this.pressurePlate('asc')
-      ]),
-      this.widget.attach('babble-typing', { topic: this.topic }),
-      this.widget.attach('babble-online', { topic: this.topic }),
-      this.widget.attach('babble-composer', { topic: this.topic, canSignUp: this.canSignUp })
-    ]
-    if (!this.widget.attrs.fullpage) {
-      contents.unshift(
-        h('div.babble-title-wrapper', h('div.babble-title', [
-          this.switchTopicsButton(),
-          this.chatTitle(),
-          this.fullPageLink()
-        ]))
-      )
+    let contents = [this.scrollContainer()]
+    if (this.fullpage) {
+      contents.unshift(this.whosOnline())
+    } else {
+      contents.unshift(this.chatTitleBar())
     }
+
     return contents
+  },
+
+  chatTitleBar() {
+    if (this.widget.attrs.fullpage) { return }
+    return h('div.babble-title-wrapper', h('div.babble-title', [
+      h('div.babble-title-left',  [this.switchTopicsButton(), this.chatTitle()]),
+      h('div.babble-title-right', [this.whosOnline(), this.fullPageLink()])
+    ]))
+  },
+
+  whosOnline() {
+    return this.widget.attach('babble-online', { topic: this.topic, fullpage: this.fullpage })
+  },
+
+  scrollContainer() {
+    return h('div.babble-list', { attributes: { 'scroll-container': 'inactive' } }, [
+      this.pressurePlate('desc'),
+      h('ul', {className: 'babble-posts'}, this.chatView()),
+      this.pressurePlate('asc')
+    ])
   },
 
   pressurePlate(order) {

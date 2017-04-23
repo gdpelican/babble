@@ -10,7 +10,11 @@ export default Ember.Object.create({
   },
 
   topicsHeader() {
-    return h('div.babble-title-wrapper', h('div.babble-title', this.topicsHeaderContent()))
+    return h('div.babble-title-wrapper',
+      h('div.babble-title',
+        h('div.babble-title-left', this.topicsHeaderContent())
+      )
+    )
   },
 
   topicsHeaderContent() {
