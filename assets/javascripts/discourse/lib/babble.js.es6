@@ -42,10 +42,10 @@ export default Ember.Object.create({
       if (hasChatElements(component.element)) {
         if (component.fullpage) { setupResize(topic) }
         setupScrollContainer(topic)
-        setupPresence(topic)
         setupComposer(topic)
         scrollToPost(topic, topic.last_read_post_number, 0)
         applyBrowserHacks(topic)
+        setupPresence(topic).then((data) => this.handleOnline(topic, data.topics /* :( */))
       }
       rerender(topic)
     })
@@ -87,7 +87,7 @@ export default Ember.Object.create({
     postStream.updateFromJson(topic.post_stream)
     topic.postStream = postStream
     topic.typing = {}
-    topic.online = {}
+    topic.online = []
 
     syncWithPostStream(topic)
     return topic
@@ -185,8 +185,7 @@ export default Ember.Object.create({
   },
 
   handleOnline(topic, data) {
-    if (Discourse.User.current() && data.id == Discourse.User.current().id) { return }
-    topic.online[data.username] = { user: data, lastSeen: moment() }
+    topic.online = _.filter(data, (user) => { return user.id != (Discourse.User.current() || {}).id })
     rerender(topic)
   },
 

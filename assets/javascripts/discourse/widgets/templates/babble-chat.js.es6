@@ -20,6 +20,7 @@ export default Ember.Object.create({
         this.pressurePlate('asc')
       ]),
       this.widget.attach('babble-typing', { topic: this.topic }),
+      this.widget.attach('babble-online', { topic: this.topic }),
       this.widget.attach('babble-composer', { topic: this.topic, canSignUp: this.canSignUp })
     ]
     if (!this.widget.attrs.fullpage) {
