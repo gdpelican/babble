@@ -16,7 +16,7 @@ let applyBrowserHacks = function(topic) {
   Ember.run.scheduleOnce('afterRender', () => {
     if (!isAppleDevice()) { return }
     forEachTopicContainer(topic, function($container) {
-      $container.find('.babble-menu').find('.menu-panel.slide-in')
+      $container.find('.babble-shoutbox').find('.menu-panel.slide-in')
                 .css('padding-bottom', '60px')
                 .css('height', 'calc(100% - 54px) !important')
     })
@@ -31,12 +31,14 @@ let resizeChat = function(topic) {
       let $chat = $($container).find('.babble-chat')
       let $listContainer = $($container).closest('.list-container')
 
+      if (!$listContainer.length) { return }
+
       let $nonChatElements = $listContainer.siblings().toArray()
       let nonChatHeight = $nonChatElements.reduce(function(height, elem) {
         return height + elem.clientHeight
       }, parseInt(window.getComputedStyle(document.getElementById('main-outlet')).paddingTop))
 
-      $($chat).height(window.innerHeight - nonChatHeight + 40)
+      $($chat).height(window.innerHeight - nonChatHeight - 20)
       document.getElementById('list-area').style.marginBottom = 0
     })
   })

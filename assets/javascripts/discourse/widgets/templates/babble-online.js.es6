@@ -4,7 +4,7 @@ import { avatarImg } from 'discourse/widgets/post'
 export default Ember.Object.create({
   render(widget) {
     const displayedUsersCount = 3
-    const online = widget.state.topic.online
+    const online = widget.attrs.topic.online
     if (!Discourse.SiteSettings.babble_whos_online) { return }
     if (!online.length) { return }
 

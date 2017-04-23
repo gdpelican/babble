@@ -210,7 +210,7 @@
   }
 }
 
-.babble-menu .spinner {
+.babble-shoutbox .spinner {
   height: 10px;
   width: 10px;
   margin: 0 auto;
@@ -449,7 +449,7 @@ li.babble-post .babble-post-content a.mention {
 }
 
 /* Shoutbox styles */
-.babble-menu {
+.babble-shoutbox {
   text-align: left;
   float: left;
 
@@ -468,13 +468,6 @@ li.babble-post .babble-post-content a.mention {
     box-sizing: border-box;
     height: calc(100vh - 64px) !important;
     @media (max-width: 450px) { width: 100% !important; }
-  }
-  .babble-chat {
-    display: flex;
-    display: -webkit-flex;
-    flex-direction: column;
-    -webkit-flex-direction: column;
-    height: 100%;
   }
   .babble-title-wrapper {
     z-index: 1;
@@ -534,10 +527,6 @@ li.babble-post .babble-post-content a.mention {
     right: 0;
     z-index: -1;
   }
-}
-
-.babble-menu .panel-body-contents {
-  height: 100%;
 }
 
 /* Admin styles */

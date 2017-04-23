@@ -12,7 +12,12 @@ export default Ember.Object.create({
   },
 
   composer() {
-    return h('div.babble-composer-wrapper', [this.textarea(), this.emojiButton()])
+    return h('div.babble-composer-wrapper', [this.typing(), this.textarea(), this.emojiButton()])
+  },
+
+  typing() {
+    if (this.state.post) { return }
+    return this.widget.attach('babble-typing', { topic: this.state.topic })
   },
 
   textarea() {
