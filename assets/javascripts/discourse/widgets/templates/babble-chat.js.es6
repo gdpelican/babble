@@ -14,7 +14,12 @@ export default Ember.Object.create({
   },
 
   chatContents() {
-    let contents = [this.scrollContainer()]
+    let contents = [
+      this.scrollContainer(),
+      this.widget.attach('babble-typing', { topic: this.topic }),
+      this.widget.attach('babble-composer', { topic: this.topic, canSignUp: this.canSignUp })
+    ]
+
     if (this.fullpage) {
       contents.unshift(this.whosOnline())
     } else {
