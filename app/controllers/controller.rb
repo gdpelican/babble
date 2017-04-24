@@ -1,4 +1,4 @@
-module ::Babble::BaseController
+module ::Babble::Controller
   private
 
   def topic_user

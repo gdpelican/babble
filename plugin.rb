@@ -19,8 +19,8 @@ after_initialize do
   babble_require 'routes/babble'
   babble_require 'routes/discourse'
 
+  babble_require 'controllers/controller'
   babble_require 'controllers/admin/chats_controller'
-  babble_require 'controllers/base_controller'
   babble_require 'controllers/topics_controller'
   babble_require 'controllers/posts_controller'
 
@@ -33,7 +33,6 @@ after_initialize do
   babble_require 'services/post_revisor'
   babble_require 'services/broadcaster'
   babble_require 'services/post_stream_window'
-  babble_require 'services/whos_online'
 
   babble_require 'models/archetype'
   babble_require 'models/guardian'

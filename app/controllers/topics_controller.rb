@@ -1,6 +1,6 @@
 class ::Babble::TopicsController < ::ApplicationController
   requires_plugin Babble::BABBLE_PLUGIN_NAME
-  include ::Babble::BaseController
+  include ::Babble::Controller
   before_filter :set_default_id, only: :default
   before_filter :ensure_logged_in, except: [:show, :index]
 
@@ -46,15 +46,7 @@ class ::Babble::TopicsController < ::ApplicationController
 
   def online
     perform_fetch do
-      online = whos_online.add(current_user)
-      Babble::Broadcaster.publish_to_online(topic, online)
-      respond_with online, serializer: BasicUserSerializer
-    end
-  end
-
-  def offline
-    perform_fetch do
-      Babble::Broadcaster.publish_to_online(topic, whos_online.remove(current_user))
+      Babble::Broadcaster.publish_to_online(topic, current_user)
       respond_with nil
     end
   end
@@ -67,10 +59,6 @@ class ::Babble::TopicsController < ::ApplicationController
   end
 
   private
-
-  def whos_online
-    @whos_online ||= Babble::WhosOnline.new(topic)
-  end
 
   def topic
     @topic ||= Babble::Topic.find_by(id: params[:id])

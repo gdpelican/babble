@@ -20,9 +20,6 @@ plugins:
   babble_full_page:
     default: false
     client: true
-  babble_whos_online:
-    default: true
-    client: true
   babble_shoutbox:
     default: true
     client: true

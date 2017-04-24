@@ -53,14 +53,19 @@ let isNewDay = function(post, previous) {
          moment(post.created_at).date() > moment(previous.created_at).date()
 }
 
+// ping every 59 seconds to say we're still here while the chat is bound, as well
+// as announcing when the chat is first bound
 let setupPresence = function(topic) {
-  $(window).bind(`beforeunload.presence-${topic.id}`, function() { teardownPresence(topic) })
-  return ajax(`/babble/topics/${topic.id}/online`, { type: 'POST' })
+  topic.set('pingWhilePresent', setInterval(announcePresence(topic), 1000 * 59))
+  announcePresence(topic)()
+}
+
+let announcePresence = function(topic) {
+  return () => ajax(`/babble/topics/${topic.id}/online`, { type: 'POST' })
 }
 
 let teardownPresence = function(topic) {
-  $(window).unbind(`beforeunload.presence-${topic.id}`)
-  return ajax(`/babble/topics/${topic.id}/offline`, { type: 'POST' })
+  clearInterval(topic.pingWhilePresent)
 }
 
 let setupLastReadMarker = function(topic) {
@@ -71,12 +76,4 @@ let setupLastReadMarker = function(topic) {
   }
 }
 
-let onlineSentence = function(topic) {
-  if (topic.online.length == 1) {
-    return I18n.t("babble.sidebar_title_single_user")
-  } else {
-    return I18n.t("babble.sidebar_title", { count: topic.online.length })
-  }
-}
-
-export { syncWithPostStream, latestPostFor, latestPostIsMine, isFollowOn, isNewDay, setupPresence, teardownPresence, setupLastReadMarker, onlineSentence }
+export { syncWithPostStream, latestPostFor, latestPostIsMine, isFollowOn, isNewDay, setupPresence, teardownPresence, setupLastReadMarker }
