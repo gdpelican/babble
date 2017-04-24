@@ -429,7 +429,7 @@ li.babble-post .babble-post-content a.mention {
 
   .slide-in { // styles for slide-in menu
     box-sizing: border-box;
-    height: calc(100vh - 64px) !important;
+    height: calc(100% - 58px) !important;
     @media (max-width: 450px) { width: 100% !important; }
   }
   .babble-chat {
