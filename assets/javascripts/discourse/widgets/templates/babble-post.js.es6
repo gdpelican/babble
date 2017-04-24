@@ -115,6 +115,7 @@ export default Ember.Object.create({
     let actions = []
     if (this.post.can_delete) { actions.push(this.widget.attach('link', { icon: 'trash-o', action: 'delete'})) }
     if (this.post.can_edit)   { actions.push(this.widget.attach('link', { icon: 'pencil', action: 'edit'})) }
+    actions.push(this.widget.attach('link', { icon: 'flag', action: 'flag' }))
     if (this.post.deleted_at || !actions.length) { return }
     return h('div.babble-post-actions', actions)
   },

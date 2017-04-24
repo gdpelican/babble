@@ -2,6 +2,7 @@ import { createWidget } from 'discourse/widgets/widget';
 import Babble from '../lib/babble'
 import template from '../widgets/templates/babble-post'
 import { ajax } from 'discourse/lib/ajax'
+import showModal from 'discourse/lib/show-modal'
 
 export default createWidget('babble-post', {
   tagName: 'li.babble-post',
@@ -35,6 +36,11 @@ export default createWidget('babble-post', {
 
   delete() {
     Babble.destroyPost(this.state.topic, this.state.post)
+  },
+
+  flag() {
+    let post = this.state.post
+    showModal('flag', {model: this.state.post}).setProperties({ selected: null, flagTopic: false })
   },
 
   html() { return template.render(this) }
