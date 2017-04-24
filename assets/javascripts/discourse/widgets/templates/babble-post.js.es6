@@ -35,12 +35,13 @@ export default Ember.Object.create({
       return h('div.babble-staged-post.babble-deleted-post', [this.avatarWrapper(), I18n.t('babble.post_deleted_by', {username: this.post.deleted_by_username})])
     } else if (this.post.user_deleted) {
       return h('div.babble-staged-post.babble-deleted-post', [this.avatarWrapper(), this.bodyWrapper()] )
-    } else if (this.post.editing) {
+    } else if (this.topic.get('editingPostId') === this.post.id ){
       return this.widget.attach('babble-composer', {
         post:      this.post,
         topic:     this.topic,
+        isEditing: true,
         raw:       this.post.raw})
-    } else if (this.post.processing || this.post.id == -1) {
+    } else if (this.topic.get('loadingEditId') === this.post.id || this.post.id == -1) {
       return h('div.babble-staged-post', [this.avatarWrapper(), this.bodyWrapper(true)])
     } else {
       return [this.avatarWrapper(), this.bodyWrapper(false)]
@@ -62,9 +63,7 @@ export default Ember.Object.create({
   },
 
   postName() {
-    return h('div.babble-post-name', this.widget.attach('poster-name', _.merge({}, this.post, {
-      usernameUrl: this.post.get('usernameUrl')
-    })))
+    return h('div.babble-post-name', this.widget.attach('poster-name', this.post))
   },
 
   postDate() {

@@ -3,7 +3,9 @@ import NavItem from 'discourse/models/nav-item'
 import Category from 'discourse/models/category'
 import CategoryController from 'discourse/controllers/navigation/category'
 import computed from 'ember-addons/ember-computed-decorators'
+import { observes } from 'ember-addons/ember-computed-decorators'
 import { customNavItemHref } from 'discourse/models/nav-item'
+import ChatComponent from '../components/chat-container'
 import NavigationBar from 'discourse/components/navigation-bar'
 
 export default {
@@ -43,6 +45,18 @@ export default {
             setUnread()
           })
         })
+      },
+
+      willDestroyElement() {
+        this._super()
+        Babble.unbind(this)
+      }
+    })
+
+    ChatComponent.reopen({
+      didInsertElement() {
+        this._super()
+        this.set('topic', Babble.bind(this, this.get('topic')))
       },
 
       willDestroyElement() {

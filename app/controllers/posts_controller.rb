@@ -1,6 +1,6 @@
 class ::Babble::PostsController < ::ApplicationController
   requires_plugin Babble::BABBLE_PLUGIN_NAME
-  include ::Babble::BaseController
+  include ::Babble::Controller
   before_filter :ensure_logged_in, except: :index
 
   def index

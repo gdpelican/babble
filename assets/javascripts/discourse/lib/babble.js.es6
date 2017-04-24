@@ -40,12 +40,12 @@ export default Ember.Object.create({
       })
 
       if (hasChatElements(component.element)) {
-        setupResize(topic)
+        if (component.fullpage) { setupResize(topic) }
         setupScrollContainer(topic)
+        setupPresence(topic)
         setupComposer(topic)
         scrollToPost(topic, topic.last_read_post_number, 0)
         applyBrowserHacks(topic)
-        setupPresence(topic).then((data) => this.handleOnline(topic, data.topics /* :( */))
       }
       rerender(topic)
     })
@@ -59,7 +59,7 @@ export default Ember.Object.create({
     teardownLiveUpdate(topic, '', 'posts', 'typing', 'online')
 
     if (hasChatElements(component.element)) {
-      teardownResize(topic)
+      if (component.fullpage) { teardownResize(topic) }
       teardownPresence(topic)
     }
     BabbleRegistry.unbind(component)
@@ -87,7 +87,7 @@ export default Ember.Object.create({
     postStream.updateFromJson(topic.post_stream)
     topic.postStream = postStream
     topic.typing = {}
-    topic.online = []
+    topic.online = {}
 
     syncWithPostStream(topic)
     return topic
@@ -103,43 +103,35 @@ export default Ember.Object.create({
     })
   },
 
-  clearEditing(topic) {
-    _.each(topic.get('postStream.posts'), (post) => { post.set('editing', false) })
-  },
-
   editPost(topic, post) {
-    this.clearEditing(topic)
-    post.set('editing', true)
-    scrollToPost(topic, post.post_number)
-    setupComposer(topic)
-  },
-
-  editMyLastPost(topic) {
-    const post = _.last(_.select(topic.get('postStream.posts'), (post) => {
-      return post.user_id == Discourse.User.current().id
-    }))
-    if (post) { this.editPost(topic, post) }
+    if (post) {
+      topic.set('editingPostId', post.id)
+      scrollToPost(topic, post.post_number)
+      setupComposer(topic)
+    } else {
+      topic.set('editingPostId', null)
+    }
   },
 
   updatePost(topic, post, text) {
-    this.clearEditing(topic)
-    post.set('processing', true)
+    this.editPost(topic, null)
+    topic.set('loadingEditId', post.id)
     return ajax(`/babble/topics/${post.topic_id}/posts/${post.id}`, {
       type: 'POST',
       data: { raw: text }
     }).then((data) => {
       this.handleNewPost(topic, data)
     }).finally(() => {
-      post.set('processing', false)
+      topic.set('loadingEditId', null)
     })
   },
 
   destroyPost(topic, post) {
-    post.set('processing', true)
+    topic.set('loadingEditId', post.id)
     return ajax(`/babble/topics/${post.topic_id}/posts/${post.id}`, {
       type: 'DELETE'
     }).finally(() => {
-      post.set('processing', false)
+      topic.set('loadingEditId', null)
     })
   },
 
@@ -185,7 +177,8 @@ export default Ember.Object.create({
   },
 
   handleOnline(topic, data) {
-    topic.online = _.filter(data, (user) => { return user.id != (Discourse.User.current() || {}).id })
+    if (Discourse.User.current() && data.id == Discourse.User.current().id) { return }
+    topic.online[data.username] = { user: data, lastSeen: moment() }
     rerender(topic)
   },
 

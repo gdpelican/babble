@@ -6,7 +6,28 @@ export default Ember.Object.create({
   render(widget) {
     this.widget          = widget
     this.availableTopics = this.widget.attrs.availableTopics || []
-    return this.topicsList()
+    return [this.topicsHeader(), this.topicsList()]
+  },
+
+  topicsHeader() {
+    return h('div.babble-title-wrapper', h('div.babble-title', this.topicsHeaderContent()))
+  },
+
+  topicsHeaderContent() {
+    return [this.backButton(), this.topicsHeaderText()]
+  },
+
+  backButton() {
+    return this.widget.attach('button', {
+      className: 'babble-context-toggle for-topics normalized',
+      icon:      'chevron-left',
+      title:     'babble.view_chat_tooltip',
+      action:    'toggleView'
+    })
+  },
+
+  topicsHeaderText() {
+    return h('h4.babble-topic-switcher-title', I18n.t('babble.select_topic'))
   },
 
   topicsList() {

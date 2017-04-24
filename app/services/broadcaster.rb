@@ -7,8 +7,8 @@ class Babble::Broadcaster
     MessageBus.publish "/babble/topics/#{post.topic_id}/posts", serialized_post(post, user, extras)
   end
 
-  def self.publish_to_online(topic, users, extras = {})
-    MessageBus.publish "/babble/topics/#{topic.id}/online", serialized_online(users)
+  def self.publish_to_online(topic, user, extras = {})
+    MessageBus.publish "/babble/topics/#{topic.id}/online", serialized_presence(user, extras)
   end
 
   def self.publish_to_typing(topic, user, extras = {})
@@ -25,10 +25,6 @@ class Babble::Broadcaster
 
   def self.serialized_presence(user, extras = {})
     serialize(user, nil, extras, BasicUserSerializer)
-  end
-
-  def self.serialized_online(users)
-    ActiveModel::ArraySerializer.new(users, each_serializer: BasicUserSerializer).as_json
   end
 
   def self.serialize(obj, user, extras, serializer)

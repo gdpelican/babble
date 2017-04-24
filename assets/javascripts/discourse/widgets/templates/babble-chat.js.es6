@@ -5,12 +5,33 @@ export default Ember.Object.create({
   render(widget) {
     this.widget          = widget
     this.topic           = this.widget.attrs.topic
+    this.availableTopics = this.widget.attrs.availableTopics || []
+    this.canSignUp       = this.widget.attrs.canSignUp
+    this.category        = this.widget.state.category
     if (!this.topic) { return }
-    return h('div.babble-list', { attributes: { 'scroll-container': 'inactive' } }, [
-      this.pressurePlate('desc'),
-      h('ul', {className: 'babble-posts'}, this.chatView()),
-      this.pressurePlate('asc')
-    ])
+    return this.chatContents()
+  },
+
+  chatContents() {
+    let contents = [
+      h('div.babble-list', { attributes: { 'scroll-container': 'inactive' } }, [
+        this.pressurePlate('desc'),
+        h('ul', {className: 'babble-posts'}, this.chatView()),
+        this.pressurePlate('asc')
+      ]),
+      this.widget.attach('babble-typing', { topic: this.topic }),
+      this.widget.attach('babble-composer', { topic: this.topic, canSignUp: this.canSignUp })
+    ]
+    if (!this.widget.attrs.fullpage) {
+      contents.unshift(
+        h('div.babble-title-wrapper', h('div.babble-title', [
+          this.switchTopicsButton(),
+          this.chatTitle(),
+          this.fullPageLink()
+        ]))
+      )
+    }
+    return contents
   },
 
   pressurePlate(order) {
@@ -44,6 +65,31 @@ export default Ember.Object.create({
     } else {
       return h('div.babble-load-message', I18n.t('babble.no_more_messages'))
     }
+  },
+
+  chatTitle() {
+    return h('h4.babble-group-title', this.topic.title)
+  },
+
+  fullPageLink() {
+    if (!this.category || !this.topic.postStream.posts.length) { return }
+    return h('div.babble-context-toggle.babble-full-page-link', this.widget.attach('button', {
+      className: 'normalized',
+      icon:      'external-link',
+      action:    'goToChat',
+      title:     'babble.go_to_chat',
+      sendActionEvent: true
+    }))
+  },
+
+  switchTopicsButton() {
+    if (this.availableTopics.length == 0) { return }
+    return h('div.babble-context-toggle.for-chat', this.widget.attach('button', {
+      className: 'normalized',
+      icon:      'bars',
+      action:    'toggleView',
+      title:     'babble.view_topics_tooltip'
+    }))
   },
 
   chatView() {
