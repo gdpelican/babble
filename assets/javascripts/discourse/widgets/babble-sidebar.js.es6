@@ -10,7 +10,12 @@ export default createWidget('babble-sidebar', {
     return { topic: attrs.topic }
   },
 
+
   html() {
     return template.render(this)
+  },
+
+  toggle() {
+    this.state.toggled = !this.state.toggled
   }
 })
