@@ -1,5 +1,6 @@
 import { h } from 'virtual-dom'
 import { avatarImg } from 'discourse/widgets/post'
+import { onlineSentence } from '../../lib/chat-topic-utils'
 
 export default Ember.Object.create({
   render(widget) {
@@ -8,17 +9,9 @@ export default Ember.Object.create({
     if (!Discourse.SiteSettings.babble_whos_online) { return }
 
     return h('div.babble-sidebar', [
-      h('h4.babble-sidebar-title', this.title(online)),
-      _.map(online, this.lineItem),
+      h('h4.babble-sidebar-title', onlineSentence(widget.attrs.topic)),
+      _.map(widget.attrs.topic.online, this.lineItem),
     ])
-  },
-
-  title(online) {
-    if (online.length == 1) {
-      return I18n.t("babble.sidebar_title_single_user")
-    } else {
-      return I18n.t("babble.sidebar_title", { count: online.length })
-    }
   },
 
   lineItem(user) {

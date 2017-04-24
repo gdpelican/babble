@@ -71,4 +71,12 @@ let setupLastReadMarker = function(topic) {
   }
 }
 
-export { syncWithPostStream, latestPostFor, latestPostIsMine, isFollowOn, isNewDay, setupPresence, teardownPresence, setupLastReadMarker }
+let onlineSentence = function(topic) {
+  if (topic.online.length == 1) {
+    return I18n.t("babble.sidebar_title_single_user")
+  } else {
+    return I18n.t("babble.sidebar_title", { count: topic.online.length })
+  }
+}
+
+export { syncWithPostStream, latestPostFor, latestPostIsMine, isFollowOn, isNewDay, setupPresence, teardownPresence, setupLastReadMarker, onlineSentence }
