@@ -11,3 +11,4 @@ en:
     babble_page_size: "Number of posts per chat page"
     babble_full_page: "Enable full page chat mode (accessible from the category page)"
     babble_shoutbox: "Enable the Babble shoutbox (appears in the site header)"
+    babble_whos_online: "Display which users are online in chat"

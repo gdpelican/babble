@@ -23,36 +23,36 @@ export default {
               Babble.bind(this, Babble.buildTopic(data))
 
               withPluginApi('0.1', api => {
-                api.addHeaderPanel('babble-menu', 'babbleVisible', function(attrs, state) {
+                api.addHeaderPanel('babble-shoutbox', 'babbleVisible', function() {
                   return {
                     availableTopics: availableTopics,
-                    topic:           Babble.topicForComponent(component),
-                    viewingChannels: state.babbleViewingChannels
+                    topic:           Babble.topicForComponent(component)
                   }
                 })
 
                 api.attachWidgetAction('header', 'toggleBabble', function() {
                   const page = $('html, body')
                   const topic = Babble.topicForComponent(component)
+                  topic.inShoutbox = this.state.babbleVisible = !topic.inShoutbox
 
-                  this.state.babbleVisible = !this.state.babbleVisible
-                  component.babbleVisible = this.state.babbleVisible
                   Babble.bind(component, topic)
 
-                  if (this.state.babbleVisible) {
+                  if (topic.inShoutbox) {
                     page.css('overflow', 'hidden')
                     Ember.run.scheduleOnce('afterRender', function() {
                       // hack to force redraw of the side panel, which occasionally draws incorrectly
-                      page.find('.babble-menu').find('.menu-panel.slide-in').hide().show(0)
+                      page.find('.babble-shoutbox').find('.menu-panel.slide-in').hide().show(0)
                     })
                   } else {
                     page.css('overflow', 'auto')
-                    Babble.editPost(topic, null)
+                    Babble.clearEditing(topic)
                   }
                 })
 
                 api.attachWidgetAction('header', 'changeTopic', function(topic) {
+                  Babble.topicForComponent(component).inShoutbox = false
                   Babble.bind(component, topic)
+                  topic.inShoutbox = true
                 })
 
                 api.decorateWidget('header-icons:before', function(helper) {
@@ -62,10 +62,10 @@ export default {
                     title:         'babble.title',
                     icon:          Discourse.SiteSettings.babble_icon,
                     iconId:        'babble-icon',
-                    active:        component.babbleVisible,
+                    active:        topic.inShoutbox,
                     action:        'toggleBabble',
                     contents() {
-                      if (!topic.visibleUnreadCount || component.babbleVisible) { return }
+                      if (!topic.visibleUnreadCount || topic.inShoutbox) { return }
                       return this.attach('link', {
                         action:    'toggleBabble',
                         className: 'badge-notification unread-notifications',

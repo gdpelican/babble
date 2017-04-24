@@ -16,7 +16,7 @@ let applyBrowserHacks = function(topic) {
   Ember.run.scheduleOnce('afterRender', () => {
     if (!isAppleDevice()) { return }
     forEachTopicContainer(topic, function($container) {
-      $container.find('.babble-menu').find('.menu-panel.slide-in')
+      $container.find('.babble-shoutbox').find('.menu-panel.slide-in')
                 .css('padding-bottom', '60px')
                 .css('height', 'calc(100% - 54px) !important')
     })
@@ -27,23 +27,38 @@ let resizeChat = function(topic) {
   Ember.run.scheduleOnce('afterRender', () => {
     forEachTopicContainer(topic, function($container) {
       if (!hasChatElements($container)) { return }
-
       let $chat = $($container).find('.babble-chat')
-      let $listContainer = $($container).closest('.list-container')
+      var chatHeight = null
 
-      let $nonChatElements = $listContainer.siblings().toArray()
-      let nonChatHeight = $nonChatElements.reduce(function(height, elem) {
-        return height + elem.clientHeight
-      }, parseInt(window.getComputedStyle(document.getElementById('main-outlet')).paddingTop))
+      let $shoutbox = $chat.closest('.menu-panel.slide-in')
+      if($shoutbox.length) {
+        chatHeight = $shoutbox.innerHeight() - totalElemHeight($chat.siblings()) - 10
+      }
 
-      $($chat).height(window.innerHeight - nonChatHeight + 40)
-      document.getElementById('list-area').style.marginBottom = 0
+      let $fullpage = $chat.closest('.list-container')
+      if($fullpage.length) {
+        let mainOutletHeight = window.getComputedStyle(document.getElementById('main-outlet')).paddingTop
+        let nonChatHeight    = totalElemHeight($fullpage.siblings(), parseInt(mainOutletHeight) + 20)
+        document.getElementById('list-area').style.marginBottom = 0
+
+        chatHeight = window.innerHeight - nonChatHeight
+      }
+
+      if(chatHeight) { $chat.height(chatHeight) }
     })
   })
 }
 
+let totalElemHeight = function(elements, initial) {
+  return elements.toArray().reduce(function(height, elem) {
+    return height + elem.clientHeight
+  }, initial || 0)
+}
+
 let setupResize = function(topic) {
-  $(window).on(`resize.babble-${topic.id}`, _.debounce(function() { resizeChat(topic) }, 250))
+  $(window).on(`resize.babble-${topic.id}`, _.debounce(function() {
+    resizeChat(topic)
+  }, 250))
   resizeChat(topic)
 }
 

@@ -10,5 +10,7 @@ export default createWidget('babble-online', {
     return { topic: attrs.topic }
   },
 
-  html() { return template.render(this) },
+  html() {
+    return template.render(this)
+  }
 })

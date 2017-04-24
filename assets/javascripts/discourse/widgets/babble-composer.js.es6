@@ -13,7 +13,6 @@ export default createWidget('babble-composer', {
 
   defaultState(attrs) {
     return {
-      editing:         attrs.isEditing,
       submitDisabled:  attrs.submitDisabled,
       post:            attrs.post,
       topic:           attrs.topic,
@@ -22,17 +21,16 @@ export default createWidget('babble-composer', {
   },
 
   composerElement() {
-    if (this.state.editing) {
+    if (this.state.post) {
       return $('.babble-post-container > .babble-post-composer textarea')
     } else {
-      return $('.babble-chat > .babble-post-composer textarea')
+      return $('.babble-topic-container > .babble-post-composer textarea')
     }
   },
 
   selectEmoji() {
     let $composer = this.composerElement()
     showSelector({
-      register: this.register,
       onSelect: function(emoji) {
         $composer.val(`${$composer.val().trimRight()} :${emoji}:`)
         $composer.focus()
@@ -45,17 +43,13 @@ export default createWidget('babble-composer', {
     $('body').on('keydown.emoji',         (e) => { e.stopPropagation() })
   },
 
-  cancel() {
-    Babble.editPost(this.state.topic, null)
-  },
-
   submit() {
     let $composer = this.composerElement(),
         text = $composer.val();
     $composer.val('')
     if (!text) { return; }
 
-    if (this.state.editing) {
+    if (this.state.post) {
       this.update(text)
     } else {
       this.create(text)
@@ -85,7 +79,7 @@ export default createWidget('babble-composer', {
       return false
     } else if (event.keyCode == 27) {
       event.preventDefault()
-      Babble.editPost(this.state.topic, null)
+      Babble.clearEditing(this.state.topic)
       return false
     }
   },
@@ -93,18 +87,15 @@ export default createWidget('babble-composer', {
   keyUp(event) {
     if (this.state.showError) { this.state.showError = false }
     if (event.keyCode == 38 &&                               // key pressed is up key
-        !this.state.editing &&                               // post is not being edited
+        !this.state.post &&                                  // post is not being edited
         !$(event.target).siblings('.autocomplete').length) { // autocomplete is not active
-      let myLastPost = _.last(_.select(this.state.topic.postStream.posts, function(post) {
-        return post.user_id == Discourse.User.current().id
-      }))
-      if (myLastPost) { Babble.editPost(this.state.topic, myLastPost) }
+      Babble.editMyLastPost(this.state.topic)
       return false
     }
 
     // only fire typing events if input has changed
     // TODO: expand this to account for backspace / delete keys too
-    if (event.key && event.key.length === 1) { this.announceTyping() }
+    if ((event.key || '').length === 1) { this.announceTyping() }
   },
 
   announceTyping: _.throttle(function() {
