@@ -1,15 +1,27 @@
 import { h } from 'virtual-dom'
+import { avatarImg } from 'discourse/widgets/post'
+import { onlineSentence } from '../../lib/chat-topic-utils'
 
 export default Ember.Object.create({
   render(widget) {
-    this.widget = widget
-    return h('div.babble-online.clearfix', this.whosOnline(widget.state.topic.online))
+    const displayedUsersCount = 3
+    const online = widget.attrs.topic.online
+    if (!Discourse.SiteSettings.babble_whos_online) { return }
+    if (!online.length) { return }
+
+    return h('div.babble-online',
+      _.map(_.take(online, displayedUsersCount), this.portrait).concat(
+        this.moreCount(widget.attrs.topic, online.length-displayedUsersCount)
+      )
+    )
   },
 
-  whosOnline(online) {
-    let users = _.pluck(_.select(_.keys(online), function(username) {
-      return online[username].lastSeen > moment().add(-1, 'minute')
-    }), 'user') || []
-    return _.pluck(_.compact(users), 'username')
+  portrait(user) {
+    return avatarImg('small', { template: user.avatar_template, username: user.username })
+  },
+
+  moreCount(topic, count) {
+    if (count <= 0) { return }
+    return h('div.avatar.babble-more-online', { attributes: { title: onlineSentence(topic) } },`+${count}`)
   }
 })
