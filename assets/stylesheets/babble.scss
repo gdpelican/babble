@@ -191,7 +191,7 @@
 }
 
 .babble-post-user-deleted {
-  .babble-post-avatar, .babble-post-body, .post-date, .babble-post-actions button { opacity: 0.5 }
+  .babble-post-avatar, .post-date, .babble-post-actions button { opacity: 0.5 }
   .cooked { font-size: 11px; }
 }
 
@@ -364,8 +364,8 @@ li.babble-post .babble-post-content a.mention {
   }
 }
 
-.babble-post-body .cooked img {
-  max-width: 223px; /* 12 extra px for Edge, don't ask... */
+.babble-post-cooked img {
+  max-width: 100%; /* 12 extra px for Edge, don't ask... */
   height: auto;
 }
 
