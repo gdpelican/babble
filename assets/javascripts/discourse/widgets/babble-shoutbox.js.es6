@@ -1,6 +1,7 @@
 import { createWidget } from 'discourse/widgets/widget'
 import template from '../widgets/templates/babble-shoutbox'
 import Babble from '../lib/babble'
+import DiscourseURL from 'discourse/lib/url'
 import Category from 'discourse/models/category'
 import { ajax } from 'discourse/lib/ajax'
 
