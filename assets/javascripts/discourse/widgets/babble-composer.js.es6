@@ -1,5 +1,4 @@
 import { createWidget } from 'discourse/widgets/widget'
-import { showSelector } from "discourse/lib/emoji/toolbar"
 import Babble from "../lib/babble"
 import template from "../widgets/templates/babble-composer"
 import { ajax } from 'discourse/lib/ajax'
@@ -30,19 +29,7 @@ export default createWidget('babble-composer', {
   },
 
   selectEmoji() {
-    let $composer = this.composerElement()
-    showSelector({
-      register: this.register,
-      onSelect: function(emoji) {
-        $composer.val(`${$composer.val().trimRight()} :${emoji}:`)
-        $composer.focus()
-        $('.emoji-modal, .emoji-modal-wrapper').remove()
-        return false
-      }
-    })
-
-    $('.emoji-modal-wrapper').on('click', (e) => { e.stopPropagation() })
-    $('body').on('keydown.emoji',         (e) => { e.stopPropagation() })
+    this.appEvents.trigger("emoji-picker:open");
   },
 
   cancel() {
