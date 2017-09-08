@@ -40,7 +40,7 @@ export default {
                   Babble.bind(component, topic)
 
                   if (this.state.babbleVisible) {
-                    page.css('overflow', 'hidden')
+                    page.css('overflow', 'auto')
                     Ember.run.scheduleOnce('afterRender', function() {
                       // hack to force redraw of the side panel, which occasionally draws incorrectly
                       page.find('.babble-menu').find('.menu-panel.slide-in').hide().show(0)
