@@ -1,8 +1,8 @@
 class ::Babble::TopicsController < ::ApplicationController
   requires_plugin Babble::BABBLE_PLUGIN_NAME
   include ::Babble::Controller
-  before_filter :set_default_id, only: :default
-  before_filter :ensure_logged_in, except: [:show, :index]
+  before_action :set_default_id, only: :default
+  before_action :ensure_logged_in, except: [:show, :index]
 
   def index
     respond_with Babble::Topic.available_topics_for(guardian), serializer: BasicTopicSerializer
