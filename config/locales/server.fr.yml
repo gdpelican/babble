@@ -1,5 +1,13 @@
+# Babble
+
 fr:
   site_settings:
     babble_enabled: "Activer le plugin de tribune Babble."
     babble_placeholder: "Laissez vide pour un message pré-écrit lorsque la tribune est vide. Sinon, écrivez le texte désiré."
     babble_icon: "Code Font-Awesome utilisé pour l'icône en haut à droite du site (sans le fa-). Jetez un coup d'oeil à http://fortawesome.github.io/Font-Awesome/cheatsheet/ pour la liste d'icônes disponibles."
+    babble_category_name: "Catégorie Discourse pour les messages Babble."
+    babble_remote_post: "Activer l'envoi de message à distance par POST."
+    babble_remote_url: "URL POST"
+    babble_page_size: "Nombre de message par page de chat"
+    babble_full_page: "Activer le mode plein écran (depuis la catégorie associée)"
+    babble_shoutbox: "Activer la tribune Babble (icône visible dans le menu principal)"
