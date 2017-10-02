@@ -29,7 +29,7 @@ export default createWidget('babble-composer', {
   },
 
   selectEmoji() {
-    this.appEvents.trigger("emoji-picker:open");
+    this.appEvents.trigger("babble-emoji-picker:open");
   },
 
   cancel() {
