@@ -19,24 +19,23 @@ export default {
       api.modifyClass("component:emoji-picker", {
         @on('didInsertElement')
         addOpenEvent() {
-          this.appEvents.on("emoji-picker:open", () => {
-            this.set("active", true);
-            this.set("forBabble", true);
-          });
+          if (this.get('isBabble')) {
+            this.appEvents.on('babble-emoji-picker:open', () => this.set('active', true));
+          }
         },
 
         @on('willDestroyElement')
         removeOpenEvent() {
-          this.appEvents.off("emoji-picker:open");
+          if (this.get('isBabble')) this.appEvents.off('babble-emoji-picker:open');
         },
-
+ 
         @observes('active')
         triggerAttrUpdate() {
-          this.didUpdateAttrs();
+          this.get("active") === true ? this.show() : this.close();
         },
-
-        _positionPicker(){
-          if (!this.get('forBabble')) return this._super();
+          
+        _positionPicker() {
+          if (!this.get('isBabble')) return this._super();
 
           let windowWidth = this.$(window).width();
 
