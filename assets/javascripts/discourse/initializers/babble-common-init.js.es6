@@ -31,7 +31,7 @@ export default {
  
         @observes('active')
         triggerAttrUpdate() {
-          this.get("active") === true ? this.show() : this.close();
+          this._setState();
         },
           
         _positionPicker() {
