@@ -12,6 +12,16 @@
   }
 }
 
+.babble-sidebar {
+  height: 100%;
+  width: 300px;
+  position: fixed;
+  background: white;
+  z-index: 10;
+  right: 0;
+  margin-top: 63px;
+}
+
 .babble-title h4 {
   display: inline-block;
   margin: 0 5px 0 0;
