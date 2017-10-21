@@ -19,40 +19,20 @@ export default {
       api.modifyClass("component:emoji-picker", {
         @on('didInsertElement')
         addOpenEvent() {
-          this.appEvents.on("emoji-picker:open", () => {
-            this.set("active", true);
-            this.set("forBabble", true);
-          });
+          this.appEvents.on("emoji-picker:open",  () => { this.set("active", true) })
+          this.appEvents.on("emoji-picker:close", () => { this.set("active", false) })
         },
 
         @on('willDestroyElement')
         removeOpenEvent() {
-          this.appEvents.off("emoji-picker:open");
+          this.appEvents.off("emoji-picker:open")
+          this.appEvents.off("emoji-picker:close")
         },
 
         @observes('active')
         triggerAttrUpdate() {
-          this.didUpdateAttrs();
+          this._setState()
         },
-
-        _positionPicker(){
-          if (!this.get('forBabble')) return this._super();
-
-          let windowWidth = this.$(window).width();
-
-          let attributes = {
-            width: Math.min(windowWidth, 400) - 12,
-            marginLeft: -(Math.min(windowWidth, 400)/2) + 6,
-            marginTop: -130,
-            left: "50%",
-            bottom: "",
-            top: "50%",
-            display: "flex"
-          };
-
-          this.$(".emoji-picker-modal").addClass("fadeIn");
-          this.$(".emoji-picker").css(attributes);
-        }
       })
     })
   }
