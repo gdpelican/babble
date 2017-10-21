@@ -3,6 +3,7 @@ import template from '../widgets/templates/babble-sidebar'
 import { h } from 'virtual-dom'
 
 export default createWidget('babble-sidebar', {
+  tagName: 'div.babble-sidebar',
   buildKey: () => `babble-sidebar`,
 
   defaultState(attrs) {

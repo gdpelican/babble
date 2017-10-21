@@ -19,7 +19,8 @@
   background: white;
   z-index: 10;
   right: 0;
-  margin-top: 63px;
+  margin-top: 64px;
+  box-shadow: 0 2px 2px rgba(0,0,0,0.25);
 }
 
 .babble-title h4 {
@@ -420,13 +421,9 @@ li.babble-post .babble-post-content a.mention {
 }
 
 /* Shoutbox styles */
-.babble-menu {
+.babble-sidebar {
   text-align: left;
   float: left;
-
-  .drop-down { // styles for drop down menu
-    padding: 0;
-  }
 
   .normalized {
     padding: 0 10px;
@@ -435,22 +432,18 @@ li.babble-post .babble-post-content a.mention {
     background: none;
   }
 
-  .slide-in { // styles for slide-in menu
-    box-sizing: border-box;
-    height: calc(100vh - 64px) !important;
-    @media (max-width: 450px) { width: 100% !important; }
-  }
   .babble-chat {
     display: flex;
     display: -webkit-flex;
     flex-direction: column;
     -webkit-flex-direction: column;
-    height: 100%;
+    height: calc(100% - 64px);
   }
   .babble-title-wrapper {
     z-index: 1;
-    box-shadow: 0 0 8px 0 black;
+    box-shadow: 0 2px 2px rgba(0,0,0,0.25);
     border-radius: 1px;
+    padding: 0 10px;
     flex-grow: 0;
     flex-shrink: 1;
     flex-basis: auto;
@@ -478,16 +471,6 @@ li.babble-post .babble-post-content a.mention {
     display: -webkit-flex;
     -webkit-flex-direction: row;
     -webkit-align-items: flex-end;
-  }
-
-  .menu-panel.slide-in {
-    padding: 0;
-    .panel-body {
-      width: 100%;
-      position: relative;
-      top: auto;
-      bottom: auto;
-    }
   }
 
   .babble-last-read-wrapper {
