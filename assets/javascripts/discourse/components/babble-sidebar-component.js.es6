@@ -25,13 +25,4 @@ export default MountWidget.extend({
     }
     this.rerenderWidget()
   },
-
-  @on('didInsertElement')
-  _initialize() {
-    Babble.registerDefaultComponent(this)
-  },
-
-  toggle() {
-    this.set('visible', !this.get('visible'))
-  }
 })

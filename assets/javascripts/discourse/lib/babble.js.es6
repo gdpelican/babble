@@ -5,7 +5,6 @@ import elementIsVisible from '../lib/element-is-visible'
 import lastVisibleElement from '../lib/last-visible-element'
 import debounce from 'discourse/lib/debounce'
 import { ajax } from 'discourse/lib/ajax'
-import { withPluginApi } from 'discourse/lib/plugin-api'
 import { applyBrowserHacks, scrollToPost, setupResize, teardownResize, setupScrollContainer, setupComposer, teardownComposer, hasChatElements } from '../lib/chat-element-utils'
 import { syncWithPostStream, latestPostFor, latestPostIsMine, setupPresence, teardownPresence, setupLastReadMarker } from '../lib/chat-topic-utils'
 import { forEachTopicContainer } from '../lib/chat-topic-iterators'
@@ -17,30 +16,6 @@ export default Ember.Object.create({
 
   disabled() {
     return _.contains(Discourse.Site.current().disabled_plugins, 'babble')
-  },
-
-  registerDefaultComponent(component) {
-    if (this.disabled()) { return }
-    ajax('/babble/topics/default.json').then((data) => {
-      this.set('defaultComponent', component)
-      this.bind(component, this.buildTopic(data))
-
-      if (Discourse.SiteSettings.babble_shoutbox) {
-        withPluginApi('0.8', api => {
-          api.decorateWidget('header-icons:before', function(helper) {
-            return helper.attach('header-dropdown', {
-              title:         'babble.title',
-              icon:          Discourse.SiteSettings.babble_icon,
-              iconId:        'babble-icon',
-              active:        component.babbleVisible,
-              action:        'toggleBabble'
-            })
-          })
-          api.attachWidgetAction('header',         'toggleBabble', () => { component.toggle() })
-          api.attachWidgetAction(component.widget, 'toggleBabble', () => { component.toggle() })
-        })
-      }
-    }, console.log)
   },
 
   bindById(component, topicId) {
