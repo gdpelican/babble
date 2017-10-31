@@ -9,14 +9,10 @@ export default MountWidget.extend({
   buildArgs() {
     let topic = Babble.topicForComponent(this) || {}
     return {
-      topic: topic,
-      visible: this.visible,
-      lastReadPostNumber: topic.last_read_post_number
+      topic:              topic,
+      lastReadPostNumber: topic.last_read_post_number,
+      visible:            this.visible
     }
-  },
-
-  setTopic(data) {
-    Babble.bind(this, Babble.buildTopic(data))
   },
 
   @observes('visible')
@@ -27,17 +23,15 @@ export default MountWidget.extend({
     } else {
       $outlet.removeClass('chat-active')
     }
+    this.rerenderWidget()
   },
 
   @on('didInsertElement')
-  _fetchDefaultTopic() {
-    if (Babble.disabled() || !Discourse.SiteSettings.babble_shoutbox) { return }
-    Ember.run.scheduleOnce('afterRender',() => {
-      ajax('/babble/topics/default.json').then((data) => {
-        this.setTopic(data)
-        this.set('visible', true)
-      }, console.log)
-    })
-  }
+  _initialize() {
+    Babble.registerDefaultComponent(this)
+  },
 
+  toggle() {
+    this.set('visible', !this.get('visible'))
+  }
 })

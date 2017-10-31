@@ -34,17 +34,15 @@ $default-chat-width: 300px;
 }
 
 .babble-title h4 {
-  display: inline-block;
-  margin: 0 5px 0 0;
   line-height: 38px;
+  flex-grow: 1;
+  -webkit-flex-grow: 1;
+  padding: 0 10px;
+  margin-bottom: 0;
 }
 
 .babble-title i {
   color: #ccc;
-}
-
-.babble-full-page-link {
-  float: right;
 }
 
 .d-header .icons .babble-title [class^="fa fa-"] {
@@ -451,13 +449,12 @@ li.babble-post .babble-post-content a.mention {
     z-index: 1;
     box-shadow: 0 2px 2px rgba(0,0,0,0.25);
     border-radius: 1px;
-    padding: 0 10px;
-    flex-grow: 0;
-    flex-shrink: 1;
-    flex-basis: auto;
-    -webkit-flex-grow: 0;
-    -webkit-flex-shrink: 1;
-    -webkit-flex-basis: auto;
+  }
+  .babble-title {
+    display: flex;
+    -webkit-display: flex;
+    flex-direction: row;
+    -webkit-flex-direction: row;
   }
   .babble-list {
     flex-grow: 1;
