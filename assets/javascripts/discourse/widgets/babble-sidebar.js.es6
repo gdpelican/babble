@@ -15,6 +15,16 @@ export default createWidget('babble-sidebar', {
 
   html() {
     return template.render(this)
+  },
+
+  expandChat() {
+    this.state.expanded = true
+    Ember.run.scheduleOnce('afterRender', this, () => { this.scheduleRerender() })
+  },
+
+  compressChat() {
+    this.state.expanded = false
+    Ember.run.scheduleOnce('afterRender', this, () => { this.scheduleRerender() })
   }
 
 })

@@ -27,7 +27,7 @@ export default Ember.Object.create({
         h('div.babble-title-wrapper', h('div.babble-title', [
           this.switchTopicsButton(),
           this.chatTitle(),
-          // this.modifySizeButton(),
+          this.modifySizeButton(),
           this.closeButton()
         ]))
       )
@@ -72,16 +72,20 @@ export default Ember.Object.create({
     return h('h4.babble-group-title', this.topic.title)
   },
 
+  isExpanded() {
+    return $(this.widget._findView().$('.babble-sidebar')[0]).width() > 300
+  },
+
   modifySizeButton() {
     let options = { className: 'normalized' }
-    if (document.querySelector('.babble-sidebar').style.width <= 300) {
-      options.icon   = 'expand'
-      options.action = 'expandChat'
-      options.title  = 'babble.expand_chat'
-    } else {
+    if (this.isExpanded()) {
       options.icon   = 'compress'
       options.action = 'compressChat'
       options.title  = 'babble.compress_chat'
+    } else {
+      options.icon   = 'expand'
+      options.action = 'expandChat'
+      options.title  = 'babble.expand_chat'
     }
     return h('div.babble-context-toggle', this.widget.attach('button', options))
   },
