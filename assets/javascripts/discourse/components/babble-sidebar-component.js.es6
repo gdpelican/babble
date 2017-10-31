@@ -19,6 +19,16 @@ export default MountWidget.extend({
     Babble.bind(this, Babble.buildTopic(data))
   },
 
+  @observes('visible')
+  _updateOutletClass() {
+    const $outlet = $('#main-outlet')
+    if (this.visible) {
+      $outlet.addClass('chat-active')
+    } else {
+      $outlet.removeClass('chat-active')
+    }
+  },
+
   @on('didInsertElement')
   _fetchDefaultTopic() {
     if (Babble.disabled() || !Discourse.SiteSettings.babble_shoutbox) { return }

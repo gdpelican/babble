@@ -1,5 +1,11 @@
+$default-chat-width: 300px;
+
 #babble-icon {
   position: relative;
+}
+
+#main-outlet.chat-active {
+  margin-left: $default-chat-width;
 }
 
 /* Dropdown styles */
@@ -15,8 +21,8 @@
 .babble-sidebar {
   resize: horizontal;
   overflow: auto;
-  width: 300px;
-  min-width: 300px;
+  width: $default-chat-width;
+  min-width: $default-chat-width;
   max-width: 100%;
   height: calc(100% - 64px);
   position: fixed;
@@ -565,7 +571,7 @@ li.babble-chat.drop-container {
   .babble-post-composer {
     .autocomplete {
       left: 0 !important;
-      width: 300px;
+      width: $default-chat-width;
       text-align: left;
       span {
         vertical-align: middle;
