@@ -4,8 +4,10 @@ $default-chat-width: 300px;
   position: relative;
 }
 
-#main-outlet.chat-active {
-  margin-left: $default-chat-width;
+@media (min-width: 700px) {
+  #main-outlet.chat-active {
+    margin-left: $default-chat-width;
+  }
 }
 
 /* Dropdown styles */
