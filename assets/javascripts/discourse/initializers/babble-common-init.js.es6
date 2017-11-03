@@ -11,11 +11,24 @@ export default {
   initialize() {
     withPluginApi('0.8.9', api => {
 
-      let _super = queryRegistry('notification-item').prototype.url
+      let _click = queryRegistry('notification-item').prototype.click
+      let _url   = queryRegistry('notification-item').prototype.url
       api.reopenWidget('notification-item', {
+        click(e) {
+          _click.apply(this, [e])
+          this.appEvents.trigger("babble-go-to-post", {
+            topicId: this.attrs.data.chat_topic_id,
+            postId:  this.attrs.data.original_post_id
+          })
+        },
+
         url() {
-          if (!this.attrs.data.chat_topic_id) { return _super.apply(this) }
-          return `${location.pathname}?chat_topic_id=${this.attrs.data.chat_topic_id}&post_id=${this.attrs.data.original_post_id}`
+          if (this.attrs.data.chat_topic_id) {
+            // we don't want to navigate anywhere for chat events, we'll
+            // open the sidebar automatically when we need to
+            return ""
+          }
+          return _url.apply(this)
         }
       })
 
@@ -46,7 +59,7 @@ export default {
         initialize() {
           if (Babble.disabled()) { return }
 
-          this.appEvents.on("babble-go-to-post", (topicId, postId) => {
+          this.appEvents.on("babble-go-to-post", ({topicId, postId}) => {
             this.goToPost(topicId, postId)
           })
 
@@ -67,9 +80,8 @@ export default {
 
         goToPost(topicId, postId) {
           ajax(`/babble/topics/${topicId}?near_post=${postId}`).then((data) => {
-            this.set('visible', false)
             Babble.bind(this, Babble.buildTopic(data))
-            this.appEvents.trigger("babble-toggle-chat")
+            this.set('visible', true)
           })
         }
       })
