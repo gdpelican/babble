@@ -40,15 +40,15 @@ export default Ember.Object.create({
       })
 
       if (hasChatElements(component.element)) {
-        if (component.fullpage) { setupResize(topic) }
         setupScrollContainer(topic)
         setupPresence(topic)
         setupComposer(topic)
         scrollToPost(topic, topic.last_read_post_number, 0)
         applyBrowserHacks(topic)
       }
-      rerender(topic)
     })
+
+    rerender(topic)
     return topic
   },
 
@@ -59,7 +59,6 @@ export default Ember.Object.create({
     teardownLiveUpdate(topic, '', 'posts', 'typing', 'online')
 
     if (hasChatElements(component.element)) {
-      if (component.fullpage) { teardownResize(topic) }
       teardownPresence(topic)
     }
     BabbleRegistry.unbind(component)

@@ -63,26 +63,38 @@ export default {
             this.goToPost(topicId, postId)
           })
 
-          this.appEvents.on("babble-toggle-chat", () => {
-            this.set('visible', !this.visible)
+          this.appEvents.on("babble-toggle-chat", (topic) => {
+            if (!this.visible) {
+              this.open(topic)
+            } else {
+              this.close()
+            }
           })
 
+          api.attachWidgetAction(this.widget, 'closeChat', () => { this.close() })
+
           ajax('/babble/topics/default.json').then((data) => {
-            Babble.bind(this, Babble.buildTopic(data))
-
-            api.attachWidgetAction(this.widget, 'toggleBabble', () => {
-              this.appEvents.trigger("babble-toggle-chat")
-            })
-
+            this.set('topic', Babble.buildTopic(data))
             this.appEvents.trigger("babble-default-registered")
           }, console.log)
         },
 
         goToPost(topicId, postId) {
           ajax(`/babble/topics/${topicId}?near_post=${postId}`).then((data) => {
-            Babble.bind(this, Babble.buildTopic(data))
+            this.set('topic', Babble.bind(this, Babble.buildTopic(data)))
             this.set('visible', true)
-          })
+          }, console.log)
+        },
+
+        open(topic) {
+          if (topic) { this.set('topic', topic) }
+          this.set('visible', true)
+          Babble.bind(this, this.topic)
+        },
+
+        close() {
+          this.set('visible', false)
+          Babble.unbind(this)
         }
       })
 
