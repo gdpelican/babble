@@ -45,12 +45,6 @@ after_initialize do
   add_to_serializer(:basic_category, :chat_topic_id) { object.custom_fields['chat_topic_id'] unless object.custom_fields['chat_topic_id'].to_i == 0 }
   add_to_serializer(:basic_topic, :category_id)      { object.category_id }
 
-  # NB: We're migrating from a category to an archetype to track chats
-  if old_chat_category = Category.find_by(name: SiteSetting.babble_category_name)
-    Topic.where(category_id: old_chat_category.id).update_all(archetype: :chat, category_id: nil)
-    old_chat_category.destroy
-  end
-
   class ::Topic
     module ForDigest
       def for_digest(user, since, opts=nil)

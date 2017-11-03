@@ -63,12 +63,6 @@ describe ::Babble::Topic do
     it "does not a create a topic without a title" do
       expect { Babble::Topic.save_topic title: nil, allowed_group_ids: [group.id] }.not_to change { Topic.count }
     end
-
-    it "is in a chat category" do
-      Babble::Topic.save_topic title: "My new topic title"
-      expect(Topic.last.category).to eq Category.find_by(name: SiteSetting.babble_category_name)
-    end
-
   end
 
   describe "update_topic" do
