@@ -78,25 +78,6 @@ export default {
           })
         }
       })
-
-      api.modifyClass("component:emoji-picker", {
-        @on('didInsertElement')
-        addOpenEvent() {
-          this.appEvents.on("emoji-picker:open",  () => { this.set("active", true) })
-          this.appEvents.on("emoji-picker:close", () => { this.set("active", false) })
-        },
-
-        @on('willDestroyElement')
-        removeOpenEvent() {
-          this.appEvents.off("emoji-picker:open")
-          this.appEvents.off("emoji-picker:close")
-        },
-
-        @observes('active')
-        triggerAttrUpdate() {
-          this._setState()
-        },
-      })
     })
   }
 }

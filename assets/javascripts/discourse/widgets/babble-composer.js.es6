@@ -29,7 +29,7 @@ export default createWidget('babble-composer', {
   },
 
   selectEmoji() {
-    this.appEvents.trigger("emoji-picker:open");
+    this.appEvents.trigger("babble-emoji-picker:open", this.composerElement())
   },
 
   cancel() {
@@ -38,9 +38,9 @@ export default createWidget('babble-composer', {
 
   submit() {
     let $composer = this.composerElement(),
-        text = $composer.val();
+        text = $composer.val()
     $composer.val('')
-    if (!text) { return; }
+    if (!text) { return }
 
     if (this.state.editing) {
       this.update(text)
