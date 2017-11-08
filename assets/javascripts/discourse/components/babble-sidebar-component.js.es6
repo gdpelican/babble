@@ -7,12 +7,38 @@ export default MountWidget.extend({
   widget: 'babble-sidebar',
 
   buildArgs() {
-    let topic = Babble.topicForComponent(this) || {}
     return {
-      topic:              topic,
-      lastReadPostNumber: topic.last_read_post_number,
+      topic:              this.topic,
+      availableTopics:    this.availableTopics,
+      lastReadPostNumber: (this.topic || {}).last_read_post_number,
       visible:            this.visible
     }
+  },
+
+  @on('didInsertElement')
+  _initialize() {
+    if (Babble.disabled()) { return }
+
+    this.appEvents.on("babble-go-to-post", ({topicId, postNumber}) => {
+      this.goToPost(topicId, postNumber)
+    })
+
+    this.appEvents.on("babble-toggle-chat", (topic) => {
+      if (!this.visible) {
+        this.open(topic)
+      } else {
+        this.close()
+      }
+    })
+
+    ajax('/babble/topics.json').then((data) => {
+      this.set('availableTopics', data.topics.map((t) => { return Babble.buildTopic(t) }))
+    })
+
+    ajax('/babble/topics/default.json').then((data) => {
+      this.set('topic', Babble.buildTopic(data))
+      this.appEvents.trigger("babble-default-registered")
+    }, console.log)
   },
 
   @observes('visible')
@@ -25,4 +51,32 @@ export default MountWidget.extend({
     }
     this.rerenderWidget()
   },
+
+  goToPost(topicId, postNumber) {
+    ajax(`/babble/topics/${topicId}?near_post=${postNumber}`).then((data) => {
+      this.open(Babble.buildTopic(data), postNumber)
+    }, console.log)
+  },
+
+  open(topic, postNumber) {
+    if (this.visible) { this.close() }
+    if (topic) { this.set('topic', topic) }
+    this.set('visible', true)
+    Babble.bind(this, this.topic, postNumber)
+  },
+
+  close() {
+    this.set('visible', false)
+    Babble.unbind(this)
+  },
+
+  actions: {
+    closeChat() {
+      this.close()
+    },
+
+    viewChat(topic, postNumber) {
+      this.open(topic, postNumber)
+    }
+  }
 })

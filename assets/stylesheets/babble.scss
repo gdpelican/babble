@@ -103,6 +103,7 @@ $default-chat-width: 300px;
 
 /* Post styles */
 .babble-posts {
+  margin: 0;
   width: 100%;
   overflow-x: hidden;
   overflow-y: auto;
@@ -288,6 +289,8 @@ li.babble-post .babble-post-content a.mention {
 /* Available topic styles */
 .babble-available-topics {
   padding-top: 10px !important; /* sorry mom. */
+  margin: 0;
+  list-style-type: none;
 }
 
 .babble-available-topic {
@@ -549,40 +552,6 @@ li.babble-chat.drop-container {
     }
     .badge-wrapper {
       display: block;
-    }
-  }
-}
-
-/* Fullpage styles */
-
-.chat.fullpage {
-  .babble-chat {
-    display: flex;
-    display: -webkit-flex;
-    -webkit-flex-direction: column;
-    flex-direction: column;
-    -webkit-justify-content: flex-end;
-    justify-content: flex-end;
-  }
-  .babble-list {
-    overflow: auto;
-  }
-  .babble-posts {
-    margin: 0;
-  }
-  .babble-post-composer {
-    .autocomplete {
-      left: 0 !important;
-      width: $default-chat-width;
-      text-align: left;
-      span {
-        vertical-align: middle;
-      }
-    }
-    .emoji-button {
-      bottom: 4px;
-      right: 8px;
-      font-size: 18px;
     }
   }
 }

@@ -104,7 +104,7 @@ export default Ember.Object.create({
     return h('div.babble-context-toggle.for-chat', this.widget.attach('button', {
       className: 'normalized',
       icon:      'list-ul',
-      action:    'toggleView',
+      action:    'viewChannels',
       title:     'babble.view_topics_tooltip'
     }))
   },

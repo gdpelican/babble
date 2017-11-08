@@ -24,8 +24,10 @@ export default Ember.Object.create({
     }, console.log)
   },
 
-  bind(component, topic) {
+  bind(component, topic, toPost) {
     if (!topic) { return }
+
+    toPost = toPost || topic.last_read_post_number
 
     this.unbind(component)
     topic = BabbleRegistry.bind(component, topic)
@@ -43,7 +45,7 @@ export default Ember.Object.create({
         setupScrollContainer(topic)
         setupPresence(topic)
         setupComposer(topic)
-        scrollToPost(topic, topic.last_read_post_number, 0)
+        scrollToPost(topic, toPost, 0)
         applyBrowserHacks(topic)
       }
     })

@@ -3,10 +3,10 @@ class ::Babble::Topic
   def self.save_topic(params, topic = Topic.new)
     case params.fetch(:permissions, 'group')
     when 'category'
-      category = Category.find(params[:category_id])
+      category = ::Category.find(params[:category_id])
       return false if params[:allowed_group_ids].present?
       return false unless [0, topic.id].include?(category.custom_fields['chat_topic_id']) # don't allow multiple channels on a single category
-      params[:allowed_groups] = Group.none
+      params[:allowed_groups] = ::Group.none
       params[:title]        ||= category.name
     when 'group'
       return false if params[:category_id].present? || !params[:title].present?
@@ -32,11 +32,11 @@ class ::Babble::Topic
   end
 
   def self.update_category(category_id, topic_id)
-    Category.find(category_id).tap { |c| c.custom_fields['chat_topic_id'] = topic_id }.save
+    ::Category.find(category_id).tap { |c| c.custom_fields['chat_topic_id'] = topic_id }.save
   end
 
   def self.get_allowed_groups(ids)
-    Group.where(id: Array(ids)).presence || default_allowed_groups
+    ::Group.where(id: Array(ids)).presence || default_allowed_groups
   end
 
   def self.set_default_allowed_groups(topic)
@@ -44,7 +44,7 @@ class ::Babble::Topic
   end
 
   def self.default_allowed_groups
-    Group.find Array Group::AUTO_GROUPS[:trust_level_0]
+    ::Group.find Array ::Group::AUTO_GROUPS[:trust_level_0]
   end
 
   def self.default_topic_for(guardian)
@@ -52,13 +52,13 @@ class ::Babble::Topic
   end
 
   def self.available_topics
-    Topic.where(archetype: :chat).includes(:allowed_groups)
+    ::Topic.where(archetype: :chat).includes(:allowed_groups)
   end
 
   def self.available_topics_for(guardian)
     return available_topics if guardian.is_admin?
     user_id = guardian.anonymous? ? nil : guardian.user.id
-    category_ids = Category.post_create_allowed(guardian).pluck(:id)
+    category_ids = ::Category.post_create_allowed(guardian).pluck(:id)
     available_topics
       .joins("LEFT OUTER JOIN topic_allowed_groups tg ON tg.topic_id = topics.id")
       .joins("LEFT OUTER JOIN group_users gu ON gu.group_id = tg.group_id")

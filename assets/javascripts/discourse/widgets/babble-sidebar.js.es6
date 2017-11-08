@@ -9,7 +9,8 @@ export default createWidget('babble-sidebar', {
   defaultState(attrs) {
     return {
       visible:   attrs.visible,
-      topic:     attrs.topic
+      topic:     attrs.topic,
+      view:      'chat'
     }
   },
 
@@ -25,6 +26,9 @@ export default createWidget('babble-sidebar', {
   compressChat() {
     this.state.expanded = false
     Ember.run.scheduleOnce('afterRender', this, () => { this.scheduleRerender() })
-  }
+  },
 
+  viewChannels() {
+    this.state.view = 'channels'
+  }
 })
