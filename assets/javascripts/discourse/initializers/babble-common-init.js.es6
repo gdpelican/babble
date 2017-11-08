@@ -4,7 +4,7 @@ import reopenWidget      from '../lib/reopen-widget'
 import Babble            from '../lib/babble'
 import { ajax }          from 'discourse/lib/ajax'
 import { on, observes }  from 'ember-addons/ember-computed-decorators'
-import DiscourseLocation from 'discourse/lib/discourse-location'
+import { wantsNewWindow } from 'discourse/lib/intercept-click';
 
 export default {
   name: 'babble-common-init',
@@ -29,6 +29,31 @@ export default {
             return ""
           }
           return _url.apply(this)
+        }
+      })
+
+      api.modifyClass("component:user-card-contents", {
+        @on('didInsertElement')
+        listenForBabble() {
+          this.appEvents.on("babble-toggle-chat", () => {
+            Ember.run.scheduleOnce('afterRender', () => {
+              if ($('.babble-sidebar').length) {
+                $('.babble-sidebar').on('click.discourse-user-card', '[data-user-card]', (e) => {
+                  if (wantsNewWindow(e)) { return }
+                  const $target = $(e.currentTarget)
+                  return this._show($target.data('user-card'), $target)
+                })
+                $('.babble-sidebar').on('click.discourse-user-mention', 'a.mention', (e) => {
+                  if (wantsNewWindow(e)) { return }
+                  const $target = $(e.target)
+                  return this._show($target.text().replace(/^@/, ''), $target)
+                })
+
+              } else {
+                $('.babble-sidebar').off('click.discourse-user-card')
+              }
+            })
+          })
         }
       })
 
