@@ -19,6 +19,8 @@ export default MountWidget.extend({
   _initialize() {
     if (Babble.disabled()) { return }
 
+    this.set('targetObject', this)
+
     this.appEvents.on("babble-go-to-post", ({topicId, postNumber}) => {
       this.goToPost(topicId, postNumber)
     })
@@ -70,13 +72,11 @@ export default MountWidget.extend({
     Babble.unbind(this)
   },
 
-  actions: {
-    closeChat() {
-      this.close()
-    },
+  closeChat() {
+    this.close()
+  },
 
-    viewChat(topic, postNumber) {
-      this.open(topic, postNumber)
-    }
+  viewChat(topic, postNumber) {
+    this.open(topic, postNumber)
   }
 })

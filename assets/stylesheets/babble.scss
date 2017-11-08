@@ -39,7 +39,6 @@ $default-chat-width: 300px;
 }
 
 .babble-title h4 {
-  line-height: 38px;
   flex-grow: 1;
   -webkit-flex-grow: 1;
   padding: 0 10px;
@@ -190,10 +189,6 @@ $default-chat-width: 300px;
   .onebox {
     margin-right: 20px;
   }
-  .spinner {
-    width: 8px;
-    height: 8px;
-  }
 }
 
 .babble-staged-post {
@@ -299,10 +294,11 @@ li.babble-post .babble-post-content a.mention {
 
 .babble-available-topic {
   line-height: 32px;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
   cursor: pointer;
   font-weight: bold;
-  padding-left: 15px;
-  position: relative;
   @media (max-width: 700px) {
     padding: 10px 20px;
   }
@@ -312,12 +308,6 @@ li.babble-post .babble-post-content a.mention {
   color: #888;
   float: left;
   width: 100%;
-}
-
-.babble-available-topic .spinner {
-  position: absolute;
-  top: 16px;
-  right: 12px;
 }
 
 .babble-typing {
@@ -445,7 +435,6 @@ li.babble-post .babble-post-content a.mention {
 
   .normalized {
     padding: 0 10px;
-    line-height: 38px;
     border: none;
     background: none;
   }
@@ -467,6 +456,8 @@ li.babble-post .babble-post-content a.mention {
     -webkit-display: flex;
     flex-direction: row;
     -webkit-flex-direction: row;
+    align-items: center;
+    -webkit-align-items: center;
   }
   .babble-list {
     flex-grow: 1;
@@ -504,6 +495,10 @@ li.babble-post .babble-post-content a.mention {
     left: 0;
     right: 0;
     z-index: -1;
+  }
+  .spinner {
+    width: 8px;
+    height: 8px;
   }
 }
 

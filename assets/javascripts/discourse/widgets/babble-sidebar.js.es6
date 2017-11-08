@@ -28,6 +28,11 @@ export default createWidget('babble-sidebar', {
     Ember.run.scheduleOnce('afterRender', this, () => { this.scheduleRerender() })
   },
 
+  viewChat(topic, postNumber) {
+    this.state.view = 'chat'
+    this.sendWidgetAction('open', topic, postNumber)
+  },
+
   viewChannels() {
     this.state.view = 'channels'
   }
