@@ -33,6 +33,18 @@ export default MountWidget.extend({
       }
     })
 
+    this.appEvents.on("babble-upload-init", () => {
+
+    })
+
+    this.appEvents.on("babble-upload-success", (markdown) => {
+      Babble.createPost(this.topic, markdown)
+    })
+
+    this.appEvents.on("babble-upload-failure", () => {
+
+    })
+
     ajax('/babble/topics.json').then((data) => {
       this.set('availableTopics', data.topics.map((t) => { return Babble.buildTopic(t) }))
     })

@@ -350,7 +350,14 @@ li.babble-post .babble-post-content a.mention {
   margin: 0;
 }
 
-.babble-post-composer .emoji-button {
+.babble-composer-actions {
+  display: flex;
+  display: -webkit-flex;
+  flex-direction: column;
+  -webkit-flex-direction: column;
+}
+
+.babble-composer-action {
   font-size: 20px;
   background: none;
   border: none;

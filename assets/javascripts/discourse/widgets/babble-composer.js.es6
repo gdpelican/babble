@@ -2,6 +2,7 @@ import { createWidget } from 'discourse/widgets/widget'
 import Babble from "../lib/babble"
 import template from "../widgets/templates/babble-composer"
 import { ajax } from 'discourse/lib/ajax'
+import showModal from 'discourse/lib/show-modal'
 
 export default createWidget('babble-composer', {
   tagName: 'div.babble-post-composer',
@@ -30,6 +31,15 @@ export default createWidget('babble-composer', {
 
   selectEmoji() {
     this.appEvents.trigger("babble-emoji-picker:open", this.composerElement())
+  },
+
+  uploadFile(toolbarEvent) {
+    showModal('uploadSelector').setProperties({
+      toolbarEvent,
+      babble: true,
+      imageUrl: null,
+      imageLink: null
+    })
   },
 
   cancel() {
