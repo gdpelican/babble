@@ -40,7 +40,7 @@ export default createWidget('babble-composer', {
     const $input = $('#babble-file-input')
 
     $element.fileupload({
-      url: Discourse.getURL(`/uploads.json?client_id=${messageBus().clientId}&authenticity_token=${this.attrs.csrf}`),
+      url: Discourse.getURL(`/uploads.json?client_id=${messageBus().clientId}&authenticity_token=${this.state.csrf}`),
       dataType: "json",
       pasteZone: $element
     })

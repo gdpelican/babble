@@ -11,7 +11,8 @@ export default MountWidget.extend({
       topic:              this.topic,
       availableTopics:    this.availableTopics,
       lastReadPostNumber: (this.topic || {}).last_read_post_number,
-      visible:            this.visible
+      visible:            this.visible,
+      csrf:               this.session.get('csrfToken')
     }
   },
 
