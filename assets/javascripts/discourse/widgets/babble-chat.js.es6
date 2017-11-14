@@ -11,10 +11,9 @@ export default createWidget('babble-chat', {
 
   defaultState(attrs) {
     return {
-      topic: attrs.topic,
+      topic:    attrs.topic,
       category: Category.findById(attrs.topic.category_id),
-      container: attrs.container,
-      fullpage: attrs.fullpage
+      csrf:     attrs.csrf
     }
   },
 

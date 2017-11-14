@@ -6,8 +6,7 @@ export default Ember.Object.create({
     this.widget          = widget
     this.topic           = this.widget.attrs.topic
     this.availableTopics = this.widget.attrs.availableTopics || []
-    this.canSignUp       = this.widget.attrs.canSignUp
-    this.category        = this.widget.state.category
+    this.csrf            = this.widget.state.csrf
     if (!this.topic) { return }
     return this.chatContents()
   },
@@ -20,7 +19,7 @@ export default Ember.Object.create({
         this.pressurePlate('asc')
       ]),
       this.widget.attach('babble-typing', { topic: this.topic }),
-      this.widget.attach('babble-composer', { topic: this.topic, canSignUp: this.canSignUp })
+      this.widget.attach('babble-composer', { topic: this.topic, csrf: this.csrf })
     ]
     if (!this.widget.attrs.fullpage) {
       contents.unshift(

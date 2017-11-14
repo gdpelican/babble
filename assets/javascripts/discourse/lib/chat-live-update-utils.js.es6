@@ -14,4 +14,4 @@ let teardownLiveUpdate = function(topic, ...actions) {
   _.each(actions, (action) => { messageBus().unsubscribe(apiPath(topic, action)) })
 }
 
-export { setupLiveUpdate, teardownLiveUpdate }
+export { setupLiveUpdate, teardownLiveUpdate, messageBus }

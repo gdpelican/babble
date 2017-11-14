@@ -16,7 +16,7 @@ export default Ember.Object.create({
   },
 
   actions() {
-    return h('div.babble-composer-actions', [this.uploadButton(), this.emojiButton()])
+    return h('div.babble-composer-actions', [this.uploadButton(), this.uploadFile(), this.emojiButton()])
   },
 
   textarea() {
@@ -30,7 +30,12 @@ export default Ember.Object.create({
     }, this.state.raw)
   },
 
+  uploadFile() {
+    return h('input#babble-file-input', { type: 'file' })
+  },
+
   uploadButton() {
+    if (this.state.editing) { return }
     return this.widget.attach('button', {
       className: 'babble-composer-action upload-button',
       icon: 'paperclip',

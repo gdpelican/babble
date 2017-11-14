@@ -4,6 +4,10 @@ $default-chat-width: 300px;
   position: relative;
 }
 
+#babble-file-input {
+  display: none;
+}
+
 @media (min-width: 700px) {
   #main-outlet.chat-active {
     margin-left: $default-chat-width;

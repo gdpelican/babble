@@ -2,7 +2,8 @@ import { createWidget } from 'discourse/widgets/widget'
 import Babble from "../lib/babble"
 import template from "../widgets/templates/babble-composer"
 import { ajax } from 'discourse/lib/ajax'
-import showModal from 'discourse/lib/show-modal'
+import { messageBus } from '../lib/chat-live-update-utils'
+import { getUploadMarkdown } from 'discourse/lib/utilities'
 
 export default createWidget('babble-composer', {
   tagName: 'div.babble-post-composer',
@@ -17,7 +18,8 @@ export default createWidget('babble-composer', {
       submitDisabled:  attrs.submitDisabled,
       post:            attrs.post,
       topic:           attrs.topic,
-      raw:             attrs.raw
+      raw:             attrs.raw,
+      csrf:            attrs.csrf
     }
   },
 
@@ -34,11 +36,48 @@ export default createWidget('babble-composer', {
   },
 
   uploadFile(toolbarEvent) {
-    showModal('uploadSelector').setProperties({
-      toolbarEvent,
-      babble: true,
-      imageUrl: null,
-      imageLink: null
+    const $element = $(toolbarEvent.target)
+    const $input = $('#babble-file-input')
+
+    $element.fileupload({
+      url: Discourse.getURL(`/uploads.json?client_id=${messageBus().clientId}&authenticity_token=${this.attrs.csrf}`),
+      dataType: "json",
+      pasteZone: $element
+    })
+
+    $element.on('fileuploadsubmit', (_, data) => {
+      this.state.submitDisabled = true
+      data.formData = { type: 'composer' }
+      this.scheduleRerender()
+    })
+
+    $element.on("fileuploadprogressall", (_, data) => {
+      // progress!
+    })
+
+    $element.on("fileuploadfail", () => {
+      this.state.submitDisabled = undefined
+      this.scheduleRerender()
+    })
+
+    messageBus().subscribe("/uploads/composer", upload => {
+      messageBus().unsubscribe('/uploads/composer')
+      $element.fileupload('destroy')
+      this.state.submitDisabled = undefined
+      if (upload && upload.url) {
+        Babble.createPost(this.state.topic, getUploadMarkdown(upload))
+      } else {
+        // failure :(
+      }
+      this.scheduleRerender()
+    })
+
+    Ember.run.scheduleOnce('afterRender', () => {
+      $input.on('change', () => {
+        $element.fileupload('add', { fileInput: $input })
+        $input.off('change')
+      })
+      $input.click()
     })
   },
 
