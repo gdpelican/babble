@@ -162,6 +162,10 @@ $default-chat-width: 300px;
 .babble-post {
   width: 100%;
   display: inline-block;
+  img {
+    max-width: 100%;
+    height: auto;
+  }
 }
 
 .babble-post-avatar {
