@@ -60,9 +60,9 @@ export default MountWidget.extend({
   _updateOutletClass() {
     const $outlet = $('#main-outlet')
     if (this.visible) {
-      $outlet.addClass('chat-active')
+      $outlet.addClass(`chat-active--${Discourse.SiteSettings.babble_position}`)
     } else {
-      $outlet.removeClass('chat-active')
+      $outlet.removeClass(`chat-active--${Discourse.SiteSettings.babble_position}`)
     }
     this.rerenderWidget()
   },

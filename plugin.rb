@@ -12,6 +12,8 @@ def babble_require(path)
   require Rails.root.join('plugins', 'babble', 'app', path).to_s
 end
 
+babble_require 'extras/position_options'
+
 after_initialize do
 
   babble_require 'initializers/babble'

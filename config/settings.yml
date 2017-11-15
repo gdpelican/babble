@@ -11,3 +11,7 @@ plugins:
   babble_page_size:
     default: 100
     client: true
+  babble_position:
+    default: left
+    enum: 'Babble::PositionOptions'
+    client: true

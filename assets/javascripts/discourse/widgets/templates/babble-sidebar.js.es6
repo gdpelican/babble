@@ -6,7 +6,7 @@ export default Ember.Object.create({
     this.widget = widget
 
     let expanded = widget.state.expanded ? '.expanded' : ''
-    return h(`div.babble-sidebar${expanded}`, [this.channels(), this.chat()])
+    return h(`div.babble-sidebar.babble-sidebar--${Discourse.SiteSettings.babble_position}${expanded}`, [this.channels(), this.chat()])
   },
 
   channels() {
