@@ -5,8 +5,16 @@ export default Ember.Object.create({
     if (!widget.attrs.visible) { return }
     this.widget = widget
 
-    let expanded = widget.state.expanded ? '.expanded' : ''
-    return h(`div.babble-sidebar.babble-sidebar--${Discourse.SiteSettings.babble_position}${expanded}`, [this.channels(), this.chat()])
+    const expanded = widget.state.expanded ? '.expanded' : ''
+    const position = `.babble-sidebar--${Discourse.SiteSettings.babble_position}`
+    let   opts     = {}
+
+    if (Discourse.SiteSettings.babble_adaptive_height) {
+      const height = $('.d-header').height()
+      opts.style   = `margin-top: ${height}px; height: calc(100% - ${height}px);`
+    }
+
+    return h(`div.babble-sidebar${position}${expanded}`, opts, [this.channels(), this.chat()])
   },
 
   channels() {

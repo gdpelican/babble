@@ -15,3 +15,6 @@ plugins:
     default: left
     enum: 'Babble::PositionOptions'
     client: true
+  babble_adaptive_height:
+    default: false
+    client: true
