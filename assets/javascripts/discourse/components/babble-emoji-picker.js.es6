@@ -14,6 +14,17 @@ export default EmojiPicker.extend({
       this.close()
       this.set('active', false)
     })
+    $('html').on('keydown.discourse-modal', e => {
+      if (e.which != 27) { return }
+      this.appEvents.trigger('babble-emoji-picker:close')
+    })
+  },
+
+  @on('willDestroyElement')
+  cleanupBabble() {
+    this.appEvents.off('babble-emoji-picker:open')
+    this.appEvents.off('babble-emoji-picker:close')
+    $('html').off('keydown.discourse-modal')
   },
 
   emojiSelected(code) {
