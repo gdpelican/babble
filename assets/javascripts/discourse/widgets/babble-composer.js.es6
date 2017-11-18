@@ -127,7 +127,6 @@ export default createWidget('babble-composer', {
   },
 
   keyUp(event) {
-    if (this.state.showError) { this.state.showError = false }
     if (event.keyCode == 38 &&                               // key pressed is up key
         !this.state.editing &&                               // post is not being edited
         !$(event.target).siblings('.autocomplete').length) { // autocomplete is not active
