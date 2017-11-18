@@ -22,6 +22,8 @@ export default MountWidget.extend({
 
     this.set('targetObject', this)
 
+    $(window).on('resize.babble-window-resize', _.debounce(() => { this.rerenderWidget() }, 250))
+
     this.appEvents.on("babble-go-to-post", ({topicId, postNumber}) => {
       this.goToPost(topicId, postNumber)
     })
@@ -54,6 +56,16 @@ export default MountWidget.extend({
       this.set('topic', Babble.buildTopic(data))
       this.appEvents.trigger("babble-default-registered")
     }, console.log)
+  },
+
+  @on('willDestroyElement')
+  _teardown() {
+    $(window).off('resize.babble-window-resize')
+    this.appEvents.off('babble-go-to-post')
+    this.appEvents.off('babble-toggle-chat')
+    this.appEvents.off('babble-upload-init')
+    this.appEvents.off('babble-upload-success')
+    this.appEvents.off('babble-upload-failure')
   },
 
   @observes('visible')
