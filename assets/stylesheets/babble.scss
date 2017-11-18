@@ -47,6 +47,9 @@ $default-chat-width: 300px;
   -webkit-flex-grow: 1;
   padding: 0 10px;
   margin-bottom: 0;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
 }
 
 .babble-title i {
