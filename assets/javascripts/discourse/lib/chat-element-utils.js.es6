@@ -42,15 +42,6 @@ let resizeChat = function(topic) {
   })
 }
 
-let setupResize = function(topic) {
-  $(window).on(`resize.babble-${topic.id}`, _.debounce(function() { resizeChat(topic) }, 250))
-  resizeChat(topic)
-}
-
-let teardownResize = function(topic) {
-  $(window).off(`resize.babble-${topic.id}`)
-}
-
 let scrollToPost = function(topic, postNumber, speed = 400, offset = 30) {
   Ember.run.scheduleOnce('afterRender', () => {
     forEachTopicContainer(topic, function($container) {
@@ -170,8 +161,6 @@ let hasChatElements = function(element) {
 
 export {
   applyBrowserHacks,
-  setupResize,
-  teardownResize,
   scrollToPost,
   setupScrollContainer,
   setupComposer,
