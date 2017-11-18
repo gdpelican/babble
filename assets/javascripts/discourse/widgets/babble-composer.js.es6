@@ -145,7 +145,7 @@ export default createWidget('babble-composer', {
 
   announceTyping: _.throttle(function() {
     ajax(`/babble/topics/${this.state.topic.id}/typing`, { type: 'POST' })
-  }, 1000),
+  }, 2000),
 
   html() { return template.render(this) }
 })

@@ -23,23 +23,17 @@ let applyBrowserHacks = function(topic) {
   })
 }
 
-let resizeChat = function(topic) {
-  Ember.run.scheduleOnce('afterRender', () => {
-    forEachTopicContainer(topic, function($container) {
-      if (!hasChatElements($container)) { return }
-
-      let $chat = $($container).find('.babble-chat')
-      let $listContainer = $($container).closest('.list-container')
-
-      let $nonChatElements = $listContainer.siblings().toArray()
-      let nonChatHeight = $nonChatElements.reduce(function(height, elem) {
-        return height + elem.clientHeight
-      }, parseInt(window.getComputedStyle(document.getElementById('main-outlet')).paddingTop))
-
-      $($chat).height(window.innerHeight - nonChatHeight + 40)
-      document.getElementById('list-area').style.marginBottom = 0
-    })
-  })
+let visibleInWindow = function(selector) {
+  let $container = document.querySelector(selector)
+  if (!$container) { return 0 }
+  let rect   = $container.getBoundingClientRect()
+  let visible
+  if (rect.top > 0) {
+    visible = Math.min($($container).outerHeight(), $(window).height() - rect.top)
+  } else {
+    visible = Math.min(rect.bottom, $(window).height())
+  }
+  return Math.max(0, visible)
 }
 
 let scrollToPost = function(topic, postNumber, speed = 400, offset = 30) {
@@ -161,6 +155,7 @@ let hasChatElements = function(element) {
 
 export {
   applyBrowserHacks,
+  visibleInWindow,
   scrollToPost,
   setupScrollContainer,
   setupComposer,

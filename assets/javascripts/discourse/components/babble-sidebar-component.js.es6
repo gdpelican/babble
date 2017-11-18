@@ -24,6 +24,10 @@ export default MountWidget.extend({
 
     $(window).on('resize.babble-window-resize', _.debounce(() => { this.rerenderWidget() }, 250))
 
+    if (Discourse.SiteSettings.babble_adaptive_height) {
+      $(window).on('scroll.babble-scroll', _.throttle(() => { this.rerenderWidget() }, 250))
+    }
+
     this.appEvents.on("babble-go-to-post", ({topicId, postNumber}) => {
       this.goToPost(topicId, postNumber)
     })
@@ -61,6 +65,7 @@ export default MountWidget.extend({
   @on('willDestroyElement')
   _teardown() {
     $(window).off('resize.babble-window-resize')
+    $(window).off('scroll.babble-scroll')
     this.appEvents.off('babble-go-to-post')
     this.appEvents.off('babble-toggle-chat')
     this.appEvents.off('babble-upload-init')

@@ -1,4 +1,5 @@
 import { h } from 'virtual-dom'
+import { visibleInWindow } from '../../lib/chat-element-utils'
 
 export default Ember.Object.create({
   render(widget) {
@@ -8,10 +9,10 @@ export default Ember.Object.create({
     const expanded = widget.state.expanded ? '.expanded' : ''
     const position = `.babble-sidebar--${Discourse.SiteSettings.babble_position}`
     let   opts     = {}
+    const headerMargin = parseInt($('.babble-sidebar').css('margin-top'))
 
     if (Discourse.SiteSettings.babble_adaptive_height) {
-      const height = $('.d-header').height()
-      opts.style   = `margin-top: ${height}px; height: calc(100% - ${height}px);`
+      opts.style = `height: ${visibleInWindow('#main') - headerMargin}px;`
     }
 
     return h(`div.babble-sidebar${position}${expanded}`, opts, [this.channels(), this.chat()])
