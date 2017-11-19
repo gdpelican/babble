@@ -9,6 +9,7 @@ export default MountWidget.extend({
   buildArgs() {
     return {
       topic:              this.topic,
+      mobile:             this.site.isMobileDevice,
       availableTopics:    this.availableTopics,
       lastReadPostNumber: (this.topic || {}).last_read_post_number,
       visible:            this.visible,

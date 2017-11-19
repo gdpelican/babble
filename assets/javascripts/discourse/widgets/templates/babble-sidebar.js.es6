@@ -5,8 +5,12 @@ export default Ember.Object.create({
   render(widget) {
     if (!widget.attrs.visible) { return }
     this.widget = widget
+    let expanded = ''
 
-    const expanded = widget.state.expanded ? '.expanded' : ''
+    if (widget.state.expanded || widget.attrs.mobile) {
+      expanded = '.expanded'
+    }
+
     const position = `.babble-sidebar--${Discourse.SiteSettings.babble_position}`
     let   opts     = {}
     const headerMargin = parseInt($('.babble-sidebar').css('margin-top'))
