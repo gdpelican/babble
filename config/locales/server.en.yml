@@ -8,6 +8,8 @@ en:
     babble_category_name: "Discourse category for Babble topics."
     babble_remote_post: "Enable remote POST on message."
     babble_remote_url: "POST URL"
+    babble_position: Select whether the sidebar appears on the left or right side of the screen
     babble_page_size: "Number of posts per chat page"
     babble_full_page: "Enable full page chat mode (accessible from the category page)"
     babble_shoutbox: "Enable the Babble shoutbox (appears in the site header)"
+    babble_adaptive_height: Let Babble adapt to the height of the header (use this only if you have a custom navbar which is taller than the default Discourse navbar)

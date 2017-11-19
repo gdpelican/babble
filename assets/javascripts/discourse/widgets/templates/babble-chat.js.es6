@@ -6,8 +6,7 @@ export default Ember.Object.create({
     this.widget          = widget
     this.topic           = this.widget.attrs.topic
     this.availableTopics = this.widget.attrs.availableTopics || []
-    this.canSignUp       = this.widget.attrs.canSignUp
-    this.category        = this.widget.state.category
+    this.csrf            = this.widget.state.csrf
     if (!this.topic) { return }
     return this.chatContents()
   },
@@ -20,14 +19,15 @@ export default Ember.Object.create({
         this.pressurePlate('asc')
       ]),
       this.widget.attach('babble-typing', { topic: this.topic }),
-      this.widget.attach('babble-composer', { topic: this.topic, canSignUp: this.canSignUp })
+      this.widget.attach('babble-composer', { topic: this.topic, csrf: this.csrf })
     ]
     if (!this.widget.attrs.fullpage) {
       contents.unshift(
         h('div.babble-title-wrapper', h('div.babble-title', [
           this.switchTopicsButton(),
           this.chatTitle(),
-          this.fullPageLink()
+          this.modifySizeButton(),
+          this.closeButton()
         ]))
       )
     }
@@ -71,14 +71,31 @@ export default Ember.Object.create({
     return h('h4.babble-group-title', this.topic.title)
   },
 
-  fullPageLink() {
-    if (!this.category || !this.topic.postStream.posts.length) { return }
-    return h('div.babble-context-toggle.babble-full-page-link', this.widget.attach('button', {
+  isExpanded() {
+    return $(this.widget._findView().$('.babble-sidebar')[0]).width() > 300
+  },
+
+  modifySizeButton() {
+    if (this.widget.attrs.mobile) { return }
+    let options = { className: 'normalized' }
+    if (this.isExpanded()) {
+      options.icon   = 'compress'
+      options.action = 'compressChat'
+      options.title  = 'babble.compress_chat'
+    } else {
+      options.icon   = 'expand'
+      options.action = 'expandChat'
+      options.title  = 'babble.expand_chat'
+    }
+    return h('div.babble-context-toggle', this.widget.attach('button', options))
+  },
+
+  closeButton() {
+    return h('div.babble-context-toggle', this.widget.attach('button', {
       className: 'normalized',
-      icon:      'external-link',
-      action:    'goToChat',
-      title:     'babble.go_to_chat',
-      sendActionEvent: true
+      icon:      'close',
+      action:    'closeChat',
+      title:     'babble.close_chat'
     }))
   },
 
@@ -86,8 +103,8 @@ export default Ember.Object.create({
     if (this.availableTopics.length == 0) { return }
     return h('div.babble-context-toggle.for-chat', this.widget.attach('button', {
       className: 'normalized',
-      icon:      'bars',
-      action:    'toggleView',
+      icon:      'list-ul',
+      action:    'viewChannels',
       title:     'babble.view_topics_tooltip'
     }))
   },

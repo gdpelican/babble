@@ -2,6 +2,8 @@ import { createWidget } from 'discourse/widgets/widget'
 import Babble from "../lib/babble"
 import template from "../widgets/templates/babble-composer"
 import { ajax } from 'discourse/lib/ajax'
+import { messageBus } from '../lib/chat-live-update-utils'
+import { getUploadMarkdown } from 'discourse/lib/utilities'
 
 export default createWidget('babble-composer', {
   tagName: 'div.babble-post-composer',
@@ -16,7 +18,8 @@ export default createWidget('babble-composer', {
       submitDisabled:  attrs.submitDisabled,
       post:            attrs.post,
       topic:           attrs.topic,
-      raw:             attrs.raw
+      raw:             attrs.raw,
+      csrf:            attrs.csrf
     }
   },
 
@@ -29,7 +32,53 @@ export default createWidget('babble-composer', {
   },
 
   selectEmoji() {
-    this.appEvents.trigger("emoji-picker:open");
+    this.appEvents.trigger("babble-emoji-picker:open", this.composerElement())
+  },
+
+  uploadFile(toolbarEvent) {
+    const $element = $(toolbarEvent.target)
+    const $input = $('#babble-file-input')
+
+    $element.fileupload({
+      url: Discourse.getURL(`/uploads.json?client_id=${messageBus().clientId}&authenticity_token=${this.state.csrf}`),
+      dataType: "json",
+      pasteZone: $element
+    })
+
+    $element.on('fileuploadsubmit', (_, data) => {
+      this.state.submitDisabled = true
+      data.formData = { type: 'composer' }
+      this.scheduleRerender()
+    })
+
+    $element.on("fileuploadprogressall", (_, data) => {
+      // progress!
+    })
+
+    $element.on("fileuploadfail", () => {
+      this.state.submitDisabled = undefined
+      this.scheduleRerender()
+    })
+
+    messageBus().subscribe("/uploads/composer", upload => {
+      messageBus().unsubscribe('/uploads/composer')
+      $element.fileupload('destroy')
+      this.state.submitDisabled = undefined
+      if (upload && upload.url) {
+        Babble.createPost(this.state.topic, getUploadMarkdown(upload))
+      } else {
+        // failure :(
+      }
+      this.scheduleRerender()
+    })
+
+    Ember.run.scheduleOnce('afterRender', () => {
+      $input.on('change', () => {
+        $element.fileupload('add', { fileInput: $input })
+        $input.off('change')
+      })
+      $input.click()
+    })
   },
 
   cancel() {
@@ -38,9 +87,9 @@ export default createWidget('babble-composer', {
 
   submit() {
     let $composer = this.composerElement(),
-        text = $composer.val();
+        text = $composer.val()
     $composer.val('')
-    if (!text) { return; }
+    if (!text) { return }
 
     if (this.state.editing) {
       this.update(text)
@@ -78,7 +127,6 @@ export default createWidget('babble-composer', {
   },
 
   keyUp(event) {
-    if (this.state.showError) { this.state.showError = false }
     if (event.keyCode == 38 &&                               // key pressed is up key
         !this.state.editing &&                               // post is not being edited
         !$(event.target).siblings('.autocomplete').length) { // autocomplete is not active
@@ -96,7 +144,7 @@ export default createWidget('babble-composer', {
 
   announceTyping: _.throttle(function() {
     ajax(`/babble/topics/${this.state.topic.id}/typing`, { type: 'POST' })
-  }, 1000),
+  }, 2000),
 
   html() { return template.render(this) }
 })

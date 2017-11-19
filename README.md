@@ -5,6 +5,7 @@ A Shoutbox style plugin for [Discourse](http://discourse.org).
 [![OpenCollective](https://opencollective.com/babble/backers/badge.svg)](#backers)
 [![OpenCollective](https://opencollective.com/babble/sponsors/badge.svg)](#sponsors)
 
+You can view some ongoing discussion about this plugin on [Discourse Meta](https://meta.discourse.org/t/babble-a-chat-plugin/31753)
 
 #### Demo
 
@@ -12,55 +13,52 @@ Check out a live instance of Discourse with Babble installed on it here: [http:/
 (You'll have to make an account to see the chat)
 
 #### Installation
- - Edit your web template and add the project clone url. (https://meta.discourse.org/t/install-a-plugin/19157)
- - Rebuild your web container so that the plugin installs.
- - You likely want to be on the master branch, which is the most stable:
+Edit your web template and add the project clone url. Then, rebuild your web container so that the plugin installs. Check out the [official guide](https://meta.discourse.org/t/install-a-plugin/19157) for more info.
 
  ```
  - git clone https://github.com/gdpelican/babble.git
  ```
 
-However, if you want the latest cutting edge features, feel free to track the beta branch:
- ```
- - git clone -b https://github.com/gdpelican/babble.git
- ```
+ If you're looking for the previous implementation of full page category chat, you can pull the `full-page-chat` branch.
 
-I'll keep the README updated with the differences between the two branches.
+```
+- git clone -b full-page-chat https://github.com/gdpelican/babble.git
+```
+ (caveat emptor: This branch is unmaintained and will not receive updates going forward)
 
-(Right now beta and master track the same commit)
+###### Adding a chat channel
 
-#### Adding a chat channel
+To create a new channel, visit the `admin/chats` route, select 'Make a New Channel', and create a chat.
 
-**Experimental**: Full page chat mode!
-There is now a site setting for 'full page' chat mode in Babble. This will allow you to tie chat channels to a particular category, and expose a 'chat' route within your category, like so:
+You can either create a channel available to a particular category, or one available to a set of groups.
 
-![](screenshots/header.png)
+###### Other usage notes
 
-To do this, visit the `admin/chats` route, select 'Make a New Channel', and create a chat with 'category' permissions.
-![](screenshots/admin.png)
+- Babble is now configured to appear as a sidebar, which should result in a better experience overall. You may choose whether it occupies the left or right side of the screen in the settings (On small screens, it will automatically expand to take up the whole screen)
+- If you have a custom header, Babble may not play nicely with Discourse's somewhat complicated scrolling behaviour. To account for this, turn on the 'Babble Adaptive Height' setting under `/admin/site_settings/category/plugins?filter=babble`
 
-NB that you can still create group-based chats, which will appear as normal in Shoutbox mode, by selecting 'group' permissions.
+#### Contributing
 
-To switch between 'Shoutbox' mode (with the icon in the header), and 'Full page' mode (with chats linked to a category), use the 'Use full page chat mode' plugin setting.
 
-![](screenshots/settings.png)
+###### Bug reports
 
-- Check out the [issues list](http://github.com/gdpelican/babble/issues) for a more comprehensive list of what's not working great and what could be improved.
+Check out the [issues list](http://github.com/gdpelican/babble/issues) to take a look at known issues and report ones we don't know about yet.
 
-#### Translations
+###### Code
+
+Pull requests welcome! See [CONTRIBUTING.md](./CONTRIBUTING.md)
+
+###### Translations
 
 Babble is currently available in English, German, French, Spanish, Italian, Finnish, Russian, Polish, and Korean.
 If you'd like it translated into your language, let me know! Babble is now [on Transifex](http://transifex.com/babble/babble), which should result in a better translation experience for all.
 
-Pull requests welcome! See [CONTRIBUTING.md](./CONTRIBUTING.md)
+#### Support the project
 
-You can view some ongoing discussion about this plugin on [Discourse Meta](https://meta.discourse.org/t/babble-a-chat-plugin/31753)
+###### Backers
 
-#### Support
-
-#### Backers
 Support us with a monthly donation and help us continue our activities. [[Become a backer](https://opencollective.com/babble#backer)]
 
+###### Sponsors
 
-#### Sponsors
 Become a sponsor and get your logo on our README on Github with a link to your site. [[Become a sponsor](https://opencollective.com/babble#sponsor)]

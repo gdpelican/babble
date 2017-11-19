@@ -22,7 +22,7 @@ export default Ember.Object.create({
       className: 'babble-context-toggle for-topics normalized',
       icon:      'chevron-left',
       title:     'babble.view_chat_tooltip',
-      action:    'toggleView'
+      action:    'viewChat'
     })
   },
 

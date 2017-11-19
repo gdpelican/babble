@@ -1,6 +1,8 @@
 en:
   js:
     babble:
+      position_left: Left
+      position_right: Right
       placeholder: "type your chat message here..."
       send: "Send"
       save: "Save"

@@ -13,7 +13,6 @@ class ::Babble::PostsController < ::ApplicationController
     perform_fetch do
       @post = Babble::PostCreator.create(current_user, post_creator_params)
       if @post.persisted?
-        created_callback @post
         respond_with @post, serializer: Babble::PostSerializer
       else
         respond_with_unprocessable
@@ -25,7 +24,7 @@ class ::Babble::PostsController < ::ApplicationController
     perform_fetch do
       if !guardian.can_edit_post?(topic_post)
         respond_with_forbidden
-      elsif Babble::PostRevisor.new(topic_post, topic).revise!(current_user, params.slice(:raw))
+      elsif Babble::PostRevisor.new(topic_post, topic).revise!(current_user, params.permit(:raw).to_h)
         respond_with topic_post, serializer: Babble::PostSerializer, extras: { is_edit: true }
       else
         respond_with_unprocessable
@@ -68,14 +67,5 @@ class ::Babble::PostsController < ::ApplicationController
       raw:              params[:raw],
       skip_validations: true
     }
-  end
-
-  def created_callback(post)
-    if SiteSetting.babble_remote_post && !params[:skip_callback]
-      Excon.post(SiteSetting.babble_remote_url,
-        body: { current_user: current_user.username, message: post.cooked }.to_json,
-        headers: { 'Content-Type' => 'application/json', 'Accept' => 'applicaton/json' }
-      )
-    end
   end
 end

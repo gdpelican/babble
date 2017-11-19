@@ -8,18 +8,13 @@ plugins:
   babble_icon:
     default: "bullhorn"
     client: true
-  babble_category_name:
-    default: chat
   babble_page_size:
     default: 100
     client: true
-  babble_remote_post:
-    default: false
-  babble_remote_url:
-    default: http://example.com/api/message/add
-  babble_full_page:
-    default: false
+  babble_position:
+    default: left
+    enum: 'Babble::PositionOptions'
     client: true
-  babble_shoutbox:
-    default: true
+  babble_adaptive_height:
+    default: false
     client: true

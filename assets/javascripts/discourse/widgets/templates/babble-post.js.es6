@@ -12,6 +12,7 @@ export default Ember.Object.create({
     this.topic      = widget.state.topic
     this.isFollowOn = widget.state.isFollowOn
     this.isNewDay   = widget.state.isNewDay
+    this.post.usernameUrl = widget.state.post.get('usernameUrl') // :(
     return this.container()
   },
 
@@ -49,7 +50,10 @@ export default Ember.Object.create({
   },
 
   avatarWrapper() {
-    return h('div.babble-post-avatar', { attributes: { 'data-user-card': this.post.username } }, this.avatar())
+    return h('a.babble-post-avatar', { attributes: {
+      'data-user-card': this.post.username,
+      'href': `/u/${this.post.username}`
+    } }, this.avatar())
   },
 
   avatar() {
