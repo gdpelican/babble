@@ -5,10 +5,13 @@ export default Ember.Object.create({
   render(widget) {
     if (!widget.attrs.visible) { return }
     this.widget = widget
-    let expanded = ''
+    let helperCss = ''
 
     if (widget.state.expanded || widget.attrs.mobile) {
-      expanded = '.expanded'
+      helperCss += '.expanded'
+    }
+    if (widget.attrs.mobile) {
+      helperCss += '.mobile'
     }
 
     const position = `.babble-sidebar--${Discourse.SiteSettings.babble_position}`
@@ -19,7 +22,7 @@ export default Ember.Object.create({
       opts.style = `height: ${visibleInWindow('#main') - headerMargin}px;`
     }
 
-    return h(`div.babble-sidebar${position}${expanded}`, opts, [this.channels(), this.chat()])
+    return h(`div.babble-sidebar${position}${helperCss}`, opts, [this.channels(), this.chat()])
   },
 
   channels() {

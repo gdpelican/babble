@@ -39,6 +39,11 @@ $default-chat-width: 300px;
   margin-top: 64px;
   box-shadow: 0 2px 2px rgba(0,0,0,0.25);
   &.expanded { width: 100% !important; }
+  &.mobile {
+    margin-top: 0 !important;
+    height: 100vh !important;
+    z-index: 10000;
+  }
   &.babble-sidebar--right { right: 0; }
   &.babble-sidebar--left  { left: 0; }
 }
