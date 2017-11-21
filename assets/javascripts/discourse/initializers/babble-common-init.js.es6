@@ -41,6 +41,7 @@ export default {
               if ($('.babble-sidebar').length) {
                 $('.babble-sidebar').on('click.discourse-user-card', '[data-user-card]', (e) => {
                   if (wantsNewWindow(e)) { return }
+                  if (this.site.isMobileDevice) { this.appEvents.trigger('babble-toggle-chat') }
                   const $target = $(e.currentTarget)
                   return this._show($target.data('user-card'), $target)
                 })
