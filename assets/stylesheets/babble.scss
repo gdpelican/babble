@@ -8,7 +8,7 @@ $default-chat-width: 300px;
   display: none;
 }
 
-@media (min-width: 700px) {
+@media (min-width: 700px) and (max-width: 1500px) {
   #main-outlet {
     &.chat-active--left { margin-left: $default-chat-width; }
     &.chat-active--right { margin-right: $default-chat-width; }
@@ -31,13 +31,13 @@ $default-chat-width: 300px;
   width: $default-chat-width;
   min-width: $default-chat-width;
   max-width: 100%;
+  background: $secondary;
   height: calc(100% - 64px);
   position: fixed;
-  background: white;
   z-index: 10;
   bottom: 0;
   margin-top: 64px;
-  box-shadow: 0 2px 2px rgba(0,0,0,0.25);
+  box-shadow: 0 2px 2px $primary;
   &.expanded { width: 100% !important; }
   &.mobile {
     margin-top: 0 !important;
@@ -56,10 +56,6 @@ $default-chat-width: 300px;
   overflow: hidden;
   white-space: nowrap;
   text-overflow: ellipsis;
-}
-
-.babble-title i {
-  color: #ccc;
 }
 
 .d-header .icons .babble-title [class^="fa fa-"] {
@@ -127,19 +123,6 @@ $default-chat-width: 300px;
   margin-bottom: 10px;
 }
 
-.babble-load-message {
-  display: inline-block;
-  color: #ccc;
-  border: 0;
-  text-align: center;
-  position: relative;
-  top: 10px;
-  margin: auto;
-  background: white;
-  padding: 0 10px;
-  font-size: 12px;
-}
-
 .babble-post-new-day {
   border-bottom: 1px solid #ccc;
   position: relative;
@@ -153,17 +136,14 @@ $default-chat-width: 300px;
   position: relative;
   top: 10px;
   display: inline-block;
-  color: #ccc;
   border: 0;
   background: white;
   padding: 0 10px;
   font-size: 11px;
   font-weight: bold;
-  color: #999;
 }
 
 .babble-empty-topic-message {
-  color: #ccc;
   text-align: center;
   padding: 25% 0;
 }
@@ -200,7 +180,7 @@ $default-chat-width: 300px;
       padding-right: 10px;
       float: left;
       font-size: 0.929em;
-      color: #bdbdbd;
+      color: $primary;
     }
   }
   .onebox {
@@ -229,9 +209,8 @@ $default-chat-width: 300px;
   .babble-post-actions {
     position: absolute;
     right: 0;
-    top: 1px;
+    top: 0;
     opacity: 0;
-    background-color: #f8f8ff;
     i.fa {
       width: initial;
       height: initial;
@@ -268,10 +247,6 @@ $default-chat-width: 300px;
   background-color: transparent !important; /* sorry mom. */
 }
 
-.babble-post:hover, .babble-available-topic:hover {
-  background-color: #f8f8ff;
-}
-
 .babble-post-content .post-info {
   width: 32px;
   text-align: right;
@@ -283,7 +258,6 @@ $default-chat-width: 300px;
 
 .babble-post-edited {
   font-size: 11px;
-  color: #ccc;
 }
 
 .babble-last-read-post-message {
@@ -307,6 +281,9 @@ li.babble-post .babble-post-content a.mention {
   padding-top: 10px !important; /* sorry mom. */
   margin: 0;
   list-style-type: none;
+  a {
+    color: $primary;
+  }
 }
 
 .babble-available-topic {
@@ -319,12 +296,6 @@ li.babble-post .babble-post-content a.mention {
   @media (max-width: 700px) {
     padding: 10px 20px;
   }
-}
-
-.babble-available-topic a {
-  color: #888;
-  float: left;
-  width: 100%;
 }
 
 .babble-typing {
@@ -428,12 +399,6 @@ li.babble-post .babble-post-content a.mention {
 .babble-composer-editing-buttons {
   margin: 5px 0;
   button { padding: 3px 6px; }
-}
-
-.babble-composer-error-message {
-  color: red;
-  font-size: 10px;
-  padding-right: 10px;
 }
 
 .babble-create-post {
