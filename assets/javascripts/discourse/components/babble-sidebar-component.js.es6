@@ -2,6 +2,7 @@ import MountWidget from 'discourse/components/mount-widget'
 import Babble from '../lib/babble'
 import { on, observes } from 'ember-addons/ember-computed-decorators'
 import { ajax } from 'discourse/lib/ajax'
+import { setupLiveUpdate } from '../lib/chat-live-update-utils'
 
 export default MountWidget.extend({
   widget: 'babble-sidebar',
@@ -59,7 +60,8 @@ export default MountWidget.extend({
 
     ajax('/babble/topics/default.json').then((data) => {
       this.set('topic', Babble.buildTopic(data))
-      this.appEvents.trigger("babble-default-registered")
+      setupLiveUpdate(this.topic, { 'posts': ((data) => { Babble.handleNewPost(this.topic, data) }) })
+      this.appEvents.trigger("babble-default-registered", this.topic)
     }, console.log)
   },
 

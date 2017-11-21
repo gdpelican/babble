@@ -1,11 +1,11 @@
 import { queryRegistry } from 'discourse/widgets/widget'
 import { withPluginApi } from 'discourse/lib/plugin-api'
 import reopenWidget      from '../lib/reopen-widget'
-import Babble            from '../lib/babble'
 import { ajax }          from 'discourse/lib/ajax'
 import { on, observes }  from 'ember-addons/ember-computed-decorators'
 import { wantsNewWindow } from 'discourse/lib/intercept-click';
 import { getUploadMarkdown, validateUploadedFiles } from 'discourse/lib/utilities'
+import { setupLiveUpdate } from '../lib/chat-live-update-utils'
 
 export default {
   name: 'babble-common-init',
@@ -63,21 +63,12 @@ export default {
         listenForBabble() {
           this.appEvents.on("babble-default-registered", () => {
             api.decorateWidget('header-icons:before', (helper) => {
-              let unreadCount   = this.babbleUnreadCount
-              let babbleVisible = this.babbleVisible
+              let iconId = (!this.babbleVisible && this.babbleHasUnread) ? 'babble-icon-unread' : 'babble-icon'
               return helper.attach('header-dropdown', {
                 title:         'babble.title',
                 icon:          Discourse.SiteSettings.babble_icon,
-                iconId:        'babble-icon',
-                action:        'toggleBabble',
-                contents() {
-                  if (!unreadCount || babbleVisible) { return }
-                  return this.attach('link', {
-                    action:    'toggleBabble',
-                    className: 'badge-notification unread-notifications',
-                    rawLabel:  `${unreadCount}`
-                  })
-                }
+                iconId:        iconId,
+                action:        'toggleBabble'
               })
             })
 
@@ -89,15 +80,8 @@ export default {
               this.set('babbleVisible', babbleVisible)
             })
 
-            this.appEvents.on('babble-update-unread', (topic) => {
-              let unread = topic.highest_post_number - topic.last_read_post_number
-              if (unread > 50) {
-                unread = '50+'
-              } else if (unread < 1) {
-                unread = ''
-              }
-
-              this.set('babbleUnreadCount', unread)
+            this.appEvents.on('babble-update-unread', (isUnread) => {
+              this.set('babbleHasUnread', isUnread)
               this.queueRerender()
             })
 

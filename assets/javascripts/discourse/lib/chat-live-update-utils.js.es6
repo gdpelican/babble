@@ -1,5 +1,9 @@
+let lookup = function(key) {
+  return Discourse.__container__.lookup(key)
+}
+
 let messageBus = function() {
-  return Discourse.__container__.lookup('message-bus:main')
+  return lookup('message-bus:main')
 }
 
 let apiPath = function(topic, action) {
@@ -14,4 +18,9 @@ let teardownLiveUpdate = function(topic, ...actions) {
   _.each(actions, (action) => { messageBus().unsubscribe(apiPath(topic, action)) })
 }
 
-export { setupLiveUpdate, teardownLiveUpdate, messageBus }
+let updateUnread = function(topic) {
+  let appEvents = lookup('component:babble-sidebar-component').appEvents
+  appEvents.trigger('babble-update-unread', (topic.highest_post_number - topic.last_read_post_number) > 0)
+}
+
+export { setupLiveUpdate, teardownLiveUpdate, updateUnread }

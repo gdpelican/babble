@@ -1,7 +1,10 @@
 $default-chat-width: 300px;
 
-#babble-icon {
-  position: relative;
+#babble-icon-unread {
+  i {
+    transition: color ease-in-out 0.5s;
+    color: dark-light-choose(scale-color($primary, $lightness: 50%), scale-color($secondary, $lightness: 50%));
+  }
 }
 
 #babble-file-input {
