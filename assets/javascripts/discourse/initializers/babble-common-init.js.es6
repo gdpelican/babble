@@ -62,17 +62,43 @@ export default {
         @on('didInsertElement')
         listenForBabble() {
           this.appEvents.on("babble-default-registered", () => {
-            api.decorateWidget('header-icons:before', function(helper) {
+            api.decorateWidget('header-icons:before', (helper) => {
+              let unreadCount   = this.babbleUnreadCount
+              let babbleVisible = this.babbleVisible
               return helper.attach('header-dropdown', {
                 title:         'babble.title',
                 icon:          Discourse.SiteSettings.babble_icon,
                 iconId:        'babble-icon',
-                action:        'toggleBabble'
+                action:        'toggleBabble',
+                contents() {
+                  if (!unreadCount || babbleVisible) { return }
+                  return this.attach('link', {
+                    action:    'toggleBabble',
+                    className: 'badge-notification unread-notifications',
+                    rawLabel:  `${unreadCount}`
+                  })
+                }
               })
             })
 
             api.attachWidgetAction(this.widget, 'toggleBabble', () => {
               this.appEvents.trigger("babble-toggle-chat")
+            })
+
+            this.appEvents.on('babble-update-visible', (babbleVisible) => {
+              this.set('babbleVisible', babbleVisible)
+            })
+
+            this.appEvents.on('babble-update-unread', (topic) => {
+              let unread = topic.highest_post_number - topic.last_read_post_number
+              if (unread > 50) {
+                unread = '50+'
+              } else if (unread < 1) {
+                unread = ''
+              }
+
+              this.set('babbleUnreadCount', unread)
+              this.queueRerender()
             })
 
             this.queueRerender()

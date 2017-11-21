@@ -29,6 +29,9 @@ export default Ember.Object.create({
 
     toPost = toPost || topic.last_read_post_number
 
+    const previous = BabbleRegistry.topicForComponent(component)
+    if (previous) { teardownLiveUpdate(previous, 'posts') }
+
     this.unbind(component)
     topic = BabbleRegistry.bind(component, topic)
 
@@ -50,6 +53,9 @@ export default Ember.Object.create({
       }
     })
 
+    this.set('appEvents', component.appEvents)
+    this.appEvents.trigger('babble-update-unread', topic)
+
     rerender(topic)
     return topic
   },
@@ -58,11 +64,14 @@ export default Ember.Object.create({
     let topic = BabbleRegistry.topicForComponent(component)
     if (!topic) { return }
 
-    teardownLiveUpdate(topic, '', 'posts', 'typing', 'online')
+    // NB we don't tear down the post listener here!
+    // This is only swapped out once a new topic is bound
+    teardownLiveUpdate(topic, '', 'typing', 'online')
 
     if (hasChatElements(component.element)) {
       teardownPresence(topic)
     }
+
     BabbleRegistry.unbind(component)
   },
 
@@ -168,6 +177,7 @@ export default Ember.Object.create({
       if (performScroll) { scrollToPost(topic, post.post_number) }
     }
 
+    this.appEvents.trigger('babble-update-unread', topic)
     syncWithPostStream(topic)
   },
 

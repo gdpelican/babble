@@ -82,6 +82,7 @@ export default MountWidget.extend({
     } else {
       $outlet.removeClass(`chat-active--${Discourse.SiteSettings.babble_position}`)
     }
+    this.appEvents.trigger('babble-update-visible', this.visible)
     this.rerenderWidget()
   },
 
