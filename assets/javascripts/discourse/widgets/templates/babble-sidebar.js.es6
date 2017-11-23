@@ -4,6 +4,7 @@ import { visibleInWindow } from '../../lib/chat-element-utils'
 export default Ember.Object.create({
   render(widget) {
     if (!widget.attrs.visible) { return }
+    widget.attrs.expanded = widget.state.expanded
     this.widget = widget
     let helperCss = ''
 

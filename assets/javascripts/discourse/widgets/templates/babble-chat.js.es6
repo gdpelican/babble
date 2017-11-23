@@ -71,14 +71,10 @@ export default Ember.Object.create({
     return h('h4.babble-group-title', this.topic.title)
   },
 
-  isExpanded() {
-    return $(this.widget._findView().$('.babble-sidebar')[0]).width() > 300
-  },
-
   modifySizeButton() {
     if (this.widget.attrs.mobile) { return }
     let options = { className: 'normalized' }
-    if (this.isExpanded()) {
+    if (this.widget.attrs.expanded) {
       options.icon   = 'compress'
       options.action = 'compressChat'
       options.title  = 'babble.compress_chat'
