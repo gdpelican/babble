@@ -33,6 +33,7 @@ $default-chat-width: 300px;
   overflow: auto;
   width: $default-chat-width;
   min-width: $default-chat-width;
+  transition: width ease-in-out 0.25s;
   max-width: 100%;
   background: $secondary;
   height: calc(100% - 64px);
