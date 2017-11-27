@@ -1,4 +1,4 @@
-pl:
+pl_PL:
   site_settings:
     babble_enabled: "Włącz Plugin Babble Shoutbox."
     babble_placeholder: "Zostaw to pole puste aby używać domyślnego tekstu zachęty lub wpisz własny."
