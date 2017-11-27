@@ -1,7 +1,5 @@
-import { createWidget } from 'discourse/widgets/widget';
-import Babble from '../lib/babble'
+import { createWidget } from 'discourse/widgets/widget'
 import template from '../widgets/templates/babble-post'
-import { ajax } from 'discourse/lib/ajax'
 
 export default createWidget('babble-post', {
   tagName: 'li.babble-post',
@@ -27,14 +25,6 @@ export default createWidget('babble-post', {
       isNewDay:   attrs.isNewDay,
       editedRaw:  attrs.post.raw
     }
-  },
-
-  edit() {
-    Babble.editPost(this.state.topic, this.state.post)
-  },
-
-  delete() {
-    Babble.destroyPost(this.state.topic, this.state.post)
   },
 
   html() { return template.render(this) }

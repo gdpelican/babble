@@ -170,11 +170,11 @@ $default-chat-width: 300px;
 }
 
 .babble-post-content {
-  overflow: hidden;
   position: relative;
   .babble-post-meta-data {
     width: 100%;
-    display: inline-block;
+    display: flex;
+    -webkit-display: flex;
     line-height: 14px;
     height: 14px;
     .babble-post-name {
@@ -182,7 +182,8 @@ $default-chat-width: 300px;
     }
     .babble-post-date {
       padding-right: 10px;
-      float: left;
+      flex-grow: 1;
+      -webkit-flex-grow: 1;
       font-size: 0.929em;
       color: $primary;
     }
@@ -207,22 +208,18 @@ $default-chat-width: 300px;
   &.babble-follow-on {
     margin: 3px 10px 3px 0;
   }
-  &:hover {
-    .babble-post-actions { opacity: 1; }
-  }
+
   .babble-post-actions {
+    background: transparent;
+    border: none;
+    a { color: $primary; }
     position: absolute;
-    right: 0;
     top: 0;
-    opacity: 0;
-    i.fa {
-      width: initial;
-      height: initial;
-      font-size: initial;
-      line-height: initial;
-      display: inline-block;
-      color: dark-light-choose(scale-color($primary, $lightness: 50%), scale-color($secondary, $lightness: 50%));
-      margin-left: 3px;
+    right: 0;
+    transition: all 0.25s ease-in-out;
+    &:hover {
+      background: $secondary;
+      color: $primary;
     }
   }
 }

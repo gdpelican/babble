@@ -33,9 +33,9 @@ export default Ember.Object.create({
 
   contents() {
     if (this.post.deleted_at) {
-      return h('div.babble-staged-post.babble-deleted-post', [this.avatarWrapper(), I18n.t('babble.post_deleted_by', {username: this.post.deleted_by_username})])
+      return h('div.babble-staged-post.babble-deleted-post', [this.titleWrapper(), I18n.t('babble.post_deleted_by', {username: this.post.deleted_by_username})])
     } else if (this.post.user_deleted) {
-      return h('div.babble-staged-post.babble-deleted-post', [this.avatarWrapper(), this.bodyWrapper()] )
+      return h('div.babble-staged-post.babble-deleted-post', [this.titleWrapper(), this.bodyWrapper()] )
     } else if (this.topic.get('editingPostId') === this.post.id ){
       return this.widget.attach('babble-composer', {
         post:      this.post,
@@ -43,17 +43,20 @@ export default Ember.Object.create({
         isEditing: true,
         raw:       this.post.raw})
     } else if (this.topic.get('loadingEditId') === this.post.id || this.post.id == -1) {
-      return h('div.babble-staged-post', [this.avatarWrapper(), this.bodyWrapper(true)])
+      return h('div.babble-staged-post', [this.titleWrapper(), this.bodyWrapper(true)])
     } else {
-      return [this.avatarWrapper(), this.bodyWrapper(false)]
+      return [this.titleWrapper(), this.bodyWrapper(false)]
     }
   },
 
-  avatarWrapper() {
-    return h('a.babble-post-avatar', { attributes: {
-      'data-user-card': this.post.username,
-      'href': `/u/${this.post.username}`
-    } }, this.avatar())
+  titleWrapper() {
+    return h('.babble-post-title', [
+      h('a.babble-post-avatar', { attributes: {
+        'data-user-card': this.post.username,
+        'href': `/u/${this.post.username}`
+      } }, this.avatar()),
+      this.postMetaData()
+    ])
   },
 
   avatar() {
@@ -84,22 +87,20 @@ export default Ember.Object.create({
     return h('div.babble-post-meta-data', [
       this.postName(),
       this.postDate(),
-      this.postEdited()
+      this.postEdited(),
+      this.actions()
     ])
   },
 
   bodyWrapper(staged) {
-    return h('div.babble-post-content', [
-      this.postMetaData(),
-      this.body(staged)
-    ])
+    return h('div.babble-post-content', this.body(staged))
   },
 
   body(staged) {
     if (staged) {
       return [this.cooked(), this.loadingSpinner()]
     } else {
-      return [this.cooked(), this.unreadLine(), this.actions()]
+      return [this.cooked(), this.unreadLine()]
     }
   },
 
@@ -116,11 +117,7 @@ export default Ember.Object.create({
   },
 
   actions() {
-    let actions = []
-    if (this.post.can_delete) { actions.push(this.widget.attach('link', { icon: 'trash-o', action: 'delete'})) }
-    if (this.post.can_edit)   { actions.push(this.widget.attach('link', { icon: 'pencil', action: 'edit'})) }
-    if (this.post.deleted_at || !actions.length) { return }
-    return h('div.babble-post-actions', actions)
+    return h('div.babble-post-actions', this.widget.attach('babble-post-actions', { topic: this.topic, post: this.post }))
   },
 
   loadingSpinner() {
