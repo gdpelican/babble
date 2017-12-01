@@ -10,7 +10,7 @@ import lastVisibleElement from '../lib/last-visible-element'
 import { syncWithPostStream } from '../lib/chat-topic-utils'
 import { ajax } from 'discourse/lib/ajax'
 import { rerender } from '../lib/chat-component-utils'
-import { isAppleDevice } from 'discourse/lib/safari-hacks'
+import { isAppleDevice } from 'discourse/lib/utilities'
 
 let applyBrowserHacks = function(topic) {
   Ember.run.scheduleOnce('afterRender', () => {
