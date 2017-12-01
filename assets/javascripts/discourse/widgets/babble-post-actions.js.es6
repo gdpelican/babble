@@ -3,7 +3,6 @@ import Babble from '../lib/babble'
 import template from '../widgets/templates/babble-post-actions'
 
 export default createWidget('babble-post-actions', {
-  tagName: 'button.babble-post-actions',
 
   buildKey(attrs) {
     return `babble-post-actions-${attrs.post.id}`
@@ -22,12 +21,18 @@ export default createWidget('babble-post-actions', {
     Babble.editPost(this.state.topic, this.state.post)
   },
 
-  flag() {
-    console.log('Do you have a flag?')
-  },
+  // flag() {
+  //   console.log('Do you have a flag?')
+  // },
 
   delete() {
     Babble.destroyPost(this.state.topic, this.state.post)
+  },
+
+  clickOutside() {
+    if (!this.state.open) { return }
+    this.state.open = false
+    this.scheduleRerender()
   },
 
   html() { return template.render(this) }

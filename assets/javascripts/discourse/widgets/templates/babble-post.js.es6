@@ -83,13 +83,16 @@ export default Ember.Object.create({
   },
 
   postMetaData() {
-    if (this.isFollowOn) { return }
-    return h('div.babble-post-meta-data', [
-      this.postName(),
-      this.postDate(),
-      this.postEdited(),
-      this.actions()
-    ])
+    if (this.isFollowOn) {
+      return h('div.babble-post-meta-data', this.actions())
+    } else {
+      return h('div.babble-post-meta-data', [
+        this.postName(),
+        this.postDate(),
+        this.postEdited(),
+        this.actions()
+      ])
+    }
   },
 
   bodyWrapper(staged) {
@@ -117,7 +120,7 @@ export default Ember.Object.create({
   },
 
   actions() {
-    return h('div.babble-post-actions', this.widget.attach('babble-post-actions', { topic: this.topic, post: this.post }))
+    return this.widget.attach('babble-post-actions', { topic: this.topic, post: this.post })
   },
 
   loadingSpinner() {

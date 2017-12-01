@@ -5,12 +5,17 @@ export default Ember.Object.create({
   render(widget) {
     this.widget     = widget
     this.post       = widget.state.post
-    return [this.button(), this.dropdown()]
+    if (this.post.deleted_at || !_.compact(this.actions()).length) { return }
+
+    if (widget.state.open) {
+      return h('div.babble-post-actions.opened', this.dropdown())
+    } else {
+      return h('button.babble-post-actions.closed', this.button())
+    }
   },
 
   button() {
-    if (this.post.deleted_at || !_.compact(this.actions()).length) { return }
-    return this.widget.attach('link', { icon: 'chevron-down', action: 'open' })
+    return this.widget.attach('link', { class: 'wark', icon: 'chevron-down', action: 'open' })
   },
 
   dropdown() {
@@ -19,7 +24,7 @@ export default Ember.Object.create({
   },
 
   actions() {
-    return [this.delete(), this.edit(), this.flag()]
+    return [this.edit(), this.flag(), this.delete()]
   },
 
   edit() {
@@ -30,8 +35,9 @@ export default Ember.Object.create({
 
   flag() {
     // if (this.post.can_flag) {
-    return this.widget.attach('link', { icon: 'flag', action: 'flag', label: 'post.actions.flag' })
+    // return this.widget.attach('link', { icon: 'flag', action: 'flag', label: 'post.actions.flag' })
     // }
+    return // WIP
   },
 
   delete() {

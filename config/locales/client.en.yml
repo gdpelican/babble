@@ -3,7 +3,7 @@ en:
     babble:
       position_left: Left
       position_right: Right
-      placeholder: "type your chat message here..."
+      placeholder: "Say something..."
       send: "Send"
       save: "Save"
       cancel: "Cancel"
