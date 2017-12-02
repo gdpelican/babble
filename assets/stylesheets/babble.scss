@@ -208,8 +208,10 @@ $default-chat-width: 300px;
   position: relative;
   margin: 10px 0;
 
+  .babble-post-title { padding-bottom: 5px; }
   &.babble-follow-on {
     margin: 4px 0;
+    .babble-post-title { padding-bottom: 0; }
     .babble-post-actions { top: -4px; }
   }
 
