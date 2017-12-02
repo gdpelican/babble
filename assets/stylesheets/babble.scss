@@ -19,15 +19,6 @@ $default-chat-width: 300px;
 }
 
 /* Dropdown styles */
-
-.babble-title-wrapper {
-  line-height: 32px;
-  @media (max-width: 700px) {
-    font-size: 17px;
-    line-height: 38px;
-  }
-}
-
 .babble-sidebar {
   resize: horizontal;
   overflow: auto;
@@ -76,41 +67,6 @@ $default-chat-width: 300px;
   @media (max-width: 700px) { line-height: 35px; }
   vertical-align: top;
   z-index: 1;
-  &:hover .babble-context-toggle-tooltip { opacity: 1; }
-}
-
-.babble-context-toggle-tooltip {
-  opacity: 0;
-  transition: .5s opacity;
-  pointer-events: none;
-  position: absolute;
-  box-shadow: 0 2px 2px rgba(0, 0, 0, 0.25);
-  background: #fefefe;
-  font-size: 13px;
-  line-height: 18px;
-  color: black;
-  padding: 5px;
-  word-wrap: normal;
-  min-width: 150px;
-  left: 50%;
-  top: 100%;
-  transform: translate(-50%, 0);
-  &:after {
-    content: ' ';
-    width: 7px;
-    height: 7px;
-    top: 0;
-    left: 50%;
-    transform: rotate(45deg) translate(-50%, 0);
-    position: absolute;
-    background: #fefefe;
-  }
-}
-
-@-moz-document url-prefix() {
-  .babble-context-toggle-tooltip {
-    top: 25px;
-  }
 }
 
 /* Post styles */
@@ -121,30 +77,38 @@ $default-chat-width: 300px;
   overflow-y: auto;
 }
 
+.babble-post {
+  list-style-type: none;
+}
+
+.babble-staged-post {
+  opacity: 0.4;
+}
+
 .babble-load-more {
   text-align: center;
-  border-bottom: 1px solid #ccc;
+  border-bottom: 1px solid $primary;
   margin-bottom: 10px;
 }
 
-.babble-post-new-day {
-  border-bottom: 1px solid #ccc;
+.babble-post-hr-message {
+  border-bottom: 1px solid $primary;
   position: relative;
   bottom: 15px;
+  margin-top: 10px;
   width: 100%;
   text-align: center;
-}
-
-.babble-post-new-day-message {
-  margin: auto;
-  position: relative;
-  top: 10px;
-  display: inline-block;
-  border: 0;
-  background: white;
-  padding: 0 10px;
-  font-size: 11px;
-  font-weight: bold;
+  &.babble-last-read { margin-bottom: -10px; }
+  span {
+    margin: auto;
+    position: relative;
+    top: 10px;
+    background: $secondary;
+    padding: 0 10px;
+    font-size: 11px;
+    font-weight: bold;
+    display: inline-block;
+  }
 }
 
 .babble-empty-topic-message {
@@ -152,73 +116,84 @@ $default-chat-width: 300px;
   padding: 25% 0;
 }
 
-.babble-post {
-  width: 100%;
-  display: inline-block;
+.babble-avatar-wrapper {
+  min-width: 40px;
   img {
-    max-width: 100%;
-    height: auto;
+    width: 32px;
+    cursor: pointer;
   }
 }
 
-.babble-post-avatar {
-  cursor: pointer;
-  float: left;
-  margin-right: 6px;
-  width: 32px;
-  min-height: 1px;
+.babble-post:hover .babble-post-actions.closed {
+  opacity: 1;
 }
-
-.babble-post-content {
-  position: relative;
-  .babble-post-meta-data {
-    width: 100%;
-    display: flex;
-    -webkit-display: flex;
-    line-height: 14px;
-    height: 14px;
-    .babble-post-name {
-      float: left;
-    }
-    .babble-post-date {
-      padding-right: 10px;
-      flex-grow: 1;
-      -webkit-flex-grow: 1;
-      font-size: 0.929em;
-      color: $primary;
-    }
-  }
-  .onebox {
-    margin-right: 20px;
-  }
-}
-
-.babble-staged-post {
-  opacity: 0.5;
-  .spinner-container {
-    position: absolute;
-    top: 2px;
-    right: 0;
-  }
-}
-
-.babble-post:hover .babble-post-actions.closed { opacity: 1; }
 
 .babble-post-container {
+  margin: 8px 0;
   position: relative;
-  margin: 10px 0;
+  display: flex;
 
-  .babble-post-title { padding-bottom: 5px; }
   &.babble-follow-on {
     margin: 4px 0;
-    .babble-post-title { padding-bottom: 0; }
-    .babble-post-actions { top: -4px; }
+    .babble-post-content-wrapper {
+      flex-direction: row;
+      -webkit-flex-direction: row;
+      justify-content: space-between;
+      -webkit-justify-content: space-between;
+    }
+    .babble-post-cooked {
+      margin: 0;
+    }
+
+    .babble-post-meta-data {
+      margin-top: -4px;
+      order: 2;
+    }
+  }
+
+  .babble-post-date {
+    flex-grow: 1;
+    -webkit-flex-grow: 1;
+  }
+
+  .babble-post-edited {
+    flex-grow: 2;
+    -webkit-flex-grow: 10;
+  }
+
+  .babble-post-content-wrapper {
+    display: flex;
+    display: -webkit-flex;
+    flex-direction: column;
+    -webkit-flex-direction: column;
+    flex-grow: 1;
+    a.mention {
+      display: inline;
+      padding: 0;
+    }
+    .onebox { margin-right: 20px; }
+    p { margin: 0; }
+    img {
+      max-width: 100%;
+      height: auto;
+    }
+  }
+
+  .babble-post-meta-data {
+    min-height: 26px;
+    display: flex;
+    display: -webkit-flex;
+    flex-direction: row;
+    -webkit-flex-direction: row;
+    justify-content: space-between;
+    -webkit-justify-content: space-between;
+  }
+
+  .babble-post-cooked {
+    word-break: break-word;
   }
 
   .babble-post-actions {
-    position: absolute;
-    top: 0;
-    right: 4px;
     transition: background-color 0.25s ease-in-out;
     transition: color 0.25s ease-in-out;
     transition: opacity 0.4s ease-in-out;
@@ -230,7 +205,7 @@ $default-chat-width: 300px;
       z-index: 10;
       border: none;
       @media (max-width: 480px) { opacity: 0.7; }
-      @media (min-width: 480px) { opacity: 0.05; }
+      // @media (min-width: 480px) { opacity: 0.05; }
       background: transparent;
       a {
         padding: 4px 8px;
@@ -244,6 +219,9 @@ $default-chat-width: 300px;
     }
 
     &.opened {
+      position: absolute;
+      top: 0;
+      right: 0;
       opacity: 1;
       z-index: 11;
       border: 1px solid;
@@ -288,38 +266,13 @@ $default-chat-width: 300px;
   display: none;
 }
 
-.babble-post .babble-post-avatar a,
-.babble-post .post-date {
-  background-color: transparent !important; /* sorry mom. */
-}
-
 .babble-post-content .post-info {
   width: 32px;
   text-align: right;
 }
 
-.babble-post-content p {
-  margin: 0;
-}
-
 .babble-post-edited {
   font-size: 11px;
-}
-
-.babble-last-read-post-message {
-  font-size: 8px;
-  line-height: 10px;
-  padding: 0 10px 0 5px;
-  float: right;
-}
-
-.babble-last-read-wrapper {
-  margin-top: 15px;
-}
-
-li.babble-post .babble-post-content a.mention {
-  display: inline;
-  padding: 0;
 }
 
 /* Available topic styles */
@@ -327,9 +280,7 @@ li.babble-post .babble-post-content a.mention {
   padding-top: 10px !important; /* sorry mom. */
   margin: 0;
   list-style-type: none;
-  a {
-    color: $primary;
-  }
+  a { color: $primary; }
 }
 
 .babble-available-topic {
@@ -359,7 +310,7 @@ li.babble-post .babble-post-content a.mention {
 /* Composer styles */
 
 .babble-post-composer {
-  margin: 0 6px 4px;
+  width: 100%;
   text-align: center;
   border-radius: 1px;
 }
@@ -400,14 +351,9 @@ li.babble-post .babble-post-content a.mention {
   border: none;
   padding: 5px;
   &:hover {
-    color: black;
-    background: #efefef;
+    color: $secondary;
+    background: $primary;
   }
-}
-
-.babble-post-composer .btn-cancel {
-  margin-top: 5px;
-  margin-right: 5px;
 }
 
 .babble-post-composer .autocomplete {
@@ -428,31 +374,6 @@ li.babble-post .babble-post-content a.mention {
   }
 }
 
-.babble-post-composer .file-uploading {
-  float: left;
-  .spinner {
-    vertical-align: middle;
-  }
-}
-
-.babble-post .babble-post-body .cooked img {
-  max-width: 223px; /* 12 extra px for Edge, don't ask... */
-  height: auto;
-}
-
-.babble-composer .btn-primary {
-  margin: 3px 1px;
-}
-
-.babble-composer-editing-buttons {
-  margin: 5px 0;
-  button { padding: 3px 6px; }
-}
-
-.babble-create-post {
-  float: none;
-}
-
 .babble-no-one-is-typing {
   min-height: 15px;
 }
@@ -468,7 +389,6 @@ li.babble-post .babble-post-content a.mention {
   }
 }
 
-/* Shoutbox styles */
 .babble-sidebar {
 
   .normalized {
@@ -488,6 +408,7 @@ li.babble-post .babble-post-content a.mention {
     z-index: 1;
     box-shadow: 0 2px 2px rgba(0,0,0,0.25);
     border-radius: 1px;
+    padding: 5px 0;
   }
   .babble-title {
     display: flex;
@@ -499,16 +420,11 @@ li.babble-post .babble-post-content a.mention {
   }
   .babble-list {
     flex-grow: 1;
-    flex-shrink: 1;
-    flex-basis: auto;
     -webkit-flex-grow: 1;
-    -webkit-flex-shrink: 1;
-    -webkit-flex-basis: auto;
     overflow-x: hidden;
     overflow-y: scroll;
     -webkit-overflow-scrolling: touch;
-    height: 500px;
-    margin: 0 7px;
+    margin: 0 5px;
   }
   .babble-post-composer-wrapper {
     display: flex;
@@ -519,21 +435,6 @@ li.babble-post .babble-post-content a.mention {
     -webkit-align-items: flex-end;
   }
 
-  .babble-last-read-wrapper {
-    display: flex;
-    -webkit-display: flex;
-  }
-
-  .babble-last-read-post-message {
-    margin: auto;
-  }
-
-  .babble-last-read-post-line {
-    position: absolute;
-    left: 0;
-    right: 0;
-    z-index: -1;
-  }
   .spinner {
     width: 8px;
     height: 8px;
@@ -548,12 +449,6 @@ li.babble-post .babble-post-content a.mention {
 .babble-admin-disabled {
   font-weight: bold;
   text-align: center;
-}
-
-/* Discourse overrides */
-@media (min-width: 700px) {
-  .babble-post       button.dropdown-toggle { opacity: 0; }
-  .babble-post:hover button.dropdown-toggle { opacity: 1; }
 }
 
 li.babble-chat.drop-container {

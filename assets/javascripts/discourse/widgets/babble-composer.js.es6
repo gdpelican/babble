@@ -25,7 +25,7 @@ export default createWidget('babble-composer', {
 
   composerElement() {
     if (this.state.editing) {
-      return $('.babble-post-container > .babble-post-composer textarea')
+      return $('.babble-post-container .babble-post-composer textarea')
     } else {
       return $('.babble-chat > .babble-post-composer textarea')
     }
@@ -86,8 +86,8 @@ export default createWidget('babble-composer', {
   },
 
   submit() {
-    let $composer = this.composerElement(),
-        text = $composer.val()
+    let $composer = this.composerElement()
+    let text      = $composer.val()
     $composer.val('')
     if (!text) { return }
 
@@ -107,7 +107,10 @@ export default createWidget('babble-composer', {
   },
 
   update(text) {
-    if (this.state.post.raw.trim() == text.trim()) { return }
+    if (this.state.post.raw.trim() == text.trim()) {
+      this.state.topic.editingPostId = null
+      return
+    }
     Babble.updatePost(this.state.topic, this.state.post, text).finally(() => {
       this.state.submitDisabled = undefined
     })
@@ -117,7 +120,8 @@ export default createWidget('babble-composer', {
     if (event.keyCode == 13 && !(event.ctrlKey || event.altKey || event.shiftKey)) {
       if (this.state.submitDisabled) { return }
       event.preventDefault()
-      this.submit() // submit on enter
+      // submit on enter
+      this.submit()
       return false
     } else if (event.keyCode == 27) {
       event.preventDefault()

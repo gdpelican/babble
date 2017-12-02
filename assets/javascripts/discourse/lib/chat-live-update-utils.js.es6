@@ -23,4 +23,4 @@ let updateUnread = function(topic) {
   appEvents.trigger('babble-update-unread', (topic.highest_post_number - topic.last_read_post_number) > 0)
 }
 
-export { setupLiveUpdate, teardownLiveUpdate, updateUnread }
+export { setupLiveUpdate, teardownLiveUpdate, updateUnread, messageBus }

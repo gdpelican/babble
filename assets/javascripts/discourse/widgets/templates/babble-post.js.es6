@@ -12,6 +12,8 @@ export default Ember.Object.create({
     this.topic      = widget.state.topic
     this.isFollowOn = widget.state.isFollowOn
     this.isNewDay   = widget.state.isNewDay
+    this.staged     = this.topic.get('loadingEditId') === this.post.id || this.post.id == -1
+    this.editing    = this.topic.get('editingPostId') === this.post.id
     this.post.usernameUrl = widget.state.post.get('usernameUrl') // :(
     return this.container()
   },
@@ -19,49 +21,55 @@ export default Ember.Object.create({
   container() {
     let css = 'div.babble-post-container'
     if (this.isFollowOn) { css += '.babble-follow-on' }
-    return h(css, [this.daySeparator(), this.contents()])
-  },
-
-  daySeparator() {
-    if (!this.isNewDay) { return }
-    let date = moment(this.post.created_at)
-                     .startOf('day')
-                     .calendar({ lastWeek: 'dddd' })
-                     .replace('at 12:00 AM', '')
-    return h('div.babble-post-new-day', h('div.babble-post-new-day-message', date))
+    return [
+      this.daySeparator(),
+      h(css, this.contents()),
+      this.unreadLine()
+    ]
   },
 
   contents() {
+    return [
+      h('div.babble-avatar-wrapper', this.avatar()),
+      h('div.babble-post-content-wrapper', [
+        this.title(),
+        this.body()
+      ])
+    ]
+  },
+
+  body() {
     if (this.post.deleted_at) {
-      return h('div.babble-staged-post.babble-deleted-post', [this.titleWrapper(), I18n.t('babble.post_deleted_by', {username: this.post.deleted_by_username})])
+      return h('div.babble-staged-post.babble-deleted-post', I18n.t('babble.post_deleted_by', {username: this.post.deleted_by_username}))
     } else if (this.post.user_deleted) {
-      return h('div.babble-staged-post.babble-deleted-post', [this.titleWrapper(), this.bodyWrapper()] )
+      return h('div.babble-staged-post.babble-deleted-post', this.cooked())
     } else if (this.topic.get('editingPostId') === this.post.id ){
       return this.widget.attach('babble-composer', {
         post:      this.post,
         topic:     this.topic,
         isEditing: true,
-        raw:       this.post.raw})
-    } else if (this.topic.get('loadingEditId') === this.post.id || this.post.id == -1) {
-      return h('div.babble-staged-post', [this.titleWrapper(), this.bodyWrapper(true)])
+        raw:       this.post.raw
+      })
+    } else if(this.staged) {
+      return h('div.babble-staged-post', this.cooked())
     } else {
-      return [this.titleWrapper(), this.bodyWrapper(false)]
+      return h('div.babble-post-content', this.cooked())
     }
   },
 
-  titleWrapper() {
-    return h('.babble-post-title', [
-      h('a.babble-post-avatar', { attributes: {
-        'data-user-card': this.post.username,
-        'href': `/u/${this.post.username}`
-      } }, this.avatar()),
-      this.postMetaData()
-    ])
-  },
+  // titleWrapper() {
+  //   return h('.babble-post-title', [
+  //     h('a.babble-post-avatar', { attributes: {
+  //       'data-user-card': this.post.username,
+  //       'href': `/u/${this.post.username}`
+  //     } }, this.avatar()),
+  //     this.postMetaData()
+  //   ])
+  // },
 
   avatar() {
     if (this.isFollowOn) {
-      return
+      return h('div.babble-avatar-placeholder')
     } else if (this.post.user_id) {
       return avatarImg('medium', {template: this.post.avatar_template, username: this.post.username})
     } else {
@@ -82,7 +90,7 @@ export default Ember.Object.create({
     return h('div.babble-post-edited', I18n.t('babble.post_edited'))
   },
 
-  postMetaData() {
+  title() {
     if (this.isFollowOn) {
       return h('div.babble-post-meta-data', this.actions())
     } else {
@@ -95,31 +103,27 @@ export default Ember.Object.create({
     }
   },
 
-  bodyWrapper(staged) {
-    return h('div.babble-post-content', this.body(staged))
-  },
-
-  body(staged) {
-    if (staged) {
-      return [this.cooked(), this.loadingSpinner()]
-    } else {
-      return [this.cooked(), this.unreadLine()]
-    }
-  },
-
   cooked() {
     return new RawHtml({ html: `<div class="babble-post-cooked">${emojiUnescape(this.post.cooked)}</div>` })
   },
 
+  daySeparator() {
+    if (!this.isNewDay) { return }
+    let date = moment(this.post.created_at)
+                     .startOf('day')
+                     .calendar({ lastWeek: 'dddd' })
+                     .replace('at 12:00 AM', '')
+    return h('div.babble-post-new-day-message.babble-post-hr-message', h('span', date))
+  },
+
   unreadLine() {
     if (this.post.post_number != this.topic.lastReadMarker) { return }
-    return h('div.babble-last-read-wrapper', [
-      h('div.babble-last-read-post-message', I18n.t('babble.new_messages')),
-      h('hr.babble-last-read-post-line')
-    ])
+    return h('div.babble-last-read.babble-post-hr-message', h('span', I18n.t('babble.new_messages')))
   },
 
   actions() {
+    if (this.editing || this.post.deleted_at) { return }
+    if (this.staged) { return this.loadingSpinner() }
     return this.widget.attach('babble-post-actions', { topic: this.topic, post: this.post })
   },
 
