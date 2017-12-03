@@ -158,16 +158,37 @@ export default Ember.Object.create({
     })
   },
 
+  populatePermissions(data) {
+    const user = Discourse.User.current()
+
+    if (!user || data.user_id != user.id) {
+      delete data.can_edit
+      delete data.can_flag
+      delete data.can_delete
+    }
+
+    if(!_.contains(_.keys(data), 'can_edit')) {
+      data.can_edit = user.staff ||
+                      data.user_id == user.id ||
+                      user.trust_level >= 4
+    }
+    if(!_.contains(_.keys(data), 'can_flag')) {
+      data.can_flag = !data.user_id != user.id &&
+                      (user.staff || user.trust_level >= 1)
+    }
+    if(!_.contains(_.keys(data), 'can_delete')) {
+      data.can_delete = user.staff || data.user_id == user.id
+    }
+
+    return data
+  },
+
   handleNewPost(topic, data) {
     if (data.topic_id != topic.id) { return }
 
     delete topic.typing[data.username]
 
-    if (!Discourse.User.current() || data.user_id != Discourse.User.current().id) {
-      _.each(['can_edit', 'can_delete'], function(key) { delete data[key] })
-    }
-
-    let post = Post.create(data)
+    let post = Post.create(this.populatePermissions(data))
 
     if (data.is_edit || data.is_delete) {
       topic.postStream.storePost(post)
