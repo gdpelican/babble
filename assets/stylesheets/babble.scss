@@ -178,7 +178,6 @@ $default-chat-width: 300px;
       display: inline;
       padding: 0;
     }
-    .onebox { margin-right: 20px; }
     p { margin: 0; }
     img {
       max-width: 100%;
@@ -212,7 +211,7 @@ $default-chat-width: 300px;
       z-index: 10;
       border: none;
       @media (max-width: 480px) { opacity: 0.7; }
-      // @media (min-width: 480px) { opacity: 0.05; }
+      @media (min-width: 480px) { opacity: 0.1; }
       background: transparent;
       a {
         padding: 4px 8px;
@@ -220,7 +219,7 @@ $default-chat-width: 300px;
       }
       &:hover {
         opacity: 1;
-        background: $primary;
+        background-color: $primary;
         a { color: $secondary; }
       }
     }
@@ -236,12 +235,16 @@ $default-chat-width: 300px;
       font-size: 15px;
       transition: all 0.35s ease-in-out;
       background: $secondary;
+      &.last-post {
+        bottom: 0;
+        top: auto;
+      }
       .widget-link {
         display: flex;
         display: -webkit-flex;
         align-items: center;
         -webkit-align-items: center;
-        transition: background 0.35s ease-in-out;
+        transition: background-color 0.35s ease-in-out;
         color: $primary;
         &:hover {
           background: $primary;

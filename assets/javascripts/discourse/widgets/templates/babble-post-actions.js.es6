@@ -5,13 +5,19 @@ export default Ember.Object.create({
   render(widget) {
     this.widget     = widget
     this.post       = widget.state.post
+    this.topic      = widget.state.topic
     if (this.post.deleted_at || !_.compact(this.actions()).length) { return }
+    let css = this.isLastPost() ? '.last-post' : ''
 
     if (widget.state.open) {
-      return h('div.babble-post-actions.opened', this.dropdown())
+      return h(`div.babble-post-actions.opened${css}`, this.dropdown())
     } else {
       return h('button.babble-post-actions.closed', this.button())
     }
+  },
+
+  isLastPost() {
+    return this.topic.highest_post_number == this.post.post_number
   },
 
   button() {
