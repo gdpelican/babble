@@ -30,7 +30,10 @@ export default Ember.Object.create({
 
   contents() {
     return [
-      h('div.babble-avatar-wrapper', this.avatar()),
+      h('a.babble-avatar-wrapper', { attributes: {
+            'data-user-card': this.post.username,
+            'href': `/u/${this.post.username}`
+      } }, this.avatar()),
       h('div.babble-post-content-wrapper', [
         this.title(),
         this.body()
@@ -56,16 +59,6 @@ export default Ember.Object.create({
       return h('div.babble-post-content', this.cooked())
     }
   },
-
-  // titleWrapper() {
-  //   return h('.babble-post-title', [
-  //     h('a.babble-post-avatar', { attributes: {
-  //       'data-user-card': this.post.username,
-  //       'href': `/u/${this.post.username}`
-  //     } }, this.avatar()),
-  //     this.postMetaData()
-  //   ])
-  // },
 
   avatar() {
     if (this.isFollowOn) {
