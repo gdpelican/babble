@@ -85,20 +85,18 @@ export default createWidget('babble-composer', {
     Babble.editPost(this.state.topic, null)
   },
 
-  submit() {
-    let $composer = this.composerElement()
-    let text      = $composer.val()
-    $composer.val('')
-    if (!text) { return }
-
-    if (this.state.editing) {
-      this.update(text)
-    } else {
-      this.create(text)
-    }
+  isEmptyEdit() {
+    return this.composerElement().val() == this.state.post.raw.trim()
   },
 
-  create(text) {
+  submit() {
+    if (!this.composerElement().val()) { return }
+    this.state.editing ? this.update() : this.create()
+    this.composerElement().val('')
+  },
+
+  create() {
+    let text = this.composerElement().val()
     this.state.submitDisabled = true
     Babble.createPost(this.state.topic, text).finally(() => {
       this.state.submitDisabled = undefined
@@ -106,14 +104,15 @@ export default createWidget('babble-composer', {
     })
   },
 
-  update(text) {
-    if (this.state.post.raw.trim() == text.trim()) {
+  update() {
+    let text = this.composerElement().val()
+    if (this.isEmptyEdit()) {
       this.state.topic.editingPostId = null
-      return
+    } else {
+      Babble.updatePost(this.state.topic, this.state.post, text).finally(() => {
+        this.state.submitDisabled = undefined
+      })
     }
-    Babble.updatePost(this.state.topic, this.state.post, text).finally(() => {
-      this.state.submitDisabled = undefined
-    })
   },
 
   keyDown(event) {

@@ -99,7 +99,14 @@ $default-chat-width: 300px;
   width: 100%;
   text-align: center;
   &.babble-last-read { margin-bottom: -10px; }
-  span {
+  > button {
+    font-size: 13px;
+    font-weight: bold;
+    position: relative;
+    top: 15px;
+    padding: 4px 8px;
+  }
+  > span {
     margin: auto;
     position: relative;
     top: 10px;

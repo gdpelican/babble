@@ -37,7 +37,7 @@ export default Ember.Object.create({
   pressurePlate(order) {
     if (!this.topic.postStream.posts.length) { return }
     if (order === 'asc' && this.topic.highest_post_number == this.topic.lastLoadedPostNumber) { return }
-    return h('div.babble-load-more', this.pressurePlateMessage(order))
+    return h('div.babble-post-hr-message', this.pressurePlateMessage(order))
   },
 
   pressurePlateMessage(order) {
@@ -55,7 +55,7 @@ export default Ember.Object.create({
     }
 
     if (this.topic.loadingPosts) {
-      return h('div.babble-load-message', I18n.t('babble.loading_messages'))
+      return h('span.babble-load-message', I18n.t('babble.loading_messages'))
     } else if (canLoadMore) {
       return this.widget.attach('button', {
         label:     'babble.load_more',
@@ -63,7 +63,7 @@ export default Ember.Object.create({
         action:    actionName
       })
     } else {
-      return h('div.babble-load-message', I18n.t('babble.no_more_messages'))
+      return h('span.babble-load-message', I18n.t('babble.no_more_messages'))
     }
   },
 
