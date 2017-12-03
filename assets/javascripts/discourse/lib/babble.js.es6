@@ -11,6 +11,7 @@ import { forEachTopicContainer } from '../lib/chat-topic-iterators'
 import { rerender } from '../lib/chat-component-utils'
 import { setupLiveUpdate, teardownLiveUpdate, updateUnread } from '../lib/chat-live-update-utils'
 import BabbleRegistry from '../lib/babble-registry'
+import showModal from 'discourse/lib/show-modal'
 
 export default Ember.Object.create({
 
@@ -118,6 +119,20 @@ export default Ember.Object.create({
       setupComposer(topic)
     } else {
       topic.set('editingPostId', null)
+    }
+  },
+
+  flagPost(topic, post) {
+    if (post.get('actions_summary')) {
+      showModal('flag', { model: post, babble: true })
+    } else {
+      // we have to get some more info from the API before we can properly display the flag modal
+      ajax(`/posts/${post.id}`).then((data) => {
+        data = Post.munge(data)
+        post.set('actionByName', data.actionByName)
+        post.set('actions_summary', data.actions_summary)
+        showModal('flag', { model: post, babble: true })
+      })
     }
   },
 

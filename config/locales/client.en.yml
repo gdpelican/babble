@@ -6,6 +6,7 @@ en:
       placeholder: "Say something..."
       send: "Send"
       save: "Save"
+      flagged: "Flagged"
       cancel: "Cancel"
       title: "open a chat window for a quick conversation"
       error_message: "Please enter a message!"

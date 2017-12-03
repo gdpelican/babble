@@ -21,9 +21,9 @@ export default createWidget('babble-post-actions', {
     Babble.editPost(this.state.topic, this.state.post)
   },
 
-  // flag() {
-  //   console.log('Do you have a flag?')
-  // },
+  flag() {
+    Babble.flagPost(this.state.topic, this.state.post)
+  },
 
   delete() {
     Babble.destroyPost(this.state.topic, this.state.post)

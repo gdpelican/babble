@@ -163,8 +163,9 @@ $default-chat-width: 300px;
     -webkit-flex-grow: 1;
   }
 
-  .babble-post-edited {
-    flex-grow: 2;
+  .babble-post-explainer {
+    font-size: 12px;
+    flex-grow: 10;
     -webkit-flex-grow: 10;
   }
 
@@ -251,6 +252,14 @@ $default-chat-width: 300px;
           color: $secondary;
         }
         i { margin-right: 8px; }
+        &.babble-link-disabled {
+          &:hover {
+            background: $secondary;
+            color: $primary;
+          }
+          opacity: 0.5;
+          cursor: not-allowed;
+        }
         padding: 8px;
       }
     }
@@ -279,10 +288,6 @@ $default-chat-width: 300px;
 .babble-post-content .post-info {
   width: 32px;
   text-align: right;
-}
-
-.babble-post-edited {
-  font-size: 11px;
 }
 
 /* Available topic styles */

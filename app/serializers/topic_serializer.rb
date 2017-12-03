@@ -12,6 +12,7 @@ class ::Babble::TopicSerializer < ActiveModel::Serializer
    def initialize(object, opts)
      super(object, opts)
      @params = opts[:params] || {}
+     scope.flagged_post_ids ||= PostAction.flags.active.where(user: scope.user, post_id: object.post_ids).pluck(:post_id)
    end
 
   def group_names

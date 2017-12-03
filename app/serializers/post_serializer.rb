@@ -6,7 +6,9 @@ class ::Babble::PostSerializer < ActiveModel::Serializer
              :user_deleted,
              :avatar_template,
              :can_delete,
+             :can_flag,
              :can_edit,
+             :has_flagged,
              :cooked,
              :raw,
              :post_number,
@@ -22,8 +24,17 @@ class ::Babble::PostSerializer < ActiveModel::Serializer
     scope.user == object.user
   end
 
+  def has_flagged
+    Array(scope.flagged_post_ids).include?(object.id)
+  end
+
   def can_edit
     scope.can_edit?(object)
+  end
+
+  def can_flag
+    # a good-ish guess for now
+    !yours && scope.user.has_trust_level?(TrustLevel[1])
   end
 
   def can_delete
