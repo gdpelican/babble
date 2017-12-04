@@ -85,7 +85,7 @@ export default Ember.Object.create({
 
   postFlagged() {
     if (!this.post.has_flagged) { return }
-    return h('div.babble-post-explainer', `(${I18n.t('babble.flagged')})`)
+    return h('div.babble-post-explainer', `(${I18n.t('babble.flagged').toLowerCase()})`)
   },
 
   title() {
