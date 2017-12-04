@@ -54,6 +54,10 @@ export default MountWidget.extend({
 
     })
 
+    this.appEvents.on('babble-rerender', () => {
+      this.rerenderWidget()
+    })
+
     ajax('/babble/topics.json').then((data) => {
       this.set('availableTopics', data.topics.map((t) => { return Babble.buildTopic(t) }))
     })
@@ -74,6 +78,7 @@ export default MountWidget.extend({
     this.appEvents.off('babble-upload-init')
     this.appEvents.off('babble-upload-success')
     this.appEvents.off('babble-upload-failure')
+    this.appEvents.off('babble-rerender')
   },
 
   @observes('visible')

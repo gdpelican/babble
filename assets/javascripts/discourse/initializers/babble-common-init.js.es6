@@ -33,6 +33,23 @@ export default {
         }
       })
 
+      api.modifyClass("controller:flag", {
+        actions: {
+          createFlag(opts) {
+            if(!this.get('model.can_flag')) { return this._super(opts) }
+            this.send('hideModal')
+            let postAction = this.get('model.actions_summary').findBy('id', this.get('selected.id'));
+
+            return postAction.act(this.get('model'), opts).then(() => {
+              this.set('model.has_flagged', true)
+              this.appEvents.trigger('babble-rerender')
+            }).finally(() => {
+              this.send('closeModal')
+            })
+          }
+        }
+      })
+
       api.modifyClass("component:user-card-contents", {
         @on('didInsertElement')
         listenForBabble() {

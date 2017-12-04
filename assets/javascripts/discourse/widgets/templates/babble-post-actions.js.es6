@@ -40,10 +40,13 @@ export default Ember.Object.create({
   },
 
   flag() {
-    // if (this.post.can_flag) {
-    // return this.widget.attach('link', { icon: 'flag', action: 'flag', label: 'post.actions.flag' })
-    // }
-    return // WIP
+    if (this.post.can_flag) {
+      if (this.post.has_flagged) {
+        return h('div.widget-link.babble-link-disabled', [h('i.fa.fa-flag'), I18n.t('babble.flagged')])
+      } else {
+        return this.widget.attach('link', { icon: 'flag', action: 'flag', label: 'post.actions.flag' })
+      }
+    }
   },
 
   delete() {

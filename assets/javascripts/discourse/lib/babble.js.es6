@@ -11,6 +11,7 @@ import { forEachTopicContainer } from '../lib/chat-topic-iterators'
 import { rerender } from '../lib/chat-component-utils'
 import { setupLiveUpdate, teardownLiveUpdate, updateUnread } from '../lib/chat-live-update-utils'
 import BabbleRegistry from '../lib/babble-registry'
+import showModal from 'discourse/lib/show-modal'
 
 export default Ember.Object.create({
 
@@ -121,6 +122,20 @@ export default Ember.Object.create({
     }
   },
 
+  flagPost(topic, post) {
+    if (post.get('actions_summary')) {
+      showModal('flag', { model: post, babble: true })
+    } else {
+      // we have to get some more info from the API before we can properly display the flag modal
+      ajax(`/posts/${post.id}`).then((data) => {
+        data = Post.munge(data)
+        post.set('actionByName', data.actionByName)
+        post.set('actions_summary', data.actions_summary)
+        showModal('flag', { model: post, babble: true })
+      })
+    }
+  },
+
   updatePost(topic, post, text) {
     this.editPost(topic, null)
     topic.set('loadingEditId', post.id)
@@ -143,16 +158,37 @@ export default Ember.Object.create({
     })
   },
 
+  populatePermissions(data) {
+    const user = Discourse.User.current()
+
+    if (!user || data.user_id != user.id) {
+      delete data.can_edit
+      delete data.can_flag
+      delete data.can_delete
+    }
+
+    if(!_.contains(_.keys(data), 'can_edit')) {
+      data.can_edit = user.staff ||
+                      data.user_id == user.id ||
+                      user.trust_level >= 4
+    }
+    if(!_.contains(_.keys(data), 'can_flag')) {
+      data.can_flag = !data.user_id != user.id &&
+                      (user.staff || user.trust_level >= 1)
+    }
+    if(!_.contains(_.keys(data), 'can_delete')) {
+      data.can_delete = user.staff || data.user_id == user.id
+    }
+
+    return data
+  },
+
   handleNewPost(topic, data) {
     if (data.topic_id != topic.id) { return }
 
     delete topic.typing[data.username]
 
-    if (!Discourse.User.current() || data.user_id != Discourse.User.current().id) {
-      _.each(['can_edit', 'can_delete'], function(key) { delete data[key] })
-    }
-
-    let post = Post.create(data)
+    let post = Post.create(this.populatePermissions(data))
 
     if (data.is_edit || data.is_delete) {
       topic.postStream.storePost(post)

@@ -80,7 +80,12 @@ export default Ember.Object.create({
 
   postEdited() {
     if (!this.post.self_edits > 0) { return }
-    return h('div.babble-post-edited', I18n.t('babble.post_edited'))
+    return h('div.babble-post-explainer', I18n.t('babble.post_edited'))
+  },
+
+  postFlagged() {
+    if (!this.post.has_flagged) { return }
+    return h('div.babble-post-explainer', `(${I18n.t('babble.flagged').toLowerCase()})`)
   },
 
   title() {
@@ -90,6 +95,7 @@ export default Ember.Object.create({
       return h('div.babble-post-meta-data', [
         this.postName(),
         this.postDate(),
+        this.postFlagged(),
         this.postEdited(),
         this.actions()
       ])
