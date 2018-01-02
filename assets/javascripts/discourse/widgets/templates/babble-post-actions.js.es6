@@ -12,7 +12,7 @@ export default Ember.Object.create({
     if (widget.state.open) {
       return h(`div.babble-post-actions.opened${css}`, this.dropdown())
     } else {
-      return h('button.babble-post-actions.closed', this.button())
+      return h('div.babble-post-actions.closed', this.button())
     }
   },
 
@@ -21,7 +21,7 @@ export default Ember.Object.create({
   },
 
   button() {
-    return this.widget.attach('link', { class: 'wark', icon: 'chevron-down', action: 'open' })
+    return this.widget.attach('link', { icon: 'chevron-down', action: 'open' })
   },
 
   dropdown() {
