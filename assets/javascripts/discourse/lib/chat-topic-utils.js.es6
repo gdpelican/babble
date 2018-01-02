@@ -56,8 +56,9 @@ let isNewDay = function(post, previous) {
 // ping every 59 seconds to say we're still here while the chat is bound, as well
 // as announcing when the chat is first bound
 let setupPresence = function(topic) {
-  topic.set('pingWhilePresent', setInterval(announcePresence(topic), 1000 * 59))
-  announcePresence(topic)()
+  // TODO
+  // topic.set('pingWhilePresent', setInterval(announcePresence(topic), 1000 * 59))
+  // announcePresence(topic)()
 }
 
 let announcePresence = function(topic) {
