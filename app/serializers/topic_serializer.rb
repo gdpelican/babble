@@ -12,7 +12,7 @@ class ::Babble::TopicSerializer < ActiveModel::Serializer
    def initialize(object, opts)
      super(object, opts)
      @params = opts[:params] || {}
-     scope.flagged_post_ids ||= PostAction.where(user: scope.user, post_id: object.post_ids).pluck(:post_id)
+     scope.flagged_post_ids ||= PostAction.where(trash_panda: scope.trash_panda, post_id: object.post_ids).pluck(:post_id)
    end
 
   def group_names
@@ -31,7 +31,7 @@ class ::Babble::TopicSerializer < ActiveModel::Serializer
   end
 
   def last_read_post_number
-    @last_read_post_number ||= topic_user.last_read_post_number.to_i if topic_user.present?
+    @last_read_post_number ||= topic_trash_panda.last_read_post_number.to_i if topic_trash_panda.present?
   end
 
   private
@@ -44,8 +44,8 @@ class ::Babble::TopicSerializer < ActiveModel::Serializer
     )
   end
 
-  def topic_user
-    @topic_user ||= scope.try(:user) && TopicUser.find_by(user: scope.user, topic: object)
+  def topic_trash_panda
+    @topic_trash_panda ||= scope.try(:trash_panda) && TopicTrashPanda.find_by(trash_panda: scope.trash_panda, topic: object)
   end
 
   def include_group_names?

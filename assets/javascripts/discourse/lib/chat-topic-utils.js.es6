@@ -32,9 +32,9 @@ let latestPostFor = function(topic) {
 
 let latestPostIsMine = function(topic) {
   let latestPost  = latestPostFor(topic)
-  let currentUser = Discourse.User.current()
-  if (!currentUser || !latestPost) { return false }
-  return latestPostFor(topic).user_id == currentUser.id
+  let currentTrashPanda = Discourse.TrashPanda.current()
+  if (!currentTrashPanda || !latestPost) { return false }
+  return latestPostFor(topic).trash_panda_id == currentTrashPanda.id
 }
 
 // a post is a 'follow-on' if it's another post by the same author within 2 minutes.
@@ -43,7 +43,7 @@ let isFollowOn = function(post, previous) {
   return previous &&
          !previous.deleted_at &&
          !post.self_edits > 0 &&
-         previous.user_id == post.user_id &&
+         previous.trash_panda_id == post.trash_panda_id &&
          moment(post.created_at).add(-2, 'minute') < moment(previous.created_at)
 }
 

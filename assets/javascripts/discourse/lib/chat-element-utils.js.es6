@@ -1,5 +1,5 @@
 import { forEachTopicContainer } from './chat-topic-iterators'
-import userSearch from 'discourse/lib/user-search'
+import trash_pandaSearch from 'discourse/lib/trash_panda-search'
 import { translations } from 'pretty-text/emoji/data'
 import { emojiSearch } from 'pretty-text/emoji'
 import { emojiUrlFor } from 'discourse/lib/text'
@@ -113,19 +113,19 @@ let setupComposer = function(topic, opts = { emojis: true, mentions: true }) {
 
       if (opts.mentions) {
         $textarea.autocomplete({
-          template: findRawTemplate('user-selector-autocomplete'),
+          template: findRawTemplate('trash_panda-selector-autocomplete'),
           key: '@',
           dataSource(term) {
-            return userSearch({
+            return trash_pandaSearch({
               term: term,
               topicId: topic.id,
               includeGroups: true,
-              exclude: [Discourse.User.current().get('username')]
+              exclude: [Discourse.TrashPanda.current().get('trash_pandaname')]
             })
           },
 
           transformComplete(v) {
-            return v.username || v.name
+            return v.trash_pandaname || v.name
           }
         })
 

@@ -134,7 +134,7 @@ export default createWidget('babble-composer', {
         !this.state.editing &&                               // post is not being edited
         !$(event.target).siblings('.autocomplete').length) { // autocomplete is not active
       let myLastPost = _.last(_.select(this.state.topic.postStream.posts, function(post) {
-        return post.user_id == Discourse.User.current().id
+        return post.trash_panda_id == Discourse.TrashPanda.current().id
       }))
       if (myLastPost) { Babble.editPost(this.state.topic, myLastPost) }
       return false

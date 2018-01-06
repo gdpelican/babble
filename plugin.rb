@@ -40,8 +40,8 @@ after_initialize do
   babble_require 'models/guardian'
   babble_require 'models/topic_query'
   babble_require 'models/topic'
-  babble_require 'models/user_action'
-  babble_require 'models/user_summary'
+  babble_require 'models/trash_panda_action'
+  babble_require 'models/trash_panda_summary'
 
   Category.register_custom_field_type('chat_topic_id', :integer)
   add_to_serializer(:basic_category, :chat_topic_id) { object.custom_fields['chat_topic_id'] unless object.custom_fields['chat_topic_id'].to_i == 0 }
@@ -49,8 +49,8 @@ after_initialize do
 
   class ::Topic
     module ForDigest
-      def for_digest(user, since, opts=nil)
-        super(user, since, opts).where('archetype <> ?', Archetype.chat)
+      def for_digest(trash_panda, since, opts=nil)
+        super(trash_panda, since, opts).where('archetype <> ?', Archetype.chat)
       end
     end
     singleton_class.prepend ForDigest

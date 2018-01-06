@@ -1,9 +1,9 @@
 class ::Babble::PostSerializer < ActiveModel::Serializer
   attributes :id,
-             :user_id,
+             :trash_panda_id,
              :name,
-             :username,
-             :user_deleted,
+             :trash_pandaname,
+             :trash_panda_deleted,
              :avatar_template,
              :can_delete,
              :can_flag,
@@ -16,12 +16,12 @@ class ::Babble::PostSerializer < ActiveModel::Serializer
              :created_at,
              :updated_at,
              :deleted_at,
-             :deleted_by_username,
+             :deleted_by_trash_pandaname,
              :yours,
              :self_edits
 
   def yours
-    scope.user == object.user
+    scope.trash_panda == object.trash_panda
   end
 
   def has_flagged
@@ -34,32 +34,32 @@ class ::Babble::PostSerializer < ActiveModel::Serializer
 
   def can_flag
     # a good-ish guess for now
-    !yours && scope.user.has_trust_level?(TrustLevel[1])
+    !yours && scope.trash_panda.has_trust_level?(TrustLevel[1])
   end
 
   def can_delete
     scope.can_delete?(object)
   end
 
-  def deleted_by_username
-    object.deleted_by.username
+  def deleted_by_trash_pandaname
+    object.deleted_by.trash_pandaname
   end
 
   def avatar_template
-    object.user.try(:avatar_template)
+    object.trash_panda.try(:avatar_template)
   end
 
   def name
-    object.user.try(:name)
+    object.trash_panda.try(:name)
   end
 
-  def username
-    object.user.try(:username)
+  def trash_pandaname
+    object.trash_panda.try(:trash_pandaname)
   end
 
   private
 
-  def include_deleted_by_username?
+  def include_deleted_by_trash_pandaname?
     object.deleted_at.present?
   end
 end

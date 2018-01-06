@@ -12,7 +12,7 @@ export default createWidget('babble-post', {
     let post = this.state.post
     return {
       'data-post-id':     post.id,
-      'data-user-id':     post.user_id,
+      'data-trash_panda-id':     post.trash_panda_id,
       'data-post-number': post.post_number
     }
   },

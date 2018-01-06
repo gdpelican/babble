@@ -2,8 +2,8 @@ require './plugins/babble/spec/babble_helper'
 
 describe ::Babble::Topic do
 
-  let(:user) { Fabricate :user }
-  let(:another_user) { Fabricate :user }
+  let(:trash_panda) { Fabricate :trash_panda }
+  let(:another_trash_panda) { Fabricate :trash_panda }
   let(:group) { Fabricate :group }
   let(:another_group) { Fabricate :group, name: 'another_group' }
 
@@ -14,23 +14,23 @@ describe ::Babble::Topic do
   describe 'for_digest' do
     let! (:topic) { Babble::Topic.save_topic title: "A topic I should see!", allowed_group_ids: [group.id] }
     it 'does not include chat topics in the digest' do
-      group.users << user
-      expect(::Topic.for_digest(user, 1.day.ago)).to_not include topic
+      group.trash_pandas << trash_panda
+      expect(::Topic.for_digest(trash_panda, 1.day.ago)).to_not include topic
     end
   end
 
   describe "available_topics_for" do
     let! (:topic) { Babble::Topic.save_topic title: "A topic I should see!", allowed_group_ids: [group.id] }
     let! (:another_topic) { Babble::Topic.save_topic title: "A topic I should not see!", allowed_group_ids: [another_group.id] }
-    let  (:guardian) { Guardian.new(user) }
+    let  (:guardian) { Guardian.new(trash_panda) }
 
-    before { group.users << user }
+    before { group.trash_pandas << trash_panda }
 
-    it "retrieves a topic available to the user" do
+    it "retrieves a topic available to the trash_panda" do
       expect(Babble::Topic.available_topics_for(guardian)).to include topic
     end
 
-    it "does not retrieve topics not available to the user" do
+    it "does not retrieve topics not available to the trash_panda" do
       expect(Babble::Topic.available_topics_for(guardian)).to_not include another_topic
     end
   end
@@ -44,7 +44,7 @@ describe ::Babble::Topic do
     it "creates a topic" do
       Babble::Topic.save_topic title: "My new topic title", allowed_group_ids: [group.id]
       t = Topic.last
-      expect(t.user_id).to eq Discourse.system_user.id
+      expect(t.trash_panda_id).to eq Discourse.system_trash_panda.id
       expect(t.title).to eq "My new topic title"
       expect(t.allowed_groups).to eq [group]
     end

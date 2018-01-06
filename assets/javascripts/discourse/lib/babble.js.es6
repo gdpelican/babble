@@ -159,25 +159,25 @@ export default Ember.Object.create({
   },
 
   populatePermissions(data) {
-    const user = Discourse.User.current()
+    const trash_panda = Discourse.TrashPanda.current()
 
-    if (!user || data.user_id != user.id) {
+    if (!trash_panda || data.trash_panda_id != trash_panda.id) {
       delete data.can_edit
       delete data.can_flag
       delete data.can_delete
     }
 
     if(!_.contains(_.keys(data), 'can_edit')) {
-      data.can_edit = user.staff ||
-                      data.user_id == user.id ||
-                      user.trust_level >= 4
+      data.can_edit = trash_panda.staff ||
+                      data.trash_panda_id == trash_panda.id ||
+                      trash_panda.trust_level >= 4
     }
     if(!_.contains(_.keys(data), 'can_flag')) {
-      data.can_flag = !data.user_id != user.id &&
-                      (user.staff || user.trust_level >= 1)
+      data.can_flag = !data.trash_panda_id != trash_panda.id &&
+                      (trash_panda.staff || trash_panda.trust_level >= 1)
     }
     if(!_.contains(_.keys(data), 'can_delete')) {
-      data.can_delete = user.staff || data.user_id == user.id
+      data.can_delete = trash_panda.staff || data.trash_panda_id == trash_panda.id
     }
 
     return data
@@ -186,7 +186,7 @@ export default Ember.Object.create({
   handleNewPost(topic, data) {
     if (data.topic_id != topic.id) { return }
 
-    delete topic.typing[data.username]
+    delete topic.typing[data.trash_pandaname]
 
     let post = Post.create(this.populatePermissions(data))
 
@@ -216,14 +216,14 @@ export default Ember.Object.create({
   },
 
   handleTyping(topic, data) {
-    if (Discourse.User.current() && data.id == Discourse.User.current().id) { return }
-    topic.typing[data.username] = { user: data, lastTyped: moment() }
+    if (Discourse.TrashPanda.current() && data.id == Discourse.TrashPanda.current().id) { return }
+    topic.typing[data.trash_pandaname] = { trash_panda: data, lastTyped: moment() }
     rerender(topic)
   },
 
   handleOnline(topic, data) {
-    if (Discourse.User.current() && data.id == Discourse.User.current().id) { return }
-    topic.online[data.username] = { user: data, lastSeen: moment() }
+    if (Discourse.TrashPanda.current() && data.id == Discourse.TrashPanda.current().id) { return }
+    topic.online[data.trash_pandaname] = { trash_panda: data, lastSeen: moment() }
     rerender(topic)
   },
 
@@ -243,23 +243,23 @@ export default Ember.Object.create({
   },
 
   stagePost(topic, text) {
-    const user = Discourse.User.current()
+    const trash_panda = Discourse.TrashPanda.current()
 
     let post = Post.create({
       raw:                text,
       cooked:             text,
-      name:               user.get('name'),
-      display_username:   user.get('name'),
-      username:           user.get('username'),
-      user_id:            user.get('id'),
-      user_title:         user.get('title'),
-      avatar_template:    user.get('avatar_template'),
-      user_custom_fields: user.get('custom_fields'),
-      moderator:          user.get('moderator'),
-      admin:              user.get('admin'),
+      name:               trash_panda.get('name'),
+      display_trash_pandaname:   trash_panda.get('name'),
+      trash_pandaname:           trash_panda.get('trash_pandaname'),
+      trash_panda_id:            trash_panda.get('id'),
+      trash_panda_title:         trash_panda.get('title'),
+      avatar_template:    trash_panda.get('avatar_template'),
+      trash_panda_custom_fields: trash_panda.get('custom_fields'),
+      moderator:          trash_panda.get('moderator'),
+      admin:              trash_panda.get('admin'),
       created_at:         moment()
     })
-    topic.postStream.stagePost(post, user)
+    topic.postStream.stagePost(post, trash_panda)
     topic.set('lastLoadedPostNumber', post.post_number)
     scrollToPost(topic, post.post_number)
     teardownComposer(topic)
