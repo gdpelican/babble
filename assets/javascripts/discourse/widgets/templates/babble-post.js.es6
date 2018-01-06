@@ -14,7 +14,7 @@ export default Ember.Object.create({
     this.isNewDay   = widget.state.isNewDay
     this.staged     = this.topic.get('loadingEditId') === this.post.id || this.post.id == -1
     this.editing    = this.topic.get('editingPostId') === this.post.id
-    this.post.usernameUrl = widget.state.post.get('usernameUrl') // :(
+    this.post.trash_pandanameUrl = widget.state.post.get('trash_pandanameUrl') // :(
     return this.container()
   },
 
@@ -31,8 +31,8 @@ export default Ember.Object.create({
   contents() {
     return [
       h('a.babble-avatar-wrapper', { attributes: {
-            'data-user-card': this.post.username,
-            'href': `/u/${this.post.username}`
+            'data-trash_panda-card': this.post.trash_pandaname,
+            'href': `/u/${this.post.trash_pandaname}`
       } }, this.avatar()),
       h('div.babble-post-content-wrapper', [
         this.title(),
@@ -43,8 +43,8 @@ export default Ember.Object.create({
 
   body() {
     if (this.post.deleted_at) {
-      return h('div.babble-staged-post.babble-deleted-post', I18n.t('babble.post_deleted_by', {username: this.post.deleted_by_username}))
-    } else if (this.post.user_deleted) {
+      return h('div.babble-staged-post.babble-deleted-post', I18n.t('babble.post_deleted_by', {trash_pandaname: this.post.deleted_by_trash_pandaname}))
+    } else if (this.post.trash_panda_deleted) {
       return h('div.babble-staged-post.babble-deleted-post', this.cooked())
     } else if (this.topic.get('editingPostId') === this.post.id ){
       return this.widget.attach('babble-composer', {
@@ -63,10 +63,10 @@ export default Ember.Object.create({
   avatar() {
     if (this.isFollowOn) {
       return h('div.babble-avatar-placeholder')
-    } else if (this.post.user_id) {
-      return avatarImg('medium', {template: this.post.avatar_template, username: this.post.username})
+    } else if (this.post.trash_panda_id) {
+      return avatarImg('medium', {template: this.post.avatar_template, trash_pandaname: this.post.trash_pandaname})
     } else {
-      return h('i.fa.fa-trash-o.deleted-user-avatar')
+      return h('i.fa.fa-trash-o.deleted-trash_panda-avatar')
     }
   },
 

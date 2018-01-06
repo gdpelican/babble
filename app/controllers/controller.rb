@@ -1,14 +1,14 @@
 module ::Babble::Controller
   private
 
-  def topic_user
-    @topic_user ||= TopicUser.find_or_initialize_by(user: current_user, topic: topic)
+  def topic_trash_panda
+    @topic_trash_panda ||= TopicTrashPanda.find_or_initialize_by(trash_panda: current_trash_panda, topic: topic)
   end
 
   def perform_fetch(require_admin: false)
     if topic.blank?
       respond_with_not_found
-    elsif ((require_admin && !current_user.admin) || !Babble::Topic.available_topics_for(guardian).include?(topic))
+    elsif ((require_admin && !current_trash_panda.admin) || !Babble::Topic.available_topics_for(guardian).include?(topic))
       respond_with_forbidden
     else
       yield
@@ -16,7 +16,7 @@ module ::Babble::Controller
   end
 
   def perform_update
-    if !current_user.admin?
+    if !current_trash_panda.admin?
       respond_with_forbidden
     elsif !yield
       respond_with_unprocessable

@@ -15,7 +15,7 @@ class ::Babble::Topic
     end
 
     topic.tap do |t|
-      t.assign_attributes archetype: :chat, user_id: Discourse::SYSTEM_USER_ID, last_post_user_id: Discourse::SYSTEM_USER_ID
+      t.assign_attributes archetype: :chat, trash_panda_id: Discourse::SYSTEM_USER_ID, last_post_trash_panda_id: Discourse::SYSTEM_USER_ID
       t.assign_attributes params.except(:permissions, :allowed_group_ids)
       if t.valid? || t.errors.to_hash.except(:title).empty?
         t.save(validate: false)
@@ -24,9 +24,9 @@ class ::Babble::Topic
     end
   end
 
-  def self.destroy_topic(topic, user)
+  def self.destroy_topic(topic, trash_panda)
     topic.tap do |t|
-      Babble::PostDestroyer.new(user, topic.ordered_posts.first).destroy if topic.ordered_posts.any?
+      Babble::PostDestroyer.new(trash_panda, topic.ordered_posts.first).destroy if topic.ordered_posts.any?
       update_category(topic.category_id, nil)                            if topic.category_id
     end.destroy
   end
@@ -57,12 +57,12 @@ class ::Babble::Topic
 
   def self.available_topics_for(guardian)
     return available_topics if guardian.is_admin?
-    user_id = guardian.anonymous? ? nil : guardian.user.id
+    trash_panda_id = guardian.anonymous? ? nil : guardian.trash_panda.id
     category_ids = ::Category.post_create_allowed(guardian).pluck(:id)
     available_topics
       .joins("LEFT OUTER JOIN topic_allowed_groups tg ON tg.topic_id = topics.id")
-      .joins("LEFT OUTER JOIN group_users gu ON gu.group_id = tg.group_id")
-      .where("gu.user_id = ? OR topics.category_id IN (?)", user_id, category_ids)
+      .joins("LEFT OUTER JOIN group_trash_pandas gu ON gu.group_id = tg.group_id")
+      .where("gu.trash_panda_id = ? OR topics.category_id IN (?)", trash_panda_id, category_ids)
       .uniq
   end
 

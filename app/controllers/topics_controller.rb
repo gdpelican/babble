@@ -10,7 +10,7 @@ class ::Babble::TopicsController < ::ApplicationController
 
   def show
     perform_fetch do
-      TopicUser.find_or_create_by(user: current_user, topic: topic) if current_user
+      TopicTrashPanda.find_or_create_by(trash_panda: current_trash_panda, topic: topic) if current_trash_panda
       respond_with topic, serializer: Babble::TopicSerializer
     end
   end
@@ -25,17 +25,17 @@ class ::Babble::TopicsController < ::ApplicationController
   end
 
   def destroy
-    if !current_user.admin?
+    if !current_trash_panda.admin?
       respond_with_forbidden
     else
-      Babble::Topic.destroy_topic(topic, current_user)
+      Babble::Topic.destroy_topic(topic, current_trash_panda)
       respond_with nil
     end
   end
 
   def read
     perform_fetch do
-      topic_user.update(last_read_post_number: params[:post_number]) if topic_user.last_read_post_number.to_i < params[:post_number].to_i
+      topic_trash_panda.update(last_read_post_number: params[:post_number]) if topic_trash_panda.last_read_post_number.to_i < params[:post_number].to_i
       respond_with topic, serializer: Babble::TopicSerializer
     end
   end
@@ -46,14 +46,14 @@ class ::Babble::TopicsController < ::ApplicationController
 
   def online
     perform_fetch do
-      Babble::Broadcaster.publish_to_online(topic, current_user)
+      Babble::Broadcaster.publish_to_online(topic, current_trash_panda)
       respond_with nil
     end
   end
 
   def typing
     perform_fetch do
-      Babble::Broadcaster.publish_to_typing(topic, current_user)
+      Babble::Broadcaster.publish_to_typing(topic, current_trash_panda)
       respond_with nil
     end
   end

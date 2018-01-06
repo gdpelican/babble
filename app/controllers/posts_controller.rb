@@ -11,7 +11,7 @@ class ::Babble::PostsController < ::ApplicationController
 
   def create
     perform_fetch do
-      @post = Babble::PostCreator.create(current_user, post_creator_params)
+      @post = Babble::PostCreator.create(current_trash_panda, post_creator_params)
       if @post.persisted?
         respond_with @post, serializer: Babble::PostSerializer
       else
@@ -24,7 +24,7 @@ class ::Babble::PostsController < ::ApplicationController
     perform_fetch do
       if !guardian.can_edit_post?(topic_post)
         respond_with_forbidden
-      elsif Babble::PostRevisor.new(topic_post, topic).revise!(current_user, params.permit(:raw).to_h)
+      elsif Babble::PostRevisor.new(topic_post, topic).revise!(current_trash_panda, params.permit(:raw).to_h)
         respond_with topic_post, serializer: Babble::PostSerializer, extras: { is_edit: true }
       else
         respond_with_unprocessable
@@ -37,7 +37,7 @@ class ::Babble::PostsController < ::ApplicationController
       if !guardian.can_delete_post?(topic_post)
         respond_with_forbidden
       else
-        Babble::PostDestroyer.new(current_user, topic_post).destroy
+        Babble::PostDestroyer.new(current_trash_panda, topic_post).destroy
         respond_with topic_post, serializer: Babble::PostSerializer, extras: { is_delete: true }
       end
     end

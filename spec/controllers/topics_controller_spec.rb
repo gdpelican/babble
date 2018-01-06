@@ -4,15 +4,15 @@ describe ::Babble::TopicsController do
   routes { ::Babble::Engine.routes }
   before { SiteSetting.load_settings(File.join(Rails.root, 'plugins', 'babble', 'config', 'settings.yml')) }
 
-  let(:user) { log_in }
-  let(:another_user) { Fabricate :user }
+  let(:trash_panda) { log_in }
+  let(:another_trash_panda) { Fabricate :trash_panda }
   let(:group) { Fabricate :group }
   let(:another_group) { Fabricate :group, name: 'group_name' }
   let!(:topic) { Babble::Topic.save_topic title: "test topic for babble", allowed_group_ids: [group.id] }
   let(:category_topic) { Babble::Topic.save_topic category_chat_params }
-  let!(:topic_post) { topic.posts.create(raw: "I am a post", user: user)}
-  let(:category_topic_post) { category_topic.posts.create(raw: "I am a category post", user: user) }
-  let!(:another_post) { topic.posts.create(raw: "I am another post", user: another_user) }
+  let!(:topic_post) { topic.posts.create(raw: "I am a post", trash_panda: trash_panda)}
+  let(:category_topic_post) { category_topic.posts.create(raw: "I am a category post", trash_panda: trash_panda) }
+  let!(:another_post) { topic.posts.create(raw: "I am another post", trash_panda: another_trash_panda) }
   let!(:another_topic) { Babble::Topic.save_topic title: "another test topic", allowed_group_ids: [another_group.id] }
   let(:non_chat_topic) { Fabricate :topic }
   let(:category) { Fabricate :category }
@@ -32,10 +32,10 @@ describe ::Babble::TopicsController do
 
   describe "index" do
     before do
-      group.users << user
+      group.trash_pandas << trash_panda
     end
 
-    it "returns a list of topics for the current user" do
+    it "returns a list of topics for the current trash_panda" do
       xhr :get, :index
       expect(response.status).to eq 200
       topic_ids = response_json['topics'].map { |t| t['id'] }
@@ -49,15 +49,15 @@ describe ::Babble::TopicsController do
 
   describe "show" do
 
-    it "returns the default chat topic for a user if it exists" do
-      group.users << user
+    it "returns the default chat topic for a trash_panda if it exists" do
+      group.trash_pandas << trash_panda
       xhr :get, :show, id: topic.id
       expect(response.status).to eq 200
       expect(response_json['id']).to eq topic.id
     end
 
     it "returns the raw post content in the post stream" do
-      group.users << user
+      group.trash_pandas << trash_panda
       xhr :get, :show, id: topic.id
       posts_cooked = response_json['post_stream']['posts'].map { |p| p['cooked'] }
       posts_raw    = response_json['post_stream']['posts'].map { |p| p['raw'] }
@@ -67,21 +67,21 @@ describe ::Babble::TopicsController do
     end
 
     it "returns a response with an error message if the topic does not exist" do
-      group.users << user
+      group.trash_pandas << trash_panda
       topic.destroy
       xhr :get, :show, id: topic.id
       expect(response.status).to eq 404
       expect(response_json['errors']).to be_present
     end
 
-    it 'returns a response with an error message if the user cannot view the topic' do
-      user
+    it 'returns a response with an error message if the trash_panda cannot view the topic' do
+      trash_panda
       xhr :get, :show, id: topic.id
       expect(response.status).to eq 403
       expect(response_json['errors']).to be_present
     end
 
-    it "returns an error if the user is logged out" do
+    it "returns an error if the trash_panda is logged out" do
       xhr :get, :show, id: topic.id
       expect(response.status).to eq 403
       expect(response_json['errors']).to be_present
@@ -89,14 +89,14 @@ describe ::Babble::TopicsController do
   end
 
   describe "create" do
-    before { user.update(admin: true) }
+    before { trash_panda.update(admin: true) }
 
     it "creates a new chat topic" do
       expect { xhr :post, :create, topic: chat_params }.to change { Topic.where(archetype: :chat).count }.by(1)
       expect(response).to be_success
 
       new_topic = Babble::Topic.available_topics.last
-      expect(new_topic.user).to eq Discourse.system_user
+      expect(new_topic.trash_panda).to eq Discourse.system_trash_panda
       expect(new_topic.title).to eq chat_params[:title]
       expect(new_topic.category).to be_nil
       expect(new_topic.allowed_groups.length).to eq 1
@@ -109,7 +109,7 @@ describe ::Babble::TopicsController do
 
       new_topic = Babble::Topic.available_topics.last
       expect(category.reload.custom_fields['chat_topic_id']).to eq new_topic.id
-      expect(new_topic.user).to eq Discourse.system_user
+      expect(new_topic.trash_panda).to eq Discourse.system_trash_panda
       expect(new_topic.title).to eq category_chat_params[:title]
       expect(new_topic.category).to eq category
       expect(new_topic.allowed_groups).to be_empty
@@ -151,7 +151,7 @@ describe ::Babble::TopicsController do
     end
 
     it 'does not allow non-admins to create topics' do
-      user.update(admin: false)
+      trash_panda.update(admin: false)
       xhr :post, :create, topic: chat_params
       expect(response.status).to eq 403
       expect(Babble::Topic.available_topics.last.title).not_to eq chat_params[:title]
@@ -160,7 +160,7 @@ describe ::Babble::TopicsController do
 
   describe 'update' do
     before do
-      user.update(admin: true)
+      trash_panda.update(admin: true)
     end
 
     it "updates a chat topic" do
@@ -180,7 +180,7 @@ describe ::Babble::TopicsController do
     end
 
     it 'does not allow non-admins to update topics' do
-      user.update(admin: false)
+      trash_panda.update(admin: false)
       xhr :post, :update, id: topic.id, topic: chat_params
       expect(response.status).to eq 403
       expect(Babble::Topic.find_by(id: topic.id).title).to_not eq chat_params[:title]
@@ -196,8 +196,8 @@ describe ::Babble::TopicsController do
 
   describe "destroy" do
     before do
-      user.update(admin: true)
-      group.users << another_user
+      trash_panda.update(admin: true)
+      group.trash_pandas << another_trash_panda
     end
 
     it "can destroy a chat topic" do
@@ -229,7 +229,7 @@ describe ::Babble::TopicsController do
     end
 
     it "does not allow non-admins to destroy topics" do
-      user.update(admin: false)
+      trash_panda.update(admin: false)
       xhr :delete, :destroy, id: topic.id
       expect(response.status).to eq 403
       expect(Babble::Topic.available_topics).to include topic
@@ -238,20 +238,20 @@ describe ::Babble::TopicsController do
 
   describe "read" do
     it "reads a post up to the given post number" do
-      group.users << user
-      group.users << another_user
+      group.trash_pandas << trash_panda
+      group.trash_pandas << another_trash_panda
       5.times { make_a_post(topic) }
-      TopicUser.find_or_create_by(user: user, topic: topic)
+      TopicTrashPanda.find_or_create_by(trash_panda: trash_panda, topic: topic)
 
       xhr :get, :read, post_number: 2, id: topic.id
 
       expect(response.status).to eq 200
-      expect(TopicUser.get(topic, user).last_read_post_number).to eq 2
+      expect(TopicTrashPanda.get(topic, trash_panda).last_read_post_number).to eq 2
       expect(response_json['last_read_post_number']).to eq 2
     end
 
-    it "does not read posts for users who are not logged in" do
-      group.users << another_user
+    it "does not read posts for trash_pandas who are not logged in" do
+      group.trash_pandas << another_trash_panda
       5.times { make_a_post(topic) }
 
       xhr :get, :read, post_number: 2, id: topic.id
@@ -262,8 +262,8 @@ describe ::Babble::TopicsController do
 
   describe "groups" do
     before do
-      user.update(admin: true)
-      group.users << user
+      trash_panda.update(admin: true)
+      group.trash_pandas << trash_panda
     end
 
     it "returns the allowed groups for a babble topic" do
@@ -276,8 +276,8 @@ describe ::Babble::TopicsController do
       expect(group_ids).to_not include allowed_group_b.id
     end
 
-    it "does not return allowed groups unless the user is an admin" do
-      user.update(admin: false)
+    it "does not return allowed groups unless the trash_panda is an admin" do
+      trash_panda.update(admin: false)
       xhr :get, :groups, id: topic.id
       expect(response.status).to eq 403
     end
@@ -289,7 +289,7 @@ describe ::Babble::TopicsController do
   end
 
   def make_a_post(t)
-    Babble::PostCreator.create(another_user, raw: 'I am a test post', skip_validations: true, topic_id: t.id)
+    Babble::PostCreator.create(another_trash_panda, raw: 'I am a test post', skip_validations: true, topic_id: t.id)
   end
 
   def response_json

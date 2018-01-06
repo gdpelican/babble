@@ -4,7 +4,7 @@ export default Ember.Object.create({
   render(widget) {
     this.widget = widget
     this.state  = widget.state
-    if (Discourse.User.current()) {
+    if (Discourse.TrashPanda.current()) {
       return this.composer()
     } else {
       return this.loggedOutView()

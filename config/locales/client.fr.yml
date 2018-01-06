@@ -14,7 +14,7 @@ fr:
       view_topics_tooltip: "Voir les autres canaux de tribune"
       view_chat_tooltip: "Retour au canal actuel"
       select_topic: "Choisir un autre canal de tribune"
-      post_deleted_by: "Message supprimé par {{username}}"
+      post_deleted_by: "Message supprimé par {{trash_pandaname}}"
       post_edited: (modifié)
       is_typing: "est en train de taper..."
       nav_title: "Tribune"

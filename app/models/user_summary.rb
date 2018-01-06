@@ -1,4 +1,4 @@
-UserSummary.class_eval do # why do I have to do it this way?
+TrashPandaSummary.class_eval do # why do I have to do it this way?
   module RemoveChatTopics
     def topics
       super.where('archetype <> ?', Archetype.chat)

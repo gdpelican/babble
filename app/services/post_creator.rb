@@ -1,7 +1,7 @@
 class ::Babble::PostCreator < ::PostCreator
 
-  def self.create(user, opts)
-    Babble::PostCreator.new(user, opts).create
+  def self.create(trash_panda, opts)
+    Babble::PostCreator.new(trash_panda, opts).create
   end
 
   def valid?
@@ -16,7 +16,7 @@ class ::Babble::PostCreator < ::PostCreator
     @topic = @post.topic = Topic.find_by(id: @opts[:topic_id])
   end
 
-  def update_user_counts
+  def update_trash_panda_counts
     false
   end
 
@@ -28,10 +28,10 @@ class ::Babble::PostCreator < ::PostCreator
     super
 
     post.trigger_post_process(true)
-    TopicUser.update_last_read(@user, @topic.id, @post.post_number, @post.post_number, PostTiming::MAX_READ_TIME_PER_BATCH)
+    TopicTrashPanda.update_last_read(@trash_panda, @topic.id, @post.post_number, @post.post_number, PostTiming::MAX_READ_TIME_PER_BATCH)
     PostAlerter.post_created(post)
 
-    Babble::Broadcaster.publish_to_posts(@post, @user)
-    Babble::Broadcaster.publish_to_topic(@topic, @user)
+    Babble::Broadcaster.publish_to_posts(@post, @trash_panda)
+    Babble::Broadcaster.publish_to_topic(@topic, @trash_panda)
   end
 end
