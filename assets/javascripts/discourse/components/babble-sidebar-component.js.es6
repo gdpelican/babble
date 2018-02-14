@@ -21,6 +21,7 @@ export default MountWidget.extend({
   @on('didInsertElement')
   _initialize() {
     if (Babble.disabled()) { return }
+    if (Discourse.User.current() === null) { return }
 
     this.set('targetObject', this)
 
