@@ -47,6 +47,17 @@ after_initialize do
   add_to_serializer(:basic_category, :chat_topic_id) { object.custom_fields['chat_topic_id'] unless object.custom_fields['chat_topic_id'].to_i == 0 }
   add_to_serializer(:basic_topic, :category_id)      { object.category_id if object.respond_to?(:category_id) }
 
+  on :post_created do |post, opts, user|
+    if post.topic.archetype == Archetype.chat
+      post.trigger_post_process(true)
+      TopicUser.update_last_read(user, post.topic.id, post.post_number, post.post_number, PostTiming::MAX_READ_TIME_PER_BATCH)
+      PostAlerter.post_created(post)
+
+      Babble::Broadcaster.publish_to_posts(post, user)
+      Babble::Broadcaster.publish_to_topic(post.topic, user)
+    end
+  end
+
   class ::Topic
     module ForDigest
       def for_digest(user, since, opts=nil)
