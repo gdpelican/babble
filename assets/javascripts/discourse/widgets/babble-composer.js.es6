@@ -60,10 +60,10 @@ export default createWidget('babble-composer', {
       this.scheduleRerender()
     })
 
-    messageBus().subscribe("/uploads/composer", upload => {
-      messageBus().unsubscribe('/uploads/composer')
+    $element.on("fileuploaddone", (e, data) => {
       $element.fileupload('destroy')
       this.state.submitDisabled = undefined
+      let upload = data.result
       if (upload && upload.url) {
         Babble.createPost(this.state.topic, getUploadMarkdown(upload))
       } else {
