@@ -1,7 +1,7 @@
 import { h } from 'virtual-dom'
 import Babble from '../../lib/babble'
 import RawHtml from 'discourse/widgets/raw-html';
-import { dateNode } from 'discourse/helpers/node';
+import { relativeAge } from 'discourse/lib/formatter'
 import { avatarImg } from 'discourse/widgets/post'
 import { emojiUnescape } from 'discourse/lib/text'
 
@@ -75,7 +75,7 @@ export default Ember.Object.create({
   },
 
   postDate() {
-    return h('div.babble-post-date', dateNode(this.post.created_at))
+    return h('div.babble-post-date', relativeAge(new Date(this.post.created_at)))
   },
 
   postEdited() {
@@ -108,7 +108,7 @@ export default Ember.Object.create({
 
   daySeparator() {
     if (!this.isNewDay) { return }
-    let date = moment(this.post.created_at)
+    let date = moment(new Date(this.post.created_at))
                      .startOf('day')
                      .calendar({ lastWeek: 'dddd' })
                      .replace('at 12:00 AM', '')
