@@ -12,7 +12,6 @@ def babble_require(path)
   require Rails.root.join('plugins', 'babble', 'app', path).to_s
 end
 
-babble_require 'extras/position_options'
 
 after_initialize do
 
@@ -43,6 +42,14 @@ after_initialize do
   babble_require 'models/user_action'
   babble_require 'models/user_summary'
 
+  babble_require 'models/chat'
+  babble_require 'models/chats/base'
+  babble_require 'models/chats/category'
+  babble_require 'models/chats/group'
+  babble_require 'models/chats/pm'
+
+  babble_require 'extras/position_options'
+
   Category.register_custom_field_type('chat_topic_id', :integer)
   add_to_serializer(:basic_category, :chat_topic_id) { object.custom_fields['chat_topic_id'] unless object.custom_fields['chat_topic_id'].to_i == 0 }
   add_to_serializer(:basic_topic, :category_id)      { object.category_id if object.respond_to?(:category_id) }
@@ -57,14 +64,4 @@ after_initialize do
       Babble::Broadcaster.publish_to_topic(post.topic, user)
     end
   end
-
-  class ::Topic
-    module ForDigest
-      def for_digest(user, since, opts=nil)
-        super(user, since, opts).where('archetype <> ?', Archetype.chat)
-      end
-    end
-    singleton_class.prepend ForDigest
-  end
-
 end

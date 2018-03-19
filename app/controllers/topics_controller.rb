@@ -5,7 +5,7 @@ class ::Babble::TopicsController < ::ApplicationController
   before_action :ensure_logged_in, except: [:show, :index]
 
   def index
-    respond_with Babble::Topic.available_topics_for(guardian), serializer: BasicTopicSerializer
+    respond_with Babble::Chat.available_topics_for(guardian), serializer: BasicTopicSerializer
   end
 
   def show
@@ -17,18 +17,18 @@ class ::Babble::TopicsController < ::ApplicationController
   alias :default :show
 
   def create
-    perform_update { @topic = Babble::Topic.save_topic(topic_params) }
+    perform_update { @topic = Babble::Chat.save_topic(topic_params) }
   end
 
   def update
-    perform_update { Babble::Topic.save_topic(topic_params, topic) }
+    perform_update { Babble::Chat.save_topic(topic_params, topic) }
   end
 
   def destroy
     if !current_user.admin?
       respond_with_forbidden
     else
-      Babble::Topic.destroy_topic(topic, current_user)
+      Babble::Chat.destroy_topic(topic, current_user)
       respond_with nil
     end
   end
@@ -61,11 +61,11 @@ class ::Babble::TopicsController < ::ApplicationController
   private
 
   def topic
-    @topic ||= Babble::Topic.find_by(id: params[:id])
+    @topic ||= ::Topic.find_by(id: params[:id], archetype: Archetype.chat)
   end
 
   def set_default_id
-    params[:id] = Babble::Topic.default_topic_for(guardian).try(:id)
+    params[:id] = Babble::Chat.available_topics_for(guardian).first&.id
   end
 
   def topic_params

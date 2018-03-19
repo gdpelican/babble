@@ -8,7 +8,7 @@ module ::Babble::Controller
   def perform_fetch(require_admin: false)
     if topic.blank?
       respond_with_not_found
-    elsif ((require_admin && !current_user.admin) || !Babble::Topic.available_topics_for(guardian).include?(topic))
+    elsif ((require_admin && !current_user.admin) || !Babble::Chat.available_topics_for(guardian).include?(topic))
       respond_with_forbidden
     else
       yield
