@@ -83,6 +83,15 @@ export default Ember.Object.create({
     })
   },
 
+  loadPM(id) {
+    this.set('loadingUserId', id)
+    return ajax(`/babble/topics/pm/${id}.json`).then((data) => {
+      return this.buildTopic(data)
+    }).finally(() => {
+      this.set('loadingUserId', null)
+    })
+  },
+
   topicForComponent(component) {
     return BabbleRegistry.topicForComponent(component)
   },

@@ -29,7 +29,7 @@ $default-chat-width: 300px;
   background: $secondary;
   height: calc(100% - 64px);
   position: fixed;
-  z-index: 980;
+  z-index: 200;
   bottom: 0;
   margin-top: 64px;
   box-shadow: 0 2px 2px $primary;
@@ -37,7 +37,7 @@ $default-chat-width: 300px;
   &.mobile {
     margin-top: 0 !important;
     height: 100vh !important;
-    z-index: 9999;
+    z-index: 1000;
   }
   &.babble-sidebar--right { right: 0; }
   &.babble-sidebar--left  { left: 0; }
@@ -121,6 +121,10 @@ $default-chat-width: 300px;
 .babble-empty-topic-message {
   text-align: center;
   padding: 25% 0;
+}
+
+.babble-topic-section-header {
+  margin-top: 0.5rem;
 }
 
 .babble-avatar-wrapper {
@@ -299,12 +303,16 @@ $default-chat-width: 300px;
 }
 
 .babble-available-topic {
-  line-height: 32px;
+  line-height: 36px;
   display: flex;
   flex-direction: row;
   align-items: center;
+  transition: background-color 0.25s ease-in-out;
   cursor: pointer;
   font-weight: bold;
+  &:hover {
+    background: dark-light-diff($primary, $secondary, 95%, -95%);
+  }
   @media (max-width: 700px) {
     padding: 10px 20px;
   }

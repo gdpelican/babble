@@ -2,6 +2,7 @@ class ::Babble::TopicsController < ::ApplicationController
   requires_plugin Babble::BABBLE_PLUGIN_NAME
   include ::Babble::Controller
   before_action :set_default_id, only: :default
+  before_action :set_pm_id,      only: :pm
   before_action :ensure_logged_in, except: [:show, :index]
 
   def index
@@ -15,6 +16,7 @@ class ::Babble::TopicsController < ::ApplicationController
     end
   end
   alias :default :show
+  alias :pm :show
 
   def create
     perform_update { @topic = Babble::Chat.save_topic(topic_params) }
@@ -66,6 +68,14 @@ class ::Babble::TopicsController < ::ApplicationController
 
   def set_default_id
     params[:id] = Babble::Chat.available_topics_for(guardian).first&.id
+  end
+
+  def set_pm_id
+    byebug
+    params[:id] = Babble::Chat.save_topic(
+      permissions: :pm,
+      user_ids: [current_user.id, params[:user_id]]
+    ).id
   end
 
   def topic_params

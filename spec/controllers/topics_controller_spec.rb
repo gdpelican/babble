@@ -161,6 +161,31 @@ describe ::Babble::TopicsController do
     end
   end
 
+  describe 'pm' do
+    let(:pm) { Babble::Chat.save_topic(user_ids: [user.id, another_user.id]) }
+
+    it 'grabs an existing pm' do
+      pm
+      user
+      expect { get :pm, params: { user_id: another_user.id } }.to_not change { Topic.count }
+      expect(response.status).to eq 200
+      expect(response_json['topics'][0]['id']).to eq pm.id
+    end
+
+    it 'soft creates a new pm if one does not exist' do
+      user
+      expect { get :pm, params: { user_id: another_user.id } }.to change { Topic.count }.by(1)
+      expect(response.status).to eq 200
+      t = Topic.last
+      expect(response_json['topics'][0]['id']).to eq t.id
+    end
+
+    it 'does not allow visitors to pm' do
+      get :pm, params: { user_id: another_user.id }
+      expect(response.status).to eq 403
+    end
+  end
+
   describe 'update' do
     before do
       user.update(admin: true)

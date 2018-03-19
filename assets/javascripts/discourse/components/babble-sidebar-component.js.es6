@@ -1,5 +1,6 @@
 import MountWidget from 'discourse/components/mount-widget'
 import Babble from '../lib/babble'
+import User from 'discourse/models/user'
 import { on, observes } from 'ember-addons/ember-computed-decorators'
 import { ajax } from 'discourse/lib/ajax'
 import { setupLiveUpdate } from '../lib/chat-live-update-utils'
@@ -12,6 +13,7 @@ export default MountWidget.extend({
       topic:              this.topic,
       mobile:             this.site.isMobileDevice,
       availableTopics:    this.availableTopics,
+      availableUsers:     this.availableUsers,
       lastReadPostNumber: (this.topic || {}).last_read_post_number,
       visible:            this.visible,
       csrf:               this.session.get('csrfToken')
@@ -61,6 +63,10 @@ export default MountWidget.extend({
 
     ajax('/babble/topics.json').then((data) => {
       this.set('availableTopics', data.topics.map((t) => { return Babble.buildTopic(t) }))
+    })
+
+    ajax('/babble/users.json').then((data) => {
+      this.set('availableUsers', data.users.map((u) => { return User.create(u) }))
     })
 
     ajax('/babble/topics/default.json').then((data) => {

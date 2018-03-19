@@ -6,8 +6,13 @@ import { ajax } from 'discourse/lib/ajax'
 export default createWidget('babble-channels', {
   tagName: 'div.babble-channels',
 
-  changeTopic(topic) {
-    Babble.loadTopic(topic.id).then((topic) => {
+  changeTopic(model) {
+    var action
+    switch(model.constructor) {
+      case Discourse.User:  action = 'loadPM'; break
+      case Discourse.Topic: action = 'loadTopic'; break
+    }
+    Babble[action](model.id).then((topic) => {
       this.sendWidgetAction('viewChat', topic)
     }, console.log)
   },

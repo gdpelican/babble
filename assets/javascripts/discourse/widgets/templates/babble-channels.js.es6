@@ -5,7 +5,8 @@ import Babble from '../../lib/babble'
 export default Ember.Object.create({
   render(widget) {
     this.widget          = widget
-    this.availableTopics = this.widget.attrs.availableTopics || []
+    this.availableTopics = widget.attrs.availableTopics || []
+    this.availableUsers  = widget.attrs.availableUsers || []
     return [this.topicsHeader(), this.topicsList()]
   },
 
@@ -31,24 +32,51 @@ export default Ember.Object.create({
   },
 
   topicsList() {
-    return h('div.babble-list', h('ul.babble-available-topics', this.availableTopicsList()))
+    return h('div.babble-list', h('ul.babble-available-topics', [
+      this.availableCategories(),
+      this.availableGroups(),
+      this.availablePMs()
+    ]))
   },
 
-  availableTopicsList() {
-    return this.availableTopics.map(t => { return this.availableTopicListItem(t) })
+  availableCategories() {
+    let categories = this.availableTopics.filter(t => { return t.category_id })
+    if (!categories.length) { return }
+    return _.flatten([
+      h('h5.babble-topic-section-header', I18n.t('filters.categories.title')),
+      categories.map(t => { return this.availableTopicListItem(t) })
+    ])
   },
 
-  availableTopicListItem(topic) {
+  availableGroups() {
+    let groups = this.availableTopics.filter(t => { return !t.category_id })
+    if (!groups.length) { return }
+    return _.flatten([
+      h('h5.babble-topic-section-header', I18n.t('admin.groups.title')),
+      groups.map(t => { return this.availableTopicListItem(t) })
+    ])
+  },
+
+  availablePMs() {
+    let users = this.availableUsers
+    if (!users.length) { return }
+    return _.flatten([
+      h('h5.babble-topic-section-header', I18n.t('admin.users.title')),
+      users.map(u => { return this.availableTopicListItem(u, { title: u.name }) })
+    ])
+  },
+
+  availableTopicListItem(topic, opts = {}) {
     return h('li.babble-available-topic.row', [
-      this.availableTopicLink(topic),
+      this.availableTopicLink(topic, opts),
       this.loadingSpinner(Babble.loadingTopicId === topic.id)
     ])
   },
 
-  availableTopicLink(topic) {
+  availableTopicLink(topic, opts = {}) {
     return this.widget.attach('link', {
       className: 'normalized',
-      rawLabel: topic.title,
+      rawLabel: opts.title || topic.title,
       action: 'changeTopic',
       actionParam: topic
     })

@@ -27,4 +27,16 @@ class ::Babble::Chat
          .uniq
 
   end
+
+  def self.available_pms_for(guardian)
+    return User.none if !SiteSetting.enable_private_messages
+    return User.none if guardian.user.trust_level < SiteSetting.min_trust_to_send_messages
+
+    result = User.joins(:user_option)
+                 .not_suspended
+                 .where("user_options.allow_private_messages": true)
+                 .where.not(id: guardian.user.id)
+    result = result.staff if guardian.user.silenced?
+    result
+  end
 end
