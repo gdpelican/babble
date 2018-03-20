@@ -63,7 +63,7 @@ class ::Babble::TopicsController < ::ApplicationController
   private
 
   def topic
-    @topic ||= ::Topic.find_by(id: params[:id], archetype: Archetype.chat)
+    @topic ||= ::Topic.babble.find_by(id: params[:id])
   end
 
   def set_default_id
@@ -71,7 +71,6 @@ class ::Babble::TopicsController < ::ApplicationController
   end
 
   def set_pm_id
-    byebug
     params[:id] = Babble::Chat.save_topic(
       permissions: :pm,
       user_ids: [current_user.id, params[:user_id]]

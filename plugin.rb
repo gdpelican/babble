@@ -38,13 +38,14 @@ after_initialize do
   babble_require 'services/post_stream_window'
 
   babble_require 'models/archetype'
+  babble_require 'models/chat'
+  babble_require 'models/group'
   babble_require 'models/guardian'
   babble_require 'models/topic_query'
   babble_require 'models/topic'
   babble_require 'models/user_action'
   babble_require 'models/user_summary'
 
-  babble_require 'models/chat'
   babble_require 'models/chats/base'
   babble_require 'models/chats/category'
   babble_require 'models/chats/group'

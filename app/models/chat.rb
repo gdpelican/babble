@@ -16,7 +16,7 @@ class ::Babble::Chat
   end
 
   def self.available_topics_for(guardian)
-    query = ::Topic.where(archetype: ::Archetype.chat)
+    query = ::Topic.babble.where.not(subtype: TopicSubtype.user_to_user)
     return query if guardian.is_admin?
 
     user_id      = guardian.user.id unless guardian.anonymous?
@@ -25,7 +25,6 @@ class ::Babble::Chat
          .joins("LEFT OUTER JOIN group_users gu ON gu.group_id = tg.group_id")
          .where("gu.user_id = ? OR topics.category_id IN (?)", user_id, category_ids)
          .uniq
-
   end
 
   def self.available_pms_for(guardian)

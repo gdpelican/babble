@@ -4,8 +4,9 @@ module Babble
       def transform_params
         super.merge(
           id:             existing_pm&.id,
+          title:          Digest::MD5.hexdigest(user_ids),
           allowed_groups: Array(allowed_group).presence,
-          subtype:        ::TopicSubtype.babble_pm
+          subtype:        ::TopicSubtype.user_to_user
         ).compact.except(:user_ids)
       end
 
@@ -16,18 +17,19 @@ module Babble
       end
 
       def allowed_group
-        Group.new(
-          name:          Digest::MD5.hexdigest(@params[:user_ids].sort),
-          custom_fields: { user_ids: @params[:user_ids].sort }
-        ) unless existing_pm
+        ::Group.new(
+          name:             Digest::MD5.hexdigest(user_ids),
+          custom_fields:    { user_ids: user_ids },
+          visibility_level: -1
+        ).tap { |g| g.save(validate: false) } unless existing_pm
       end
 
       def existing_pm
-        @existing_pm ||= Topic
-          .where(archetype: Archetype.chat)
-          .joins(:allowed_groups)
-          .joins(:group_custom_fields)
-          .find_by("group_custom_fields.user_ids": @params[:user_ids].sort)
+        Topic.babble.find_by(title: Digest::MD5.hexdigest(user_ids))
+      end
+
+      def user_ids
+        @params[:user_ids].map(&:to_i).sort.to_s
       end
     end
   end

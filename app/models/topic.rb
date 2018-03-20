@@ -5,4 +5,6 @@ class ::Topic
     end
   end
   singleton_class.prepend ForDigest
+
+  scope :babble, -> { where(archetype: Archetype.chat) }
 end
