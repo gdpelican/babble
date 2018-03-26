@@ -20,7 +20,7 @@ module Babble
         ::Group.new(
           name:             Digest::MD5.hexdigest(user_ids),
           custom_fields:    { user_ids: user_ids },
-          visibility_level: -1
+          visibility_level: 4
         ).tap { |g| g.save(validate: false) } unless existing_pm
       end
 
