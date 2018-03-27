@@ -9,11 +9,19 @@ class ::Babble::TopicSerializer < ActiveModel::Serializer
              :highest_post_number,
              :last_read_post_number
 
-   def initialize(object, opts)
-     super(object, opts)
-     @params = opts[:params] || {}
-     scope.flagged_post_ids ||= PostAction.where(user: scope.user, post_id: object.post_ids).pluck(:post_id)
-   end
+  def initialize(object, opts)
+    super(object, opts)
+    @params = opts[:params] || {}
+    scope.flagged_post_ids ||= PostAction.where(user: scope.user, post_id: object.post_ids).pluck(:post_id)
+  end
+
+  def title
+    if object.subtype == TopicSubtype.user_to_user
+      object.allowed_group_users.where("users.id <> ?", scope.user.id).pluck(:name).join(', ')
+    else
+      object.title
+    end
+  end
 
   def group_names
     object.allowed_groups.pluck(:name).map(&:humanize)

@@ -22,17 +22,17 @@ module Babble
       def allowed_group
         ::Group.new(
           name:             fingerprint,
-          custom_fields:    { user_ids: user_ids },
+          user_ids:         user_ids,
           visibility_level: 4
         ).tap { |g| g.save(validate: false) }
       end
 
       def fingerprint
-        @fingerprint ||= Digest::MD5.hexdigest(user_ids)
+        @fingerprint ||= Digest::MD5.hexdigest(user_ids.to_s)
       end
 
       def user_ids
-        @params[:user_ids].map(&:to_i).sort.to_s
+        @params[:user_ids].map(&:to_i).select(&:nonzero?).sort
       end
     end
   end
