@@ -16,7 +16,7 @@ class ::Babble::Chat
   end
 
   def self.available_topics_for(guardian)
-    query = ::Topic.babble.where.not(subtype: TopicSubtype.user_to_user)
+    query = ::Topic.babble_not_pm
     return query if guardian.is_admin?
 
     user_id      = guardian.user.id unless guardian.anonymous?
@@ -28,7 +28,8 @@ class ::Babble::Chat
   end
 
   def self.available_pms_for(guardian)
-    return User.none if !SiteSetting.enable_private_messages
+    return User.none if !SiteSetting.babble_enable_pms
+    return User.none if !SiteSetting.enable_personal_messages
     return User.none if guardian.user.trust_level < SiteSetting.min_trust_to_send_messages
 
     result = User.joins(:user_option)
