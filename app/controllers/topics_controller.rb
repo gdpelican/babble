@@ -6,7 +6,7 @@ class ::Babble::TopicsController < ::ApplicationController
   before_action :ensure_logged_in, except: [:show, :index]
 
   def index
-    respond_with Babble::Chat.available_topics_for(guardian), serializer: BasicTopicSerializer
+    respond_with Babble::Chat.available_topics_for(guardian, pm: false), serializer: BasicTopicSerializer
   end
 
   def show
@@ -67,7 +67,7 @@ class ::Babble::TopicsController < ::ApplicationController
   end
 
   def set_default_id
-    params[:id] = Babble::Chat.available_topics_for(guardian).first&.id
+    params[:id] = Babble::Chat.available_topics_for(guardian, pm: false).first&.id
   end
 
   def set_pm_id

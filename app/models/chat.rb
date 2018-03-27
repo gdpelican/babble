@@ -15,8 +15,8 @@ class ::Babble::Chat
     "::Babble::Chats::#{class_name.to_s.camelize}".constantize
   end
 
-  def self.available_topics_for(guardian)
-    query = ::Topic.babble_not_pm
+  def self.available_topics_for(guardian, pm: true)
+    query = if pm then ::Topic.babble else ::Topic.babble_not_pm end
     return query if guardian.is_admin?
 
     user_id      = guardian.user.id unless guardian.anonymous?

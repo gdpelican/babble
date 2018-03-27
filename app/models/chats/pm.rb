@@ -3,11 +3,14 @@ module Babble
     class Pm < ::Babble::Chats::Base
       def transform_params
         super.merge(
-          id:             existing_pm&.id,
-          title:          Digest::MD5.hexdigest(user_ids),
-          allowed_groups: Array(allowed_group).presence,
+          title:          fingerprint,
+          allowed_groups: Array(allowed_group),
           subtype:        ::TopicSubtype.user_to_user
         ).compact.except(:user_ids)
+      end
+
+      def save!
+        ::Topic.find_by(title: fingerprint) || super
       end
 
       private
@@ -18,14 +21,14 @@ module Babble
 
       def allowed_group
         ::Group.new(
-          name:             Digest::MD5.hexdigest(user_ids),
+          name:             fingerprint,
           custom_fields:    { user_ids: user_ids },
           visibility_level: 4
-        ).tap { |g| g.save(validate: false) } unless existing_pm
+        ).tap { |g| g.save(validate: false) }
       end
 
-      def existing_pm
-        Topic.babble.find_by(title: Digest::MD5.hexdigest(user_ids))
+      def fingerprint
+        @fingerprint ||= Digest::MD5.hexdigest(user_ids)
       end
 
       def user_ids
