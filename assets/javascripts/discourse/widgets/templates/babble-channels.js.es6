@@ -1,5 +1,5 @@
-
 import { h } from 'virtual-dom'
+import { avatarImg } from 'discourse/widgets/post'
 import Babble from '../../lib/babble'
 
 export default Ember.Object.create({
@@ -44,7 +44,7 @@ export default Ember.Object.create({
     if (!categories.length) { return }
     return _.flatten([
       h('h5.babble-topic-section-header', I18n.t('filters.categories.title')),
-      categories.map(t => { return this.availableTopicListItem(t) })
+      categories.map(t => { return this.availableTopicListItem(t, 'category') })
     ])
   },
 
@@ -53,7 +53,7 @@ export default Ember.Object.create({
     if (!groups.length) { return }
     return _.flatten([
       h('h5.babble-topic-section-header', I18n.t('admin.groups.title')),
-      groups.map(t => { return this.availableTopicListItem(t) })
+      groups.map(t => { return this.availableTopicListItem(t, 'group') })
     ])
   },
 
@@ -62,23 +62,35 @@ export default Ember.Object.create({
     if (!users.length) { return }
     return _.flatten([
       h('h5.babble-topic-section-header', I18n.t('admin.users.title')),
-      users.map(u => { return this.availableTopicListItem(u, { title: u.name }) })
+      users.map(u => { return this.availableTopicListItem(u, 'user') })
     ])
   },
 
-  availableTopicListItem(topic, opts = {}) {
+  availableTopicListItem(item, type) {
     return h('li.babble-available-topic.row', [
-      this.availableTopicLink(topic, opts),
-      this.loadingSpinner(Babble.loadingTopicId === topic.id)
+      this.availableTopicAvatar(item, type),
+      this.availableTopicLink(item, type),
+      this.loadingSpinner(Babble.loadingTopicId === item.id)
     ])
   },
 
-  availableTopicLink(topic, opts = {}) {
+  availableTopicAvatar(item, type) {
+    switch(type) {
+      case 'category':
+        return h('span.babble-topic-avatar', { style: { 'background-color': `#${item.category.color}` } })
+      case 'group':
+        return h('img.babble-topic-avatar', { src: Discourse.getURL('/images/avatar.png') })
+      case 'user':
+        return avatarImg('small', {template: item.avatar_template, username: item.username})
+    }
+  },
+
+  availableTopicLink(item, type) {
     return this.widget.attach('link', {
       className: 'normalized',
-      rawLabel: opts.title || topic.title,
+      rawLabel: type == 'user' ? item.name : item.title,
       action: 'changeTopic',
-      actionParam: topic
+      actionParam: item
     })
   },
 

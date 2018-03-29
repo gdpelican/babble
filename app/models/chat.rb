@@ -33,6 +33,7 @@ class ::Babble::Chat
     return User.none if guardian.user.trust_level < SiteSetting.min_trust_to_send_messages
 
     result = User.joins(:user_option)
+                 .where('id > ?', 0)
                  .not_suspended
                  .where("user_options.allow_private_messages": true)
                  .where.not(id: guardian.user.id)

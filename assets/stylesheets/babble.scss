@@ -135,6 +135,12 @@ $default-chat-width: 300px;
   }
 }
 
+.babble-topic-avatar {
+  width: 25px;
+  height: 25px;
+  border-radius: 100%;
+}
+
 .babble-post:hover .babble-post-actions.closed {
   opacity: 1;
 }

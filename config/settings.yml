@@ -20,4 +20,4 @@ plugins:
     client: true
   babble_enable_pms:
     default: true
-    client: true
+    client: false
