@@ -46,7 +46,7 @@ export default Ember.Object.create({
     switch(order) {
       case 'desc':
         actionName = 'loadPostsBackward'
-        canLoadMore = this.topic.firstLoadedPostNumber > 1
+        canLoadMore = this.topic.firstLoadedPostNumber > this.topic.lowest_post_number
         break
       case 'asc':
         actionName = 'loadPostsForward'

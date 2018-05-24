@@ -6,6 +6,7 @@ class ::Babble::TopicSerializer < ActiveModel::Serializer
              :group_names,
              :last_posted_at,
              :permissions,
+             :lowest_post_number,
              :highest_post_number,
              :last_read_post_number
 
@@ -14,6 +15,10 @@ class ::Babble::TopicSerializer < ActiveModel::Serializer
      @params = opts[:params] || {}
      scope.flagged_post_ids ||= PostAction.where(user: scope.user, post_id: object.post_ids).pluck(:post_id)
    end
+
+  def lowest_post_number
+    object.custom_fields[:lowest_post_number] || 1
+  end
 
   def group_names
     object.allowed_groups.pluck(:name).map(&:humanize)

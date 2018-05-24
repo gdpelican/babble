@@ -198,6 +198,10 @@ export default Ember.Object.create({
         return lastVisibleElement($container.find('.babble-chat'), '.babble-post', 'post-number') == topic.lastLoadedPostNumber
       }))
 
+      if (topic.lastLoadedPostNumber < post.post_number) {
+        topic.set('lastLoadedPostNumber', post.post_number)
+      }
+
       if (latestPostIsMine(topic)) {
         // clear staged post
         let staged =  topic.postStream.findLoadedPost(-1)

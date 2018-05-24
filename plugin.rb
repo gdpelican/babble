@@ -43,6 +43,8 @@ after_initialize do
   babble_require 'models/user_action'
   babble_require 'models/user_summary'
 
+  babble_require 'jobs/scheduled/babble_prune_history'
+
   Category.register_custom_field_type('chat_topic_id', :integer)
   add_to_serializer(:basic_category, :chat_topic_id) { object.custom_fields['chat_topic_id'] unless object.custom_fields['chat_topic_id'].to_i == 0 }
   add_to_serializer(:basic_topic, :category_id)      { object.category_id if object.respond_to?(:category_id) }

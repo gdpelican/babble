@@ -18,3 +18,5 @@ plugins:
   babble_adaptive_height:
     default: false
     client: true
+  babble_history_window:
+    default: 0
