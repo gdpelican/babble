@@ -1,19 +1,42 @@
 de:
   js:
     babble:
-      placeholder: "Chat-Nachricht hier eingeben..."
+      position_left: Links
+      position_right: Rechts
+      placeholder: "Schreib etwas..."
       send: "Abschicken"
+      save: "Speichern"
+      flagged: "Gemeldet"
+      cancel: "Abbrechen"
       title: "öffnet ein Chat-Fenster für schnelle Unterhaltungen"
       error_message: "Bitte eine Nachricht eingeben!"
+      new_messages: "NEUE NACHRICHTEN"
+      failed_post: "Konnte diesen Beitrag nicht speichern. Bitte versuche es noch einmal."
       empty_topic_message: "Es gibt noch keine Nachrichten! Bitte unten eine eingeben, damit es losgehen kann..."
       topic_visibility_tooltip: "Dieser Chat ist sichtbar für: {{groupNames}}"
       view_topics_tooltip: "Andere Chat-Kanäle ansehen"
       view_chat_tooltip: "Zurück zum aktuellen Chat"
       select_topic: "Anderen Chat-Kanal auswählen"
+      post_deleted_by: "Beitrag gelöscht von {{username}}"
+      post_edited: (bearbeitet)
+      is_typing: "tippt…"
+      nav_title: "Chat"
+      load_more: "Mehr laden"
+      loading_messages: "Lade Nachrichten…"
+      no_more_messages: "Das ist alles!"
+      logged_out: "Du bist nicht angemeldet! Bitte melde dich an oder erstelle ein Konto um teilzunehmen."
+      go_to_chat: "Öffne Vollbild-Chat"
       admin:
+        disabled: "Babble wurde deaktiviert. Bitte aktiviere es wieder um fortzufahren."
         new: "Neuen Kanal"
+        new_category: "Neuer Kategorie-Kanal"
         none_selected: "Wähle einen Kanal aus"
         title: "Kanal-Titel"
+        permissions: "Berechtigungen"
+        category: "Kategorie"
+        groups: "Gruppe(n)"
+        category_label: "Kanal ist verknüpft mit der folgenden Kategorie:"
+        allowed_groups_label: "Kanal ist sichtbar für die folgenden Gruppen:"
         menu_title: "Chats"
         page_title: "Chat Kanäle"
         post_count: "Beiträge"

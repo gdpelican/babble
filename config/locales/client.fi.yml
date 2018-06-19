@@ -1,7 +1,6 @@
 fi:
   js:
     babble:
-      placeholder: "Kirjoita viestisi tähän..."
       send: "Lähetä"
       title: "Avaa pikaviestin välittömään keskusteluun"
       error_message: "Kirjoita ensin viesti!"

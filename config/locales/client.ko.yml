@@ -1,7 +1,6 @@
 ko:
   js:
     babble:
-      placeholder: "여기에 메시지를 입력하세요..."
       send: "전송"
       title: "빠른 대화를 위해 채팅 윈도우를 엽니다"
       error_message: "메시지를 입력해주세요!"
