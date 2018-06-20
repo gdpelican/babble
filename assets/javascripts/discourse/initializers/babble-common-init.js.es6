@@ -104,6 +104,10 @@ export default {
             })
 
             this.queueRerender()
+
+            if (!this.site.isMobileDevice && Discourse.SiteSettings.babble_open_by_default) {
+              this.appEvents.trigger("babble-toggle-chat")
+            }
           })
         }
       })

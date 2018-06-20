@@ -20,3 +20,6 @@ plugins:
     client: true
   babble_history_window:
     default: 0
+  babble_open_by_default:
+    default: false
+    client: true
