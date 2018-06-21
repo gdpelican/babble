@@ -20,7 +20,6 @@ $default-chat-width: 300px;
 
 /* Dropdown styles */
 .babble-sidebar {
-  resize: horizontal;
   overflow: auto;
   width: $default-chat-width;
   min-width: $default-chat-width;
@@ -286,15 +285,22 @@ $default-chat-width: 300px;
 }
 
 .babble-available-topic {
+  transition: background 0.5s ease-in-out;
   line-height: 32px;
   display: flex;
+  justify-content: space-between;
   flex-direction: row;
   align-items: center;
   cursor: pointer;
   font-weight: bold;
+  padding: 0 10px;
   @media (max-width: 700px) {
     padding: 10px 20px;
   }
+  &:hover {
+    background: dark-light-diff($primary, $secondary, 90%, -65%);
+  }
+  a { flex-grow: 1; }
 }
 
 .babble-typing {
@@ -324,13 +330,7 @@ $default-chat-width: 300px;
   display: flex;
 }
 
-.babble-post-composer .widget-button {
-  margin: 5px;
-  padding: 5px 7px;
-}
-
 .babble-post-composer textarea {
-  resize: none;
   border: none;
   width: 100%;
   flex-grow: 1;
@@ -349,13 +349,7 @@ $default-chat-width: 300px;
 
 .babble-composer-action {
   font-size: 20px;
-  background: none;
-  border: none;
-  padding: 5px;
-  &:hover {
-    color: $secondary;
-    background: $primary;
-  }
+  &:not(:hover) { background: none; }
 }
 
 .babble-post-composer .autocomplete {

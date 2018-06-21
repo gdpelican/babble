@@ -47,7 +47,6 @@ export default Ember.Object.create({
 
   availableTopicLink(topic) {
     return this.widget.attach('link', {
-      className: 'normalized',
       rawLabel: topic.title,
       action: 'changeTopic',
       actionParam: topic
