@@ -56,18 +56,6 @@ $default-chat-width: 300px;
   font-size: 15px;
 }
 
-.babble-context-toggle {
-  position: relative;
-  outline: 0;
-  padding: 0;
-  text-align: center;
-  display: inline-block;
-  line-height: 20px;
-  @media (max-width: 700px) { line-height: 35px; }
-  vertical-align: top;
-  z-index: 1;
-}
-
 /* Post styles */
 .babble-posts {
   margin: 0;
@@ -406,9 +394,12 @@ $default-chat-width: 300px;
 .babble-sidebar {
 
   .normalized {
-    padding: 0 10px;
     border: none;
-    background: none;
+    width: 25px;
+    height: 25px;
+    padding: 0;
+    margin: 0 5px;
+    &:not(:hover) { background: none; }
   }
 
   .babble-chat {
