@@ -17,7 +17,11 @@ export default createWidget('babble-post-actions', {
       const rect = document.elementFromPoint(e.clientX, e.clientY).closest('.btn').getBoundingClientRect()
       const menu = document.querySelector('.babble-post-actions-menu')
       menu.style.top  = `${rect.top}px`
-      menu.style.left = `${rect.left}px`
+      if (document.body.offsetWidth > rect.left + 150) {
+        menu.style.left = `${rect.left}px`
+      } else {
+        menu.style.right = `${document.body.offsetWidth - rect.right}px`
+      }
     }, 100)
     this.state.open = true
     this.scheduleRerender()
