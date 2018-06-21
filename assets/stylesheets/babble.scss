@@ -117,10 +117,6 @@ $default-chat-width: 300px;
   }
 }
 
-.babble-post:hover .babble-post-actions.closed {
-  opacity: 1;
-}
-
 .babble-post-container {
   margin: 8px 0;
   position: relative;
@@ -186,70 +182,84 @@ $default-chat-width: 300px;
     word-break: break-word;
   }
 
-  .babble-post-actions {
-    transition: background-color 0.25s ease-in-out;
-    transition: color 0.25s ease-in-out;
-    transition: opacity 0.4s ease-in-out;
-
-    &.closed {
-      padding: 0;
-      display: flex;
-      display: -webkit-flex;
-      z-index: 10;
-      border: none;
-      @media (max-width: 480px) { opacity: 0.7; }
-      @media (min-width: 480px) { opacity: 0.1; }
-      background: transparent;
-      a {
-        padding: 4px 8px;
-        color: $primary;
-      }
-      &:hover {
-        opacity: 1;
-        background-color: $primary;
-        a { color: $secondary; }
-      }
-    }
-
-    &.opened {
-      position: absolute;
-      top: 0;
-      right: 0;
-      opacity: 1;
-      z-index: 11;
-      border: 1px solid;
-      border-radius: 2px;
-      font-size: 15px;
-      transition: all 0.35s ease-in-out;
-      background: $secondary;
-      &.last-post {
-        bottom: 0;
-        top: auto;
-      }
-      .widget-link {
-        display: flex;
-        display: -webkit-flex;
-        align-items: center;
-        -webkit-align-items: center;
-        transition: background-color 0.35s ease-in-out;
-        color: $primary;
-        &:hover {
-          background: $primary;
-          color: $secondary;
-        }
-        i { margin-right: 8px; }
-        &.babble-link-disabled {
-          &:hover {
-            background: $secondary;
-            color: $primary;
-          }
-          opacity: 0.5;
-          cursor: not-allowed;
-        }
-        padding: 8px;
-      }
-    }
+  .babble-post-actions-ellipsis i {
+    margin: 5px 0 0 0 !important;
   }
+
+  .babble-post-actions-menu {
+    position: fixed;
+    display: flex;
+    flex-direction: column;
+    z-index: 1;
+    background: $secondary;
+    box-shadow: 0 2px 2px $primary;
+    .btn { display: flex; }
+  }
+
+  // .babble-post-actions {
+  //   transition: background-color 0.25s ease-in-out;
+  //   transition: color 0.25s ease-in-out;
+  //   transition: opacity 0.4s ease-in-out;
+  //
+  //   &.closed {
+  //     padding: 0;
+  //     display: flex;
+  //     display: -webkit-flex;
+  //     z-index: 10;
+  //     border: none;
+  //     @media (max-width: 480px) { opacity: 0.7; }
+  //     @media (min-width: 480px) { opacity: 0.1; }
+  //     background: transparent;
+  //     a {
+  //       padding: 4px 8px;
+  //       color: $primary;
+  //     }
+  //     &:hover {
+  //       opacity: 1;
+  //       background-color: $primary;
+  //       a { color: $secondary; }
+  //     }
+  //   }
+  //
+  //   &.opened {
+  //     position: absolute;
+  //     top: 0;
+  //     right: 0;
+  //     opacity: 1;
+  //     z-index: 11;
+  //     border: 1px solid;
+  //     border-radius: 2px;
+  //     font-size: 15px;
+  //     transition: all 0.35s ease-in-out;
+  //     background: $secondary;
+  //     &.last-post {
+  //       bottom: 0;
+  //       top: auto;
+  //     }
+  //     .widget-link {
+  //       display: flex;
+  //       display: -webkit-flex;
+  //       align-items: center;
+  //       -webkit-align-items: center;
+  //       transition: background-color 0.35s ease-in-out;
+  //       color: $primary;
+  //       &:hover {
+  //         background: $primary;
+  //         color: $secondary;
+  //       }
+  //       i { margin-right: 8px; }
+  //       &.babble-link-disabled {
+  //         &:hover {
+  //           background: $secondary;
+  //           color: $primary;
+  //         }
+  //         opacity: 0.5;
+  //         cursor: not-allowed;
+  //       }
+  //       padding: 8px;
+  //     }
+  //   }
+  // }
 }
 
 .babble-sidebar .spinner {

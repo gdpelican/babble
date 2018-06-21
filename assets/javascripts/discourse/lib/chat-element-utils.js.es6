@@ -67,6 +67,7 @@ let setupScrollContainer = function(topic) {
     if (!$scrollContainer.length) { console.warn("Babble scroll container already active or could not be found"); return }
 
     $($scrollContainer).on('scroll.discourse-babble-scroll', debounce(() => {
+      $container.find('.babble-post-actions-menu').hide()
       readPost(topic, $container)
     }, 500))
     readPost(topic, $container)

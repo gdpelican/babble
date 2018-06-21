@@ -7,13 +7,10 @@ export default Ember.Object.create({
     this.post       = widget.state.post
     this.topic      = widget.state.topic
     if (this.post.deleted_at || !_.compact(this.actions()).length) { return }
-    let css = this.isLastPost() ? '.last-post' : ''
 
-    if (widget.state.open) {
-      return h(`div.babble-post-actions.opened${css}`, this.dropdown())
-    } else {
-      return h('div.babble-post-actions.closed', this.button())
-    }
+    let status = this.widget.state.open ? '.opened' : '.closed'
+
+    return h(`div.babble-post-actions${status}`, [this.dropdown(), this.button()])
   },
 
   isLastPost() {
@@ -21,12 +18,17 @@ export default Ember.Object.create({
   },
 
   button() {
-    return this.widget.attach('link', { icon: 'chevron-down', action: 'open' })
+    return this.widget.attach('button', {
+      icon: 'ellipsis-h',
+      action: 'open',
+      className: 'btn normalized babble-post-actions-ellipsis',
+      sendActionEvent: true
+    })
   },
 
   dropdown() {
     if (!this.widget.state.open) { return }
-    return this.actions()
+    return h('div.babble-post-actions-menu', this.actions())
   },
 
   actions() {
@@ -35,7 +37,7 @@ export default Ember.Object.create({
 
   edit() {
     if (this.post.can_edit) {
-      return this.widget.attach('link', { icon: 'pencil', action: 'edit', label: 'post.controls.edit_action' })
+      return this.widget.attach('link', { className: 'btn', icon: 'pencil', action: 'edit', label: 'post.controls.edit_action' })
     }
   },
 
@@ -44,14 +46,14 @@ export default Ember.Object.create({
       if (this.post.has_flagged) {
         return h('div.widget-link.babble-link-disabled', [h('i.fa.fa-flag'), I18n.t('babble.flagged')])
       } else {
-        return this.widget.attach('link', { icon: 'flag', action: 'flag', label: 'post.actions.flag' })
+        return this.widget.attach('link', { className: 'btn', icon: 'flag', action: 'flag', label: 'post.actions.flag' })
       }
     }
   },
 
   delete() {
     if (this.post.can_delete) {
-      return this.widget.attach('link', { icon: 'trash-o', action: 'delete', label: 'user.admin_delete' })
+      return this.widget.attach('link', { className: 'btn', icon: 'trash-o', action: 'delete', label: 'user.admin_delete' })
     }
   }
 
