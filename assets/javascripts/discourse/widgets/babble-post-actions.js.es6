@@ -1,6 +1,7 @@
 import { createWidget } from 'discourse/widgets/widget'
 import Babble from '../lib/babble'
 import template from '../widgets/templates/babble-post-actions'
+import { positionDropdown } from '../lib/chat-element-utils'
 
 export default createWidget('babble-post-actions', {
 
@@ -13,16 +14,7 @@ export default createWidget('babble-post-actions', {
   },
 
   open(e) {
-    setTimeout(() => {
-      const rect = document.elementFromPoint(e.clientX, e.clientY).closest('.btn').getBoundingClientRect()
-      const menu = document.querySelector('.babble-post-actions-menu')
-      menu.style.top  = `${rect.top}px`
-      if (document.body.offsetWidth > rect.left + 150) {
-        menu.style.left = `${rect.left}px`
-      } else {
-        menu.style.right = `${document.body.offsetWidth - rect.right}px`
-      }
-    }, 100)
+    setTimeout(() => { positionDropdown(e, '.babble-post-actions-menu') }, 100)
     this.state.open = true
     this.scheduleRerender()
   },

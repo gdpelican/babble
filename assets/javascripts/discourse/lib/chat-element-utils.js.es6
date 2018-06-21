@@ -154,6 +154,17 @@ let hasChatElements = function(element) {
   return $(element).find('.babble-chat').length
 }
 
+let positionDropdown = function(e, menuSelector, dropdownWidth = 150) {
+  const rect = document.elementFromPoint(e.clientX, e.clientY).closest('.btn').getBoundingClientRect()
+  const menu = document.querySelector(menuSelector)
+  menu.style.top  = `${rect.top}px`
+  if (document.body.offsetWidth > rect.left + dropdownWidth) {
+    menu.style.left = `${rect.left}px`
+  } else {
+    menu.style.right = `${document.body.offsetWidth - rect.right}px`
+  }
+}
+
 export {
   applyBrowserHacks,
   visibleInWindow,
@@ -161,5 +172,6 @@ export {
   setupScrollContainer,
   setupComposer,
   teardownComposer,
-  hasChatElements
+  hasChatElements,
+  positionDropdown
 }
