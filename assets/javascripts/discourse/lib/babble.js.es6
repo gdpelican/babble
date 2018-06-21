@@ -189,6 +189,9 @@ export default Ember.Object.create({
     delete topic.typing[data.username]
 
     let post = Post.create(this.populatePermissions(data))
+    if (post.created_at.match(/UTC/)) {
+      post.created_at = moment(post.created_at.replace(' UTC', 'Z')).local().toString()
+    }
 
     if (data.is_edit || data.is_delete) {
       topic.postStream.storePost(post)
