@@ -13,10 +13,6 @@ export default Ember.Object.create({
     return h(`div.babble-post-actions${status}`, [this.dropdown(), this.button()])
   },
 
-  isLastPost() {
-    return this.topic.highest_post_number == this.post.post_number
-  },
-
   button() {
     return this.widget.attach('button', {
       icon: 'ellipsis-h',
