@@ -14,7 +14,7 @@ export default createWidget('babble-post-actions', {
   },
 
   open(e) {
-    setTimeout(() => { positionDropdown(e, '.babble-post-actions-menu') }, 100)
+    positionDropdown(e, '.babble-post-actions-menu')
     this.state.open = true
     this.scheduleRerender()
   },
