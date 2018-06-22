@@ -26,16 +26,16 @@ $default-chat-width: 300px;
   transition: width ease-in-out 0.25s;
   max-width: 100%;
   background: $secondary;
-  height: calc(100% - 64px);
   position: fixed;
   z-index: 50;
   bottom: 0;
+  height: calc(100% - 64px);
   margin-top: 64px;
   box-shadow: 0 2px 2px $primary;
   &.expanded { width: 100% !important; }
   &.mobile {
-    margin-top: 0 !important;
-    height: 100vh !important;
+    margin-top: 0;
+    height: calc(100% - 56px);
   }
   &.babble-sidebar--right { right: 0; }
   &.babble-sidebar--left  { left: 0; }

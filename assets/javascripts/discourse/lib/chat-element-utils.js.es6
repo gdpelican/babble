@@ -155,8 +155,8 @@ let hasChatElements = function(element) {
 }
 
 let positionDropdown = function(e, menuSelector, dropdownWidth = 150, delay = 100) {
+  const rect = document.elementFromPoint(e.clientX, e.clientY).closest('.btn').getBoundingClientRect()
   setTimeout(() => {
-    const rect = document.elementFromPoint(e.clientX, e.clientY).closest('.btn').getBoundingClientRect()
     const menu = document.querySelector(menuSelector)
     menu.style.top  = `${rect.top}px`
     if (document.body.offsetWidth > rect.left + dropdownWidth) {
