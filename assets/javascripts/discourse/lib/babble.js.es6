@@ -198,6 +198,9 @@ export default Ember.Object.create({
     delete topic.typing[data.username]
 
     let post = Post.create(this.populatePermissions(data))
+    if (post.created_at.match(/UTC/)) {
+      post.created_at = moment(post.created_at.replace(' UTC', 'Z')).local().toString()
+    }
 
     if (data.is_edit || data.is_delete) {
       topic.postStream.storePost(post)
@@ -206,6 +209,10 @@ export default Ember.Object.create({
       let performScroll = _.any(forEachTopicContainer(topic, function($container) {
         return lastVisibleElement($container.find('.babble-chat'), '.babble-post', 'post-number') == topic.lastLoadedPostNumber
       }))
+
+      if (topic.lastLoadedPostNumber < post.post_number) {
+        topic.set('lastLoadedPostNumber', post.post_number)
+      }
 
       if (latestPostIsMine(topic)) {
         // clear staged post

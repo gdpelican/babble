@@ -1,1 +1,11 @@
-nl: {}
+nl:
+  site_settings:
+    babble_enabled: "Activeer de Babble Shoutbox-plugin."
+    babble_placeholder: "Laat dit leeg om de standaard-tekst in het invoerveld voor berichtjes te tonen, of zet je eigen tekst hier neer."
+    babble_icon: "Voer hier de Font Awesome-code (fa-omitted) in voor het Babble-icoon in de rechterbovenhoek. Kijk op http://fontawesome.io/cheatsheet/ voor een lijst van iconen."
+    babble_category_name: "Discourse-categorie voor Babble topics."
+    babble_remote_post: "Activeer remote POST voor bericht."
+    babble_remote_url: "POST URL"
+    babble_page_size: "Aantal berichtjes per chat pagina"
+    babble_full_page: "Zet volledig scherm-modus aan voor de chat (beschikbaar vanaf de categorie-pagina)."
+    babble_shoutbox: "Zet de Babble shoutbox aan (verschijnt in de kop van de website)."

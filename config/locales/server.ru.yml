@@ -1,5 +1,11 @@
 ru:
   site_settings:
     babble_enabled: "Включить плагин Babble Shoutbox."
-    babble_placeholder: "Оставьте пустым это поле чтобы показывался текст по умолчания в пустых полях. Или напишите здесь свой текст для пустых полей."
+    babble_placeholder: "Оставьте пустым это поле чтобы показывался текст по умолчанию в пустых полях. Или напишите здесь свой текст для пустых полей."
     babble_icon: "Font Awesome код (fa- удален) для Babble иконки в верхнем правом углу. Смотри http://fortawesome.github.io/Font-Awesome/cheatsheet/ для полного списка иконок."
+    babble_category_name: "Категория в Discourse для тем Babble."
+    babble_remote_post: "Включить удаленный POST в сообщениях."
+    babble_remote_url: "POST URL"
+    babble_page_size: "Количество сообщений на странице"
+    babble_full_page: "Включить полноэкранный режим чата (доступен со страницы категорий)"
+    babble_shoutbox: "Включить уведомления Babble (отображаются в заголовке сайта )"

@@ -26,6 +26,8 @@ en:
       no_more_messages: "That's all there is!"
       logged_out: "You haven't logged in! Please log in or create an account to participate"
       go_to_chat: "Open full page chat"
+      expand_chat: Expand chat
+      close_chat: Close chat
       admin:
         disabled: "Babble has been disabled. Please re-enable it to continue."
         new: "New Channel"

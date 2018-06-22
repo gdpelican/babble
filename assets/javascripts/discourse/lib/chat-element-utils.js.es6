@@ -36,7 +36,7 @@ let visibleInWindow = function(selector) {
   return Math.max(0, visible)
 }
 
-let scrollToPost = function(topic, postNumber, speed = 400, offset = 30) {
+let scrollToPost = function(topic, postNumber, speed = 400, offset = 60) {
   Ember.run.scheduleOnce('afterRender', () => {
     forEachTopicContainer(topic, function($container) {
       if (!hasChatElements($container)) { return }
@@ -67,6 +67,7 @@ let setupScrollContainer = function(topic) {
     if (!$scrollContainer.length) { console.warn("Babble scroll container already active or could not be found"); return }
 
     $($scrollContainer).on('scroll.discourse-babble-scroll', debounce(() => {
+      $container.find('.babble-post-actions-menu').hide()
       readPost(topic, $container)
     }, 500))
     readPost(topic, $container)
@@ -153,6 +154,19 @@ let hasChatElements = function(element) {
   return $(element).find('.babble-chat').length
 }
 
+let positionDropdown = function(e, menuSelector, dropdownWidth = 150, delay = 100) {
+  const rect = document.elementFromPoint(e.clientX, e.clientY).closest('.btn').getBoundingClientRect()
+  setTimeout(() => {
+    const menu = document.querySelector(menuSelector)
+    menu.style.top  = `${rect.top}px`
+    if (document.body.offsetWidth > rect.left + dropdownWidth) {
+      menu.style.left = `${rect.left}px`
+    } else {
+      menu.style.right = `${document.body.offsetWidth - rect.right}px`
+    }
+  }, delay)
+}
+
 export {
   applyBrowserHacks,
   visibleInWindow,
@@ -160,5 +174,6 @@ export {
   setupScrollContainer,
   setupComposer,
   teardownComposer,
-  hasChatElements
+  hasChatElements,
+  positionDropdown
 }

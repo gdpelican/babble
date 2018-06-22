@@ -1,6 +1,7 @@
 import { createWidget } from 'discourse/widgets/widget'
 import Babble from '../lib/babble'
 import template from '../widgets/templates/babble-post-actions'
+import { positionDropdown } from '../lib/chat-element-utils'
 
 export default createWidget('babble-post-actions', {
 
@@ -12,7 +13,8 @@ export default createWidget('babble-post-actions', {
     return { topic: attrs.topic, post: attrs.post, open: false }
   },
 
-  open() {
+  open(e) {
+    positionDropdown(e, '.babble-post-actions-menu')
     this.state.open = true
     this.scheduleRerender()
   },

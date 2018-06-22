@@ -6,6 +6,7 @@ class ::Babble::TopicSerializer < ActiveModel::Serializer
              :group_names,
              :last_posted_at,
              :permissions,
+             :lowest_post_number,
              :highest_post_number,
              :last_read_post_number
 
@@ -21,6 +22,10 @@ class ::Babble::TopicSerializer < ActiveModel::Serializer
     else
       object.title
     end
+  end
+
+  def lowest_post_number
+    object.custom_fields[:lowest_post_number] || 1
   end
 
   def group_names

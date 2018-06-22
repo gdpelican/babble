@@ -1,1 +1,46 @@
-nl: {}
+nl:
+  js:
+    babble:
+      position_left: Links
+      position_right: Rechts
+      placeholder: "Zeg eens iets..."
+      send: "Verstuur"
+      save: "Bewaar"
+      flagged: "Gemarkeerd"
+      cancel: "Annuleer"
+      title: "Open een chatvenster om even te kunnen kletsen"
+      error_message: "Voeg aub een berichtje toe!"
+      new_messages: "NIEUWE BERICHTEN"
+      failed_post: "Berichtje kon niet worden opgesalgen. Probeer het aub opnieuw."
+      empty_topic_message: "Er zijn nog geen berichtjes! Schrijf een berichtje om te beginnen."
+      topic_visibility_tooltip: "Deze chat is zichtbaar voor: {{groupNames}}"
+      view_topics_tooltip: "Bekijk andere chatkanalen"
+      view_chat_tooltip: "Terug naar de huidige chat"
+      select_topic: "Selecteer een ander chatkanaal"
+      post_deleted_by: "Berichtje verwijderd door {{username}}"
+      post_edited: (bewerkt)
+      is_typing: "tikt een berichtje ..."
+      nav_title: "Chat"
+      load_more: "Laad meer berichtjes"
+      loading_messages: "Berichtjes worden ingeladen..."
+      no_more_messages: "Dat is alles!"
+      logged_out: "Je bent niet ingelogd! Log aub in of maak een account aan om mee te doen."
+      go_to_chat: "Open de chat paginavullend"
+      admin:
+        disabled: "Babble is uitgeschakeld. Zet het weer aan om verder te gaan. "
+        new: "Nieuw kanaal"
+        new_category: "Nieuw categorie-kanaal"
+        none_selected: "Selecteer een kanaal om te beginnen"
+        title: "Titel van het kanaal"
+        permissions: "Permissies"
+        category: "Categorie"
+        groups: "Groep(en)"
+        category_label: "Kanaal is verbonden aan de volgende categorieën:"
+        allowed_groups_label: "Kanaal is zichtbaar voor de volgende groepen:"
+        menu_title: "Chats"
+        page_title: "Chat-kanalen"
+        post_count: "Berichtjes"
+        last_post: "Laatste berichtje"
+        delete_confirm: "Weet je zeker dat je dit kanaal wil verwijderen? Alle berichtjes worden hiermee verwijderd."
+        delete_failed: "Kanaal kan niet worden verwijderd. Probeer het aub opnieuw."
+        save_failed: "Kanaal kan niet worden opgeslagen. Probeer het aub opnieuw."
