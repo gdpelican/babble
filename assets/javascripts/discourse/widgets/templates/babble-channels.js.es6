@@ -81,7 +81,7 @@ export default Ember.Object.create({
       case 'group':
         return h('img.babble-topic-avatar', { src: Discourse.getURL('/images/avatar.png') })
       case 'user':
-        return avatarImg('small', {template: item.avatar_template, username: item.username})
+        return h('span.babble-topic-avatar', avatarImg('small', { template: item.avatar_template, username: item.username}))
     }
   },
 

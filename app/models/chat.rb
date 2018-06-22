@@ -27,17 +27,20 @@ class ::Babble::Chat
          .uniq
   end
 
-  def self.available_pms_for(guardian)
-    return User.none if !SiteSetting.babble_enable_pms
-    return User.none if !SiteSetting.enable_personal_messages
-    return User.none if guardian.user.trust_level < SiteSetting.min_trust_to_send_messages
-
+  def self.available_pms_for(guardian, limit:)
+    return User.none if pms_disabled_for?(guardian)
     result = User.joins(:user_option)
                  .where('id > ?', 0)
                  .not_suspended
                  .where("user_options.allow_private_messages": true)
                  .where.not(id: guardian.user.id)
     result = result.staff if guardian.user.silenced?
-    result
+    result.limit(limit || 10)
+  end
+
+  def self.pms_disabled_for(guardian)
+    !SiteSetting.babble_enable_pms ||
+    !SiteSetting.enable_personal_messages ||
+    SiteSetting.min_trust_to_send_messages >= guardian.user.trust_level
   end
 end

@@ -124,6 +124,7 @@ $default-chat-width: 300px;
 .babble-topic-avatar {
   width: 25px;
   height: 25px;
+  margin-right: 10px;
   border-radius: 100%;
 }
 
@@ -241,7 +242,6 @@ $default-chat-width: 300px;
 
 .babble-available-topic {
   transition: background 0.5s ease-in-out;
-  line-height: 32px;
   display: flex;
   justify-content: space-between;
   flex-direction: row;
@@ -249,15 +249,9 @@ $default-chat-width: 300px;
   transition: background-color 0.25s ease-in-out;
   cursor: pointer;
   font-weight: bold;
+  padding: 10px;
   &:hover {
     background: dark-light-diff($primary, $secondary, 95%, -95%);
-  }
-  padding: 0 10px;
-  @media (max-width: 700px) {
-    padding: 10px 20px;
-  }
-  &:hover {
-    background: dark-light-diff($primary, $secondary, 90%, -65%);
   }
   a { flex-grow: 1; }
 }

@@ -4,6 +4,6 @@ class ::Babble::UsersController < ::ApplicationController
   before_action :ensure_logged_in
 
   def index
-    respond_with Babble::Chat.available_pms_for(guardian), serializer: Babble::UserSerializer
+    respond_with Babble::Chat.available_pms_for(guardian, limit: params[:limit])), serializer: Babble::UserSerializer
   end
 end
