@@ -167,6 +167,18 @@ let positionDropdown = function(e, menuSelector, dropdownWidth = 150, delay = 10
   }, delay)
 }
 
+let setupChannelAutocomplete = function(opts = {}) {
+  setTimeout(() => {
+    const $input = $(document.querySelector(`.babble-${opts.type}-autocomplete input`))
+    $input.autocomplete({
+      template:      findRawTemplate(opts.template),
+      onChangeItems: (items) => { opts.onSelect(items[0]) },
+      dataSource:    opts.source
+    })
+    $input.focus()
+  }, 100)
+}
+
 export {
   applyBrowserHacks,
   visibleInWindow,
@@ -175,5 +187,6 @@ export {
   setupComposer,
   teardownComposer,
   hasChatElements,
-  positionDropdown
+  positionDropdown,
+  setupChannelAutocomplete
 }

@@ -27,6 +27,19 @@ export default Ember.Object.create({
     })
   },
 
+  searchButton(type) {
+    if (this.widget.state.search[type]) { return }
+    return this.widget.attach('button', {
+      icon:      'search',
+      action:    `${type}Search`
+    })
+  },
+
+  searchAutocomplete(type) {
+    if (!this.widget.state.search[type]) { return }
+    return h(`div.babble-${type}-autocomplete`, h('input', { placeholder: I18n.t(`babble.${type}_autocomplete`)}))
+  },
+
   topicsHeaderText() {
     return h('h4.babble-topic-switcher-title', I18n.t('babble.select_topic'))
   },
@@ -43,7 +56,7 @@ export default Ember.Object.create({
     let categories = this.availableTopics.filter(t => { return t.category_id })
     if (!categories.length) { return }
     return _.flatten([
-      h('h5.babble-topic-section-header', I18n.t('filters.categories.title')),
+      h('h5.babble-topic-section-header', I18n.t('babble.categories_title')),
       categories.map(t => { return this.availableTopicListItem(t, 'category') })
     ])
   },
@@ -52,7 +65,7 @@ export default Ember.Object.create({
     let groups = this.availableTopics.filter(t => { return !t.category_id })
     if (!groups.length) { return }
     return _.flatten([
-      h('h5.babble-topic-section-header', I18n.t('admin.groups.title')),
+      h('h5.babble-topic-section-header', I18n.t('babble.groups_title')),
       groups.map(t => { return this.availableTopicListItem(t, 'group') })
     ])
   },
@@ -60,10 +73,14 @@ export default Ember.Object.create({
   availablePMs() {
     let users = this.availableUsers
     if (!users.length) { return }
-    return _.flatten([
-      h('h5.babble-topic-section-header', I18n.t('admin.users.title')),
+    return _.compact(_.flatten([
+      h('.babble-topic-section-header-wrapper', _.compact([
+        h('h5.babble-topic-section-header', I18n.t('babble.pms_title')),
+        this.searchButton('pms')
+      ])),
+      this.searchAutocomplete('pms'),
       users.map(u => { return this.availableTopicListItem(u, 'user') })
-    ])
+    ]))
   },
 
   availableTopicListItem(item, type) {

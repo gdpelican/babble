@@ -73,8 +73,16 @@ class ::Babble::TopicsController < ::ApplicationController
   def set_pm_id
     params[:id] = Babble::Chat.save_topic(
       permissions: :pm,
-      user_ids: [current_user.id, params[:user_id]]
+      user_ids: [current_user.id, pm_user_id]
     ).id
+  end
+
+  def pm_user_id
+    if params[:user_id].match(/^\d+$/)
+      params[:user_id]
+    else
+      User.find_by(username: params[:user_id]).id
+    end
   end
 
   def topic_params

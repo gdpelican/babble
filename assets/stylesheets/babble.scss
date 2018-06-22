@@ -109,6 +109,11 @@ $default-chat-width: 300px;
   padding: 25% 0;
 }
 
+.babble-topic-section-header-wrapper {
+  display: flex;
+  justify-content: space-between;
+}
+
 .babble-topic-section-header {
   margin-top: 0.5rem;
 }
@@ -238,6 +243,21 @@ $default-chat-width: 300px;
   margin: 0;
   list-style-type: none;
   a { color: $primary; }
+}
+
+.babble-pms-autocomplete {
+  border: 1px solid dark-light-diff($primary, $secondary, 65%, -65%);
+  border-radius: 5px;
+  .item { display: none; }
+  .ac-wrap, input {
+    border-radius: 5px;
+    width: 100% !important;
+    border: none;
+  }
+  input {
+    padding: 5px;
+    border: none;
+  }
 }
 
 .babble-available-topic {

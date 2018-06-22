@@ -28,7 +28,7 @@ class ::Babble::Chat
   end
 
   def self.available_pms_for(guardian, limit:)
-    return User.none if pms_disabled_for?(guardian)
+    return User.none unless pms_enabled_for?(guardian)
     result = User.joins(:user_option)
                  .where('id > ?', 0)
                  .not_suspended
@@ -38,9 +38,9 @@ class ::Babble::Chat
     result.limit(limit || 10)
   end
 
-  def self.pms_disabled_for(guardian)
-    !SiteSetting.babble_enable_pms ||
-    !SiteSetting.enable_personal_messages ||
-    SiteSetting.min_trust_to_send_messages >= guardian.user.trust_level
+  def self.pms_enabled_for?(guardian)
+    SiteSetting.babble_enable_pms &&
+    SiteSetting.enable_personal_messages &&
+    SiteSetting.min_trust_to_send_messages <= guardian.user.trust_level
   end
 end

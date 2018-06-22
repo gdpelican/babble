@@ -28,6 +28,10 @@ en:
       go_to_chat: "Open full page chat"
       expand_chat: Expand chat
       close_chat: Close chat
+      pms_title: Direct Messages
+      pms_autocomplete: Enter a name or username...
+      groups_title: Groups
+      categories_title: Categories
       admin:
         disabled: "Babble has been disabled. Please re-enable it to continue."
         new: "New Channel"
