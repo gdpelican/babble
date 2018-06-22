@@ -36,7 +36,7 @@ let visibleInWindow = function(selector) {
   return Math.max(0, visible)
 }
 
-let scrollToPost = function(topic, postNumber, speed = 400, offset = 30) {
+let scrollToPost = function(topic, postNumber, speed = 400, offset = 60) {
   Ember.run.scheduleOnce('afterRender', () => {
     forEachTopicContainer(topic, function($container) {
       if (!hasChatElements($container)) { return }
