@@ -27,7 +27,7 @@ $default-chat-width: 300px;
   max-width: 100%;
   background: $secondary;
   position: fixed;
-  z-index: 50;
+  z-index: 1000;
   bottom: 0;
   height: calc(100% - 64px);
   margin-top: 64px;
@@ -35,7 +35,7 @@ $default-chat-width: 300px;
   &.expanded { width: 100% !important; }
   &.mobile {
     margin-top: 0;
-    height: calc(100% - 56px);
+    height: 100%;
   }
   &.babble-sidebar--right { right: 0; }
   &.babble-sidebar--left  { left: 0; }
