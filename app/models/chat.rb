@@ -30,12 +30,13 @@ class ::Babble::Chat
   def self.available_pms_for(guardian, limit:)
     return User.none unless pms_enabled_for?(guardian)
     result = User.joins(:user_option)
-                 .where('id > ?', 0)
+                 .real
                  .not_suspended
+                 .where(active: true)
                  .where("user_options.allow_private_messages": true)
                  .where.not(id: guardian.user.id)
     result = result.staff if guardian.user.silenced?
-    result.limit(limit || 10)
+    result.limit(limit || 8)
   end
 
   def self.pms_enabled_for?(guardian)
