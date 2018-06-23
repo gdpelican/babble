@@ -13,12 +13,7 @@ export default createWidget('babble-channels', {
   defaultState(attrs) { return { search: {} } },
 
   changeTopic(model) {
-    var action
-    switch(model.constructor) {
-      case Discourse.User:  action = 'loadPM'; break
-      case Discourse.Topic: action = 'loadTopic'; break
-    }
-    Babble[action](model.id).then((topic) => {
+    Babble.loadTopic(model.id, { pm: model.constructor == Discourse.User }).then((topic) => {
       this.sendWidgetAction('open', topic)
     }, console.log)
   },
