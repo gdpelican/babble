@@ -16,7 +16,7 @@ en:
       topic_visibility_tooltip: "This chat is visible to: {{groupNames}}"
       view_topics_tooltip: "View other chat channels"
       view_chat_tooltip: "Back to the current chat"
-      select_topic: "Select another chat channel"
+      select_topic: "Channels"
       post_deleted_by: "Post deleted by {{username}}"
       post_edited: (edited)
       is_typing: "is typing..."

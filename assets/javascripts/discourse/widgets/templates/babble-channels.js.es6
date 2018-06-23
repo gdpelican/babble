@@ -15,22 +15,23 @@ export default Ember.Object.create({
   },
 
   topicsHeaderContent() {
-    return [this.backButton(), this.topicsHeaderText()]
+    return [this.topicsHeaderText(), this.closeButton()]
   },
 
-  backButton() {
-    return this.widget.attach('button', {
-      className: 'babble-context-toggle for-topics normalized',
-      icon:      'chevron-left',
-      title:     'babble.view_chat_tooltip',
-      action:    'viewChat'
-    })
+  closeButton() {
+    return h('div.babble-context-toggle', this.widget.attach('button', {
+      className: 'normalized',
+      icon:      'close',
+      action:    'closeChat',
+      title:     'babble.close_chat'
+    }))
   },
 
   searchButton(type) {
     if (this.widget.state.search[type]) { return }
     return this.widget.attach('button', {
       icon:      'search',
+      className: 'normalized',
       action:    `${type}Search`
     })
   },

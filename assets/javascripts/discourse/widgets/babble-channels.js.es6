@@ -19,7 +19,7 @@ export default createWidget('babble-channels', {
       case Discourse.Topic: action = 'loadTopic'; break
     }
     Babble[action](model.id).then((topic) => {
-      this.sendWidgetAction('viewChat', topic)
+      this.sendWidgetAction('open', topic)
     }, console.log)
   },
 

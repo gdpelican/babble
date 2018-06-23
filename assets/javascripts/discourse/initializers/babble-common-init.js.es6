@@ -1,16 +1,15 @@
 import { queryRegistry } from 'discourse/widgets/widget'
 import { withPluginApi } from 'discourse/lib/plugin-api'
 import reopenWidget      from '../lib/reopen-widget'
-import { ajax }          from 'discourse/lib/ajax'
 import { on, observes }  from 'ember-addons/ember-computed-decorators'
 import { wantsNewWindow } from 'discourse/lib/intercept-click';
-import { getUploadMarkdown, validateUploadedFiles } from 'discourse/lib/utilities'
-import { setupLiveUpdate } from '../lib/chat-live-update-utils'
 
 export default {
   name: 'babble-common-init',
   initialize() {
     withPluginApi('0.8.9', api => {
+
+
 
       let _click = queryRegistry('notification-item').prototype.click
       let _url   = queryRegistry('notification-item').prototype.url
@@ -79,35 +78,19 @@ export default {
       api.modifyClass("component:site-header", {
         @on('didInsertElement')
         listenForBabble() {
-          this.appEvents.on("babble-default-registered", () => {
-            api.decorateWidget('header-icons:before', (helper) => {
-              let iconId = (!this.babbleVisible && this.babbleHasUnread) ? 'babble-icon-unread' : 'babble-icon'
-              return helper.attach('header-dropdown', {
-                title:         'babble.title',
-                icon:          Discourse.SiteSettings.babble_icon,
-                iconId:        iconId,
-                action:        'toggleBabble'
-              })
+          if (!this.site.isMobileDevice) { return }
+
+          api.decorateWidget('header-icons:before', (helper) => {
+            return helper.attach('header-dropdown', {
+              title:         'babble.title',
+              icon:          Discourse.SiteSettings.babble_icon,
+              iconId:        'babble-icon',
+              action:        'toggleBabble'
             })
+          })
 
-            api.attachWidgetAction(this.widget, 'toggleBabble', () => {
-              this.appEvents.trigger("babble-toggle-chat")
-            })
-
-            this.appEvents.on('babble-update-visible', (babbleVisible) => {
-              this.set('babbleVisible', babbleVisible)
-            })
-
-            this.appEvents.on('babble-update-unread', (isUnread) => {
-              this.set('babbleHasUnread', isUnread)
-              this.queueRerender()
-            })
-
-            this.queueRerender()
-
-            if (!this.site.isMobileDevice && Discourse.SiteSettings.babble_open_by_default) {
-              this.appEvents.trigger("babble-toggle-chat")
-            }
+          api.attachWidgetAction(this.widget, 'toggleBabble', () => {
+            this.appEvents.trigger("babble-toggle-chat")
           })
         }
       })

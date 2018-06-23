@@ -1,6 +1,7 @@
 import Post from 'discourse/models/post'
 import PostStream from 'discourse/models/post-stream'
 import Topic from 'discourse/models/topic'
+import User from 'discourse/models/user'
 import elementIsVisible from '../lib/element-is-visible'
 import lastVisibleElement from '../lib/last-visible-element'
 import debounce from 'discourse/lib/debounce'
@@ -89,6 +90,18 @@ export default Ember.Object.create({
       return this.buildTopic(data)
     }).finally(() => {
       this.set('loadingUserId', null)
+    })
+  },
+
+  loadAvailableTopics() {
+    return ajax(`/babble/topics.json`).then((data) => {
+      return data.topics.map((t) => { return this.buildTopic(t) })
+    })
+  },
+
+  loadAvailableUsers() {
+    return ajax(`/babble/users.json`).then((data) => {
+      return data.users.map((u) => { return User.create(u) })
     })
   },
 
