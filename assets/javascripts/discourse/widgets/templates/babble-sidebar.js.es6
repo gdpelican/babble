@@ -1,19 +1,24 @@
 import { h } from 'virtual-dom'
 import { visibleInWindow } from '../../lib/chat-element-utils'
+import Babble from '../../lib/babble'
 
 export default Ember.Object.create({
   render(widget) {
-    if (!widget.attrs.visible) { return }
-    widget.attrs.expanded = widget.state.expanded
     this.widget = widget
-    let helperCss = ''
+    let css = ''
 
-    if (widget.state.expanded || widget.attrs.mobile) {
-      helperCss += '.expanded'
+    if (this.widget.state.expanded || this.widget.attrs.mobile) {
+      css += '.expanded'
     }
-    if (widget.attrs.mobile) {
-      helperCss += '.mobile'
+    if (this.widget.attrs.mobile) {
+      css += '.mobile'
     }
+
+    return widget.attrs.visible ? this.expanded(css) : this.collapsed(css)
+  },
+
+  expanded(css) {
+    this.widget.attrs.expanded = this.widget.state.expanded
 
     const position = `.babble-sidebar--${Discourse.SiteSettings.babble_position}`
     let   opts     = {}
@@ -23,7 +28,20 @@ export default Ember.Object.create({
       opts.style = `height: ${visibleInWindow('#main') - headerMargin}px;`
     }
 
-    return h(`div.babble-sidebar${position}${helperCss}`, opts, [this.channels(), this.chat()])
+    return h(`div.babble-sidebar${position}${css}`, opts, [this.channels(), this.chat()])
+  },
+
+  collapsed(css) {
+    var icon
+    if (Babble.loadingTopics) {
+      icon = h('div.spinner-container', h('div.spinner'))
+    } else {
+      icon = this.widget.attach('button', {
+        icon: Discourse.SiteSettings.babble_icon,
+        action: 'openChat'
+      })
+    }
+    return h(`div.btn.babble-sidebar-collapsed.babble-sidebar-collapsed--${Discourse.SiteSettings.babble_position}${css}`, icon)
   },
 
   channels() {

@@ -43,7 +43,6 @@ export default MountWidget.extend({
     })
 
     this.appEvents.on("babble-toggle-chat", (topic) => {
-      this.appEvents.trigger('babble-initialize')
       if (!this.visible) {
         this.openChat(topic)
       } else {
@@ -114,10 +113,14 @@ export default MountWidget.extend({
   },
 
   openChat(topic, postNumber) {
-    if (this.visible) { this.closeChat() }
-    if (topic) { this.set('topic', topic) }
-    this.set('visible', true)
-    Babble.bind(this, this.topic, postNumber)
+    if (this.initialized) {
+      if (this.visible) { this.closeChat() }
+      if (topic) { this.set('topic', topic) }
+      this.set('visible', true)
+      Babble.bind(this, this.topic, postNumber)
+    } else {
+      this.appEvents.trigger('babble-initialize')
+    }
   },
 
   closeChat() {

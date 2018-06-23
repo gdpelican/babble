@@ -15,7 +15,11 @@ export default Ember.Object.create({
   },
 
   topicsHeaderContent() {
-    return [this.topicsHeaderText(), this.closeButton()]
+    return [
+      this.topicsHeaderIcon(),
+      this.topicsHeaderText(),
+      this.closeButton()
+    ]
   },
 
   closeButton() {
@@ -39,6 +43,11 @@ export default Ember.Object.create({
   searchAutocomplete(type) {
     if (!this.widget.state.search[type]) { return }
     return h(`div.babble-${type}-autocomplete`, h('input', { placeholder: I18n.t(`babble.${type}_autocomplete`)}))
+  },
+
+  topicsHeaderIcon() {
+    const icon = Discourse.SiteSettings.babble_icon
+    return h(`i.fa.fa-${icon}.d-icon.d-icon-${icon}.babble-title-icon`)
   },
 
   topicsHeaderText() {

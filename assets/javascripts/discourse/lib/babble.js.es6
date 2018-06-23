@@ -86,8 +86,11 @@ export default Ember.Object.create({
   },
 
   loadAvailableTopics() {
+    this.set('loadingTopics', true)
     return ajax(`/babble/topics.json`).then((data) => {
       return data.topics.map((t) => { return this.buildTopic(t) })
+    }).finally(() => {
+      this.set('loadingTopics', null)
     })
   },
 

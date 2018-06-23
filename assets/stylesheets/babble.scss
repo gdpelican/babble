@@ -1,15 +1,6 @@
 $default-chat-width: 300px;
 
-#babble-icon-unread {
-  i {
-    transition: color ease-in-out 0.5s;
-    color: $danger;
-  }
-}
-
-#babble-file-input {
-  display: none;
-}
+#babble-file-input { display: none; }
 
 @media (min-width: 700px) and (max-width: 1500px) {
   #main-outlet {
@@ -27,18 +18,56 @@ $default-chat-width: 300px;
   max-width: 100%;
   background: $secondary;
   position: fixed;
-  z-index: 1000;
+  z-index: 400;
   bottom: 0;
   height: calc(100% - 64px);
   margin-top: 64px;
   box-shadow: 0 2px 2px $primary;
   &.expanded { width: 100% !important; }
   &.mobile {
+    z-index: 1000;
     margin-top: 0;
     height: 100%;
   }
   &.babble-sidebar--right { right: 0; }
   &.babble-sidebar--left  { left: 0; }
+}
+
+.babble-sidebar-collapsed {
+  transition: all 0.4s ease-in-out;
+  position: fixed;
+  width: 60px;
+  height: 60px;
+  font-size: 20px;
+  z-index: 400;
+  padding: 0;
+  bottom: 40px;
+  background: $primary;
+  i { color: $secondary; }
+  &--left {
+    left: -10px;
+    border-radius: 0 100px 100px 0;
+  }
+  &--right {
+    right: -10px;
+    border-radius: 100px 0 0 100px;
+  }
+  .widget-button {
+    background: none;
+    padding: 15px;
+  }
+  .spinner {
+    width: 15px;
+    height: 15px;
+  }
+  &.mobile {
+    z-index: 1000;
+    top: 0px !important;
+    height: 0px;
+    bottom: 100%;
+    i { display: none; }
+    border-radius: 0;
+  }
 }
 
 .babble-title h4 {
@@ -49,6 +78,11 @@ $default-chat-width: 300px;
   overflow: hidden;
   white-space: nowrap;
   text-overflow: ellipsis;
+}
+
+.babble-title-icon {
+  margin-left: 10px;
+  font-size: 16px;
 }
 
 .d-header .icons .babble-title [class^="fa fa-"] {
@@ -261,7 +295,6 @@ $default-chat-width: 300px;
 }
 
 .babble-available-topic {
-  transition: background 0.5s ease-in-out;
   display: flex;
   justify-content: space-between;
   flex-direction: row;
@@ -355,6 +388,8 @@ $default-chat-width: 300px;
 }
 
 .babble-sidebar {
+  transition: all 0.4s ease-in-out;
+
   .normalized {
     border: none;
     width: 25px;

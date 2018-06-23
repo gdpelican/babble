@@ -9,8 +9,6 @@ export default {
   initialize() {
     withPluginApi('0.8.9', api => {
 
-
-
       let _click = queryRegistry('notification-item').prototype.click
       let _url   = queryRegistry('notification-item').prototype.url
       api.reopenWidget('notification-item', {
