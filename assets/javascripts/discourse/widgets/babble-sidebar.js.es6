@@ -4,13 +4,16 @@ import { h } from 'virtual-dom'
 
 export default createWidget('babble-sidebar', {
   tagName: 'div.babble-sidebar-wrapper',
-  buildKey: () => `babble-sidebar`,
+  buildKey(attrs) {
+    if (!attrs.topic) { return 'babbleSidebar' }
+    return `babbleSidebar${attrs.topic.id}`
+  },
 
   defaultState(attrs) {
     return {
       visible:   attrs.visible,
       topic:     attrs.topic,
-      view:      'channels'
+      view:      attrs.topic ? 'chat' : 'channels'
     }
   },
 

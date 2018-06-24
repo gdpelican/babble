@@ -1,7 +1,6 @@
 import MountWidget from 'discourse/components/mount-widget'
 import Babble from '../lib/babble'
 import { on, observes } from 'ember-addons/ember-computed-decorators'
-import { ajax } from 'discourse/lib/ajax'
 import { setupLiveUpdate } from '../lib/chat-live-update-utils'
 
 export default MountWidget.extend({
@@ -39,12 +38,14 @@ export default MountWidget.extend({
     }
 
     this.appEvents.on("babble-go-to-post", ({topicId, postNumber}) => {
-      this.goToPost(topicId, postNumber)
+      Babble.loadTopic(topicId, { postNumber }).then((topic) => {
+        this.openChat(topic, postNumber)
+      }, console.log)
     })
 
-    this.appEvents.on("babble-toggle-chat", (topic) => {
+    this.appEvents.on("babble-toggle-chat", (topic, postNumber) => {
       if (!this.visible) {
-        this.openChat(topic)
+        this.openChat(topic, postNumber)
       } else {
         this.closeChat()
       }
@@ -58,7 +59,7 @@ export default MountWidget.extend({
       this.rerenderWidget()
     })
 
-    this.appEvents.on('babble-initialize', () => {
+    this.appEvents.on('babble-initialize', (topic, postNumber) => {
       if (this.initialized) { return }
       this.set('initialized', true)
 
@@ -68,7 +69,7 @@ export default MountWidget.extend({
           this.topic = this.availableTopics[0]
         }
         if (this.availableTopics.length > 0) {
-          this.appEvents.trigger('babble-toggle-chat')
+          this.appEvents.trigger('babble-toggle-chat', topic, postNumber)
         }
       })
 
@@ -106,12 +107,6 @@ export default MountWidget.extend({
     this.rerenderWidget()
   },
 
-  goToPost(topicId, postNumber) {
-    ajax(`/babble/topics/${topicId}?near_post=${postNumber}`).then((data) => {
-      this.openChat(Babble.buildTopic(data), postNumber)
-    }, console.log)
-  },
-
   openChat(topic, postNumber) {
     if (this.initialized) {
       if (this.visible) { this.closeChat() }
@@ -119,7 +114,7 @@ export default MountWidget.extend({
       this.set('visible', true)
       Babble.bind(this, this.topic, postNumber)
     } else {
-      this.appEvents.trigger('babble-initialize')
+      this.appEvents.trigger('babble-initialize', topic, postNumber)
     }
   },
 

@@ -7,7 +7,7 @@ import lastVisibleElement from '../lib/last-visible-element'
 import debounce from 'discourse/lib/debounce'
 import { ajax } from 'discourse/lib/ajax'
 import { applyBrowserHacks, scrollToPost, setupScrollContainer, setupComposer, teardownComposer, hasChatElements } from '../lib/chat-element-utils'
-import { syncWithPostStream, latestPostFor, latestPostIsMine, setupPresence, teardownPresence, setupLastReadMarker } from '../lib/chat-topic-utils'
+import { syncWithPostStream, latestPostFor, latestPostIsMine, teardownPresence, setupLastReadMarker } from '../lib/chat-topic-utils'
 import { forEachTopicContainer } from '../lib/chat-topic-iterators'
 import { rerender } from '../lib/chat-component-utils'
 import { setupLiveUpdate, teardownLiveUpdate, updateUnread } from '../lib/chat-live-update-utils'
@@ -26,10 +26,10 @@ export default Ember.Object.create({
     }, console.log)
   },
 
-  bind(component, topic, toPost) {
+  bind(component, topic, postNumber) {
     if (!topic) { return }
 
-    toPost = toPost || topic.last_read_post_number
+    postNumber = postNumber || topic.last_read_post_number
 
     const previous = BabbleRegistry.topicForComponent(component)
     if (previous) { teardownLiveUpdate(previous, 'posts') }
@@ -48,9 +48,8 @@ export default Ember.Object.create({
 
       if (hasChatElements(component.element)) {
         setupScrollContainer(topic)
-        setupPresence(topic)
         setupComposer(topic)
-        scrollToPost(topic, toPost, 0)
+        scrollToPost(topic, postNumber, 0)
         applyBrowserHacks(topic)
       }
     })
@@ -77,8 +76,9 @@ export default Ember.Object.create({
 
   loadTopic(id, opts = {}) {
     this.set('loadingTopicId', id)
-    let path = opts.pm ? '/pm' : ''
-    return ajax(`/babble/topics/${path}/${id}.json`).then((data) => {
+    let path  = opts.pm ? '/pm' : ''
+    let query = opts.postNumber ? `?near_post=${opts.postNumber}` : ''
+    return ajax(`/babble/topics/${path}/${id}.json${query}`).then((data) => {
       return this.buildTopic(data)
     }).finally(() => {
       this.set('loadingTopicId', null)

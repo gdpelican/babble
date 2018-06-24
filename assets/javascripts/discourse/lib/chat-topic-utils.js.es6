@@ -1,5 +1,4 @@
 import { rerender } from './chat-component-utils'
-import { ajax } from 'discourse/lib/ajax'
 
 let syncWithPostStream = function(topic) {
   let postNumbers = topic.postStream.posts.map(function(post) { return post.post_number })
@@ -53,18 +52,6 @@ let isNewDay = function(post, previous) {
          moment(post.created_at).date() > moment(previous.created_at).date()
 }
 
-// ping every 59 seconds to say we're still here while the chat is bound, as well
-// as announcing when the chat is first bound
-let setupPresence = function(topic) {
-  // TODO
-  // topic.set('pingWhilePresent', setInterval(announcePresence(topic), 1000 * 59))
-  // announcePresence(topic)()
-}
-
-let announcePresence = function(topic) {
-  return () => ajax(`/babble/topics/${topic.id}/online`, { type: 'POST' })
-}
-
 let teardownPresence = function(topic) {
   clearInterval(topic.pingWhilePresent)
 }
@@ -77,4 +64,4 @@ let setupLastReadMarker = function(topic) {
   }
 }
 
-export { syncWithPostStream, latestPostFor, latestPostIsMine, isFollowOn, isNewDay, setupPresence, teardownPresence, setupLastReadMarker }
+export { syncWithPostStream, latestPostFor, latestPostIsMine, isFollowOn, isNewDay, teardownPresence, setupLastReadMarker }
