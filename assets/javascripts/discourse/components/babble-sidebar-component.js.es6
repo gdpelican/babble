@@ -1,7 +1,6 @@
 import MountWidget from 'discourse/components/mount-widget'
 import Babble from '../lib/babble'
 import { on, observes } from 'ember-addons/ember-computed-decorators'
-import { setupLiveUpdate } from '../lib/chat-live-update-utils'
 
 export default MountWidget.extend({
   widget: 'babble-sidebar',

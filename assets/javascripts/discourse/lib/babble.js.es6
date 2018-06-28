@@ -6,7 +6,7 @@ import elementIsVisible from '../lib/element-is-visible'
 import lastVisibleElement from '../lib/last-visible-element'
 import debounce from 'discourse/lib/debounce'
 import { ajax } from 'discourse/lib/ajax'
-import { applyBrowserHacks, scrollToPost, setupScrollContainer, setupComposer, teardownComposer, hasChatElements } from '../lib/chat-element-utils'
+import { scrollToPost, setupScrollContainer, setupComposer, teardownComposer, hasChatElements } from '../lib/chat-element-utils'
 import { syncWithPostStream, latestPostFor, latestPostIsMine, teardownPresence, setupLastReadMarker } from '../lib/chat-topic-utils'
 import { forEachTopicContainer } from '../lib/chat-topic-iterators'
 import { rerender } from '../lib/chat-component-utils'
@@ -50,7 +50,6 @@ export default Ember.Object.create({
         setupScrollContainer(topic)
         setupComposer(topic)
         scrollToPost(topic, postNumber, 0)
-        applyBrowserHacks(topic)
       }
     })
 
