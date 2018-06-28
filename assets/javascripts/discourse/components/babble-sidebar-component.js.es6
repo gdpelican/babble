@@ -1,11 +1,17 @@
 import MountWidget from 'discourse/components/mount-widget'
 import Babble from '../lib/babble'
 import { on, observes } from 'ember-addons/ember-computed-decorators'
+var whosOnline
+
+if (Discourse.SiteSettings.whos_online_enabled) {
+  whosOnline = Ember.inject.service('online-service')
+}
 
 export default MountWidget.extend({
   widget: 'babble-sidebar',
   availableTopics: [],
   availableUsers: [],
+  whosOnline: whosOnline,
 
   buildArgs() {
     return {
@@ -15,7 +21,11 @@ export default MountWidget.extend({
       availableUsers:     this.availableUsers,
       lastReadPostNumber: (this.topic || {}).last_read_post_number,
       visible:            (this.initialized && this.visible),
-      csrf:               this.session.get('csrfToken')
+      csrf:               this.session.get('csrfToken'),
+      isOnline:           (userId) => {
+        if (!this.get('whosOnline')) { return }
+        return this.get('whosOnline').isUserOnline(userId)
+      }
     }
   },
 
