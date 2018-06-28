@@ -1,6 +1,7 @@
 export default Ember.Object.create({
   _topics: {},
   _components: {},
+  _users: {},
   _bindings: [],
 
   bind(component, topic) {
@@ -16,9 +17,35 @@ export default Ember.Object.create({
     this._bindings = _.without(this._bindings, componentBinding)
   },
 
-  store(model, cache, field) {
-    if (!this[cache][model[field]]) { this[cache][model[field]] = model }
+  store(model, cache, field, force = false) {
+    if (force || !this[cache][model[field]]) { this[cache][model[field]] = model }
     return this[cache][model[field]]
+  },
+
+  storeTopic(topic) {
+    this.store(topic, '_topics', 'id', true)
+    return this.fetchTopic(topic.id)
+  },
+
+  storeUser(user) {
+    this.store(user, '_users', 'id', true)
+    return this.fetchUser(user.id)
+  },
+
+  fetchTopic(topicId) {
+    return this._topics[topicId]
+  },
+
+  fetchUser(userId) {
+    return this._users[userId]
+  },
+
+  allTopics() {
+    return _.values(this._topics)
+  },
+
+  allUsers() {
+    return _.values(this._users)
   },
 
   componentsForTopic(topic) {

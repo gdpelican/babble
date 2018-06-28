@@ -1,6 +1,7 @@
 import MountWidget from 'discourse/components/mount-widget'
 import Babble from '../lib/babble'
 import { on, observes } from 'ember-addons/ember-computed-decorators'
+import { setupLiveUpdate } from '../lib/chat-live-update-utils'
 var whosOnline
 
 if (Discourse.SiteSettings.whos_online_enabled) {
@@ -17,9 +18,8 @@ export default MountWidget.extend({
     return {
       topic:              this.topic,
       mobile:             this.site.isMobileDevice,
-      availableTopics:    this.availableTopics,
-      availableUsers:     this.availableUsers,
-      lastReadPostNumber: (this.topic || {}).last_read_post_number,
+      availableTopics:    Babble.availableTopics(),
+      availableUsers:     Babble.availableUsers(),
       visible:            (this.initialized && this.visible),
       csrf:               this.session.get('csrfToken'),
       isOnline:           (userId) => {
@@ -68,28 +68,8 @@ export default MountWidget.extend({
       this.rerenderWidget()
     })
 
-    this.appEvents.on('babble-initialize', (topic, postNumber) => {
-      if (this.initialized) { return }
-      this.set('initialized', true)
-
-      Babble.loadAvailableTopics().then((topics) => {
-        this.set('availableTopics', topics)
-        if (this.availableTopics.length == 1) {
-          this.topic = this.availableTopics[0]
-        }
-        if (this.availableTopics.length > 0) {
-          this.appEvents.trigger('babble-toggle-chat', topic, postNumber)
-        }
-      })
-
-      Babble.loadAvailableUsers().then((users) => {
-        this.set('availableUsers', users)
-        this.appEvents.trigger('babble-rerender')
-      })
-    })
-
     if (!this.site.isMobileDevice && Discourse.SiteSettings.babble_open_by_default) {
-      this.appEvents.trigger("babble-initialize")
+      this.initialize()
     }
   },
 
@@ -116,14 +96,40 @@ export default MountWidget.extend({
     this.rerenderWidget()
   },
 
+  initialize(topic, postNumber) {
+    if (this.initialized) { return }
+    this.set('initialized', true)
+
+    Babble.loadAvailableTopics().then((topics) => {
+      _.each(topics, (topic) => {
+        setupLiveUpdate(topic, {
+          'posts': (data) => {
+            if (!this.visible) { return }
+            Babble.handleNewPost(data)
+            this.rerenderWidget()
+          }
+        })
+      })
+
+      if (Babble.availableTopics().length > 0) {
+        this.appEvents.trigger('babble-toggle-chat', topic, postNumber)
+      }
+    })
+
+    Babble.loadAvailableUsers().then((users) => {
+      this.set('availableUsers', users)
+      this.appEvents.trigger('babble-rerender')
+    })
+  },
+
   openChat(topic, postNumber) {
     if (this.initialized) {
       if (this.visible) { this.closeChat() }
-      if (topic) { this.set('topic', topic) }
+      if (topic) { this.set('topic', Babble.fetchTopic(topic.id)) }
       this.set('visible', true)
       Babble.bind(this, this.topic, postNumber)
     } else {
-      this.appEvents.trigger('babble-initialize', topic, postNumber)
+      this.initialize(topic, postNumber)
     }
   },
 

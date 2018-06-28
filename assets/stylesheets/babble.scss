@@ -302,11 +302,11 @@ $default-chat-width: 300px;
   align-items: center;
   transition: background-color 0.25s ease-in-out;
   cursor: pointer;
-  font-weight: bold;
   padding: 10px;
   &:hover {
     background: dark-light-diff($primary, $secondary, 95%, -95%);
   }
+  &.unread { font-weight: bold; }
   a { flex-grow: 1; }
 }
 

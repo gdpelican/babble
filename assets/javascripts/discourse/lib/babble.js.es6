@@ -1,5 +1,4 @@
 import Post from 'discourse/models/post'
-import PostStream from 'discourse/models/post-stream'
 import Topic from 'discourse/models/topic'
 import User from 'discourse/models/user'
 import elementIsVisible from '../lib/element-is-visible'
@@ -7,7 +6,7 @@ import lastVisibleElement from '../lib/last-visible-element'
 import debounce from 'discourse/lib/debounce'
 import { ajax } from 'discourse/lib/ajax'
 import { scrollToPost, setupScrollContainer, setupComposer, teardownComposer, hasChatElements } from '../lib/chat-element-utils'
-import { syncWithPostStream, latestPostFor, latestPostIsMine, teardownPresence, setupLastReadMarker } from '../lib/chat-topic-utils'
+import { syncWithPostStream, latestPostFor, latestPostIsMine, teardownPresence, setupLastReadMarker, applyPostStream } from '../lib/chat-topic-utils'
 import { forEachTopicContainer } from '../lib/chat-topic-iterators'
 import { rerender } from '../lib/chat-component-utils'
 import { setupLiveUpdate, teardownLiveUpdate, updateUnread } from '../lib/chat-live-update-utils'
@@ -31,9 +30,6 @@ export default Ember.Object.create({
 
     postNumber = postNumber || topic.last_read_post_number
 
-    const previous = BabbleRegistry.topicForComponent(component)
-    if (previous) { teardownLiveUpdate(previous, 'posts') }
-
     this.unbind(component)
     topic = BabbleRegistry.bind(component, topic)
 
@@ -41,7 +37,6 @@ export default Ember.Object.create({
       setupLastReadMarker(topic)
       setupLiveUpdate(topic, {
         '':       ((data) => { this.buildTopic(data) }),
-        'posts':  ((data) => { this.handleNewPost(topic, data) }),
         'typing': ((data) => { this.handleTyping(topic, data) }),
         'online': ((data) => { this.handleOnline(topic, data) })
       })
@@ -62,8 +57,6 @@ export default Ember.Object.create({
     let topic = BabbleRegistry.topicForComponent(component)
     if (!topic) { return }
 
-    // NB we don't tear down the post listener here!
-    // This is only swapped out once a new topic is bound
     teardownLiveUpdate(topic, '', 'typing', 'online')
 
     if (hasChatElements(component.element)) {
@@ -99,23 +92,28 @@ export default Ember.Object.create({
     })
   },
 
+  availableTopics() {
+    return BabbleRegistry.allTopics()
+  },
+
+  availableUsers() {
+    return BabbleRegistry.allUsers()
+  },
+
+  fetchTopic(topicId) {
+    return BabbleRegistry.fetchTopic(topicId)
+  },
+
   topicForComponent(component) {
     return BabbleRegistry.topicForComponent(component)
   },
 
   buildTopic(data) {
     if (!data.id) { return }
-
     let topic = Topic.create(data)
-    let postStream = PostStream.create(topic.post_stream)
-    postStream.topic = topic
-    postStream.updateFromJson(topic.post_stream)
-    topic.postStream = postStream
-    topic.typing = {}
-    topic.online = {}
-
+    applyPostStream(topic)
     syncWithPostStream(topic)
-    return topic
+    return BabbleRegistry.storeTopic(topic)
   },
 
   createPost(topic, text) {
@@ -124,7 +122,7 @@ export default Ember.Object.create({
       type: 'POST',
       data: { raw: text }
     }).then((data) => {
-      this.handleNewPost(topic, data)
+      this.handleNewPost(data)
     })
   },
 
@@ -159,7 +157,7 @@ export default Ember.Object.create({
       type: 'POST',
       data: { raw: text }
     }).then((data) => {
-      this.handleNewPost(topic, data)
+      this.handleNewPost(data)
     }).finally(() => {
       topic.set('loadingEditId', null)
     })
@@ -199,9 +197,10 @@ export default Ember.Object.create({
     return data
   },
 
-  handleNewPost(topic, data) {
-    if (data.topic_id != topic.id) { return }
-
+  handleNewPost(data) {
+    let topic = BabbleRegistry.fetchTopic(data.topic_id)
+    if (!topic) { return }
+    
     delete topic.typing[data.username]
 
     let post = Post.create(this.populatePermissions(data))

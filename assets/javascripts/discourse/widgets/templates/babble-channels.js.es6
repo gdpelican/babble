@@ -94,7 +94,8 @@ export default Ember.Object.create({
   },
 
   availableTopicListItem(item, type) {
-    return h('li.babble-available-topic.row', [
+    let css = item.unreadCount > 0 ? '.unread' : ''
+    return h(`li.babble-available-topic.row${css}`, [
       this.availableTopicAvatar(item, type),
       this.availableTopicLink(item, type),
       this.loadingSpinner(Babble.loadingTopicId === item.id)

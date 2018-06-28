@@ -1,4 +1,5 @@
 import { rerender } from './chat-component-utils'
+import PostStream from 'discourse/models/post-stream'
 
 let syncWithPostStream = function(topic) {
   let postNumbers = topic.postStream.posts.map(function(post) { return post.post_number })
@@ -64,4 +65,14 @@ let setupLastReadMarker = function(topic) {
   }
 }
 
-export { syncWithPostStream, latestPostFor, latestPostIsMine, isFollowOn, isNewDay, teardownPresence, setupLastReadMarker }
+let applyPostStream = function(topic) {
+  let postStream = PostStream.create(topic.post_stream)
+  postStream.topic = topic
+  postStream.updateFromJson(topic.post_stream)
+  topic.postStream = postStream
+  topic.typing = {}
+  topic.online = {}
+  return topic
+}
+
+export { syncWithPostStream, latestPostFor, latestPostIsMine, isFollowOn, isNewDay, teardownPresence, setupLastReadMarker, applyPostStream }
