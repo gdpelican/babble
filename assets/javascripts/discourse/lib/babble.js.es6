@@ -32,9 +32,9 @@ export default Ember.Object.create({
 
     this.unbind(component)
     topic = BabbleRegistry.bind(component, topic)
+    setupLastReadMarker(topic)
 
     Ember.run.scheduleOnce('afterRender', () => {
-      setupLastReadMarker(topic)
       setupLiveUpdate(topic, {
         '':       ((data) => { this.buildTopic(data) }),
         'typing': ((data) => { this.handleTyping(topic, data) }),
@@ -200,7 +200,7 @@ export default Ember.Object.create({
   handleNewPost(data) {
     let topic = BabbleRegistry.fetchTopic(data.topic_id)
     if (!topic) { return }
-    
+
     delete topic.typing[data.username]
 
     let post = Post.create(this.populatePermissions(data))

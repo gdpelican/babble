@@ -112,13 +112,17 @@ $default-chat-width: 300px;
 }
 
 .babble-post-hr-message {
-  border-bottom: 1px solid $primary;
+  border-bottom: 1px solid dark-light-diff($primary, $secondary, 85%, -85%);;
   position: relative;
   bottom: 15px;
   margin-top: 10px;
   width: 100%;
   text-align: center;
-  &.babble-last-read { margin-bottom: -10px; }
+  &.babble-last-read {
+    margin-bottom: -10px;
+    border-color: orange;
+    color: orange;
+  }
   > button {
     font-size: 13px;
     font-weight: bold;
@@ -127,14 +131,11 @@ $default-chat-width: 300px;
     padding: 4px 8px;
   }
   > span {
-    margin: auto;
     position: relative;
     top: 10px;
     background: $secondary;
     padding: 0 10px;
     font-size: 11px;
-    font-weight: bold;
-    display: inline-block;
   }
 }
 
@@ -183,12 +184,17 @@ $default-chat-width: 300px;
     }
     .babble-post-cooked {
       margin: 0;
+      word-break: break-word;
     }
 
     .babble-post-meta-data {
       margin-top: -4px;
       order: 2;
     }
+  }
+
+  .babble-post-name a {
+    color: $primary;
   }
 
   .babble-post-date {
@@ -210,7 +216,6 @@ $default-chat-width: 300px;
     flex-grow: 1;
     a.mention {
       display: inline;
-      padding: 0;
     }
     p { margin: 0; }
     img {
@@ -227,10 +232,6 @@ $default-chat-width: 300px;
     -webkit-flex-direction: row;
     justify-content: space-between;
     -webkit-justify-content: space-between;
-  }
-
-  .babble-post-cooked {
-    word-break: break-word;
   }
 
   .babble-post-actions-ellipsis i {
