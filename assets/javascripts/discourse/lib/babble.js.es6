@@ -266,6 +266,7 @@ export default Ember.Object.create({
       admin:              user.get('admin'),
       created_at:         moment()
     })
+    topic.postStream.set('loadedAllPosts', true)
     topic.postStream.stagePost(post, user)
     topic.set('lastLoadedPostNumber', post.post_number)
     scrollToPost(topic, post.post_number)
