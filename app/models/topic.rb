@@ -7,5 +7,9 @@ class ::Topic
   singleton_class.prepend ForDigest
 
   scope :babble,        -> { where(archetype: Archetype.chat) }
-  scope :babble_not_pm, -> { babble.where("subtype IS NULL OR subtype <> ?", TopicSubtype.user_to_user) }
+  scope :babble_not_pm, ->(user_id) {
+    babble.select('topics.*, tu.last_read_post_number')
+          .where("subtype IS NULL OR subtype <> ?", TopicSubtype.user_to_user)
+          .joins("LEFT OUTER JOIN topic_users tu ON tu.topic_id = topics.id AND tu.user_id = #{user_id.to_i}")
+  }
 end

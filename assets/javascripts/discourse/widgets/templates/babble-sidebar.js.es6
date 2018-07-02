@@ -5,21 +5,10 @@ import Babble from '../../lib/babble'
 export default Ember.Object.create({
   render(widget) {
     this.widget = widget
-    let css = ''
-
-    if (this.widget.state.expanded || this.widget.attrs.mobile) {
-      css += '.expanded'
-    }
-    if (this.widget.attrs.mobile) {
-      css += '.mobile'
-    }
-    // if (_.sum(this.widget.attrs.availableTopics)) {
-    // }
-
-    return widget.attrs.visible ? this.expanded(css) : this.collapsed(css)
+    return widget.attrs.visible ? this.expanded() : this.collapsed()
   },
 
-  expanded(css) {
+  expanded() {
     this.widget.attrs.expanded = this.widget.state.expanded
 
     const position = `.babble-sidebar--${Discourse.SiteSettings.babble_position}`
@@ -30,10 +19,10 @@ export default Ember.Object.create({
       opts.style = `height: ${visibleInWindow('#main') - headerMargin}px;`
     }
 
-    return h(`div.babble-sidebar${position}${css}`, opts, [this.channels(), this.chat()])
+    return h(`div.babble-sidebar${position}${this.css()}`, opts, [this.channels(), this.chat()])
   },
 
-  collapsed(css) {
+  collapsed() {
     var icon
     if (Babble.loadingTopics) {
       icon = h('div.spinner-container', h('div.spinner'))
@@ -43,7 +32,7 @@ export default Ember.Object.create({
         action: 'openChat'
       })
     }
-    return h(`div.btn.babble-sidebar-collapsed.babble-sidebar-collapsed--${Discourse.SiteSettings.babble_position}${css}`, icon)
+    return h(`div.btn.babble-sidebar-collapsed.babble-sidebar-collapsed--${Discourse.SiteSettings.babble_position}${this.css()}`, icon)
   },
 
   channels() {
@@ -54,5 +43,19 @@ export default Ember.Object.create({
   chat() {
     if (this.widget.state.view != 'chat') { return null }
     return this.widget.attach('babble-chat', this.widget.attrs)
+  },
+
+  css() {
+    let css = ''
+    if (this.widget.state.expanded || this.widget.attrs.mobile) {
+      css += '.expanded'
+    }
+    if (this.widget.attrs.mobile) {
+      css += '.mobile'
+    }
+    if (this.widget.attrs.hasUnread) {
+      css += '.unread'
+    }
+    return css
   }
 })

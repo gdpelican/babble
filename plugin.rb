@@ -26,6 +26,7 @@ after_initialize do
   babble_require 'controllers/posts_controller'
   babble_require 'controllers/users_controller'
 
+  babble_require 'serializers/basic_topic_serializer'
   babble_require 'serializers/notification_serializer'
   babble_require 'serializers/post_serializer'
   babble_require 'serializers/topic_serializer'

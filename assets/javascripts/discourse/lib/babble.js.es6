@@ -232,7 +232,7 @@ export default Ember.Object.create({
       if (performScroll) { scrollToPost(topic, post.post_number) }
     }
 
-    syncWithPostStream(topic)
+    return syncWithPostStream(topic)
   },
 
   handleTyping(topic, data) {

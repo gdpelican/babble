@@ -94,7 +94,7 @@ export default Ember.Object.create({
   },
 
   availableTopicListItem(item, type) {
-    let css = item.unreadCount > 0 ? '.unread' : ''
+    let css = item.hasUnread ? '.unread' : ''
     return h(`li.babble-available-topic.row${css}`, [
       this.availableTopicAvatar(item, type),
       this.availableTopicLink(item, type),

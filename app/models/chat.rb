@@ -16,10 +16,10 @@ class ::Babble::Chat
   end
 
   def self.available_topics_for(guardian, pm: true)
-    query = if pm then ::Topic.babble else ::Topic.babble_not_pm end
+    user_id = guardian.user.id unless guardian.anonymous?
+    query = if pm then ::Topic.babble else ::Topic.babble_not_pm(user_id) end
     return query if guardian.is_admin?
 
-    user_id      = guardian.user.id unless guardian.anonymous?
     category_ids = ::Category.post_create_allowed(guardian).pluck(:id)
     query.joins("LEFT OUTER JOIN topic_allowed_groups tg ON tg.topic_id = topics.id")
          .joins("LEFT OUTER JOIN group_users gu ON gu.group_id = tg.group_id")
