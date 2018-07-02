@@ -23,16 +23,10 @@ export default Ember.Object.create({
   },
 
   collapsed() {
-    var icon
-    if (Babble.loadingTopics) {
-      icon = h('div.spinner-container', h('div.spinner'))
-    } else {
-      icon = this.widget.attach('button', {
-        icon: Discourse.SiteSettings.babble_icon,
-        action: 'openChat'
-      })
-    }
-    return h(`div.btn.babble-sidebar-collapsed.babble-sidebar-collapsed--${Discourse.SiteSettings.babble_position}${this.css()}`, icon)
+    return h(`div.btn.babble-sidebar-collapsed.babble-sidebar-collapsed--${Discourse.SiteSettings.babble_position}${this.css()}`, [
+      this.collapsedIcon(),
+      this.collapsedUnread()
+    ])
   },
 
   channels() {
@@ -45,6 +39,23 @@ export default Ember.Object.create({
     return this.widget.attach('babble-chat', this.widget.attrs)
   },
 
+  collapsedIcon() {
+    if (Babble.loadingTopics) {
+      return h('div.spinner-container', h('div.spinner'))
+    } else {
+      return this.widget.attach('button', {
+        icon: Discourse.SiteSettings.babble_icon,
+        action: 'openChat'
+      })
+    }
+  },
+
+  collapsedUnread() {
+    if (this.unreadCount() + this.notificationCount() > 0) {
+      return h('div.babble-unread.babble-unread--sidebar', (this.notificationCount() || '•').toString())
+    }
+  },
+
   css() {
     let css = ''
     if (this.widget.state.expanded || this.widget.attrs.mobile) {
@@ -53,9 +64,22 @@ export default Ember.Object.create({
     if (this.widget.attrs.mobile) {
       css += '.mobile'
     }
-    if (_.any(Babble.availableTopics(), (topic) => { return topic.hasUnread })) {
-      css += '.unread'
-    }
     return css
+  },
+
+  notificationCount() {
+    if (this.widget.attrs.initialized) {
+      return Babble.availableNotifications().length
+    } else {
+      return this.widget.attrs.summary.notificationCount
+    }
+  },
+
+  unreadCount() {
+    if (this.widget.attrs.initialized) {
+      return Babble.availableTopics().reduce((total, topic) => { return total + topic.unreadCount }, 0)
+    } else {
+      return this.widget.attrs.summary.unreadCount
+    }
   }
 })

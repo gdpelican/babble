@@ -8,28 +8,6 @@ export default {
   name: 'babble-common-init',
   initialize() {
     withPluginApi('0.8.9', api => {
-
-      let _click = queryRegistry('notification-item').prototype.click
-      let _url   = queryRegistry('notification-item').prototype.url
-      api.reopenWidget('notification-item', {
-        click(e) {
-          _click.apply(this, [e])
-          this.appEvents.trigger("babble-go-to-post", {
-            topicId: this.attrs.data.chat_topic_id,
-            postNumber:  this.attrs.data.post_number
-          })
-        },
-
-        url() {
-          if (this.attrs.data.chat_topic_id) {
-            // we don't want to navigate anywhere for chat events, we'll
-            // open the sidebar automatically when we need to
-            return ""
-          }
-          return _url.apply(this)
-        }
-      })
-
       api.modifyClass("controller:flag", {
         actions: {
           createFlag(opts) {

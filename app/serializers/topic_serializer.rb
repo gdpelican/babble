@@ -16,6 +16,10 @@ class ::Babble::TopicSerializer < ActiveModel::Serializer
     scope.flagged_post_ids ||= PostAction.where(user: scope.user, post_id: object.post_ids).pluck(:post_id)
   end
 
+  def unread_count
+    object.highest_post_number > object.last_read_post_number ? 1 : 0
+  end
+
   def title
     if object.subtype == TopicSubtype.user_to_user
       object.allowed_group_users.where("users.id <> ?", scope.user.id).pluck(:name).join(', ')

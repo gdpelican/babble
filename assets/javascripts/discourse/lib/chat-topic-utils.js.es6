@@ -5,12 +5,12 @@ let syncWithPostStream = function(topic) {
   let postNumbers = topic.postStream.posts.map(function(post) { return post.post_number })
   topic.set('firstLoadedPostNumber', _.min(postNumbers))
   topic.set('lastLoadedPostNumber',  _.max(postNumbers))
-  topic.set('hasUnread',             hasUnread(topic))
+  topic.set('unreadCount',           unreadCount(topic))
   return rerender(topic)
 }
 
-let hasUnread = function(topic) {
-  return !latestPostIsMine(topic) && topic.highest_post_number > topic.last_read_post_number
+let unreadCount = function(topic) {
+  return !latestPostIsMine(topic) && topic.highest_post_number > topic.last_read_post_number ? 1 : 0
 }
 
 let latestPostFor = function(topic) {

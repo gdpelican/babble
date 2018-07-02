@@ -33,32 +33,23 @@ $default-chat-width: 300px;
   &.babble-sidebar--left  { left: 0; }
 }
 
-.babble-sidebar-collapsed {
-
-  &.unread {
-    &:before {
-      content: '';
-      position: absolute;
-      background: $danger;
-      box-shadow: 2px 2px 2px darken($danger, 50%);
-      top: 0;
-      left: 0;
-      height: 20px;
-      width: 20px;
-      border-radius: 100%;
-    }
-    &:after {
-      content: '';
-      position: absolute;
-      background: #fff;
-      top: 8px;
-      left: 8px;
-      height: 4px;
-      width: 4px;
-      border-radius: 100%;
-    }
+.babble-unread {
+  &--sidebar {
+    position: absolute;
+    top: 0;
+    left: 0;
+    box-shadow: 2px 2px 2px darken($danger, 50%);
   }
+  text-align: center;
+  background: dark-light-choose($tertiary-medium, $tertiary);
+  min-width: 20px;
+  line-height: 20px;
+  font-size: 14px;
+  color: $secondary;
+  border-radius: 100%;
+}
 
+.babble-sidebar-collapsed {
   transition: all 0.4s ease-in-out;
   position: fixed;
   width: 60px;

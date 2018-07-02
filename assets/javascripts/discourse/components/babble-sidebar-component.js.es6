@@ -1,7 +1,7 @@
 import MountWidget from 'discourse/components/mount-widget'
 import Babble from '../lib/babble'
 import { on, observes } from 'ember-addons/ember-computed-decorators'
-import { setupLiveUpdate } from '../lib/chat-live-update-utils'
+import { setupLiveUpdate, messageBus } from '../lib/chat-live-update-utils'
 var whosOnline
 
 if (Discourse.SiteSettings.whos_online_enabled) {
@@ -12,12 +12,15 @@ export default MountWidget.extend({
   widget: 'babble-sidebar',
   availableTopics: [],
   availableUsers: [],
+  summary: {},
   whosOnline: whosOnline,
 
   buildArgs() {
     return {
       topic:              this.topic,
       mobile:             this.site.isMobileDevice,
+      summary:            this.summary,
+      initialized:        this.initialized,
       availableTopics:    Babble.availableTopics(),
       availableUsers:     Babble.availableUsers(),
       visible:            (this.initialized && this.visible),
@@ -37,27 +40,17 @@ export default MountWidget.extend({
     this.set('targetObject', this)
 
     $(window).on('resize.babble-window-resize', _.debounce(() => {
-      this.appEvents.trigger('babble-rerender')
+      this.rerenderWidget()
     }, 250))
 
     if (Discourse.SiteSettings.babble_adaptive_height) {
       $(window).on('scroll.babble-scroll', _.throttle(() => {
-        this.appEvents.trigger('babble-rerender')
+        this.rerenderWidget()
       }, 250))
     }
 
-    this.appEvents.on("babble-go-to-post", ({topicId, postNumber}) => {
-      Babble.loadTopic(topicId, { postNumber }).then((topic) => {
-        this.openChat(topic, postNumber)
-      }, console.log)
-    })
-
-    this.appEvents.on("babble-toggle-chat", (topic, postNumber) => {
-      if (!this.visible) {
-        this.openChat(topic, postNumber)
-      } else {
-        this.closeChat()
-      }
+    this.appEvents.on("babble-toggle-chat", () => {
+      this.visible ? this.closeChat() : this.openChat()
     })
 
     this.appEvents.on("babble-upload-success", (markdown) => {
@@ -68,8 +61,16 @@ export default MountWidget.extend({
       this.rerenderWidget()
     })
 
+    Babble.subscribeToNotifications(this)
+
     if (!this.site.isMobileDevice && Discourse.SiteSettings.babble_open_by_default) {
       this.initialize()
+    } else {
+      Babble.loadSummary().then((data) => {
+        this.set('summary.unreadCount',       data.unread_count)
+        this.set('summary.notificationCount', data.notification_count)
+        this.rerenderWidget()
+      })
     }
   },
 
@@ -77,11 +78,8 @@ export default MountWidget.extend({
   _teardown() {
     $(window).off('resize.babble-window-resize')
     $(window).off('scroll.babble-scroll')
-    this.appEvents.off('babble-go-to-post')
     this.appEvents.off('babble-toggle-chat')
-    this.appEvents.off('babble-upload-init')
     this.appEvents.off('babble-upload-success')
-    this.appEvents.off('babble-upload-failure')
     this.appEvents.off('babble-rerender')
   },
 
@@ -96,39 +94,21 @@ export default MountWidget.extend({
     this.rerenderWidget()
   },
 
-  initialize(topic, postNumber) {
+  initialize(topic) {
     if (this.initialized) { return }
     this.set('initialized', true)
 
-    Babble.loadAvailableTopics().then((topics) => {
-      _.each(topics, (topic) => {
-        setupLiveUpdate(topic, {
-          'posts': (data) => {
-            Babble.handleNewPost(data)
-            this.rerenderWidget()
-          }
-        })
-      })
-
-      if (Babble.availableTopics().length > 0) {
-        this.appEvents.trigger('babble-toggle-chat', topic, postNumber)
-      }
-    })
-
-    Babble.loadAvailableUsers().then((users) => {
-      this.set('availableUsers', users)
-      this.appEvents.trigger('babble-rerender')
-    })
+    Babble.loadBoot(this).then(() => { this.openChat(topic) })
   },
 
-  openChat(topic, postNumber) {
+  openChat(topic) {
     if (this.initialized) {
       if (this.visible) { this.closeChat() }
       if (topic) { this.set('topic', Babble.fetchTopic(topic.id)) }
       this.set('visible', true)
-      Babble.bind(this, this.topic, postNumber)
+      Babble.bind(this, this.topic)
     } else {
-      this.initialize(topic, postNumber)
+      this.initialize(topic)
     }
   },
 

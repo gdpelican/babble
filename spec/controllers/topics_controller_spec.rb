@@ -278,6 +278,18 @@ describe ::Babble::TopicsController do
       expect(response_json['last_read_post_number']).to eq 2
     end
 
+    it "marks notifications as read for that post" do
+      post = Babble::PostCreator.create(another_user, raw: "I am mentioning @#{user.username}", skip_validations: true, topic_id: t.id)
+
+      n = Notification.last
+      expect(n.read).to eq false
+      expect(n.topic).to eq t
+      expect(n.user).to eq user
+
+      get :read, params: { post_number: post.post_number, id: topic.id }, format: :json
+      expect(n.reload.read).to eq true
+    end
+
     it "does not read posts for users who are not logged in" do
       group.users << another_user
       5.times { make_a_post(topic) }

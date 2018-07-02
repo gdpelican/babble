@@ -38,6 +38,7 @@ class ::Babble::TopicsController < ::ApplicationController
   def read
     perform_fetch do
       topic_user.update(last_read_post_number: params[:post_number]) if topic_user.last_read_post_number.to_i < params[:post_number].to_i
+      notifications.where("post_number <= ?", params[:post_number].to_i).update_all(read: true)
       respond_with topic, serializer: Babble::TopicSerializer
     end
   end
@@ -64,6 +65,10 @@ class ::Babble::TopicsController < ::ApplicationController
 
   def topic
     @topic ||= ::Topic.babble.find_by(id: params[:id])
+  end
+
+  def notifications
+    @notifications ||= ::Notification.babble.where(user: current_user, topic: topic)
   end
 
   def set_default_id

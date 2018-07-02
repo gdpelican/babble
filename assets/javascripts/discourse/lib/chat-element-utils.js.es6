@@ -8,8 +8,8 @@ import debounce from 'discourse/lib/debounce'
 import autosize from 'discourse/lib/autosize'
 import lastVisibleElement from '../lib/last-visible-element'
 import { syncWithPostStream } from '../lib/chat-topic-utils'
-import { ajax } from 'discourse/lib/ajax'
 import { rerender } from '../lib/chat-component-utils'
+import Babble from '../lib/babble'
 
 let visibleInWindow = function(selector) {
   let $container = document.querySelector(selector)
@@ -44,7 +44,7 @@ let readPost = function(topic, $container) {
   if (postNumber <= topic.last_read_post_number) { return }
   topic.set('last_read_post_number', postNumber)
   syncWithPostStream(topic)
-  return ajax(`/babble/topics/${topic.id}/read/${postNumber}.json`)
+  Babble.readPost(topic, postNumber)
 }
 
 let setupScrollContainer = function(topic) {

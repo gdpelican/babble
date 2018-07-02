@@ -22,15 +22,17 @@ after_initialize do
 
   babble_require 'controllers/controller'
   babble_require 'controllers/admin/chats_controller'
+  babble_require 'controllers/root_controller'
   babble_require 'controllers/topics_controller'
   babble_require 'controllers/posts_controller'
-  babble_require 'controllers/users_controller'
 
   babble_require 'serializers/basic_topic_serializer'
   babble_require 'serializers/notification_serializer'
   babble_require 'serializers/post_serializer'
+  babble_require 'serializers/summary_serializer'
   babble_require 'serializers/topic_serializer'
   babble_require 'serializers/user_serializer'
+  babble_require 'serializers/boot_serializer'
 
   babble_require 'services/post_creator'
   babble_require 'services/post_destroyer'
@@ -42,6 +44,7 @@ after_initialize do
   babble_require 'models/chat'
   babble_require 'models/guardian'
   babble_require 'models/group'
+  babble_require 'models/notification'
   babble_require 'models/topic_query'
   babble_require 'models/topic'
   babble_require 'models/user_action'
@@ -65,6 +68,9 @@ after_initialize do
 
       Babble::Broadcaster.publish_to_posts(post, user)
       Babble::Broadcaster.publish_to_topic(post.topic, user)
+      Notification.babble.where(topic: post.topic, post_number: post.post_number).each do |notification|
+        Babble::Broadcaster.publish_to_notifications(notification)
+      end
     end
   end
 end

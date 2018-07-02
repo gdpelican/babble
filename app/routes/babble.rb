@@ -1,4 +1,7 @@
 Babble::Engine.routes.draw do
+  get    "/boot"                         => "root#boot"
+  get    "/summary"                      => "root#summary"
+
   get    "/topics"                       => "topics#index"
   post   "/topics"                       => "topics#create"
   get    "/topics/default"               => "topics#default"
@@ -10,8 +13,6 @@ Babble::Engine.routes.draw do
   get    "/topics/:id/groups"            => "topics#groups"
   post   "/topics/:id/online"            => "topics#online"
   post   "/topics/:id/typing"            => "topics#typing"
-
-  get    "/users"                        => "users#index"
 
   get    "/topics/:topic_id/posts/:post_number/:order" => "posts#index"
   post   "/topics/:topic_id/posts"                     => "posts#create"

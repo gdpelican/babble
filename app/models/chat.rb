@@ -1,6 +1,25 @@
+Babble::BootData = Struct.new(:topics, :users, :notifications)    { alias :read_attribute_for_serialization :send }
+Babble::Summary  = Struct.new(:unread_count, :notification_count) { alias :read_attribute_for_serialization :send }
+
 class ::Babble::Chat
+  def self.boot_data_for(guardian)
+    Babble::BootData.new(
+      available_topics_for(guardian, pm: false).select('tu.last_read_post_number'),
+      available_pms_for(guardian, limit: 10),
+      notifications_for(guardian)
+    )
+  end
+
+  def self.summary_for(guardian)
+    Babble::Summary.new(
+      available_topics_for(guardian, pm: false, unread: true).count,
+      notifications_for(guardian).count
+    )
+  end
+
   def self.save_topic(params = {}, topic = nil)
-    chat_class_for(params[:permissions]).new(params, topic).save!
+    class_name = params.fetch(:permissions, :group).to_s.camelize
+    "::Babble::Chats::#{class_name}".constantize.new(params, topic).save!
   end
 
   def self.destroy_topic(topic, user)
@@ -10,21 +29,16 @@ class ::Babble::Chat
     end.destroy
   end
 
-  def self.chat_class_for(class_name)
-    class_name ||= :group
-    "::Babble::Chats::#{class_name.to_s.camelize}".constantize
-  end
-
-  def self.available_topics_for(guardian, pm: true)
+  def self.available_topics_for(guardian, pm: true, unread: false)
     user_id = guardian.user.id unless guardian.anonymous?
-    query = if pm then ::Topic.babble else ::Topic.babble_not_pm(user_id) end
+    query = if pm then ::Topic.babble else ::Topic.babble_not_pm(guardian.user, unread) end
     return query if guardian.is_admin?
 
     category_ids = ::Category.post_create_allowed(guardian).pluck(:id)
-    query.joins("LEFT OUTER JOIN topic_allowed_groups tg ON tg.topic_id = topics.id")
+    query.distinct
+         .joins("LEFT OUTER JOIN topic_allowed_groups tg ON tg.topic_id = topics.id")
          .joins("LEFT OUTER JOIN group_users gu ON gu.group_id = tg.group_id")
          .where("gu.user_id = ? OR topics.category_id IN (?)", user_id, category_ids)
-         .uniq
   end
 
   def self.available_pms_for(guardian, limit:)
@@ -37,6 +51,16 @@ class ::Babble::Chat
                  .where.not(id: guardian.user.id)
     result = result.staff if guardian.user.silenced?
     result.limit(limit || 8)
+  end
+
+  def self.unread_topics_for(guardian)
+    TopicUser.where(topic: Babble::Chat.available_topics_for(@guardian), user: @user)
+             .joins(:topic)
+             .where("topics.highest_post_number > topic_users.last_read_post_number")
+  end
+
+  def self.notifications_for(guardian)
+    ::Notification.babble.where(user: guardian.user).unread
   end
 
   def self.pms_enabled_for?(guardian)

@@ -2,6 +2,7 @@ export default Ember.Object.create({
   _topics: {},
   _components: {},
   _users: {},
+  _notifications: {},
   _bindings: [],
 
   bind(component, topic) {
@@ -32,6 +33,11 @@ export default Ember.Object.create({
     return this.fetchUser(user.id)
   },
 
+  storeNotification(notification) {
+    this.store(notification, '_notifications', 'id')
+    return this.fetchNotification(notification.id)
+  },
+
   fetchTopic(topicId) {
     return this._topics[topicId]
   },
@@ -40,12 +46,24 @@ export default Ember.Object.create({
     return this._users[userId]
   },
 
+  fetchNotification(notificationId) {
+    return this._notifications[notificationId]
+  },
+
   allTopics() {
     return _.values(this._topics)
   },
 
   allUsers() {
     return _.values(this._users)
+  },
+
+  allNotifications() {
+    return _.values(this._notifications)
+  },
+
+  removeNotification(id) {
+    delete this._notifications[id]
   },
 
   componentsForTopic(topic) {

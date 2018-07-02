@@ -94,10 +94,11 @@ export default Ember.Object.create({
   },
 
   availableTopicListItem(item, type) {
-    let css = item.hasUnread ? '.unread' : ''
+    let css = item.unreadCount ? '.unread' : ''
     return h(`li.babble-available-topic.row${css}`, [
       this.availableTopicAvatar(item, type),
       this.availableTopicLink(item, type),
+      this.notificationCounter(item),
       this.loadingSpinner(Babble.loadingTopicId === item.id)
     ])
   },
@@ -120,6 +121,14 @@ export default Ember.Object.create({
       action: 'changeTopic',
       actionParam: item
     })
+  },
+
+  notificationCounter(item) {
+    if (Babble.loadingTopicId == item.id) { return }
+    let count = Babble.notificationsFor(item).length
+    if (count > 0) {
+      return h('div.babble-unread', count.toString())
+    }
   },
 
   loadingSpinner(visible) {

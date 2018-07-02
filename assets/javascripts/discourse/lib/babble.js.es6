@@ -9,7 +9,7 @@ import { scrollToPost, setupScrollContainer, setupComposer, teardownComposer, ha
 import { syncWithPostStream, latestPostFor, latestPostIsMine, teardownPresence, setupLastReadMarker, applyPostStream } from '../lib/chat-topic-utils'
 import { forEachTopicContainer } from '../lib/chat-topic-iterators'
 import { rerender } from '../lib/chat-component-utils'
-import { setupLiveUpdate, teardownLiveUpdate } from '../lib/chat-live-update-utils'
+import { setupLiveUpdate, teardownLiveUpdate, messageBus } from '../lib/chat-live-update-utils'
 import BabbleRegistry from '../lib/babble-registry'
 import showModal from 'discourse/lib/show-modal'
 
@@ -76,18 +76,41 @@ export default Ember.Object.create({
     })
   },
 
-  loadAvailableTopics() {
-    this.set('loadingTopics', true)
-    return ajax(`/babble/topics.json`).then((data) => {
-      return data.topics.map((t) => { return this.buildTopic(t) })
-    }).finally(() => {
-      this.set('loadingTopics', null)
+  subscribeToNotifications(component) {
+    messageBus().subscribe(`/babble/notifications/${Discourse.User.current().id}`, (data) => {
+      BabbleRegistry.storeNotification(data)
+      if (!component.initialized) {
+        component.set('summary.notificationCount', component.get('summary.notificationCount') + 1)
+      }
+      component.rerenderWidget()
     })
   },
 
-  loadAvailableUsers() {
-    return ajax(`/babble/users.json`).then((data) => {
-      return data.users.map((u) => { return User.create(u) })
+  loadBoot(component) {
+    this.set('loadingBoot', true)
+    return ajax(`/babble/boot.json`).then((data) => {
+      _.each(data.notifications, (n) => { BabbleRegistry.storeNotification(n) })
+      _.each(data.users,         (u) => { BabbleRegistry.storeUser(User.create(u)) })
+      _.each(data.topics,        (t) => { this.setupTopicListener(t, component) })
+    }).finally(() => {
+      component.rerenderWidget()
+      this.set('loadingBoot', false)
+    })
+  },
+
+  loadSummary() {
+    this.set('loadingSummary', true)
+    return ajax(`/babble/summary.json`).finally(() => {
+      this.set('loadingSummary', null)
+    })
+  },
+
+  setupTopicListener(t, component) {
+    setupLiveUpdate(this.buildTopic(t), {
+      'posts': (data) => {
+        this.handleNewPost(data)
+        component.rerenderWidget()
+      }
     })
   },
 
@@ -97,6 +120,14 @@ export default Ember.Object.create({
 
   availableUsers() {
     return BabbleRegistry.allUsers()
+  },
+
+  availableNotifications() {
+    return BabbleRegistry.allNotifications()
+  },
+
+  notificationsFor(topic) {
+    return this.availableNotifications().filter((n) => { return n.topic_id == topic.id })
   },
 
   fetchTopic(topicId) {
@@ -123,6 +154,13 @@ export default Ember.Object.create({
     }).then((data) => {
       this.handleNewPost(data)
     })
+  },
+
+  readPost(topic, postNumber) {
+    this.notificationsFor(topic).map((n) => {
+      if (n.post_number <= postNumber) { BabbleRegistry.removeNotification(n.id) }
+    })
+    return ajax(`/babble/topics/${topic.id}/read/${postNumber}.json`)
   },
 
   editPost(topic, post) {
