@@ -22,7 +22,6 @@ export default MountWidget.extend({
       availableUsers:     Babble.availableUsers(),
       visible:            (this.initialized && this.visible),
       csrf:               this.session.get('csrfToken'),
-      hasUnread:          this.hasUnread,
       isOnline:           (userId) => {
         if (!this.get('whosOnline')) { return }
         return this.get('whosOnline').isUserOnline(userId)
@@ -106,7 +105,6 @@ export default MountWidget.extend({
         setupLiveUpdate(topic, {
           'posts': (data) => {
             Babble.handleNewPost(data)
-            this.set('hasUnread', _.pluck(Babble.availableTopics(), 'hasUnread'))
             this.rerenderWidget()
           }
         })

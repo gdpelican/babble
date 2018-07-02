@@ -53,7 +53,7 @@ export default Ember.Object.create({
     if (this.widget.attrs.mobile) {
       css += '.mobile'
     }
-    if (this.widget.attrs.hasUnread) {
+    if (_.any(Babble.availableTopics(), (topic) => { return topic.hasUnread })) {
       css += '.unread'
     }
     return css
