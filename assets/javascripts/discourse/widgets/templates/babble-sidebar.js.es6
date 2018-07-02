@@ -13,6 +13,8 @@ export default Ember.Object.create({
     if (this.widget.attrs.mobile) {
       css += '.mobile'
     }
+    // if (_.sum(this.widget.attrs.availableTopics)) {
+    // }
 
     return widget.attrs.visible ? this.expanded(css) : this.collapsed(css)
   },

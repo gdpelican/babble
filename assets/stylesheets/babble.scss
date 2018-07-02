@@ -34,6 +34,31 @@ $default-chat-width: 300px;
 }
 
 .babble-sidebar-collapsed {
+
+  &.unread {
+    &:before {
+      content: '';
+      position: absolute;
+      background: $danger;
+      box-shadow: 2px 2px 2px darken($danger, 50%);
+      top: 0;
+      left: 0;
+      height: 20px;
+      width: 20px;
+      border-radius: 100%;
+    }
+    &:after {
+      content: '';
+      position: absolute;
+      background: #fff;
+      top: 8px;
+      left: 8px;
+      height: 4px;
+      width: 4px;
+      border-radius: 100%;
+    }
+  }
+
   transition: all 0.4s ease-in-out;
   position: fixed;
   width: 60px;

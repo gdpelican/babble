@@ -9,7 +9,7 @@ import { scrollToPost, setupScrollContainer, setupComposer, teardownComposer, ha
 import { syncWithPostStream, latestPostFor, latestPostIsMine, teardownPresence, setupLastReadMarker, applyPostStream } from '../lib/chat-topic-utils'
 import { forEachTopicContainer } from '../lib/chat-topic-iterators'
 import { rerender } from '../lib/chat-component-utils'
-import { setupLiveUpdate, teardownLiveUpdate, updateUnread } from '../lib/chat-live-update-utils'
+import { setupLiveUpdate, teardownLiveUpdate } from '../lib/chat-live-update-utils'
 import BabbleRegistry from '../lib/babble-registry'
 import showModal from 'discourse/lib/show-modal'
 
@@ -48,7 +48,6 @@ export default Ember.Object.create({
       }
     })
 
-    updateUnread(topic)
     rerender(topic)
     return topic
   },
@@ -233,7 +232,6 @@ export default Ember.Object.create({
       if (performScroll) { scrollToPost(topic, post.post_number) }
     }
 
-    updateUnread(topic)
     syncWithPostStream(topic)
   },
 
