@@ -51,9 +51,7 @@ export default Ember.Object.create({
   },
 
   collapsedUnread() {
-    if (this.unreadCount() + this.notificationCount() > 0) {
-      return h('div.babble-unread.babble-unread--sidebar', (this.notificationCount() || '•').toString())
-    }
+    return h('div.babble-unread.babble-unread--sidebar', Babble.unreadCount())
   },
 
   css() {
@@ -65,21 +63,5 @@ export default Ember.Object.create({
       css += '.mobile'
     }
     return css
-  },
-
-  notificationCount() {
-    if (this.widget.attrs.initialized) {
-      return Babble.availableNotifications().length
-    } else {
-      return this.widget.attrs.summary.notificationCount
-    }
-  },
-
-  unreadCount() {
-    if (this.widget.attrs.initialized) {
-      return Babble.availableTopics().reduce((total, topic) => { return total + topic.unreadCount }, 0)
-    } else {
-      return this.widget.attrs.summary.unreadCount
-    }
   }
 })

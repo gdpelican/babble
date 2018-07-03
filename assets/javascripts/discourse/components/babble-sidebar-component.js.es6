@@ -12,14 +12,12 @@ export default MountWidget.extend({
   widget: 'babble-sidebar',
   availableTopics: [],
   availableUsers: [],
-  summary: {},
   whosOnline: whosOnline,
 
   buildArgs() {
     return {
       topic:              this.topic,
       mobile:             this.site.isMobileDevice,
-      summary:            this.summary,
       initialized:        this.initialized,
       availableTopics:    Babble.availableTopics(),
       availableUsers:     Babble.availableUsers(),
@@ -40,12 +38,12 @@ export default MountWidget.extend({
     this.set('targetObject', this)
 
     $(window).on('resize.babble-window-resize', _.debounce(() => {
-      this.rerenderWidget()
+      this.appEvents.trigger('babble-rerender')
     }, 250))
 
     if (Discourse.SiteSettings.babble_adaptive_height) {
       $(window).on('scroll.babble-scroll', _.throttle(() => {
-        this.rerenderWidget()
+        this.appEvents.trigger('babble-rerender')
       }, 250))
     }
 
@@ -66,11 +64,7 @@ export default MountWidget.extend({
     if (!this.site.isMobileDevice && Discourse.SiteSettings.babble_open_by_default) {
       this.initialize()
     } else {
-      Babble.loadSummary().then((data) => {
-        this.set('summary.unreadCount',       data.unread_count)
-        this.set('summary.notificationCount', data.notification_count)
-        this.rerenderWidget()
-      })
+      Babble.loadSummary(this)
     }
   },
 
@@ -91,7 +85,7 @@ export default MountWidget.extend({
     } else {
       $outlet.removeClass(`chat-active--${Discourse.SiteSettings.babble_position}`)
     }
-    this.rerenderWidget()
+    this.appEvents.trigger('babble-rerender')
   },
 
   initialize(topic) {

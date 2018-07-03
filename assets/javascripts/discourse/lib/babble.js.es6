@@ -14,6 +14,7 @@ import BabbleRegistry from '../lib/babble-registry'
 import showModal from 'discourse/lib/show-modal'
 
 export default Ember.Object.create({
+  summary: {},
 
   disabled() {
     return _.contains(Discourse.Site.current().disabled_plugins, 'babble')
@@ -79,10 +80,10 @@ export default Ember.Object.create({
   subscribeToNotifications(component) {
     messageBus().subscribe(`/babble/notifications/${Discourse.User.current().id}`, (data) => {
       BabbleRegistry.storeNotification(data)
-      if (!component.initialized) {
-        component.set('summary.notificationCount', component.get('summary.notificationCount') + 1)
+      if (!this.initialized) {
+        this.set('summary.notificationCount', this.summary.notificationCount + 1)
       }
-      component.rerenderWidget()
+      component.appEvents.trigger('babble-rerender')
     })
   },
 
@@ -93,14 +94,19 @@ export default Ember.Object.create({
       _.each(data.users,         (u) => { BabbleRegistry.storeUser(User.create(u)) })
       _.each(data.topics,        (t) => { this.setupTopicListener(t, component) })
     }).finally(() => {
-      component.rerenderWidget()
+      component.appEvents.trigger('babble-rerender')
+      this.set('booted', true)
       this.set('loadingBoot', false)
     })
   },
 
-  loadSummary() {
+  loadSummary(component) {
     this.set('loadingSummary', true)
-    return ajax(`/babble/summary.json`).finally(() => {
+    return ajax(`/babble/summary.json`).then((data) => {
+      this.set('summary.unreadCount', data.unread_count)
+      this.set('summary.notificationCount', data.notification_count)
+    }).finally(() => {
+      component.appEvents.trigger('babble-rerender')
       this.set('loadingSummary', null)
     })
   },
@@ -109,9 +115,22 @@ export default Ember.Object.create({
     setupLiveUpdate(this.buildTopic(t), {
       'posts': (data) => {
         this.handleNewPost(data)
-        component.rerenderWidget()
+        component.appEvents.trigger('babble-rerender')
       }
     })
+  },
+
+  unreadCount() {
+    var unreadCount, notificationCount
+    if (this.booted) {
+      unreadCount       = this.availableTopics().reduce((total, topic) => { return total + topic.unreadCount }, 0)
+      notificationCount = this.availableNotifications().length
+    } else {
+      unreadCount       = this.summary.unreadCount || 0
+      notificationCount = this.summary.notificationCount || 0
+    }
+    if (unreadCount + notificationCount == 0) { return }
+    return (notificationCount || '•').toString()
   },
 
   availableTopics() {

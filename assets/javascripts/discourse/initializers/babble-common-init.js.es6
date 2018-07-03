@@ -1,7 +1,7 @@
-import { queryRegistry } from 'discourse/widgets/widget'
 import { withPluginApi } from 'discourse/lib/plugin-api'
 import reopenWidget      from '../lib/reopen-widget'
-import { on, observes }  from 'ember-addons/ember-computed-decorators'
+import Babble            from '../lib/babble'
+import { on }            from 'ember-addons/ember-computed-decorators'
 import { wantsNewWindow } from 'discourse/lib/intercept-click';
 
 export default {
@@ -53,7 +53,7 @@ export default {
 
       api.modifyClass("component:site-header", {
         @on('didInsertElement')
-        listenForBabble() {
+        initialize() {
           if (!this.site.isMobileDevice) { return }
 
           api.decorateWidget('header-icons:before', (helper) => {
@@ -61,12 +61,24 @@ export default {
               title:         'babble.title',
               icon:          Discourse.SiteSettings.babble_icon,
               iconId:        'babble-icon',
-              action:        'toggleBabble'
+              action:        'toggleBabble',
+              contents() {
+                if (!Babble.unreadCount()) { return }
+                return this.attach('link', {
+                  action:    'toggleBabble',
+                  className: 'babble-unread babble-unread--header',
+                  rawLabel:  Babble.unreadCount()
+                })
+              }
             })
           })
 
           api.attachWidgetAction(this.widget, 'toggleBabble', () => {
             this.appEvents.trigger("babble-toggle-chat")
+          })
+
+          this.appEvents.on("babble-rerender", () => {
+            this.queueRerender()
           })
         }
       })

@@ -39,6 +39,12 @@ $default-chat-width: 300px;
     top: 0;
     box-shadow: 2px 2px 2px darken($danger, 50%);
   }
+  &--header {
+    position: absolute;
+    top: 0;
+    right: 0;
+    box-shadow: 2px 2px 2px darken($danger, 50%);
+  }
   text-align: center;
   background: dark-light-choose($tertiary-medium, $tertiary);
   min-width: 20px;
@@ -82,7 +88,7 @@ $default-chat-width: 300px;
     top: 0px !important;
     height: 0px;
     bottom: 100%;
-    i { display: none; }
+    .babble-unread, i { display: none; }
     border-radius: 0;
   }
 }
