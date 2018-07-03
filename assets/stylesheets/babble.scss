@@ -89,6 +89,7 @@ $default-chat-width: 300px;
     height: 0px;
     bottom: 100%;
     .babble-unread, i { display: none; }
+    pointer-events: none;
     border-radius: 0;
   }
 }
