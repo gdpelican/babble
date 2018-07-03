@@ -28,16 +28,22 @@ class ::Babble::TopicSerializer < ActiveModel::Serializer
     end
   end
 
+  def permissions
+    if object.subtype == TopicSubtype.user_to_user
+      :pm
+    elsif object.category_id
+      :category
+    else
+      :group
+    end
+  end
+
   def lowest_post_number
     object.custom_fields[:lowest_post_number] || 1
   end
 
   def group_names
     object.allowed_groups.pluck(:name).map(&:humanize)
-  end
-
-  def permissions
-    object.category_id.present? ? 'category' : 'group'
   end
 
   def post_stream

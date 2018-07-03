@@ -1,4 +1,10 @@
 class ::User
+  scope :babble_pm_recipients_for, ->(post) {
+     joins(:topic_users)
+    .where("topic_users.topic_id": post.topic_id)
+    .where.not(id: post.user_id)
+  }
+
   module HideChatNotifications
     def unread_notifications
       @unread_notifications ||= begin

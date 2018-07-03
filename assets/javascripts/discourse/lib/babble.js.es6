@@ -126,8 +126,14 @@ export default Ember.Object.create({
     return BabbleRegistry.allNotifications()
   },
 
-  notificationsFor(topic) {
-    return this.availableNotifications().filter((n) => { return n.topic_id == topic.id })
+  notificationsFor(item) {
+    return this.availableNotifications().filter((n) => {
+      if (item.constructor == User) {
+        return n.sender_id == item.id
+      } else {
+        return n.topic_id == item.id
+      }
+    })
   },
 
   fetchTopic(topicId) {

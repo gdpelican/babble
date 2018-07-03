@@ -35,6 +35,7 @@ after_initialize do
   babble_require 'serializers/boot_serializer'
 
   babble_require 'services/post_creator'
+  babble_require 'services/post_alerter'
   babble_require 'services/post_destroyer'
   babble_require 'services/post_revisor'
   babble_require 'services/broadcaster'
@@ -62,16 +63,7 @@ after_initialize do
   add_to_serializer(:basic_topic, :category_id)      { object.category_id if object.respond_to?(:category_id) }
 
   on :post_created do |post, opts, user|
-    if post.topic.archetype == Archetype.chat
-      post.trigger_post_process(true)
-      TopicUser.update_last_read(user, post.topic.id, post.post_number, post.post_number, PostTiming::MAX_READ_TIME_PER_BATCH)
-      PostAlerter.post_created(post, skip_push: true)
-
-      Babble::Broadcaster.publish_to_posts(post, user)
-      Babble::Broadcaster.publish_to_topic(post.topic, user)
-      Notification.babble.where(topic: post.topic, post_number: post.post_number).each do |notification|
-        Babble::Broadcaster.publish_to_notifications(notification)
-      end
-    end
+    TopicUser.update_last_read(user, post.topic_id, post.post_number, post.post_number, PostTiming::MAX_READ_TIME_PER_BATCH)
+    Babble::PostAlerter.new(skip_push: true).after_save_post(post) if post.topic.archetype == Archetype.chat
   end
 end

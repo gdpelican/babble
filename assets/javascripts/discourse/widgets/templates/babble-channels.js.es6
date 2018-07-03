@@ -63,7 +63,7 @@ export default Ember.Object.create({
   },
 
   availableCategories() {
-    let categories = this.availableTopics.filter(t => { return t.category_id })
+    let categories = this.availableTopics.filter(t => { return t.permissions == 'category' })
     if (!categories.length) { return }
     return _.flatten([
       h('h5.babble-topic-section-header', I18n.t('babble.categories_title')),
@@ -72,7 +72,7 @@ export default Ember.Object.create({
   },
 
   availableGroups() {
-    let groups = this.availableTopics.filter(t => { return !t.category_id })
+    let groups = this.availableTopics.filter(t => { return t.permissions == 'group' })
     if (!groups.length) { return }
     return _.flatten([
       h('h5.babble-topic-section-header', I18n.t('babble.groups_title')),
