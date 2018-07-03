@@ -47,6 +47,7 @@ after_initialize do
   babble_require 'models/notification'
   babble_require 'models/topic_query'
   babble_require 'models/topic'
+  babble_require 'models/user'
   babble_require 'models/user_action'
   babble_require 'models/user_summary'
   babble_require 'models/chats/base'
@@ -64,7 +65,7 @@ after_initialize do
     if post.topic.archetype == Archetype.chat
       post.trigger_post_process(true)
       TopicUser.update_last_read(user, post.topic.id, post.post_number, post.post_number, PostTiming::MAX_READ_TIME_PER_BATCH)
-      PostAlerter.post_created(post)
+      PostAlerter.post_created(post, skip_push: true)
 
       Babble::Broadcaster.publish_to_posts(post, user)
       Babble::Broadcaster.publish_to_topic(post.topic, user)
