@@ -37,7 +37,6 @@ $default-chat-width: 300px;
   &--sidebar {
     position: absolute;
     top: 0;
-    left: 0;
     box-shadow: 2px 2px 2px darken($danger, 50%);
   }
   text-align: center;
@@ -63,10 +62,12 @@ $default-chat-width: 300px;
   &--left {
     left: -10px;
     border-radius: 0 100px 100px 0;
+    .babble-unread--sidebar { right: 0; }
   }
   &--right {
     right: -10px;
     border-radius: 100px 0 0 100px;
+    .babble-unread--sidebar { left: 0; }
   }
   .widget-button {
     background: none;
