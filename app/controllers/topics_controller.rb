@@ -1,7 +1,6 @@
 class ::Babble::TopicsController < ::ApplicationController
   requires_plugin Babble::BABBLE_PLUGIN_NAME
   include ::Babble::Controller
-  before_action :set_default_id, only: :default
   before_action :set_pm_id,      only: :pm
   before_action :ensure_logged_in, except: [:show, :index]
 
@@ -15,7 +14,6 @@ class ::Babble::TopicsController < ::ApplicationController
       respond_with topic, serializer: Babble::TopicSerializer
     end
   end
-  alias :default :show
   alias :pm :show
 
   def create
@@ -69,10 +67,6 @@ class ::Babble::TopicsController < ::ApplicationController
 
   def notifications
     @notifications ||= ::Notification.babble.where(user: current_user, topic: topic)
-  end
-
-  def set_default_id
-    params[:id] = Babble::Chat.available_topics_for(guardian, pm: false).first&.id
   end
 
   def set_pm_id
