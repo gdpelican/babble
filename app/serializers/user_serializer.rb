@@ -1,3 +1,3 @@
 class ::Babble::UserSerializer < BasicUserSerializer
-  attribute :name
+  attributes :name, :last_posted_at
 end

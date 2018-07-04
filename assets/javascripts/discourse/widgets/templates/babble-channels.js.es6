@@ -81,7 +81,7 @@ export default Ember.Object.create({
   },
 
   availablePMs() {
-    let users = this.availableUsers
+    let users = _.sortBy(this.availableUsers, (user) => { return user.last_posted_at || "" }).reverse()
     if (!users.length) { return }
     return _.compact(_.flatten([
       h('.babble-topic-section-header-wrapper', _.compact([
