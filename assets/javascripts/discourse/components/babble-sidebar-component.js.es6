@@ -19,6 +19,7 @@ export default MountWidget.extend({
       topic:              this.topic,
       mobile:             this.site.isMobileDevice,
       initialized:        this.initialized,
+      canInitialize:      Babble.summary.topicCount > 0,
       availableTopics:    Babble.availableTopics(),
       availableUsers:     Babble.availableUsers(),
       visible:            (this.initialized && this.visible),
@@ -33,7 +34,6 @@ export default MountWidget.extend({
   @on('didInsertElement')
   _initialize() {
     if (Babble.disabled()) { return }
-    if (Discourse.User.current() === null) { return }
 
     this.set('targetObject', this)
 

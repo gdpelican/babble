@@ -78,7 +78,8 @@ export default Ember.Object.create({
   },
 
   subscribeToNotifications(component) {
-    messageBus().subscribe(`/babble/notifications/${Discourse.User.current().id}`, (data) => {
+    if (!User.current()) { return }
+    messageBus().subscribe(`/babble/notifications/${User.current().id}`, (data) => {
       BabbleRegistry.storeNotification(data)
       if (!this.initialized) {
         this.set('summary.notificationCount', this.summary.notificationCount + 1)
@@ -103,6 +104,7 @@ export default Ember.Object.create({
   loadSummary(component) {
     this.set('loadingSummary', true)
     return ajax(`/babble/summary.json`).then((data) => {
+      this.set('summary.topicCount', data.topic_count)
       this.set('summary.unreadCount', data.unread_count)
       this.set('summary.notificationCount', data.notification_count)
     }).finally(() => {
@@ -235,7 +237,7 @@ export default Ember.Object.create({
   },
 
   populatePermissions(data) {
-    const user = Discourse.User.current()
+    const user = User.current()
 
     if (!user || data.user_id != user.id) {
       delete data.can_edit
@@ -299,13 +301,13 @@ export default Ember.Object.create({
   },
 
   handleTyping(topic, data) {
-    if (Discourse.User.current() && data.id == Discourse.User.current().id) { return }
+    if (User.current() && data.id == User.current().id) { return }
     topic.typing[data.username] = { user: data, lastTyped: moment() }
     rerender(topic)
   },
 
   handleOnline(topic, data) {
-    if (Discourse.User.current() && data.id == Discourse.User.current().id) { return }
+    if (User.current() && data.id == User.current().id) { return }
     topic.online[data.username] = { user: data, lastSeen: moment() }
     rerender(topic)
   },
@@ -326,7 +328,7 @@ export default Ember.Object.create({
   },
 
   stagePost(topic, text) {
-    const user = Discourse.User.current()
+    const user = User.current()
 
     let post = Post.create({
       raw:                text,

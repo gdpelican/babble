@@ -5,6 +5,7 @@ import Babble from '../../lib/babble'
 export default Ember.Object.create({
   render(widget) {
     this.widget = widget
+    if (!widget.attrs.canInitialize) { return }
     return widget.attrs.visible ? this.expanded() : this.collapsed()
   },
 

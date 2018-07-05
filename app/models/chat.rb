@@ -1,5 +1,5 @@
-Babble::BootData = Struct.new(:topics, :users, :notifications)    { alias :read_attribute_for_serialization :send }
-Babble::Summary  = Struct.new(:unread_count, :notification_count) { alias :read_attribute_for_serialization :send }
+Babble::BootData = Struct.new(:topics, :users, :notifications)                  { alias :read_attribute_for_serialization :send }
+Babble::Summary  = Struct.new(:topic_count, :unread_count, :notification_count) { alias :read_attribute_for_serialization :send }
 
 class ::Babble::Chat
   def self.boot_data_for(guardian)
@@ -12,6 +12,7 @@ class ::Babble::Chat
 
   def self.summary_for(guardian)
     Babble::Summary.new(
+      available_topics_for(guardian, pm: false).count,
       available_topics_for(guardian, pm: false, unread: true).count,
       notifications_for(guardian).count
     )
@@ -31,7 +32,7 @@ class ::Babble::Chat
 
   def self.available_topics_for(guardian, pm: true, unread: false)
     user_id = guardian.user.id unless guardian.anonymous?
-    query = if pm then ::Topic.babble else ::Topic.babble_not_pm(guardian.user, unread) end
+    query = if pm then ::Topic.babble else ::Topic.babble_not_pm(user_id.to_i, unread) end
     return query if guardian.is_admin?
 
     category_ids = ::Category.post_create_allowed(guardian).pluck(:id)
@@ -75,6 +76,7 @@ class ::Babble::Chat
   end
 
   def self.pms_enabled_for?(guardian)
+    !guardian.anonymous? &&
     SiteSetting.babble_enable_pms &&
     SiteSetting.enable_personal_messages &&
     SiteSetting.min_trust_to_send_messages <= guardian.user.trust_level
