@@ -5,15 +5,6 @@ class ::User
     .where.not(id: post.user_id)
   }
 
-  scope :babble_pm_list, -> {
-     select('users.*, t.last_posted_at')
-    .joins(:groups)
-    .joins("LEFT OUTER JOIN topic_allowed_groups tag ON tag.group_id = groups.id")
-    .joins("LEFT OUTER JOIN topics t ON t.id = tag.topic_id")
-    .where("t.archetype": Archetype.chat, "t.subtype": TopicSubtype.user_to_user)
-    .order('t.last_posted_at DESC NULLS LAST')
-  }
-
   module HideChatNotifications
     def unread_notifications
       @unread_notifications ||= begin

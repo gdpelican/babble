@@ -5,7 +5,7 @@ class ::Babble::Chat
   def self.boot_data_for(guardian)
     Babble::BootData.new(
       available_topics_for(guardian, pm: false).select('tu.last_read_post_number'),
-      available_pms_for(guardian, limit: 10),
+      available_pms_for(guardian),
       notifications_for(guardian)
     )
   end
@@ -41,18 +41,33 @@ class ::Babble::Chat
          .where("gu.user_id = ? OR topics.category_id IN (?)", user_id, category_ids)
   end
 
-  def self.available_pms_for(guardian, limit:)
-    if pms_enabled_for?(guardian)
-      User.babble_pm_list.where.not(id: guardian.user.id).limit(limit || 10)
-    else
-      User.none
-    end
+  def self.available_pms_for(guardian)
+    return User.none unless pms_enabled_for?(guardian)
+    User.select('users.*, topics.last_posted_at')
+        .real
+        .joins(:user_option)
+        .joins("LEFT OUTER JOIN group_users ON group_users.user_id = users.id AND group_users.group_id IN (#{chat_groups_for(guardian).join(',')})")
+        .joins("LEFT OUTER JOIN topic_allowed_groups tag ON tag.group_id = group_users.group_id")
+        .joins("LEFT OUTER JOIN topics ON topics.id = tag.topic_id")
+        .where(active: true, "user_options.allow_private_messages": true)
+        .where.not(id: guardian.user.id)
+        .order('topics.last_posted_at DESC NULLS LAST')
+        .limit(10)
   end
 
   def self.unread_topics_for(guardian)
     TopicUser.where(topic: Babble::Chat.available_topics_for(@guardian), user: @user)
              .joins(:topic)
              .where("topics.highest_post_number > topic_users.last_read_post_number")
+  end
+
+  def self.chat_groups_for(guardian)
+    Topic.where(archetype: Archetype.chat, subtype: TopicSubtype.user_to_user)
+         .joins(:topic_allowed_groups)
+         .joins("LEFT OUTER JOIN group_users ON group_users.group_id = topic_allowed_groups.group_id")
+         .where("group_users.user_id": guardian.user.id)
+         .pluck(:"group_users.group_id")
+         .presence || [-1]
   end
 
   def self.notifications_for(guardian)
