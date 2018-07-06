@@ -33,6 +33,13 @@ let scrollToPost = function(topic, postNumber, speed = 400, offset = 60) {
       let $post = $container.find(`.babble-post[data-post-number=${postNumber}]`)
       if (!$post.length || !$scrollContainer.length) { return }
 
+      let postWidth = $post.find('.babble-post-content-wrapper').width()
+      $scrollContainer.find('.babble-post-content img').toArray().map((img) => {
+        let fullHeight = parseInt(img.attributes.height.value)
+        let fullWidth  = parseInt(img.attributes.width.value)
+        img.style.height = `${postWidth * fullHeight / fullWidth}px`
+      })
+
       let animateTarget = $post.position().top + $scrollContainer.scrollTop() - offset
       $scrollContainer.animate({ scrollTop: animateTarget }, speed)
     })
