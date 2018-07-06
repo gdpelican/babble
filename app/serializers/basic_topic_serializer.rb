@@ -10,4 +10,10 @@ class Babble::BasicTopicSerializer < ::BasicTopicSerializer
       :group
     end
   end
+
+  private
+
+  def include_last_read_post_number?
+    object.respond_to?(:last_read_post_number)
+  end
 end

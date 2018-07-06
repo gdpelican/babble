@@ -10,17 +10,10 @@ module Babble
         )
       end
 
-      def save!
-        if topic = super
-          ::Category.find(topic.category_id).tap { |c| c.custom_fields['chat_topic_id'] = topic.id }.save
-        end
-        topic
-      end
-
       private
 
       def custom_validations_pass?
-        super && @topic.category && @topic.category.custom_fields['chat_topic_id'] == @topic.id
+        super && @topic.category.present?
       end
     end
   end

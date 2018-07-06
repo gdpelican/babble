@@ -58,10 +58,6 @@ after_initialize do
 
   babble_require 'jobs/scheduled/babble_prune_history'
 
-  Category.register_custom_field_type('chat_topic_id', :integer)
-  add_to_serializer(:basic_category, :chat_topic_id) { object.custom_fields['chat_topic_id'] unless object.custom_fields['chat_topic_id'].to_i == 0 }
-  add_to_serializer(:basic_topic, :category_id)      { object.category_id if object.respond_to?(:category_id) }
-
   on :post_created do |post, opts, user|
     TopicUser.update_last_read(user, post.topic_id, post.post_number, post.post_number, PostTiming::MAX_READ_TIME_PER_BATCH)
     Babble::PostAlerter.new(skip_push: true).after_save_post(post) if post.topic.archetype == Archetype.chat

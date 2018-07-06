@@ -25,7 +25,6 @@ class ::Babble::Chat
 
   def self.destroy_topic(topic, user)
     topic.tap do |t|
-      topic.category.tap { |c| c.custom_fields['chat_topic_id'] = nil }.save if topic.category
       ::Babble::PostDestroyer.new(user, topic.ordered_posts.first).destroy     if topic.ordered_posts.any?
     end.destroy
   end

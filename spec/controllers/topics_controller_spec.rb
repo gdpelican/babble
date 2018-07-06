@@ -114,7 +114,6 @@ describe ::Babble::TopicsController do
       expect(response).to be_success
 
       new_topic = last_available_topic
-      expect(category.reload.custom_fields['chat_topic_id']).to eq new_topic.id
       expect(new_topic.user).to eq Discourse.system_user
       expect(new_topic.title).to eq category.name
       expect(new_topic.category).to eq category
@@ -238,7 +237,6 @@ describe ::Babble::TopicsController do
       delete :destroy, params: { id: category_topic.id }, format: :json
       expect(response).to be_success
       expect(last_available_topic).to be_nil
-      expect(category_topic.category.reload.custom_fields['chat_topic_id']).to_not eq category_topic.id
     end
 
     it "reverts a category's chat topic id if the topic has posts" do
@@ -246,7 +244,6 @@ describe ::Babble::TopicsController do
       delete :destroy, params: { id: category_topic.id }, format: :json
       expect(response).to be_success
       expect(last_available_topic).to be_nil
-      expect(category_topic.category.reload.custom_fields['chat_topic_id']).to_not eq category_topic.id
     end
 
     it "can destroy a chat topic with posts" do
