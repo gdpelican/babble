@@ -19,7 +19,7 @@ export default MountWidget.extend({
       topic:              this.topic,
       mobile:             this.site.isMobileDevice,
       initialized:        this.initialized,
-      canInitialize:      Babble.summary.topicCount > 0,
+      canInitialize:      Discourse.SiteSettings.babble_enable_pms || Babble.summary.topicCount > 0,
       availableTopics:    Babble.availableTopics(),
       availableUsers:     Babble.availableUsers(),
       visible:            (this.initialized && this.visible),
