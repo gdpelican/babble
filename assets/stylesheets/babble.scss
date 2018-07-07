@@ -2,6 +2,10 @@ $default-chat-width: 300px;
 
 #babble-file-input { display: none; }
 
+@media(max-width: 320px) {
+  .d-header-icons { margin-left: -1px; }
+}
+
 @media (min-width: 700px) and (max-width: 1500px) {
   #main-outlet {
     &.chat-active--left { margin-left: $default-chat-width; }
