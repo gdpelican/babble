@@ -29,6 +29,7 @@ after_initialize do
   babble_require 'serializers/basic_topic_serializer'
   babble_require 'serializers/notification_serializer'
   babble_require 'serializers/post_serializer'
+  babble_require 'serializers/site_serializer'
   babble_require 'serializers/summary_serializer'
   babble_require 'serializers/topic_serializer'
   babble_require 'serializers/user_serializer'
