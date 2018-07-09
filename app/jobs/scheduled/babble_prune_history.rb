@@ -15,7 +15,8 @@ module Jobs
       @posts_to_prune ||= Post.joins(:topic)
         .where(hidden: false)
         .where("topics.archetype": Archetype.chat)
-        .where('created_at < ?', SiteSetting.babble_history_window.days.ago)
+        .where('posts.created_at < ?', SiteSetting.babble_history_window.days.ago)
+        .where('posts.post_number > 1')
     end
   end
 end
