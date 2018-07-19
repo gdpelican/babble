@@ -61,6 +61,6 @@ after_initialize do
 
   on :post_created do |post, opts, user|
     TopicUser.update_last_read(user, post.topic_id, post.post_number, post.post_number, PostTiming::MAX_READ_TIME_PER_BATCH)
-    Babble::PostAlerter.new(skip_push: true).delay.after_save_post(post) if post.topic.archetype == Archetype.chat
+    Babble::PostAlerter.new(skip_push: true).after_save_post(post) if post.topic.archetype == Archetype.chat
   end
 end
