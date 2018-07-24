@@ -5,7 +5,7 @@ import elementIsVisible from '../lib/element-is-visible'
 import lastVisibleElement from '../lib/last-visible-element'
 import debounce from 'discourse/lib/debounce'
 import { ajax } from 'discourse/lib/ajax'
-import { scrollToPost, setupScrollContainer, setupComposer, teardownComposer, hasChatElements } from '../lib/chat-element-utils'
+import { scrollToPost, setupScrollContainer, playNotification, setupComposer, teardownComposer, hasChatElements } from '../lib/chat-element-utils'
 import { syncWithPostStream, latestPostFor, latestPostIsMine, teardownPresence, setupLastReadMarker, applyPostStream } from '../lib/chat-topic-utils'
 import { forEachTopicContainer } from '../lib/chat-topic-iterators'
 import { rerender } from '../lib/chat-component-utils'
@@ -81,9 +81,10 @@ export default Ember.Object.create({
     if (!User.current()) { return }
     messageBus().subscribe(`/babble/notifications/${User.current().id}`, (data) => {
       BabbleRegistry.storeNotification(data)
-      if (!this.initialized) {
+      if (!component.initialized) {
         this.set('summary.notificationCount', this.summary.notificationCount + 1)
       }
+      playNotification()
       component.appEvents.trigger('babble-rerender')
     })
   },
@@ -292,6 +293,7 @@ export default Ember.Object.create({
       } else {
         if (performScroll) { topic.set('last_read_post_number', post.post_number) }
         topic.postStream.appendPost(post)
+        playNotification()
       }
 
       if (performScroll) { scrollToPost(topic, post.post_number) }

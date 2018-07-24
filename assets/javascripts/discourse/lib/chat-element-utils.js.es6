@@ -174,6 +174,12 @@ let setupChannelAutocomplete = function(opts = {}) {
   }, 100)
 }
 
+let playNotification = function() {
+  const $audio = $('audio#babble-notification')[0]
+  if (!$audio || !$audio.play) { return }
+  $audio.play()
+}
+
 export {
   visibleInWindow,
   scrollToPost,
@@ -182,5 +188,6 @@ export {
   teardownComposer,
   hasChatElements,
   positionDropdown,
-  setupChannelAutocomplete
+  setupChannelAutocomplete,
+  playNotification
 }

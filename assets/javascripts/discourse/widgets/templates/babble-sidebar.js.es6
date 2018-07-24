@@ -20,13 +20,18 @@ export default Ember.Object.create({
       opts.style = `height: ${visibleInWindow('#main') - headerMargin}px;`
     }
 
-    return h(`div.babble-sidebar${position}${this.css()}`, opts, [this.channels(), this.chat()])
+    return h(`div.babble-sidebar${position}${this.css()}`, opts, [
+      this.channels(),
+      this.chat(),
+      this.audio()
+    ])
   },
 
   collapsed() {
     return h(`div.btn.babble-sidebar-collapsed.babble-sidebar-collapsed--${Discourse.SiteSettings.babble_position}${this.css()}`, [
       this.collapsedIcon(),
-      this.collapsedUnread()
+      this.collapsedUnread(),
+      this.audio()
     ])
   },
 
@@ -53,6 +58,11 @@ export default Ember.Object.create({
 
   collapsedUnread() {
     return h('div.babble-unread.babble-unread--sidebar', Babble.unreadCount())
+  },
+
+  audio() {
+    if (!Discourse.SiteSettings.babble_notification_sound) { return }
+    return h('audio', { id: 'babble-notification', src: "/babble/notification.mp3" })
   },
 
   css() {

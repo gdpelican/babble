@@ -1,6 +1,7 @@
 Babble::Engine.routes.draw do
   get    "/boot"                         => "root#boot"
   get    "/summary"                      => "root#summary"
+  get    "/notification"                 => "root#notification"
 
   get    "/topics"                       => "topics#index"
   post   "/topics"                       => "topics#create"
