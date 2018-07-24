@@ -1,14 +1,9 @@
 $default-chat-width: 300px;
 
-#babble-icon-unread {
-  i {
-    transition: color ease-in-out 0.5s;
-    color: $danger;
-  }
-}
+#babble-file-input { display: none; }
 
-#babble-file-input {
-  display: none;
+@media(max-width: 320px) {
+  .d-header-icons { margin-left: -1px; }
 }
 
 @media (min-width: 700px) and (max-width: 1500px) {
@@ -27,18 +22,80 @@ $default-chat-width: 300px;
   max-width: 100%;
   background: $secondary;
   position: fixed;
-  z-index: 1000;
+  z-index: 199;
   bottom: 0;
   height: calc(100% - 64px);
   margin-top: 64px;
   box-shadow: 0 2px 2px $primary;
   &.expanded { width: 100% !important; }
   &.mobile {
+    z-index: 1000;
     margin-top: 0;
     height: 100%;
   }
   &.babble-sidebar--right { right: 0; }
   &.babble-sidebar--left  { left: 0; }
+}
+
+.babble-unread {
+  &--sidebar {
+    position: absolute;
+    top: 0;
+    box-shadow: 2px 2px 2px darken($danger, 50%);
+  }
+  &--header {
+    position: absolute;
+    top: 0;
+    right: 0;
+    box-shadow: 2px 2px 2px darken($danger, 50%);
+  }
+  text-align: center;
+  background: dark-light-choose($tertiary-medium, $tertiary);
+  min-width: 20px;
+  line-height: 20px;
+  font-size: 14px;
+  color: $secondary;
+  border-radius: 100%;
+}
+
+.babble-sidebar-collapsed {
+  transition: all 0.4s ease-in-out;
+  position: fixed;
+  width: 60px;
+  height: 60px;
+  font-size: 20px;
+  z-index: 199;
+  padding: 0;
+  bottom: 40px;
+  background: $primary;
+  i { color: $secondary; }
+  &--left {
+    left: -10px;
+    border-radius: 0 100px 100px 0;
+    .babble-unread--sidebar { right: 0; }
+  }
+  &--right {
+    right: -10px;
+    border-radius: 100px 0 0 100px;
+    .babble-unread--sidebar { left: 0; }
+  }
+  .widget-button {
+    background: none;
+    padding: 15px;
+  }
+  .spinner {
+    width: 15px;
+    height: 15px;
+  }
+  &.mobile {
+    z-index: 1000;
+    top: 0px !important;
+    height: 0px;
+    bottom: 100%;
+    .babble-unread, i { display: none; }
+    pointer-events: none;
+    border-radius: 0;
+  }
 }
 
 .babble-title h4 {
@@ -49,6 +106,11 @@ $default-chat-width: 300px;
   overflow: hidden;
   white-space: nowrap;
   text-overflow: ellipsis;
+}
+
+.babble-title-icon {
+  margin-left: 10px;
+  font-size: 16px;
 }
 
 .d-header .icons .babble-title [class^="fa fa-"] {
@@ -78,13 +140,17 @@ $default-chat-width: 300px;
 }
 
 .babble-post-hr-message {
-  border-bottom: 1px solid $primary;
+  border-bottom: 1px solid dark-light-diff($primary, $secondary, 85%, -85%);;
   position: relative;
   bottom: 15px;
   margin-top: 10px;
   width: 100%;
   text-align: center;
-  &.babble-last-read { margin-bottom: -10px; }
+  &.babble-last-read {
+    margin-bottom: -10px;
+    border-color: orange;
+    color: orange;
+  }
   > button {
     font-size: 13px;
     font-weight: bold;
@@ -93,14 +159,11 @@ $default-chat-width: 300px;
     padding: 4px 8px;
   }
   > span {
-    margin: auto;
     position: relative;
     top: 10px;
     background: $secondary;
     padding: 0 10px;
     font-size: 11px;
-    font-weight: bold;
-    display: inline-block;
   }
 }
 
@@ -109,12 +172,29 @@ $default-chat-width: 300px;
   padding: 25% 0;
 }
 
+.babble-topic-section-header-wrapper {
+  display: flex;
+  justify-content: space-between;
+}
+
+.babble-topic-section-header {
+  margin-top: 0.5rem;
+}
+
 .babble-avatar-wrapper {
   min-width: 40px;
   img {
     width: 32px;
     cursor: pointer;
   }
+}
+
+.babble-topic-avatar {
+  padding-top: 0;
+  width: 25px;
+  height: 25px;
+  margin-right: 10px;
+  border-radius: 100%;
 }
 
 .babble-post-container {
@@ -132,12 +212,17 @@ $default-chat-width: 300px;
     }
     .babble-post-cooked {
       margin: 0;
+      word-break: break-word;
     }
 
     .babble-post-meta-data {
       margin-top: -4px;
       order: 2;
     }
+  }
+
+  .babble-post-name a {
+    color: $primary;
   }
 
   .babble-post-date {
@@ -159,7 +244,6 @@ $default-chat-width: 300px;
     flex-grow: 1;
     a.mention {
       display: inline;
-      padding: 0;
     }
     p { margin: 0; }
     img {
@@ -176,10 +260,6 @@ $default-chat-width: 300px;
     -webkit-flex-direction: row;
     justify-content: space-between;
     -webkit-justify-content: space-between;
-  }
-
-  .babble-post-cooked {
-    word-break: break-word;
   }
 
   .babble-post-actions-ellipsis i {
@@ -229,22 +309,33 @@ $default-chat-width: 300px;
   a { color: $primary; }
 }
 
+.babble-pms-autocomplete {
+  border: 1px solid dark-light-diff($primary, $secondary, 65%, -65%);
+  border-radius: 5px;
+  .item { display: none; }
+  .ac-wrap, input {
+    border-radius: 5px;
+    width: 100% !important;
+    border: none;
+  }
+  input {
+    padding: 5px;
+    border: none;
+  }
+}
+
 .babble-available-topic {
-  transition: background 0.5s ease-in-out;
-  line-height: 32px;
   display: flex;
   justify-content: space-between;
   flex-direction: row;
   align-items: center;
+  transition: background-color 0.25s ease-in-out;
   cursor: pointer;
-  font-weight: bold;
-  padding: 0 10px;
-  @media (max-width: 700px) {
-    padding: 10px 20px;
-  }
+  padding: 10px;
   &:hover {
-    background: dark-light-diff($primary, $secondary, 90%, -65%);
+    background: dark-light-diff($primary, $secondary, 95%, -95%);
   }
+  &.unread { font-weight: bold; }
   a { flex-grow: 1; }
 }
 
@@ -327,6 +418,8 @@ $default-chat-width: 300px;
 }
 
 .babble-sidebar {
+  transition: all 0.4s ease-in-out;
+
   .normalized {
     border: none;
     width: 25px;

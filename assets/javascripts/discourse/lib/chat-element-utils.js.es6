@@ -8,20 +8,8 @@ import debounce from 'discourse/lib/debounce'
 import autosize from 'discourse/lib/autosize'
 import lastVisibleElement from '../lib/last-visible-element'
 import { syncWithPostStream } from '../lib/chat-topic-utils'
-import { ajax } from 'discourse/lib/ajax'
 import { rerender } from '../lib/chat-component-utils'
-import { isAppleDevice } from 'discourse/lib/utilities'
-
-let applyBrowserHacks = function(topic) {
-  Ember.run.scheduleOnce('afterRender', () => {
-    if (!isAppleDevice()) { return }
-    forEachTopicContainer(topic, function($container) {
-      $container.find('.babble-menu').find('.menu-panel.slide-in')
-                .css('padding-bottom', '60px')
-                .css('height', 'calc(100% - 54px) !important')
-    })
-  })
-}
+import Babble from '../lib/babble'
 
 let visibleInWindow = function(selector) {
   let $container = document.querySelector(selector)
@@ -45,6 +33,13 @@ let scrollToPost = function(topic, postNumber, speed = 400, offset = 60) {
       let $post = $container.find(`.babble-post[data-post-number=${postNumber}]`)
       if (!$post.length || !$scrollContainer.length) { return }
 
+      let postWidth = $post.find('.babble-post-content-wrapper').width()
+      $scrollContainer.find('.babble-post-content img[height]').toArray().map((img) => {
+        let fullHeight = parseInt(img.attributes.height.value)
+        let fullWidth  = parseInt(img.attributes.width.value)
+        img.style.height = `${postWidth * fullHeight / fullWidth}px`
+      })
+
       let animateTarget = $post.position().top + $scrollContainer.scrollTop() - offset
       $scrollContainer.animate({ scrollTop: animateTarget }, speed)
     })
@@ -56,7 +51,7 @@ let readPost = function(topic, $container) {
   if (postNumber <= topic.last_read_post_number) { return }
   topic.set('last_read_post_number', postNumber)
   syncWithPostStream(topic)
-  return ajax(`/babble/topics/${topic.id}/read/${postNumber}.json`)
+  Babble.readPost(topic, postNumber)
 }
 
 let setupScrollContainer = function(topic) {
@@ -167,13 +162,32 @@ let positionDropdown = function(e, menuSelector, dropdownWidth = 150, delay = 10
   }, delay)
 }
 
+let setupChannelAutocomplete = function(opts = {}) {
+  setTimeout(() => {
+    const $input = $(document.querySelector(`.babble-${opts.type}-autocomplete input`))
+    $input.autocomplete({
+      template:      findRawTemplate(opts.template),
+      onChangeItems: (items) => { opts.onSelect(items[0]) },
+      dataSource:    opts.source
+    })
+    $input.focus()
+  }, 100)
+}
+
+let playNotification = function() {
+  const $audio = $('audio#babble-notification')[0]
+  if (!$audio || !$audio.play) { return }
+  $audio.play()
+}
+
 export {
-  applyBrowserHacks,
   visibleInWindow,
   scrollToPost,
   setupScrollContainer,
   setupComposer,
   teardownComposer,
   hasChatElements,
-  positionDropdown
+  positionDropdown,
+  setupChannelAutocomplete,
+  playNotification
 }

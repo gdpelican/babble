@@ -4,13 +4,16 @@ import { h } from 'virtual-dom'
 
 export default createWidget('babble-sidebar', {
   tagName: 'div.babble-sidebar-wrapper',
-  buildKey: () => `babble-sidebar`,
+  buildKey(attrs) {
+    if (!attrs.topic) { return 'babbleSidebar' }
+    return `babbleSidebar${attrs.topic.id}`
+  },
 
   defaultState(attrs) {
     return {
       visible:   attrs.visible,
       topic:     attrs.topic,
-      view:      'chat'
+      view:      attrs.topic ? 'chat' : 'channels'
     }
   },
 
@@ -28,9 +31,9 @@ export default createWidget('babble-sidebar', {
     Ember.run.scheduleOnce('afterRender', this, () => { this.scheduleRerender() })
   },
 
-  viewChat(topic, postNumber) {
+  open(topic, postNumber) {
     this.state.view = 'chat'
-    this.sendWidgetAction('open', topic, postNumber)
+    this.sendWidgetAction('openChat', topic, postNumber)
   },
 
   viewChannels() {

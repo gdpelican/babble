@@ -1,10 +1,14 @@
 Babble::Engine.routes.draw do
+  get    "/boot"                         => "root#boot"
+  get    "/summary"                      => "root#summary"
+  get    "/notification"                 => "root#notification"
+
   get    "/topics"                       => "topics#index"
   post   "/topics"                       => "topics#create"
-  get    "/topics/default"               => "topics#default"
   get    "/topics/:id"                   => "topics#show"
   post   "/topics/:id"                   => "topics#update"
   delete "/topics/:id"                   => "topics#destroy"
+  get    "/topics/pm/:user_id"           => "topics#pm"
   get    "/topics/:id/read/:post_number" => "topics#read"
   get    "/topics/:id/groups"            => "topics#groups"
   post   "/topics/:id/online"            => "topics#online"

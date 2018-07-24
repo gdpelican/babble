@@ -13,5 +13,7 @@ en:
     babble_full_page: "Enable full page chat mode (accessible from the category page)"
     babble_shoutbox: "Enable the Babble shoutbox (appears in the site header)"
     babble_adaptive_height: Let Babble adapt to the height of the header (use this only if you have a custom navbar which is taller than the default Discourse navbar)
+    babble_enable_pms: Enable one-to-one chat with Babble
     babble_history_window: "Days of chat history retained (for example, entering '7' will only retain the last week of messages). 0 (the default) will retain all chat logs."
     babble_open_by_default: "The chat will be opened automatically when a user enters the forum"
+    babble_notification_sound: "Play sounds in the browser for incoming messages"

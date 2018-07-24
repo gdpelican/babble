@@ -46,7 +46,7 @@ class ::Babble::PostsController < ::ApplicationController
   private
 
   def topic
-    @topic ||= Babble::Topic.find_by(id: params[:topic_id])
+    @topic ||= ::Topic.babble.find_by(id: params[:topic_id])
   end
 
   def topic_post

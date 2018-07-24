@@ -1,11 +1,11 @@
 class ::Babble::TopicsController < ::ApplicationController
   requires_plugin Babble::BABBLE_PLUGIN_NAME
   include ::Babble::Controller
-  before_action :set_default_id, only: :default
+  before_action :set_pm_id,      only: :pm
   before_action :ensure_logged_in, except: [:show, :index]
 
   def index
-    respond_with Babble::Topic.available_topics_for(guardian), serializer: BasicTopicSerializer
+    respond_with Babble::Chat.available_topics_for(guardian, pm: false), serializer: Babble::BasicTopicSerializer
   end
 
   def show
@@ -14,21 +14,21 @@ class ::Babble::TopicsController < ::ApplicationController
       respond_with topic, serializer: Babble::TopicSerializer
     end
   end
-  alias :default :show
+  alias :pm :show
 
   def create
-    perform_update { @topic = Babble::Topic.save_topic(topic_params) }
+    perform_update { @topic = Babble::Chat.save_topic(topic_params) }
   end
 
   def update
-    perform_update { Babble::Topic.save_topic(topic_params, topic) }
+    perform_update { Babble::Chat.save_topic(topic_params, topic) }
   end
 
   def destroy
     if !current_user.admin?
       respond_with_forbidden
     else
-      Babble::Topic.destroy_topic(topic, current_user)
+      Babble::Chat.destroy_topic(topic, current_user)
       respond_with nil
     end
   end
@@ -36,6 +36,7 @@ class ::Babble::TopicsController < ::ApplicationController
   def read
     perform_fetch do
       topic_user.update(last_read_post_number: params[:post_number]) if topic_user.last_read_post_number.to_i < params[:post_number].to_i
+      notifications.where("post_number <= ?", params[:post_number].to_i).update_all(read: true)
       respond_with topic, serializer: Babble::TopicSerializer
     end
   end
@@ -61,11 +62,26 @@ class ::Babble::TopicsController < ::ApplicationController
   private
 
   def topic
-    @topic ||= Babble::Topic.find_by(id: params[:id])
+    @topic ||= ::Topic.babble.find_by(id: params[:id])
   end
 
-  def set_default_id
-    params[:id] = Babble::Topic.default_topic_for(guardian).try(:id)
+  def notifications
+    @notifications ||= ::Notification.babble.where(user: current_user, topic: topic)
+  end
+
+  def set_pm_id
+    params[:id] = Babble::Chat.save_topic(
+      permissions: :pm,
+      user_ids: [current_user.id, pm_user_id]
+    ).id
+  end
+
+  def pm_user_id
+    if params[:user_id].match(/^\d+$/)
+      params[:user_id]
+    else
+      User.find_by(username: params[:user_id]).id
+    end
   end
 
   def topic_params

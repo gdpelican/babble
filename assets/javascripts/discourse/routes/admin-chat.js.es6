@@ -15,7 +15,7 @@ export default Discourse.Route.extend({
       let groups = _.reject(groupsResponse.map((g) => { g.automatic = false; return g; }), (g) => { return g.id == 0 })
 
       if (id === 'new') {
-        controller.setProperties({ model: Topic.create(), available: groups, selected: [], categories: [] })
+        controller.setProperties({ model: Topic.create({ permissions: 'category'}), available: groups, selected: [], categories: [] })
       } else {
         ajax(`/babble/topics/${id}.json`).then((data) => {
           let topic = Topic.create(data)

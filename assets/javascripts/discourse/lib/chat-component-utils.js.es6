@@ -8,6 +8,7 @@ let rerender = function(topic) {
       component.rerender()
     }
   })
+  return topic
 }
 
 export { rerender }

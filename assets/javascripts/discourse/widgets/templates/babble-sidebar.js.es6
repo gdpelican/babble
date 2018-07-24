@@ -1,19 +1,16 @@
 import { h } from 'virtual-dom'
 import { visibleInWindow } from '../../lib/chat-element-utils'
+import Babble from '../../lib/babble'
 
 export default Ember.Object.create({
   render(widget) {
-    if (!widget.attrs.visible) { return }
-    widget.attrs.expanded = widget.state.expanded
     this.widget = widget
-    let helperCss = ''
+    if (!widget.attrs.canInitialize) { return }
+    return widget.attrs.visible ? this.expanded() : this.collapsed()
+  },
 
-    if (widget.state.expanded || widget.attrs.mobile) {
-      helperCss += '.expanded'
-    }
-    if (widget.attrs.mobile) {
-      helperCss += '.mobile'
-    }
+  expanded() {
+    this.widget.attrs.expanded = this.widget.state.expanded
 
     const position = `.babble-sidebar--${Discourse.SiteSettings.babble_position}`
     let   opts     = {}
@@ -23,7 +20,19 @@ export default Ember.Object.create({
       opts.style = `height: ${visibleInWindow('#main') - headerMargin}px;`
     }
 
-    return h(`div.babble-sidebar${position}${helperCss}`, opts, [this.channels(), this.chat()])
+    return h(`div.babble-sidebar${position}${this.css()}`, opts, [
+      this.channels(),
+      this.chat(),
+      this.audio()
+    ])
+  },
+
+  collapsed() {
+    return h(`div.btn.babble-sidebar-collapsed.babble-sidebar-collapsed--${Discourse.SiteSettings.babble_position}${this.css()}`, [
+      this.collapsedIcon(),
+      this.collapsedUnread(),
+      this.audio()
+    ])
   },
 
   channels() {
@@ -34,5 +43,36 @@ export default Ember.Object.create({
   chat() {
     if (this.widget.state.view != 'chat') { return null }
     return this.widget.attach('babble-chat', this.widget.attrs)
+  },
+
+  collapsedIcon() {
+    if (Babble.loadingTopics) {
+      return h('div.spinner-container', h('div.spinner'))
+    } else {
+      return this.widget.attach('button', {
+        icon: Discourse.SiteSettings.babble_icon,
+        action: 'openChat'
+      })
+    }
+  },
+
+  collapsedUnread() {
+    return h('div.babble-unread.babble-unread--sidebar', Babble.unreadCount())
+  },
+
+  audio() {
+    if (!Discourse.SiteSettings.babble_notification_sound) { return }
+    return h('audio', { id: 'babble-notification', src: "/babble/notification.mp3" })
+  },
+
+  css() {
+    let css = ''
+    if (this.widget.state.expanded || this.widget.attrs.mobile) {
+      css += '.expanded'
+    }
+    if (this.widget.attrs.mobile) {
+      css += '.mobile'
+    }
+    return css
   }
 })

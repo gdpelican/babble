@@ -1,6 +1,8 @@
 export default Ember.Object.create({
   _topics: {},
   _components: {},
+  _users: {},
+  _notifications: {},
   _bindings: [],
 
   bind(component, topic) {
@@ -16,9 +18,52 @@ export default Ember.Object.create({
     this._bindings = _.without(this._bindings, componentBinding)
   },
 
-  store(model, cache, field) {
-    if (!this[cache][model[field]]) { this[cache][model[field]] = model }
+  store(model, cache, field, force = false) {
+    if (force || !this[cache][model[field]]) { this[cache][model[field]] = model }
     return this[cache][model[field]]
+  },
+
+  storeTopic(topic) {
+    this.store(topic, '_topics', 'id', true)
+    return this.fetchTopic(topic.id)
+  },
+
+  storeUser(user) {
+    this.store(user, '_users', 'id', true)
+    return this.fetchUser(user.id)
+  },
+
+  storeNotification(notification) {
+    this.store(notification, '_notifications', 'id')
+    return this.fetchNotification(notification.id)
+  },
+
+  fetchTopic(topicId) {
+    return this._topics[topicId]
+  },
+
+  fetchUser(userId) {
+    return this._users[userId]
+  },
+
+  fetchNotification(notificationId) {
+    return this._notifications[notificationId]
+  },
+
+  allTopics() {
+    return _.values(this._topics)
+  },
+
+  allUsers() {
+    return _.values(this._users)
+  },
+
+  allNotifications() {
+    return _.values(this._notifications)
+  },
+
+  removeNotification(id) {
+    delete this._notifications[id]
   },
 
   componentsForTopic(topic) {

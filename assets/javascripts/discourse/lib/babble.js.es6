@@ -1,19 +1,20 @@
 import Post from 'discourse/models/post'
-import PostStream from 'discourse/models/post-stream'
 import Topic from 'discourse/models/topic'
+import User from 'discourse/models/user'
 import elementIsVisible from '../lib/element-is-visible'
 import lastVisibleElement from '../lib/last-visible-element'
 import debounce from 'discourse/lib/debounce'
 import { ajax } from 'discourse/lib/ajax'
-import { applyBrowserHacks, scrollToPost, setupScrollContainer, setupComposer, teardownComposer, hasChatElements } from '../lib/chat-element-utils'
-import { syncWithPostStream, latestPostFor, latestPostIsMine, setupPresence, teardownPresence, setupLastReadMarker } from '../lib/chat-topic-utils'
+import { scrollToPost, setupScrollContainer, playNotification, setupComposer, teardownComposer, hasChatElements } from '../lib/chat-element-utils'
+import { syncWithPostStream, latestPostFor, latestPostIsMine, teardownPresence, setupLastReadMarker, applyPostStream } from '../lib/chat-topic-utils'
 import { forEachTopicContainer } from '../lib/chat-topic-iterators'
 import { rerender } from '../lib/chat-component-utils'
-import { setupLiveUpdate, teardownLiveUpdate, updateUnread } from '../lib/chat-live-update-utils'
+import { setupLiveUpdate, teardownLiveUpdate, messageBus } from '../lib/chat-live-update-utils'
 import BabbleRegistry from '../lib/babble-registry'
 import showModal from 'discourse/lib/show-modal'
 
 export default Ember.Object.create({
+  summary: {},
 
   disabled() {
     return _.contains(Discourse.Site.current().disabled_plugins, 'babble')
@@ -25,36 +26,29 @@ export default Ember.Object.create({
     }, console.log)
   },
 
-  bind(component, topic, toPost) {
+  bind(component, topic, postNumber) {
     if (!topic) { return }
 
-    toPost = toPost || topic.last_read_post_number
-
-    const previous = BabbleRegistry.topicForComponent(component)
-    if (previous) { teardownLiveUpdate(previous, 'posts') }
+    postNumber = postNumber || topic.last_read_post_number
 
     this.unbind(component)
     topic = BabbleRegistry.bind(component, topic)
+    setupLastReadMarker(topic)
 
     Ember.run.scheduleOnce('afterRender', () => {
-      setupLastReadMarker(topic)
       setupLiveUpdate(topic, {
         '':       ((data) => { this.buildTopic(data) }),
-        'posts':  ((data) => { this.handleNewPost(topic, data) }),
         'typing': ((data) => { this.handleTyping(topic, data) }),
         'online': ((data) => { this.handleOnline(topic, data) })
       })
 
       if (hasChatElements(component.element)) {
         setupScrollContainer(topic)
-        setupPresence(topic)
         setupComposer(topic)
-        scrollToPost(topic, toPost, 0)
-        applyBrowserHacks(topic)
+        scrollToPost(topic, postNumber, 0)
       }
     })
 
-    updateUnread(topic)
     rerender(topic)
     return topic
   },
@@ -63,8 +57,6 @@ export default Ember.Object.create({
     let topic = BabbleRegistry.topicForComponent(component)
     if (!topic) { return }
 
-    // NB we don't tear down the post listener here!
-    // This is only swapped out once a new topic is bound
     teardownLiveUpdate(topic, '', 'typing', 'online')
 
     if (hasChatElements(component.element)) {
@@ -74,13 +66,100 @@ export default Ember.Object.create({
     BabbleRegistry.unbind(component)
   },
 
-  loadTopic(id) {
+  loadTopic(id, opts = {}) {
     this.set('loadingTopicId', id)
-    return ajax(`/babble/topics/${id}.json`).then((data) => {
+    let path  = opts.pm ? '/pm' : ''
+    let query = opts.postNumber ? `?near_post=${opts.postNumber}` : ''
+    return ajax(`/babble/topics/${path}/${id}.json${query}`).then((data) => {
       return this.buildTopic(data)
     }).finally(() => {
       this.set('loadingTopicId', null)
     })
+  },
+
+  subscribeToNotifications(component) {
+    if (!User.current()) { return }
+    messageBus().subscribe(`/babble/notifications/${User.current().id}`, (data) => {
+      BabbleRegistry.storeNotification(data)
+      if (!component.initialized) {
+        this.set('summary.notificationCount', this.summary.notificationCount + 1)
+      }
+      playNotification()
+      component.appEvents.trigger('babble-rerender')
+    })
+  },
+
+  loadBoot(component) {
+    this.set('loadingBoot', true)
+    return ajax(`/babble/boot.json`).then((data) => {
+      _.each(data.notifications, (n) => { BabbleRegistry.storeNotification(n) })
+      _.each(data.users,         (u) => { BabbleRegistry.storeUser(User.create(u)) })
+      _.each(data.topics,        (t) => { this.setupTopicListener(t, component) })
+    }).finally(() => {
+      component.appEvents.trigger('babble-rerender')
+      this.set('booted', true)
+      this.set('loadingBoot', false)
+    })
+  },
+
+  loadSummary(component) {
+    this.set('loadingSummary', true)
+    return ajax(`/babble/summary.json`).then((data) => {
+      this.set('summary.topicCount', data.topic_count)
+      this.set('summary.unreadCount', data.unread_count)
+      this.set('summary.notificationCount', data.notification_count)
+    }).finally(() => {
+      component.appEvents.trigger('babble-rerender')
+      this.set('loadingSummary', null)
+    })
+  },
+
+  setupTopicListener(t, component) {
+    setupLiveUpdate(this.buildTopic(t), {
+      'posts': (data) => {
+        this.handleNewPost(data)
+        component.appEvents.trigger('babble-rerender')
+      }
+    })
+  },
+
+  unreadCount() {
+    var unreadCount, notificationCount
+    if (this.booted) {
+      unreadCount       = this.availableTopics().reduce((total, topic) => { return total + topic.unreadCount }, 0)
+      notificationCount = this.availableNotifications().length
+    } else {
+      unreadCount       = this.summary.unreadCount || 0
+      notificationCount = this.summary.notificationCount || 0
+    }
+    if (unreadCount + notificationCount == 0) { return }
+    return (notificationCount || '•').toString()
+  },
+
+  availableTopics() {
+    return BabbleRegistry.allTopics()
+  },
+
+  availableUsers() {
+    return BabbleRegistry.allUsers()
+  },
+
+  availableNotifications() {
+    return BabbleRegistry.allNotifications()
+  },
+
+  notificationsFor(item) {
+    return this.availableNotifications().filter((n) => {
+      if (item.constructor == User) {
+        return n.sender_id == item.id
+      } else {
+        return n.topic_id == item.id
+      }
+    })
+  },
+
+  fetchTopic(topicId) {
+    return BabbleRegistry.fetchTopic(topicId)
   },
 
   topicForComponent(component) {
@@ -89,17 +168,10 @@ export default Ember.Object.create({
 
   buildTopic(data) {
     if (!data.id) { return }
-
     let topic = Topic.create(data)
-    let postStream = PostStream.create(topic.post_stream)
-    postStream.topic = topic
-    postStream.updateFromJson(topic.post_stream)
-    topic.postStream = postStream
-    topic.typing = {}
-    topic.online = {}
-
+    applyPostStream(topic)
     syncWithPostStream(topic)
-    return topic
+    return BabbleRegistry.storeTopic(topic)
   },
 
   createPost(topic, text) {
@@ -108,8 +180,15 @@ export default Ember.Object.create({
       type: 'POST',
       data: { raw: text }
     }).then((data) => {
-      this.handleNewPost(topic, data)
+      this.handleNewPost(data)
     })
+  },
+
+  readPost(topic, postNumber) {
+    this.notificationsFor(topic).map((n) => {
+      if (n.post_number <= postNumber) { BabbleRegistry.removeNotification(n.id) }
+    })
+    return ajax(`/babble/topics/${topic.id}/read/${postNumber}.json`)
   },
 
   editPost(topic, post) {
@@ -143,7 +222,7 @@ export default Ember.Object.create({
       type: 'POST',
       data: { raw: text }
     }).then((data) => {
-      this.handleNewPost(topic, data)
+      this.handleNewPost(data)
     }).finally(() => {
       topic.set('loadingEditId', null)
     })
@@ -159,7 +238,7 @@ export default Ember.Object.create({
   },
 
   populatePermissions(data) {
-    const user = Discourse.User.current()
+    const user = User.current()
 
     if (!user || data.user_id != user.id) {
       delete data.can_edit
@@ -183,8 +262,9 @@ export default Ember.Object.create({
     return data
   },
 
-  handleNewPost(topic, data) {
-    if (data.topic_id != topic.id) { return }
+  handleNewPost(data) {
+    let topic = BabbleRegistry.fetchTopic(data.topic_id)
+    if (!topic) { return }
 
     delete topic.typing[data.username]
 
@@ -213,23 +293,23 @@ export default Ember.Object.create({
       } else {
         if (performScroll) { topic.set('last_read_post_number', post.post_number) }
         topic.postStream.appendPost(post)
+        playNotification()
       }
 
       if (performScroll) { scrollToPost(topic, post.post_number) }
     }
 
-    updateUnread(topic)
-    syncWithPostStream(topic)
+    return syncWithPostStream(topic)
   },
 
   handleTyping(topic, data) {
-    if (Discourse.User.current() && data.id == Discourse.User.current().id) { return }
+    if (User.current() && data.id == User.current().id) { return }
     topic.typing[data.username] = { user: data, lastTyped: moment() }
     rerender(topic)
   },
 
   handleOnline(topic, data) {
-    if (Discourse.User.current() && data.id == Discourse.User.current().id) { return }
+    if (User.current() && data.id == User.current().id) { return }
     topic.online[data.username] = { user: data, lastSeen: moment() }
     rerender(topic)
   },
@@ -250,7 +330,7 @@ export default Ember.Object.create({
   },
 
   stagePost(topic, text) {
-    const user = Discourse.User.current()
+    const user = User.current()
 
     let post = Post.create({
       raw:                text,

@@ -10,11 +10,33 @@ class ::Babble::TopicSerializer < ActiveModel::Serializer
              :highest_post_number,
              :last_read_post_number
 
-   def initialize(object, opts)
-     super(object, opts)
-     @params = opts[:params] || {}
-     scope.flagged_post_ids ||= PostAction.where(user: scope.user, post_id: object.post_ids).pluck(:post_id)
-   end
+  def initialize(object, opts)
+    super(object, opts)
+    @params = opts[:params] || {}
+    scope.flagged_post_ids ||= PostAction.where(user: scope.user, post_id: object.post_ids).pluck(:post_id)
+  end
+
+  def unread_count
+    object.highest_post_number > object.last_read_post_number ? 1 : 0
+  end
+
+  def title
+    if object.subtype == TopicSubtype.user_to_user
+      object.allowed_group_users.where("users.id <> ?", scope.user.id).pluck(:name).join(', ')
+    else
+      object.title
+    end
+  end
+
+  def permissions
+    if object.subtype == TopicSubtype.user_to_user
+      :pm
+    elsif object.category_id
+      :category
+    else
+      :group
+    end
+  end
 
   def lowest_post_number
     object.custom_fields[:lowest_post_number] || 1
@@ -22,10 +44,6 @@ class ::Babble::TopicSerializer < ActiveModel::Serializer
 
   def group_names
     object.allowed_groups.pluck(:name).map(&:humanize)
-  end
-
-  def permissions
-    object.category_id.present? ? 'category' : 'group'
   end
 
   def post_stream
