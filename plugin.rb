@@ -57,10 +57,13 @@ after_initialize do
   babble_require 'models/chats/group'
   babble_require 'models/chats/pm'
 
+  babble_require 'jobs/regular/babble_post_alert'
   babble_require 'jobs/scheduled/babble_prune_history'
 
   on :post_created do |post, opts, user|
-    TopicUser.update_last_read(user, post.topic_id, post.post_number, post.post_number, PostTiming::MAX_READ_TIME_PER_BATCH)
-    Babble::PostAlerter.new(skip_push: true).after_save_post(post) if post.topic.archetype == Archetype.chat
+    if post.topic&.archetype == Archetype.chat
+      TopicUser.update_last_read(user, post.topic_id, post.post_number, post.post_number, PostTiming::MAX_READ_TIME_PER_BATCH)
+      Jobs.enqueue(:babble_post_alert, post_id: post.id)
+    end
   end
 end
