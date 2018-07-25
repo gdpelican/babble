@@ -7,6 +7,8 @@ import { wantsNewWindow } from 'discourse/lib/intercept-click';
 export default {
   name: 'babble-common-init',
   initialize() {
+    if (!Discourse.SiteSettings.babble_enabled) { return }
+
     withPluginApi('0.8.9', api => {
       api.modifyClass("controller:flag", {
         actions: {
