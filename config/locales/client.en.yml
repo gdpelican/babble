@@ -27,6 +27,7 @@ en:
       logged_out: "You haven't logged in! Please log in or create an account to participate"
       go_to_chat: "Open full page chat"
       expand_chat: Expand chat
+      compress_chat: Shrink chat
       close_chat: Close chat
       pms_title: Direct Messages
       pms_autocomplete: Enter a name or username...
