@@ -17,7 +17,7 @@ export default Ember.Object.create({
   summary: {},
 
   disabled() {
-    return _.contains(Discourse.Site.current().disabled_plugins, 'babble')
+    return !Discourse.User.current() || !Discourse.SiteSettings.babble_enabled
   },
 
   bindById(component, topicId) {

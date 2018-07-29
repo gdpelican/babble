@@ -15,6 +15,7 @@ export default MountWidget.extend({
   whosOnline: whosOnline,
 
   buildArgs() {
+    if (Babble.disabled()) { return {} }
     return {
       topic:              this.topic,
       mobile:             this.site.isMobileDevice,
