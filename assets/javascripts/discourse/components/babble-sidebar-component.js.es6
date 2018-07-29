@@ -91,13 +91,20 @@ export default MountWidget.extend({
   },
 
   openChat(topic) {
-    if (this.initialized) {
-      if (this.visible) { this.closeChat() }
-      if (topic) { this.set('topic', Babble.fetchTopic(topic.id)) }
-      this.set('visible', true)
-      Babble.bind(this, this.topic)
+    if (!this.initialized) { return this.initialize(topic) }
+
+    if (!topic && Babble.singleChannel()) {
+      if (this.defaultLoaded) { return this.openChat(Babble.fetchDefault()) }
+
+      Babble.loadTopic(Babble.summary.defaultId).then(() => {
+        this.set('defaultLoaded', true)
+        this.openChat()
+      })
     } else {
-      this.initialize(topic)
+      if (this.visible) { this.closeChat() }
+      Babble.bind(this, topic)
+      this.set('topic', topic)
+      this.set('visible', true)
     }
   },
 

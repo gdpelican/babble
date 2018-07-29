@@ -108,6 +108,7 @@ export default Ember.Object.create({
       this.set('summary.topicCount', data.topic_count)
       this.set('summary.unreadCount', data.unread_count)
       this.set('summary.notificationCount', data.notification_count)
+      this.set('summary.defaultId', data.default_id)
     }).finally(() => {
       component.appEvents.trigger('babble-rerender')
       this.set('loadingSummary', null)
@@ -136,6 +137,10 @@ export default Ember.Object.create({
     return (notificationCount || '•').toString()
   },
 
+  singleChannel() {
+    return this.summary.topicCount == 1 && !Discourse.SiteSettings.babble_enable_pms
+  },
+
   availableTopics() {
     return BabbleRegistry.allTopics()
   },
@@ -156,6 +161,10 @@ export default Ember.Object.create({
         return n.topic_id == item.id
       }
     })
+  },
+
+  fetchDefault() {
+    return this.fetchTopic(this.summary.defaultId)
   },
 
   fetchTopic(topicId) {

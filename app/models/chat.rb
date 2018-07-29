@@ -1,5 +1,5 @@
-Babble::BootData = Struct.new(:topics, :users, :notifications)                  { alias :read_attribute_for_serialization :send }
-Babble::Summary  = Struct.new(:topic_count, :unread_count, :notification_count) { alias :read_attribute_for_serialization :send }
+Babble::BootData = Struct.new(:topics, :users, :notifications)                               { alias :read_attribute_for_serialization :send }
+Babble::Summary  = Struct.new(:topic_count, :unread_count, :notification_count, :default_id) { alias :read_attribute_for_serialization :send }
 
 class ::Babble::Chat
   def self.boot_data_for(guardian)
@@ -14,7 +14,8 @@ class ::Babble::Chat
     Babble::Summary.new(
       available_topics_for(guardian, pm: false).count,
       available_topics_for(guardian, pm: false, unread: true).count,
-      notifications_for(guardian).count
+      notifications_for(guardian).count,
+      available_topics_for(guardian, pm: false).first.id
     )
   end
 

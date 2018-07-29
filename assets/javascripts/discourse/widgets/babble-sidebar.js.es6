@@ -10,11 +10,7 @@ export default createWidget('babble-sidebar', {
   },
 
   defaultState(attrs) {
-    return {
-      visible:   attrs.visible,
-      topic:     attrs.topic,
-      view:      attrs.topic ? 'chat' : 'channels'
-    }
+    return { view: attrs.topic ? 'chat' : 'channels' }
   },
 
   html() {
