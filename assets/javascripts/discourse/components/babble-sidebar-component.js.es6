@@ -51,10 +51,6 @@ export default MountWidget.extend({
       this.visible ? this.closeChat() : this.openChat()
     })
 
-    this.appEvents.on("babble-upload-success", (markdown) => {
-      Babble.createPost(this.topic, markdown)
-    })
-
     this.appEvents.on('babble-rerender', () => {
       this.rerenderWidget()
     })
@@ -73,7 +69,6 @@ export default MountWidget.extend({
     $(window).off('resize.babble-window-resize')
     $(window).off('scroll.babble-scroll')
     this.appEvents.off('babble-toggle-chat')
-    this.appEvents.off('babble-upload-success')
     this.appEvents.off('babble-rerender')
   },
 
