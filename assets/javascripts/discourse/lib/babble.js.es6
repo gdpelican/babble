@@ -80,7 +80,8 @@ export default Ember.Object.create({
   subscribeToNotifications(component) {
     if (!User.current()) { return }
     messageBus().subscribe(`/babble/notifications/${User.current().id}`, (data) => {
-      BabbleRegistry.storeNotification(data)
+      this.handleNewPost(data.post)
+      BabbleRegistry.storeNotification(data.notification)
       if (!component.initialized) {
         this.set('summary.notificationCount', this.summary.notificationCount + 1)
       }

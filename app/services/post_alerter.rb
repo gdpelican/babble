@@ -25,7 +25,7 @@ class ::Babble::PostAlerter < ::PostAlerter
     Babble::Broadcaster.publish_to_topic post.topic, post.user
     Babble::Broadcaster.publish_to_posts post, post.user
     Notification.babble.where(topic: post.topic, post_number: post.post_number).each do |notification|
-      Babble::Broadcaster.publish_to_notifications(notification)
+      Babble::Broadcaster.publish_to_notifications(notification, post)
     end
   end
 end

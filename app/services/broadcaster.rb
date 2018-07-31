@@ -1,6 +1,9 @@
 class Babble::Broadcaster
-  def self.publish_to_notifications(notification, extras = {})
-    MessageBus.publish "/babble/notifications/#{notification.user_id}", serialized_notification(notification, extras)
+  def self.publish_to_notifications(notification, post, extras = {})
+    MessageBus.publish "/babble/notifications/#{notification.user_id}", {
+      notification: serialized_notification(notification, extras),
+      post:         serialized_post(post, notification.user, extras)
+    }
   end
 
   def self.publish_to_topic(topic, user, extras = {})
