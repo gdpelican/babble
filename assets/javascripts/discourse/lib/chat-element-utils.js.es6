@@ -175,6 +175,7 @@ let setupChannelAutocomplete = function(opts = {}) {
 }
 
 let playNotification = function() {
+  if (!Discourse.SiteSettings.babble_notification_sound) { return }
   const $audio = $('audio#babble-notification')[0]
   if (!$audio || !$audio.play) { return }
   $audio.play()
