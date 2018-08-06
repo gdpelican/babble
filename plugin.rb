@@ -47,6 +47,7 @@ after_initialize do
   babble_require 'models/guardian'
   babble_require 'models/group'
   babble_require 'models/notification'
+  babble_require 'models/post'
   babble_require 'models/search'
   babble_require 'models/topic_query'
   babble_require 'models/topic'
