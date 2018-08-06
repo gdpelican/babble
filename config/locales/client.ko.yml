@@ -8,7 +8,6 @@ ko:
       topic_visibility_tooltip: "이 대화는 {{groupNames}} 그룹에게 보여집니다."
       view_topics_tooltip: "다른 채팅 채널 보기"
       view_chat_tooltip: "현재 대화로 돌아가기"
-      select_topic: "다른 채팅 채널을 선택해주세요"
       admin:
         new: "새 채널"
         none_selected: "시작하기 위해 채널을 선택해주세요"

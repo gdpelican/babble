@@ -14,7 +14,6 @@ pl:
       topic_visibility_tooltip: "Ten kanał jest widoczny dla: {{groupNames}}"
       view_topics_tooltip: "Pokaż inne kanały"
       view_chat_tooltip: "Wróc do aktualnego kanału"
-      select_topic: "Wybierz inny kanał"
       post_deleted_by: "Wpis usunięty przez {{username}}"
       post_edited: (edytowane)
       is_typing: "pisze..."

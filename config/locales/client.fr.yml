@@ -7,7 +7,6 @@ fr:
       topic_visibility_tooltip: "Cette tribune est visible pour : {{groupNames}}"
       view_topics_tooltip: "Voir les autres canaux de tribune"
       view_chat_tooltip: "Retour au canal actuel"
-      select_topic: "Choisir un autre canal de tribune"
       admin:
         new: "Nouveau canal"
         none_selected: "Choisissez un canal pour commencer"

@@ -16,7 +16,6 @@ ru:
       topic_visibility_tooltip: "Этот чат виден для: {{groupNames}}"
       view_topics_tooltip: "Другие чаты"
       view_chat_tooltip: "Обратно в активный чат"
-      select_topic: "Выбрать другой чат"
       post_deleted_by: "Сообщение удалено пользователем {{username}}"
       post_edited: (отредактированно)
       is_typing: "печатает..."

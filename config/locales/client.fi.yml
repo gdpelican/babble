@@ -9,7 +9,6 @@ fi:
       topic_visibility_tooltip: "Tämän keskustelun näkevät: {{groupNames}}"
       view_topics_tooltip: "Muut keskustelut"
       view_chat_tooltip: "Takaisin keskusteluun"
-      select_topic: "Valitse keskustelu"
       admin:
         new: "Uusi keskustelu"
         none_selected: "Valitse keskustelu, niin pääset alkuun"

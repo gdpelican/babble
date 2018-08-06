@@ -12,7 +12,6 @@ it:
       topic_visibility_tooltip: "Questa chat è visibile a: {{groupNames}}"
       view_topics_tooltip: "Mostra gli altri canali della chat"
       view_chat_tooltip: "Torna alla chat corrente"
-      select_topic: "Seleziona un altro canale chat"
       post_deleted_by: "Messaggio cancellato da {{username}}"
       post_edited: (modificato)
       is_typing: "sta scrivendo..."

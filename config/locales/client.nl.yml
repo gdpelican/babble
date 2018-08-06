@@ -16,7 +16,7 @@ nl:
       topic_visibility_tooltip: "Deze chat is zichtbaar voor: {{groupNames}}"
       view_topics_tooltip: "Bekijk andere chatkanalen"
       view_chat_tooltip: "Terug naar de huidige chat"
-      select_topic: "Selecteer een ander chatkanaal"
+      select_topic: "Kanalen"
       post_deleted_by: "Berichtje verwijderd door {{username}}"
       post_edited: (bewerkt)
       is_typing: "tikt een berichtje ..."
@@ -26,6 +26,13 @@ nl:
       no_more_messages: "Dat is alles!"
       logged_out: "Je bent niet ingelogd! Log aub in of maak een account aan om mee te doen."
       go_to_chat: "Open de chat paginavullend"
+      expand_chat: Scherm vergroten
+      compress_chat: Scherm verkleinen
+      close_chat: Scherm sluiten
+      pms_title: Persoonlijke berichtjes
+      pms_autocomplete: Voer een naam of gebruikersnaam in...
+      groups_title: Groepen
+      categories_title: Categorieën
       admin:
         disabled: "Babble is uitgeschakeld. Zet het weer aan om verder te gaan. "
         new: "Nieuw kanaal"

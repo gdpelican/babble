@@ -16,7 +16,6 @@ zh_CN:
       topic_visibility_tooltip: "聊天内容仅以下人员可见: {{groupNames}}"
       view_topics_tooltip: "查看其它聊天频道"
       view_chat_tooltip: "返回原先的频道"
-      select_topic: "选择另一个聊天频道"
       post_deleted_by: "这个消息被{{username}}删除了"
       post_edited: (已编辑)
       is_typing: "正在输入…"
