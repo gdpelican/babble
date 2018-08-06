@@ -60,15 +60,15 @@ $default-chat-width: 300px;
 
 .babble-sidebar-collapsed {
   transition: all 0.4s ease-in-out;
-  position: fixed;
+  position: fixed !important;
   width: 60px;
   height: 60px;
   font-size: 20px;
   z-index: 199;
   padding: 0;
   bottom: 40px;
-  background: $primary;
-  i { color: $secondary; }
+  background: $primary !important;
+  i { color: $secondary !important; }
   &--left {
     left: -10px;
     border-radius: 0 100px 100px 0;
