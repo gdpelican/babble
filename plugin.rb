@@ -1,6 +1,6 @@
 # name: babble
 # about: Shoutbox plugin for Discourse
-# version: 4.0.2
+# version: 4.0.3
 # authors: James Kiesel (gdpelican)
 # url: https://github.com/gdpelican/babble
 
@@ -62,7 +62,7 @@ after_initialize do
   babble_require 'jobs/regular/babble_post_alert'
   babble_require 'jobs/scheduled/babble_prune_history'
 
-  DiscoursePluginRegistry.serialized_current_user_fields << 'babble_disabled'  
+  DiscoursePluginRegistry.serialized_current_user_fields << 'babble_disabled'
   DiscoursePluginRegistry.serialized_current_user_fields << 'babble_sound'
 
   on :post_created do |post, opts, user|
