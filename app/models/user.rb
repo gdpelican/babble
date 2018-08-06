@@ -20,11 +20,11 @@ class ::User
           AND NOT read
         SQL
 
-        DB.query_single(sql,
+        ::DB.query_single(sql,
           user_id: id,
           seen_notification_id: seen_notification_id,
-          pm:  Notification.types[:private_message],
-          chat: Archetype.chat
+          pm:  ::Notification.types[:private_message],
+          chat: ::Archetype.chat
         )[0].to_i
       end
     end
