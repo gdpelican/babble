@@ -9,6 +9,7 @@ import autosize from 'discourse/lib/autosize'
 import lastVisibleElement from '../lib/last-visible-element'
 import { syncWithPostStream } from '../lib/chat-topic-utils'
 import { rerender } from '../lib/chat-component-utils'
+import User from 'discourse/models/user'
 import Babble from '../lib/babble'
 
 let visibleInWindow = function(selector) {
@@ -116,7 +117,7 @@ let setupComposer = function(topic, opts = { emojis: true, mentions: true }) {
               term: term,
               topicId: topic.id,
               includeGroups: true,
-              exclude: [Discourse.User.current().get('username')]
+              exclude: [User.currentProp('username')]
             })
           },
 
@@ -175,7 +176,7 @@ let setupChannelAutocomplete = function(opts = {}) {
 }
 
 let playNotification = function() {
-  if (!Discourse.SiteSettings.babble_notification_sound) { return }
+  if (!User.currentProp('custom_fields.babble_sound')) { return }
   const $audio = $('audio#babble-notification')[0]
   if (!$audio || !$audio.play) { return }
   $audio.play()

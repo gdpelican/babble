@@ -17,7 +17,9 @@ export default Ember.Object.create({
   summary: {},
 
   disabled() {
-    return !Discourse.User.current() || !Discourse.SiteSettings.babble_enabled
+    return !User.current() ||
+           User.currentProp('custom_fields.babble_disabled') ||
+           !Discourse.SiteSettings.babble_enabled
   },
 
   bindById(component, topicId) {
@@ -313,13 +315,13 @@ export default Ember.Object.create({
   },
 
   handleTyping(topic, data) {
-    if (User.current() && data.id == User.current().id) { return }
+    if (data.id == User.currentProp('id')) { return }
     topic.typing[data.username] = { user: data, lastTyped: moment() }
     rerender(topic)
   },
 
   handleOnline(topic, data) {
-    if (User.current() && data.id == User.current().id) { return }
+    if (data.id == User.currentProp('id')) { return }
     topic.online[data.username] = { user: data, lastSeen: moment() }
     rerender(topic)
   },
