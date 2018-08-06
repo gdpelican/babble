@@ -5,6 +5,9 @@ class ::User
     .where.not(id: post.user_id)
   }
 
+  register_custom_field_type 'babble_disabled', :boolean
+  register_custom_field_type 'babble_sound', :boolean
+
   module HideChatNotifications
     def unread_notifications
       @unread_notifications ||= begin
