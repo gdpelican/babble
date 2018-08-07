@@ -176,7 +176,6 @@ let setupChannelAutocomplete = function(opts = {}) {
 }
 
 let playNotification = function() {
-  if (!User.currentProp('custom_fields.babble_sound')) { return }
   const $audio = $('audio#babble-notification')[0]
   if (!$audio || !$audio.play) { return }
   $audio.play()
