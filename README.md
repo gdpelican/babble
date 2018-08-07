@@ -19,13 +19,6 @@ Edit your web template and add the project clone url. Then, rebuild your web con
  - git clone https://github.com/gdpelican/babble.git
  ```
 
- If you're looking for the previous implementation of full page category chat, you can pull the `full-page-chat` branch.
-
-```
-- git clone -b full-page-chat https://github.com/gdpelican/babble.git
-```
- (caveat emptor: This branch is unmaintained and will not receive updates going forward)
-
 ###### Adding a chat channel
 
 To create a new channel, visit the `admin/chats` route, select 'Make a New Channel', and create a chat.
@@ -36,6 +29,8 @@ You can either create a channel available to a particular category, or one avail
 
 - Babble is now configured to appear as a sidebar, which should result in a better experience overall. You may choose whether it occupies the left or right side of the screen in the settings (On small screens, it will automatically expand to take up the whole screen)
 - If you have a custom header, Babble may not play nicely with Discourse's somewhat complicated scrolling behaviour. To account for this, turn on the 'Babble Adaptive Height' setting under `/admin/site_settings/category/plugins?filter=babble`
+- Your users can disable babble for themselves by selecting the 'Disable Babble chat completely' option under the 'Interface' section in their User preferences
+- Babble also offers an option to play a notification sound when new messages are received
 
 #### Contributing
 
@@ -58,7 +53,3 @@ If you'd like it translated into your language, let me know! Babble is now [on T
 ###### Backers
 
 Support us with a monthly donation and help us continue our activities. [[Become a backer](https://opencollective.com/babble#backer)]
-
-###### Sponsors
-
-Become a sponsor and get your logo on our README on Github with a link to your site. [[Become a sponsor](https://opencollective.com/babble#sponsor)]
