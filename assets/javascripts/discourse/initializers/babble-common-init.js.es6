@@ -7,9 +7,19 @@ import { wantsNewWindow } from 'discourse/lib/intercept-click';
 export default {
   name: 'babble-common-init',
   initialize() {
-    if (Babble.disabled()) { return }
 
     withPluginApi('0.8.9', api => {
+      api.modifyClass('controller:preferences/interface', {
+        actions: {
+          save () {
+            this.get('saveAttrNames').push('custom_fields')
+            this._super()
+          }
+        }
+      })
+
+      if (Babble.disabled()) { return }
+
       api.modifyClass("controller:flag", {
         actions: {
           createFlag(opts) {
@@ -23,15 +33,6 @@ export default {
             }).finally(() => {
               this.send('closeModal')
             })
-          }
-        }
-      })
-
-      api.modifyClass('controller:preferences/interface', {
-        actions: {
-          save () {
-            this.get('saveAttrNames').push('custom_fields')
-            this._super()
           }
         }
       })

@@ -26,6 +26,4 @@ plugins:
   babble_open_by_default:
     default: false
     client: true
-  babble_notification_sound:
-    default: false
-    client: true
+    
