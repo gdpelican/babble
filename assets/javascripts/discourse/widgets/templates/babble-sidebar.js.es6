@@ -53,13 +53,15 @@ export default Ember.Object.create({
   },
 
   attrs() {
-    if (!Discourse.SiteSettings.babble_adaptive_height || !this.widget.attrs.visible) { return {} }
+    if (
+      this.widget.attrs.mobile ||
+      !Discourse.SiteSettings.babble_adaptive_height ||
+      !this.widget.attrs.visible
+    ) { return {} }
 
     const $header = $('.d-header')[0]
-    const $footer = $('#reply-control')[0]
     const headerBottom = $header.getBoundingClientRect().bottom
-    const footerTop    = $footer.getBoundingClientRect().top
-    return { style: `height: ${footerTop - headerBottom}px;` }
+    return { style: `height: ${$(window).height() - headerBottom}px;` }
   },
 
   css() {
