@@ -1,5 +1,4 @@
 import { h } from 'virtual-dom'
-import { visibleInWindow } from '../../lib/chat-element-utils'
 import Babble from '../../lib/babble'
 
 export default Ember.Object.create({
@@ -14,13 +13,8 @@ export default Ember.Object.create({
 
     const position = `.babble-sidebar--${Discourse.SiteSettings.babble_position}`
     let   opts     = {}
-    const headerMargin = parseInt($('.babble-sidebar').css('margin-top'))
 
-    if (Discourse.SiteSettings.babble_adaptive_height) {
-      opts.style = `height: ${visibleInWindow('#main') - headerMargin}px;`
-    }
-
-    return h(`div.babble-sidebar${position}${this.css()}`, opts, [
+    return h(`div.babble-sidebar${position}${this.css()}`, this.attrs(), [
       this.channels(),
       this.chat()
     ])
@@ -56,6 +50,16 @@ export default Ember.Object.create({
 
   collapsedUnread() {
     return h('div.babble-unread.babble-unread--sidebar', Babble.unreadCount())
+  },
+
+  attrs() {
+    if (!Discourse.SiteSettings.babble_adaptive_height || !this.widget.attrs.visible) { return {} }
+
+    const $header = $('.d-header')[0]
+    const $footer = $('#reply-control')[0]
+    const headerBottom = $header.getBoundingClientRect().bottom
+    const footerTop    = $footer.getBoundingClientRect().top
+    return { style: `height: ${footerTop - headerBottom}px;` }
   },
 
   css() {

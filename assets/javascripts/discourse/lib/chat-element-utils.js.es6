@@ -12,19 +12,6 @@ import { rerender } from '../lib/chat-component-utils'
 import User from 'discourse/models/user'
 import Babble from '../lib/babble'
 
-let visibleInWindow = function(selector) {
-  let $container = document.querySelector(selector)
-  if (!$container) { return 0 }
-  let rect   = $container.getBoundingClientRect()
-  let visible
-  if (rect.top > 0) {
-    visible = Math.min($($container).outerHeight(), $(window).height() - rect.top)
-  } else {
-    visible = Math.min(rect.bottom, $(window).height())
-  }
-  return Math.max(0, visible)
-}
-
 let scrollToPost = function(topic, postNumber, speed = 400, offset = 60) {
   Ember.run.scheduleOnce('afterRender', () => {
     forEachTopicContainer(topic, function($container) {
@@ -182,7 +169,6 @@ let playNotification = function() {
 }
 
 export {
-  visibleInWindow,
   scrollToPost,
   setupScrollContainer,
   setupComposer,

@@ -62,7 +62,7 @@ $default-chat-width: 300px;
   transition: all 0.4s ease-in-out;
   position: fixed !important;
   width: 60px;
-  height: 60px;
+  height: 60px !important;
   font-size: 20px;
   z-index: 199;
   padding: 0;
