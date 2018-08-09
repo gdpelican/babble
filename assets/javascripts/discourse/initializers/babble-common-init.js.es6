@@ -27,6 +27,15 @@ export default {
         }
       })
 
+      api.modifyClass('controller:preferences/interface', {
+        actions: {
+          save () {
+            this.get('saveAttrNames').push('custom_fields')
+            this._super()
+          }
+        }
+      })
+
       api.modifyClass("component:user-card-contents", {
         @on('didInsertElement')
         listenForBabble() {
