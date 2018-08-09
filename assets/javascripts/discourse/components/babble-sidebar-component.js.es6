@@ -112,5 +112,9 @@ export default MountWidget.extend({
   closeChat() {
     this.set('visible', false)
     Babble.unbind(this)
-  }
+  },
+
+  channelView() {
+    Babble.unbind(this)
+  },
 })

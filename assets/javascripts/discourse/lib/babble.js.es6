@@ -292,6 +292,8 @@ export default Ember.Object.create({
       let performScroll = _.any(forEachTopicContainer(topic, function($container) {
         return lastVisibleElement($container.find('.babble-chat'), '.babble-post', 'post-number') == topic.lastLoadedPostNumber
       }))
+      let performNotification = BabbleRegistry.componentsForTopic(topic).length &&
+                                post.user_id != User.currentProp('id')
 
       if (topic.lastLoadedPostNumber < post.post_number) {
         topic.set('lastLoadedPostNumber', post.post_number)
@@ -305,9 +307,9 @@ export default Ember.Object.create({
       } else {
         if (performScroll) { topic.set('last_read_post_number', post.post_number) }
         topic.postStream.appendPost(post)
-        playNotification()
       }
 
+      if(performNotification) { playNotification() }
       if (performScroll) { scrollToPost(topic, post.post_number) }
     }
 

@@ -34,5 +34,6 @@ export default createWidget('babble-sidebar', {
 
   viewChannels() {
     this.state.view = 'channels'
+    this.sendWidgetAction('channelView')
   }
 })
