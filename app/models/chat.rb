@@ -15,7 +15,7 @@ class ::Babble::Chat
       available_topics_for(guardian, pm: false).count,
       available_topics_for(guardian, pm: false, unread: true).count,
       notifications_for(guardian).count,
-      available_topics_for(guardian, pm: false).first.id
+      available_topics_for(guardian, pm: false).first&.id
     )
   end
 
