@@ -1,20 +1,57 @@
 fr:
   js:
     babble:
+      preferences:
+        title: Babble
+        babble_disabled: Désactiver la tribune Babble complètement
+        babble_sound: Activer le son du navigateur pour les nouvelle notifications
+      position_left: Gauche
+      position_right: Droite
+      placeholder: "Dites quelque chose…"
       send: "Envoyer"
-      error_message: "Veuillez entrer un message"
+      save: "Sauvegarder"
+      flagged: "Signalé"
+      cancel: "Annuler"
+      title: "ouvrir une fenêtre pour une conversation rapide"
+      error_message: "Veuillez entrer un message !"
+      new_messages: "NOUVEAUX MESSAGES"
+      failed_post: "Le message n'a pas pu être sauvegardé. Veuillez réessayer."
       empty_topic_message: "Pas encore de message ! Ecrivez-en un ci-dessous pour commencer."
       topic_visibility_tooltip: "Cette tribune est visible pour : {{groupNames}}"
       view_topics_tooltip: "Voir les autres canaux de tribune"
       view_chat_tooltip: "Retour au canal actuel"
+      select_topic: "Tribunes"
+      post_deleted_by: "Message supprimé par {{username}}"
+      post_edited: (modifié)
+      is_typing: "en train d'écrire…"
+      nav_title: "Tribune"
+      load_more: "Charger plus"
+      loading_messages: "Chargement des messages…"
+      no_more_messages: "Il n'y a pas plus de messages !"
+      logged_out: "Vous n'êtes pas connectés ! Veuillez vous connecter ou créer un compte pour participer"
+      go_to_chat: "Ouvrir la tribune en pleine page"
+      expand_chat: Étendre la tribune
+      compress_chat: Réduire la tribune
+      close_chat: Fermer la tribune
+      pms_title: Messages directs
+      pms_autocomplete: Entrez un nom d'utilisateur…
+      groups_title: Groupes
+      categories_title: Catégories
       admin:
+        disabled: "Babble a été désactivé. Veuillez le réactiver pour continuer."
         new: "Nouveau canal"
+        new_category: "Nouvelle catégorie de canal"
         none_selected: "Choisissez un canal pour commencer"
         title: "Titre du canal"
+        permissions: "Permissions"
+        category: "Catégorie"
+        groups: "Groupe(s)"
+        category_label: "Le canal est associé à la catégorie suivante :"
+        allowed_groups_label: "Le canal est visible aux groupes suivants :"
         menu_title: "Tribunes"
         page_title: "Canaux de tribune"
         post_count: "Messages"
         last_post: "Dernier message"
-        delete_confirm: "Etes vous sûr de vouloir supprimer ce canal ? Tous les messages existants seront supprimés."
+        delete_confirm: "Êtes vous sûr de vouloir supprimer ce canal ? Tous les messages existants seront supprimés."
         delete_failed: "Impossible de supprimer le canal choisi. Veuillez réessayer."
         save_failed: "Impossible de sauvegarder le canal choisi. Veuillez réessayer."
