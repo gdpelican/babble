@@ -58,11 +58,11 @@ export default MountWidget.extend({
 
     Babble.subscribeToNotifications(this)
 
-    if (!this.site.isMobileDevice && Discourse.SiteSettings.babble_open_by_default) {
+    Babble.loadSummary(this).then(() => {
+      if (this.site.isMobileDevice) { return }
+      if (!Discourse.SiteSettings.babble_open_by_default && !Babble.singleChannel()) { return }
       this.initialize()
-    } else {
-      Babble.loadSummary(this)
-    }
+    })
   },
 
   @on('willDestroyElement')
