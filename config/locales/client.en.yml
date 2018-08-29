@@ -5,6 +5,10 @@ en:
         title: Babble
         babble_disabled: Disable Babble chat completely
         babble_sound: Enable browser sound for new chat notifications
+      typing:
+        single:  "%{first} is typing..."
+        double:  "${first} and ${second} are typing..."
+        several: "several people are typing..."
       position_left: Left
       position_right: Right
       placeholder: "Say something..."

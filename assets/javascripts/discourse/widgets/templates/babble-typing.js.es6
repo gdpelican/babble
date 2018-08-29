@@ -14,9 +14,9 @@ export default Ember.Object.create({
     if (!usernames.length) { return }
     setTimeout(() => { this.widget.scheduleRerender() }, 2000)
     switch(usernames.length) {
-      case 1: return `${usernames[0]} is typing...`
-      case 2: return `${usernames[0]} and ${usernames[1]} are typing...`
-      case 3: return `several people are typing...`
+      case 1: return I18n.t("babble.typing.single", { first: usernames[0] })
+      case 2: return I18n.t("babble.typing.double", { first: usernames[0], second: usernames[1] })
+      case 3: return I18n.t("babble.typing.several")
     }
   }
 })
