@@ -5,6 +5,10 @@ fr:
         title: Babble
         babble_disabled: Désactiver complètement les discussions Babble
         babble_sound: Activer le son du navigateur pour les nouvelles notifications
+      typing:
+        single: "%{first} écrit…"
+        double: "%{first} et %{second} écrivent…"
+        several: "plusieurs personnes écrivent…"
       position_left: Gauche
       position_right: Droite
       placeholder: "Dites quelque chose…"

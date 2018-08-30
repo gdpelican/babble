@@ -4,7 +4,7 @@ fr:
     babble_placeholder: "Laissez vide pour un message pré-écrit lorsque la tribune est vide. Sinon, écrivez le texte désiré."
     babble_icon: "Code Font-Awesome utilisé pour l'icône en haut à droite du site (sans le fa-). Jetez un coup d'oeil à http://fortawesome.github.io/Font-Awesome/cheatsheet/ pour la liste d'icônes disponibles."
     babble_category_name: "Catégorie Discourse pour les sujets Babble"
-    babble_remote_post: "Activé les requêtes POST distantes pour chaque message"
+    babble_remote_post: "Activer les requêtes POST distantes pour chaque message"
     babble_remote_url: "URL requête POST"
     babble_page_size: "Nombre de message par page de tribune"
     babble_full_page: "Activer la discussion en pleine page (accessible depuis la page catégorie)"
