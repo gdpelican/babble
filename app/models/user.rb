@@ -23,12 +23,12 @@ class ::User
           AND NOT read
         SQL
 
-        User.exec_sql(sql,
+        DB.query_single(sql,
           user_id: id,
           seen_notification_id: seen_notification_id,
           pm:  ::Notification.types[:private_message],
           chat: ::Archetype.chat
-        ).getvalue(0,0).to_i
+        )[0].to_i
       end
     end
   end
