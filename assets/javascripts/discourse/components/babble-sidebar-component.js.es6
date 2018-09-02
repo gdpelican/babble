@@ -53,6 +53,7 @@ export default MountWidget.extend({
     })
 
     this.appEvents.on('babble-rerender', () => {
+      this.dirtyKeys.forceAll()
       this.rerenderWidget()
     })
 

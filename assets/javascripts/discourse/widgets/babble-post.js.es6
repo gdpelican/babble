@@ -3,6 +3,7 @@ import template from '../widgets/templates/babble-post'
 
 export default createWidget('babble-post', {
   tagName: 'li.babble-post',
+  shadowTree: true,
 
   buildKey(attrs) {
     return `babble-post-${attrs.post.id}`
