@@ -305,12 +305,13 @@ export default Ember.Object.create({
         if (staged) { topic.postStream.removePosts([staged]) }
         topic.postStream.commitPost(post)
       } else {
-        if (performScroll) { topic.set('last_read_post_number', post.post_number) }
         topic.postStream.appendPost(post)
       }
 
       if(performNotification) { playNotification() }
       if (performScroll) { scrollToPost(topic, post.post_number) }
+
+      forEachTopicContainer(topic, ($container) => { this.ensureRead(topic, $container) })
     }
 
     return syncWithPostStream(topic)
@@ -326,6 +327,16 @@ export default Ember.Object.create({
     if (data.id == User.currentProp('id')) { return }
     topic.online[data.username] = { user: data, lastSeen: moment() }
     rerender(topic)
+  },
+
+  ensureRead(topic, $container) {
+    Ember.run.scheduleOnce('afterRender', () => {
+      let postNumber = lastVisibleElement($container.find('.babble-chat'), '.babble-post', 'post-number')
+      if (postNumber <= topic.last_read_post_number) { return }
+      topic.set('last_read_post_number', postNumber)
+      syncWithPostStream(topic)
+      this.readPost(topic, postNumber)
+    })
   },
 
   loadPosts(topic, order) {
