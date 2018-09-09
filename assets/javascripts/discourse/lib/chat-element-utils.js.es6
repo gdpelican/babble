@@ -10,6 +10,7 @@ import lastVisibleElement from '../lib/last-visible-element'
 import { syncWithPostStream } from '../lib/chat-topic-utils'
 import { rerender } from '../lib/chat-component-utils'
 import User from 'discourse/models/user'
+import Site from 'discourse/models/site'
 import Babble from '../lib/babble'
 
 let scrollToPost = function(topic, postNumber, speed = 400, offset = 60) {
@@ -106,7 +107,9 @@ let setupComposer = function(topic, opts = { emojis: true, mentions: true }) {
         })
 
         $textarea.attr('babble-composer', 'active')
-        $textarea.focus()
+        if (!Site.current().isMobileDevice) {
+          $textarea.focus()
+        }
       }
     })
   })
