@@ -26,7 +26,12 @@ let scrollToPost = function(topic, postNumber, speed = 400, offset = 60) {
       $scrollContainer.find('.babble-post-content img[height]').toArray().map((img) => {
         let fullHeight = parseInt(img.attributes.height.value)
         let fullWidth  = parseInt(img.attributes.width.value)
-        img.style.height = `${postWidth * fullHeight / fullWidth}px`
+        if (fullHeight <= postWidth && fullWidth <= postWidth) {
+          let viewHeight = fullHeight
+        } else {
+          let viewHeight = postWidth * fullHeight / fullWidth
+        }
+        img.style.height = `${viewHeight}px`
       })
 
       let animateTarget = $post.position().top + $scrollContainer.scrollTop() - offset
