@@ -62,6 +62,9 @@ after_initialize do
   babble_require 'jobs/regular/babble_post_alert'
   babble_require 'jobs/scheduled/babble_prune_history'
 
+  register_editable_user_custom_field :babble_disabled
+  register_editable_user_custom_field :babble_sound
+
   DiscoursePluginRegistry.serialized_current_user_fields << 'babble_disabled'
   DiscoursePluginRegistry.serialized_current_user_fields << 'babble_sound'
 
