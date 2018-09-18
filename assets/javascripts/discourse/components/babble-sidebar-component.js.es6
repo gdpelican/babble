@@ -60,9 +60,11 @@ export default MountWidget.extend({
     Babble.subscribeToNotifications(this)
 
     Babble.loadSummary(this).then(() => {
-      if (this.site.isMobileDevice || !Babble.summary.topicCount > 0) { return }
-      if (!Discourse.SiteSettings.babble_open_by_default && !Babble.singleChannel()) { return }
-      this.initialize()
+      if (
+        !this.site.isMobileDevice &&
+        Babble.summary.topicCount > 0 &&
+        (Babble.openByDefault() || Babble.singleChannel())
+      ) { this.initialize() }
     })
   },
 

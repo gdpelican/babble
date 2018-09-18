@@ -64,9 +64,11 @@ after_initialize do
 
   register_editable_user_custom_field :babble_disabled
   register_editable_user_custom_field :babble_sound
+  register_editable_user_custom_field :babble_open_by_default
 
   DiscoursePluginRegistry.serialized_current_user_fields << 'babble_disabled'
   DiscoursePluginRegistry.serialized_current_user_fields << 'babble_sound'
+  DiscoursePluginRegistry.serialized_current_user_fields << 'babble_open_by_default'
 
   on :post_created do |post, opts, user|
     if post.topic&.archetype == Archetype.chat

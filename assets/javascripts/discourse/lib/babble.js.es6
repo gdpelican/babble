@@ -144,6 +144,10 @@ export default Ember.Object.create({
     return this.summary.topicCount == 1 && !Discourse.SiteSettings.babble_enable_pms
   },
 
+  openByDefault() {
+    return User.currentProp('custom_fields.babble_open_by_default')
+  },
+
   availableTopics() {
     return BabbleRegistry.allTopics()
   },

@@ -7,6 +7,7 @@ class ::User
 
   register_custom_field_type 'babble_disabled', :boolean
   register_custom_field_type 'babble_sound', :boolean
+  register_custom_field_type 'babble_open_by_default', :boolean
 
   module HideChatNotifications
     def unread_notifications

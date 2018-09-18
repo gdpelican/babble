@@ -5,6 +5,7 @@ en:
         title: Babble
         babble_disabled: Disable Babble chat completely
         babble_sound: Enable browser sound for new chat notifications
+        babble_open_by_default: Open Babble sidebar automatically when visiting this site
       typing:
         single:  "%{first} is typing..."
         double:  "%{first} and %{second} are typing..."
