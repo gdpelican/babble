@@ -63,7 +63,7 @@ export default MountWidget.extend({
       if (
         !this.site.isMobileDevice &&
         Babble.summary.topicCount > 0 &&
-        (Babble.openByDefault() || Babble.singleChannel())
+        Babble.openByDefault()
       ) { this.initialize() }
     })
   },
