@@ -117,7 +117,7 @@ export default Ember.Object.create({
 
   availableTopicLink(item, type) {
     return this.widget.attach('link', {
-      rawLabel: type == 'user' ? item.name : item.title,
+      rawLabel: type == 'user' ? (item.name || item.username) : item.title,
       action: 'changeTopic',
       actionParam: item
     })
