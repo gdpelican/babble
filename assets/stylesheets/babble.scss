@@ -91,6 +91,7 @@ $default-chat-width: 300px;
     z-index: 1000;
     top: 0px !important;
     height: 0px !important;
+    opacity: 0;
     bottom: 100%;
     .babble-unread, i { display: none; }
     pointer-events: none;
