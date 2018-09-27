@@ -1,6 +1,15 @@
 nl:
   js:
     babble:
+      preferences:
+        title: Babble
+        babble_disabled: Deactiveer Babble volledig
+        babble_sound: Geef een geluidssignaal bij nieuwe berichten
+        babble_open_by_default: Open het Babble chatvenster automatisch wanneer je de site bezoekt
+      typing:
+        single: "%{first}typt nu..."
+        double: "%{first}en %{second}typen nu..."
+        several: "meerdere mensen typen nu..."
       position_left: Links
       position_right: Rechts
       placeholder: "Zeg eens iets..."
