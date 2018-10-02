@@ -68,20 +68,22 @@ export default {
         initialize() {
           if (!this.site.isMobileDevice) { return }
 
-          api.decorateWidget('header-icons:before', (helper) => {
-            return helper.attach('header-dropdown', {
-              title:         'babble.title',
-              icon:          Discourse.SiteSettings.babble_icon,
-              iconId:        'babble-icon',
-              action:        'toggleBabble',
-              contents() {
-                if (!Babble.unreadCount()) { return }
-                return this.attach('link', {
-                  action:    'toggleBabble',
-                  className: 'babble-unread babble-unread--header',
-                  rawLabel:  Babble.unreadCount()
-                })
-              }
+          this.appEvents.on('babble-has-topics', () => {            
+            api.decorateWidget('header-icons:before', (helper) => {
+              return helper.attach('header-dropdown', {
+                title:         'babble.title',
+                icon:          Discourse.SiteSettings.babble_icon,
+                iconId:        'babble-icon',
+                action:        'toggleBabble',
+                contents() {
+                  if (!Babble.unreadCount()) { return }
+                  return this.attach('link', {
+                    action:    'toggleBabble',
+                    className: 'babble-unread babble-unread--header',
+                    rawLabel:  Babble.unreadCount()
+                  })
+                }
+              })
             })
           })
 

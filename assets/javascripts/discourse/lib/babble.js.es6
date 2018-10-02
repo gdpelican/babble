@@ -112,6 +112,10 @@ export default Ember.Object.create({
       this.set('summary.unreadCount', data.unread_count)
       this.set('summary.notificationCount', data.notification_count)
       this.set('summary.defaultId', data.default_id)
+
+      if (this.summary.topicCount > 0) {
+        component.appEvents.trigger('babble-has-topics')
+      }
     }).finally(() => {
       component.appEvents.trigger('babble-rerender')
       this.set('loadingSummary', null)

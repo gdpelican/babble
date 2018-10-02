@@ -57,15 +57,13 @@ export default MountWidget.extend({
       this.rerenderWidget()
     })
 
-    Babble.subscribeToNotifications(this)
-
-    Babble.loadSummary(this).then(() => {
-      if (
-        !this.site.isMobileDevice &&
-        Babble.summary.topicCount > 0 &&
-        Babble.openByDefault()
-      ) { this.initialize() }
+    this.appEvents.on('babble-has-topics', () => {
+      if (!Babble.openByDefault() || this.site.isMobileDevice) { return }
+      this.initialize()
     })
+
+    Babble.subscribeToNotifications(this)
+    Babble.loadSummary(this)
   },
 
   @on('willDestroyElement')
