@@ -4,6 +4,7 @@ class ::Babble::TopicSerializer < ActiveModel::Serializer
              :category_id,
              :post_stream,
              :group_names,
+             :available_group_ids,
              :last_posted_at,
              :permissions,
              :lowest_post_number,
@@ -72,6 +73,10 @@ class ::Babble::TopicSerializer < ActiveModel::Serializer
   end
 
   def include_group_names?
-    permissions == 'group'
+    permissions == :group
+  end
+
+  def include_available_group_ids?
+    permissions == :group
   end
 end

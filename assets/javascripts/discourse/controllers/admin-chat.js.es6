@@ -1,23 +1,29 @@
 import Babble from '../lib/babble'
 import { ajax } from 'discourse/lib/ajax'
+import { observes } from 'ember-addons/ember-computed-decorators'
 
 export default Ember.Controller.extend({
   adminChats: Ember.inject.controller(),
+  groups: [],
 
   categoryPermissions: function() {
     return this.get('model.permissions') == 'category'
   }.property('model.permissions'),
 
-  actions: {
+  @observes('model.allowed_group_ids')
+  _updateSelected: function() {
+    this.set('groups', this.available.filter((g) => {
+      return this.model.allowed_group_ids.includes(g.id)
+    }))
+  },
 
-    groupAdded(group) {
-      var groupIds = this.get('model.allowed_group_ids') || []
-      this.set('model.allowed_group_ids', groupIds.concat(group.id))
+  actions: {
+    groupAdded(added) {
+      this.get("groups").pushObject(added)
     },
 
     groupRemoved(groupId) {
-      var groupIds = this.get('model.allowed_group_ids') || []
-      this.set('model.allowed_group_ids', groupIds.removeObject(groupId))
+      this.set("groups.[]", this.get("groups").rejectBy("id", groupId))
     },
 
     save() {
@@ -33,7 +39,7 @@ export default Ember.Controller.extend({
 
       let topicAttrs = {
         title: topic.get('title'),
-        allowed_group_ids: topic.get('allowed_group_ids'),
+        allowed_group_ids: this.get('groups').map((g) => { return g.id }),
         permissions: topic.get('permissions')
       }
 
