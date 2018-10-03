@@ -10,7 +10,7 @@ export default Ember.Controller.extend({
     return this.get('model.permissions') == 'category'
   }.property('model.permissions'),
 
-  @observes('model.allowed_group_ids')
+  @observes('model.allowed_group_ids', 'model.id')
   _updateSelected: function() {
     this.set('groups', this.available.filter((g) => {
       return this.model.allowed_group_ids.includes(g.id)
