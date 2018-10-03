@@ -4,7 +4,7 @@ class ::Babble::TopicSerializer < ActiveModel::Serializer
              :category_id,
              :post_stream,
              :group_names,
-             :available_group_ids,
+             :allowed_group_ids,
              :last_posted_at,
              :permissions,
              :lowest_post_number,
