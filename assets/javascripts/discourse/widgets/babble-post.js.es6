@@ -1,6 +1,8 @@
 import { createWidget } from 'discourse/widgets/widget'
 import template from '../widgets/templates/babble-post'
 
+import User from 'discourse/models/user'
+
 export default createWidget('babble-post', {
   tagName: 'li.babble-post',
   shadowTree: true,
@@ -11,11 +13,15 @@ export default createWidget('babble-post', {
 
   buildAttributes() {
     let post = this.state.post
-    return {
+    let attrs = {
       'data-post-id':     post.id,
       'data-user-id':     post.user_id,
       'data-post-number': post.post_number
     }
+    if (post.user_id == User.currentProp('id')) {
+      attrs['data-my-post'] = true
+    }
+    return attrs
   },
 
   defaultState(attrs) {
