@@ -6,7 +6,7 @@ $default-chat-width: 300px;
   .d-header-icons { margin-left: -1px; }
 }
 
-@media (min-width: 700px) and (max-width: 1500px) {
+@media (min-width: 700px) and (max-width: 1600px) {
   #main-outlet {
     &.chat-active--left { margin-left: $default-chat-width; }
     &.chat-active--right { margin-right: $default-chat-width; }

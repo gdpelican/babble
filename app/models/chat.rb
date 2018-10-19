@@ -53,7 +53,7 @@ class ::Babble::Chat
         .where(active: true, "user_options.allow_private_messages": true)
         .where.not(id: guardian.user.id)
         .order('topics.last_posted_at DESC NULLS LAST')
-        .limit(10)
+        .limit(SiteSetting.babble_initial_user_count)
   end
 
   def self.unread_topics_for(guardian)

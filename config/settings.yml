@@ -23,3 +23,5 @@ plugins:
     client: true
   babble_history_window:
     default: 0
+  babble_initial_user_count:
+    default: 10
