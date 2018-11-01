@@ -6,6 +6,7 @@ nl:
         babble_disabled: Deactiveer Babble volledig
         babble_sound: Geef een geluidssignaal bij nieuwe berichten
         babble_open_by_default: Open het Babble chatvenster automatisch wanneer je de site bezoekt
+        babble_initial_user_count: Aantal gebruikers dat in de private messsage-lijst wordt getoond als je Babble opstart.
       typing:
         single: "%{first}typt nu..."
         double: "%{first}en %{second}typen nu..."
