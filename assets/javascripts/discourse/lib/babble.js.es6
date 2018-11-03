@@ -4,6 +4,7 @@ import User from 'discourse/models/user'
 import elementIsVisible from '../lib/element-is-visible'
 import lastVisibleElement from '../lib/last-visible-element'
 import debounce from 'discourse/lib/debounce'
+import { cookAsync } from 'discourse/lib/text'
 import { ajax } from 'discourse/lib/ajax'
 import { scrollToPost, setupScrollContainer, playNotification, setupComposer, teardownComposer, hasChatElements } from '../lib/chat-element-utils'
 import { syncWithPostStream, latestPostFor, latestPostIsMine, teardownPresence, setupLastReadMarker, applyPostStream } from '../lib/chat-topic-utils'
@@ -365,25 +366,27 @@ export default Ember.Object.create({
   stagePost(topic, text) {
     const user = User.current()
 
-    let post = Post.create({
-      raw:                text,
-      cooked:             text,
-      name:               user.get('name'),
-      display_username:   user.get('name'),
-      username:           user.get('username'),
-      user_id:            user.get('id'),
-      user_title:         user.get('title'),
-      avatar_template:    user.get('avatar_template'),
-      user_custom_fields: user.get('custom_fields'),
-      moderator:          user.get('moderator'),
-      admin:              user.get('admin'),
-      created_at:         moment()
+    cookAsync(text).then((cooked) => {
+      let post = Post.create({
+        raw:                text,
+        cooked:             cooked.string,
+        name:               user.get('name'),
+        display_username:   user.get('name'),
+        username:           user.get('username'),
+        user_id:            user.get('id'),
+        user_title:         user.get('title'),
+        avatar_template:    user.get('avatar_template'),
+        user_custom_fields: user.get('custom_fields'),
+        moderator:          user.get('moderator'),
+        admin:              user.get('admin'),
+        created_at:         moment()
+      })
+      topic.postStream.set('loadedAllPosts', true)
+      topic.postStream.stagePost(post, user)
+      topic.set('lastLoadedPostNumber', post.post_number)
+      scrollToPost(topic, post.post_number)
+      teardownComposer(topic)
+      rerender(topic)
     })
-    topic.postStream.set('loadedAllPosts', true)
-    topic.postStream.stagePost(post, user)
-    topic.set('lastLoadedPostNumber', post.post_number)
-    scrollToPost(topic, post.post_number)
-    teardownComposer(topic)
-    rerender(topic)
   }
 })
