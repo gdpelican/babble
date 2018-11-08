@@ -7,6 +7,12 @@
 register_asset "stylesheets/babble.scss"
 enabled_site_setting :babble_enabled
 
+if respond_to?(:register_svg_icon)
+  register_svg_icon "bullhorn"
+  register_svg_icon "paperclip"
+  register_svg_icon "far-trash-alt"
+end
+
 def babble_require(path)
   require Rails.root.join('plugins', 'babble', 'app', path).to_s
 end

@@ -1,5 +1,6 @@
 
 import { h } from 'virtual-dom'
+import { iconNode } from "discourse-common/lib/icon-library";
 
 export default Ember.Object.create({
   render(widget) {
@@ -40,7 +41,7 @@ export default Ember.Object.create({
   flag() {
     if (this.post.can_flag) {
       if (this.post.has_flagged) {
-        return h('div.widget-link.babble-link-disabled', [h('i.fa.fa-flag'), I18n.t('babble.flagged')])
+        return h('div.widget-link.disabled.btn', [iconNode('flag'), I18n.t('babble.flagged')])
       } else {
         return this.widget.attach('link', { className: 'btn', icon: 'flag', action: 'flag', label: 'post.actions.flag' })
       }

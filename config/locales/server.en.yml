@@ -4,7 +4,7 @@ en:
   site_settings:
     babble_enabled: "Enable Babble Shoutbox plugin."
     babble_placeholder: "Leave blank for default placeholder text in empty chat textarea. Or enter your custom text here."
-    babble_icon: "Font Awesome code (fa- omitted) for the Babble icon in the upper right corner. See http://fontawesome.io/cheatsheet/ for a list of icons."
+    babble_icon: "Font Awesome code (fa- omitted) for the Babble icon in the upper right corner. See http://fontawesome.io/cheatsheet/ for a list of icons. You might have to add the icon to the \"svg icon subset\" site setting as well."
     babble_category_name: "Discourse category for Babble topics."
     babble_remote_post: "Enable remote POST on message."
     babble_remote_url: "POST URL"

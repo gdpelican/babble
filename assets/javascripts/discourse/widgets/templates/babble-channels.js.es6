@@ -1,5 +1,6 @@
 import { h } from 'virtual-dom'
 import { avatarImg } from 'discourse/widgets/post'
+import { iconNode } from "discourse-common/lib/icon-library";
 import Babble from '../../lib/babble'
 
 export default Ember.Object.create({
@@ -47,7 +48,7 @@ export default Ember.Object.create({
 
   topicsHeaderIcon() {
     const icon = Discourse.SiteSettings.babble_icon
-    return h(`i.fa.fa-${icon}.d-icon.d-icon-${icon}.babble-title-icon`)
+    return iconNode(icon, { class: 'babble-title-icon'} )
   },
 
   topicsHeaderText() {
