@@ -1,9 +1,6 @@
 A Shoutbox style plugin for [Discourse](http://discourse.org).
 
 [![Code Climate](https://codeclimate.com/github/gdpelican/babble/badges/gpa.svg)](https://codeclimate.com/github/gdpelican/babble)
-[![Gitter](https://img.shields.io/badge/GITTER-join%20chat-green.svg)](https://gitter.im/gdpelican/babble)
-[![OpenCollective](https://opencollective.com/babble/backers/badge.svg)](#backers)
-[![OpenCollective](https://opencollective.com/babble/sponsors/badge.svg)](#sponsors)
 
 You can view some ongoing discussion about this plugin on [Discourse Meta](https://meta.discourse.org/t/babble-a-chat-plugin/31753)
 
@@ -47,9 +44,3 @@ Pull requests welcome! See [CONTRIBUTING.md](./CONTRIBUTING.md)
 
 Babble is currently available in English, German, French, Spanish, Italian, Finnish, Russian, Polish, and Korean.
 If you'd like it translated into your language, let me know! Babble is now [on Transifex](http://transifex.com/babble/babble), which should result in a better translation experience for all.
-
-#### Support the project
-
-###### Backers
-
-Support us with a monthly donation and help us continue our activities. [[Become a backer](https://opencollective.com/babble#backer)]
