@@ -136,7 +136,7 @@ export default createWidget('babble-composer', {
       let myLastPost = _.last(_.select(this.state.topic.postStream.posts, function(post) {
         return post.user_id == Discourse.User.current().id
       }))
-      if (myLastPost) {
+      if (myLastPost && !event.target.value) {
         Babble.editPost(this.state.topic, myLastPost)
         this.appEvents.trigger('babble-rerender')
       }
