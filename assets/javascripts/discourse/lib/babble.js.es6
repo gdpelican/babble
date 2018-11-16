@@ -296,6 +296,9 @@ export default Ember.Object.create({
 
     if (data.is_edit || data.is_delete) {
       topic.postStream.storePost(post)
+      if (topic.get('loadingEditId') == data.id) {
+        topic.set('loadingEditId', null)
+      }
     } else {
 
       let performScroll = _.any(forEachTopicContainer(topic, function($container) {

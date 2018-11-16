@@ -35,6 +35,7 @@ class Babble::Broadcaster
   end
 
   def self.serialized_notification(notification, extras = {})
+    return {} unless notification.id
     serialize(notification, nil, extras, Babble::NotificationSerializer)
   end
 
