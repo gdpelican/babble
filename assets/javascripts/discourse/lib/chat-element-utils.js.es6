@@ -87,7 +87,7 @@ let setupComposer = function(topic, opts = { emojis: true, mentions: true }) {
                             translations[`:${term}`] ||
                             emojiSearch(term, {maxResults: 5})
               return resolve(options)
-            }).then(list => list.map(code => {
+            }).then(list => _.flatten([list]).map(code => {
               return {code, src: emojiUrlFor(code)};
             }))
           }
