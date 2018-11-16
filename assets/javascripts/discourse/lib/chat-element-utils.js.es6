@@ -82,7 +82,6 @@ let setupComposer = function(topic, opts = { emojis: true, mentions: true }) {
 
           dataSource(term) {
             return new Ember.RSVP.Promise(resolve => {
-              term = term.toLowerCase()
               var options = (term === "" && ['smile', 'smiley', 'wink', 'sunny', 'blush']) ||
                             translations[`:${term}`] ||
                             emojiSearch(term, {maxResults: 5})
