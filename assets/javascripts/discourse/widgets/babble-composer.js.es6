@@ -4,6 +4,7 @@ import template from "../widgets/templates/babble-composer"
 import { ajax } from 'discourse/lib/ajax'
 import { messageBus } from '../lib/chat-live-update-utils'
 import { getUploadMarkdown } from 'discourse/lib/utilities'
+import User from 'discourse/models/user'
 
 export default createWidget('babble-composer', {
   tagName: 'div.babble-post-composer',
@@ -134,7 +135,7 @@ export default createWidget('babble-composer', {
         !this.state.editing &&                               // post is not being edited
         !$(event.target).siblings('.autocomplete').length) { // autocomplete is not active
       let myLastPost = _.last(_.select(this.state.topic.postStream.posts, function(post) {
-        return post.user_id == Discourse.User.current().id
+        return post.user_id == User.currentProp('id')
       }))
       if (myLastPost && !event.target.value) {
         Babble.editPost(this.state.topic, myLastPost)
@@ -150,7 +151,7 @@ export default createWidget('babble-composer', {
 
   announceTyping: _.throttle(function() {
     ajax(`/babble/topics/${this.state.topic.id}/typing`, { type: 'POST' })
-  }, 2000),
+  }, 2000, { leading: true, trailing: false }),
 
   html() { return template.render(this) }
 })
