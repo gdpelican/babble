@@ -41,7 +41,7 @@ export default Ember.Object.create({
   flag() {
     if (this.post.can_flag) {
       if (this.post.has_flagged) {
-        return h('div.widget-link.disabled.btn', [iconNode('flag'), I18n.t('babble.flagged')])
+        return h('div.widget-link.babble-link-disabled.btn', [iconNode('flag'), I18n.t('babble.flagged')])
       } else {
         return this.widget.attach('link', { className: 'btn', icon: 'flag', action: 'flag', label: 'post.actions.flag' })
       }

@@ -68,7 +68,7 @@ $default-chat-width: 300px;
   padding: 0;
   bottom: 40px;
   background: $primary !important;
-  .d-icon { color: $secondary !important; }
+  .fa { color: $secondary !important; }
   &--left {
     left: -10px;
     border-radius: 0 100px 100px 0;
@@ -99,7 +99,7 @@ $default-chat-width: 300px;
     height: 0px !important;
     opacity: 0;
     bottom: 100%;
-    .babble-unread, .d-icon { display: none; }
+    .babble-unread, .fa { display: none; }
     pointer-events: none;
     border-radius: 0;
   }
@@ -257,7 +257,7 @@ $default-chat-width: 300px;
     justify-content: space-between;
   }
 
-  .babble-post-actions-ellipsis .d-icon {
+  .babble-post-actions-ellipsis .fa {
     margin: 5px 0 0 0 !important;
   }
 
