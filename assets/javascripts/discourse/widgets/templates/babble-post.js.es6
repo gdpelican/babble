@@ -4,6 +4,7 @@ import RawHtml from 'discourse/widgets/raw-html';
 import { relativeAge } from 'discourse/lib/formatter'
 import { avatarImg } from 'discourse/widgets/post'
 import { emojiUnescape } from 'discourse/lib/text'
+import { iconNode } from "discourse-common/lib/icon-library";
 
 export default Ember.Object.create({
   render(widget) {
@@ -66,7 +67,7 @@ export default Ember.Object.create({
     } else if (this.post.user_id) {
       return avatarImg('medium', {template: this.post.avatar_template, username: this.post.username})
     } else {
-      return h('i.fa.fa-trash-o.deleted-user-avatar')
+      return iconNode('trash-o', { class: 'deleted-user-avatar'} )
     }
   },
 
