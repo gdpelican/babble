@@ -8,6 +8,7 @@ register_asset "stylesheets/babble.scss"
 enabled_site_setting :babble_enabled
 
 if respond_to?(:register_svg_icon)
+  register_svg_icon "expand"
   register_svg_icon "bullhorn"
   register_svg_icon "paperclip"
   register_svg_icon "far-trash-alt"
