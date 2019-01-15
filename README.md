@@ -44,3 +44,10 @@ Pull requests welcome! See [CONTRIBUTING.md](./CONTRIBUTING.md)
 
 Babble is currently available in English, German, French, Spanish, Italian, Finnish, Russian, Polish, and Korean.
 If you'd like it translated into your language, let me know! Babble is now [on Transifex](http://transifex.com/babble/babble), which should result in a better translation experience for all.
+
+
+###### Donations
+
+Babble is free and open source and always will be. If you feel you've gotten value from using it and would like to support the developer behind it, please use the link below. <3 <3
+
+[![Donate](https://img.shields.io/badge/Donate-PayPal-green.svg)](https://www.paypal.com/cgi-bin/webscr?cmd=_donations&business=james.kiesel%40gmail.com&currency_code=USD&source=url)
