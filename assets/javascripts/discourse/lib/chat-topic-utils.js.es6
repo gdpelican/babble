@@ -56,7 +56,7 @@ let applyPostStream = function(topic) {
   let postStream = PostStream.create(topic.post_stream)
   postStream.topic = topic
   postStream.updateFromJson(topic.post_stream)
-  topic.postStream = postStream
+  topic.set('postStream', postStream)
   topic.typing = {}
   topic.online = {}
   return topic
