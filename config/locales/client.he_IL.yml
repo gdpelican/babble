@@ -1,0 +1,63 @@
+he_IL:
+  js:
+    babble:
+      preferences:
+        title: "אפשרויות צ'אט"
+        babble_disabled: "בטל תצוגת צ'אט לחלוטין"
+        babble_sound: "הפעלת צליל הודעה כאשר מתקבלת תגובה"
+        babble_open_by_default: "פתח את חלון הצ'אט אוטמטית בכניסה לפורום"
+        babble_initial_user_count: "מספר משתמשים ברשימת הודעות פרטיות"
+      typing:
+        single:  "%{first} מקליד..."
+        double:  "%{first} וגם %{second} מקלידים כעת..."
+        several: "מספר אנשים מקלידים כעת..."
+      position_left: "שמאל"
+      position_right: "ימין"
+      placeholder: "כתוב משהו..."
+      send: "שלח"
+      save: "שמור"
+      flagged: "מדוגל"
+      cancel: "בטל"
+      title: "פתח צ'אט"
+      error_message: "יש להקליד הודעה"
+      new_messages: "הודעות חדשות"
+      failed_post: "לא הצלחתי לשמור, אנא נסה שוב"
+      empty_topic_message: "עדיין לא נכתבו הודעות, היו הראשונים לכתוב"
+      topic_visibility_tooltip: "צ'אט זה נראה על ידי: {{groupNames}}"
+      view_topics_tooltip: "ערוצי צ'אט אחרים"
+      view_chat_tooltip: "חזרה לצ'אט נוכחי"
+      select_topic: "ערוצי שיחה"
+      post_deleted_by: "תגובה נמחה על ידי {{username}}"
+      post_edited: (edited)
+      is_typing: "מקליד..."
+      nav_title: "צ'אט"
+      load_more: "טען עוד"
+      loading_messages: "טוען הודעות..."
+      no_more_messages: "אין יותר הודעות"
+      logged_out: "אינך רשום לאתר, הרשם כדי להגיב"
+      go_to_chat: "פתיחה במסך מלא"
+      expand_chat: Expand chat
+      compress_chat: Shrink chat
+      close_chat: Close chat
+      pms_title: Direct Messages
+      pms_autocomplete: Enter a name or username...
+      groups_title: Groups
+      categories_title: Categories
+      admin:
+        disabled: "Babble has been disabled. Please re-enable it to continue."
+        new: "New Channel"
+        new_category: "New Category Channel"
+        none_selected: "Select a channel to get started"
+        title: "Channel Title"
+        permissions: "Permissions"
+        category: "Category"
+        groups: "Group(s)"
+        category_label: "Channel is associated with the following category:"
+        allowed_groups_label: "Channel is visible to the following groups:"
+        menu_title: "Chats"
+        page_title: "Chat Channels"
+        post_count: "Posts"
+        last_post: "Last post"
+        delete_confirm: "Are you sure you want to delete this channel? All chat history will be lost."
+        delete_failed: "Unable to delete that chat channel. Please try again."
+        save_failed: "Unable to save that chat channel. Please try again."
