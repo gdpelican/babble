@@ -2,7 +2,6 @@ import { createWidget } from 'discourse/widgets/widget'
 import template from '../widgets/templates/babble-channels'
 import Babble from '../lib/babble'
 import userSearch from 'discourse/lib/user-search'
-import { findRawTemplate } from 'discourse/lib/raw-templates'
 import { setupChannelAutocomplete } from '../lib/chat-element-utils'
 
 export default createWidget('babble-channels', {

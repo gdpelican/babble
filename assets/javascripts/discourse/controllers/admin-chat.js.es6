@@ -1,6 +1,4 @@
-import Babble from '../lib/babble'
 import { ajax } from 'discourse/lib/ajax'
-import { observes } from 'ember-addons/ember-computed-decorators'
 
 export default Ember.Controller.extend({
   adminChats: Ember.inject.controller(),

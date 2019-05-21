@@ -1,7 +1,6 @@
 import { createWidget } from 'discourse/widgets/widget'
 import template from '../widgets/templates/babble-chat'
 import Category from 'discourse/models/category'
-import DiscourseURL from 'discourse/lib/url'
 import Babble from '../lib/babble'
 
 export default createWidget('babble-chat', {

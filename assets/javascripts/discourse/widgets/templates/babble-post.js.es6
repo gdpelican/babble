@@ -1,5 +1,4 @@
 import { h } from 'virtual-dom'
-import Babble from '../../lib/babble'
 import RawHtml from 'discourse/widgets/raw-html';
 import { relativeAge } from 'discourse/lib/formatter'
 import { avatarImg } from 'discourse/widgets/post'
@@ -80,7 +79,7 @@ export default Ember.Object.create({
   },
 
   postEdited() {
-    if (!this.post.self_edits > 0) { return }
+    if (!(this.post.self_edits > 0)) { return }
     return h('div.babble-post-explainer', I18n.t('babble.post_edited'))
   },
 

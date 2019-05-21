@@ -1,5 +1,4 @@
 import { withPluginApi } from 'discourse/lib/plugin-api'
-import reopenWidget      from '../lib/reopen-widget'
 import Babble            from '../lib/babble'
 import { on }            from 'ember-addons/ember-computed-decorators'
 import { wantsNewWindow } from 'discourse/lib/intercept-click';

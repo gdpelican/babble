@@ -12,7 +12,6 @@ export default Ember.Object.create({
     this.widget.attrs.expanded = this.widget.state.expanded
 
     const position = `.babble-sidebar--${Discourse.SiteSettings.babble_position}`
-    let   opts     = {}
 
     return h(`div.babble-sidebar${position}${this.css()}`, this.attrs(), [
       this.channels(),
