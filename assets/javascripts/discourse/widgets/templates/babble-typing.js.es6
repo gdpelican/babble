@@ -7,7 +7,7 @@ export default Ember.Object.create({
   },
 
   typingSentence(typing) {
-    let usernames = _.select(_.keys(typing), function(username) {
+    let usernames = _.filter(_.keys(typing), function(username) {
       return typing[username].lastTyped > moment().add(-1, 'second')
     })
 

@@ -27,7 +27,7 @@ export default Discourse.Route.extend({
           } else {
             ajax(`/babble/topics/${id}/groups.json`).then((response) => {
               let selected = response.topics.map((g) => { g.automatic = false; return g }) // ...yeah whoops. This should be in a separate controller.
-              topic.allowed_group_ids = _.pluck(selected, 'id')
+              topic.allowed_group_ids = _.map(selected, 'id')
               controller.setProperties({ model: topic, available: groups, selected: selected, categories: [] })
             })
           }

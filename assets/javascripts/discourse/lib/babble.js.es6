@@ -267,16 +267,16 @@ export default Ember.Object.create({
       delete data.can_delete
     }
 
-    if(!_.contains(_.keys(data), 'can_edit')) {
+    if(!_.keys(data).includes('can_edit')) {
       data.can_edit = user.staff ||
                       data.user_id == user.id ||
                       user.trust_level >= 4
     }
-    if(!_.contains(_.keys(data), 'can_flag')) {
+    if(!_.keys(data).includes('can_flag')) {
       data.can_flag = !data.user_id != user.id &&
                       (user.staff || user.trust_level >= 1)
     }
-    if(!_.contains(_.keys(data), 'can_delete')) {
+    if(!_.keys(data).includes('can_delete')) {
       data.can_delete = user.staff || data.user_id == user.id
     }
 
@@ -301,9 +301,9 @@ export default Ember.Object.create({
       }
     } else {
 
-      let performScroll = _.any(forEachTopicContainer(topic, function($container) {
+      let performScroll = forEachTopicContainer(topic, ($container) => {
         return lastVisibleElement($container.find('.babble-chat'), '.babble-post', 'post-number') == topic.lastLoadedPostNumber
-      }))
+      }).some(_.identity)
       let performNotification = BabbleRegistry.componentsForTopic(topic).length &&
                                 post.user_id != User.currentProp('id')
 

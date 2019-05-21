@@ -134,7 +134,7 @@ export default createWidget('babble-composer', {
     if (event.keyCode == 38 &&                               // key pressed is up key
         !this.state.editing &&                               // post is not being edited
         !$(event.target).siblings('.autocomplete').length) { // autocomplete is not active
-      let myLastPost = _.last(_.select(this.state.topic.postStream.posts, function(post) {
+      let myLastPost = _.last(_.filter(this.state.topic.postStream.posts, function(post) {
         return post.user_id == User.currentProp('id')
       }))
       if (myLastPost && !event.target.value) {

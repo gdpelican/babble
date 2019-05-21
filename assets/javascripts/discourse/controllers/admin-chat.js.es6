@@ -39,7 +39,7 @@ export default Ember.Controller.extend({
       }).then(function(saved) {
         saved = Discourse.Topic.create(saved)
         if (topic.id) {
-          var topicIndex = _.pluck(allTopics, 'id').indexOf(topic.id)
+          var topicIndex = _.map(allTopics, 'id').indexOf(topic.id)
           Ember.set(allTopics.objectAt(topicIndex), 'title', saved.title)
         } else {
           allTopics.addObject(saved)
