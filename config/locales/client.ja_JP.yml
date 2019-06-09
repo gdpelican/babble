@@ -1,0 +1,52 @@
+ja_JP:
+  js:
+    babble:
+      preferences:
+        title: Babble
+        babble_disabled: Babbleチャットを無効にする
+        babble_sound: 新しいチャットがあった時、通知サウンドを有効にする
+        babble_open_by_default: サイトに訪れた時、Babbleチャットのウィンドウを自動的に開く
+        babble_initial_user_count: 初期プライベートメッセージリストに表示するユーザー数
+      typing:
+        single: "%{first}が入力中..."
+        double: "%{first}と%{second}が入力中..."
+        several: "複数人が入力中..."
+      position_left: 左側
+      position_right: 右側
+      placeholder: "ここに入力..."
+      send: "送信"
+      save: "保存"
+      flagged: "通報"
+      cancel: "キャンセル"
+      title: "チャットウィンドウを開く"
+      error_message: "メッセージを入力してください！"
+      new_messages: "新しいメッセージ"
+      failed_post: "投稿を保存できませんでした。 もう一度やり直してください。"
+      empty_topic_message: "まだメッセージはありません。チャットを開始するには、下の入力欄から発言してください。"
+      topic_visibility_tooltip: "このチャットは {{groupNames}} に表示されます"
+      view_topics_tooltip: "他のチャンネルを見る"
+      view_chat_tooltip: "元のチャットに戻る"
+      post_deleted_by: "投稿は {{username}} によって削除されました"
+      post_edited: （編集済み）
+      is_typing: "が入力中..."
+      load_more: "チャット履歴を表示"
+      loading_messages: "メッセージを読み込んでいます..."
+      no_more_messages: "これで全てです！"
+      logged_out: "ログインしていません！ ログインするか、アカウントを作成してください。"
+      go_to_chat: "全画面でチャットを開く"
+      expand_chat: 最大化
+      compress_chat: 最小化
+      close_chat: 閉じる
+      pms_title: ダイレクトメッセージ
+      pms_autocomplete: 名前またはユーザー名を入力してください...
+      admin:
+        disabled: "Babbleが無効になっています。 続行するには再度有効にしてください。"
+        none_selected: "チャンネルを選択してください"
+        permissions: "許可設定"
+        category_label: "チャンネルは下記のカテゴリに関連付けられています："
+        allowed_groups_label: "チャンネルは下記のグループに表示されます："
+        post_count: "投稿数"
+        last_post: "最後の投稿"
+        delete_confirm: "このチャンネルを削除してもよろしいですか？すべてのチャット履歴が失われます。"
+        delete_failed: "チャンネルを削除できません。 もう一度やり直してください。"
+        save_failed: "チャンネルを保存できません。 もう一度やり直してください。"

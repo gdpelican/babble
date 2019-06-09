@@ -1,0 +1,11 @@
+ja_JP:
+  site_settings:
+    babble_enabled: "Babble Shoutbox プラグインを有効にする。"
+    babble_placeholder: "チャットテキストエリアのプレースホルダをデフォルトのまま利用する場合は空白のままにします。 カスタムテキストを使用する場合はここに入力してください。"
+    babble_icon: "右上隅のBabbleアイコン用のFont Awesomeコード （ \"fa-\" は省略）。コードは http://fontawesome.io/cheatsheet/ を参照してください。"
+    babble_category_name: "BabbleトピックのためのDiscourseカテゴリ"
+    babble_remote_post: "メッセージのリモートPOSTを有効にする。"
+    babble_remote_url: "POST URL"
+    babble_page_size: "チャットページあたりの投稿数"
+    babble_full_page: "全画面チャットモードを有効にする（カテゴリページからアクセス可能）"
+    babble_shoutbox: "Babble shoutboxを有効にする（サイトのヘッダーに表示されます）"
