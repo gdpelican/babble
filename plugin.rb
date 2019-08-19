@@ -1,6 +1,6 @@
 # name: babble
 # about: Shoutbox plugin for Discourse
-# version: 4.1.0
+# version: 4.1.1
 # authors: James Kiesel (gdpelican)
 # url: https://github.com/gdpelican/babble
 
@@ -42,6 +42,7 @@ after_initialize do
   babble_require 'serializers/user_serializer'
   babble_require 'serializers/boot_serializer'
 
+  babble_require 'services/backfiller'
   babble_require 'services/post_creator'
   babble_require 'services/post_alerter'
   babble_require 'services/post_destroyer'
@@ -68,6 +69,8 @@ after_initialize do
 
   babble_require 'jobs/regular/babble_post_alert'
   babble_require 'jobs/scheduled/babble_prune_history'
+
+  Babble::Backfiller.backfill_visibility_level
 
   register_editable_user_custom_field :babble_disabled
   register_editable_user_custom_field :babble_sound

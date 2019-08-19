@@ -23,7 +23,7 @@ module Babble
         ::Group.new(
           name:             fingerprint,
           user_ids:         user_ids,
-          visibility_level: 4
+          visibility_level: ::Group::BABBLE_VISIBLITY_LEVEL
         ).tap { |g| g.save(validate: false) }
       end
 
