@@ -1,5 +1,5 @@
 module Jobs
-  class BabblePruneHistory < Jobs::Scheduled
+  class BabblePruneHistory < ::Jobs::Scheduled
     every 1.days
 
     def execute(args)
