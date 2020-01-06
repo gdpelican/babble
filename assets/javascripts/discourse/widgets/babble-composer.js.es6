@@ -3,7 +3,7 @@ import Babble from "../lib/babble"
 import template from "../widgets/templates/babble-composer"
 import { ajax } from 'discourse/lib/ajax'
 import { messageBus } from '../lib/chat-live-update-utils'
-import { getUploadMarkdown } from 'discourse/lib/utilities'
+import { getUploadMarkdown } from 'discourse/lib/uploads'
 import User from 'discourse/models/user'
 
 export default createWidget('babble-composer', {
