@@ -1,4 +1,5 @@
 import { ajax } from 'discourse/lib/ajax'
+import Topic from "discourse/models/topic";
 
 export default Ember.Controller.extend({
   adminChats: Ember.inject.controller(),
@@ -35,7 +36,7 @@ export default Ember.Controller.extend({
           topic: topicAttrs
         }
       }).then(function(saved) {
-        saved = Discourse.Topic.create(saved)
+        saved = Topic.create(saved)
         if (topic.id) {
           var topicIndex = _.map(allTopics, 'id').indexOf(topic.id)
           Ember.set(allTopics.objectAt(topicIndex), 'title', saved.title)

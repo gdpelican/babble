@@ -20,7 +20,11 @@
     {{else}}
       <div>
         <label for="allowed_groups">{{i18n 'babble.admin.allowed_groups_label'}}</label>
-        {{multi-select allowAny=false content=available values=model.allowed_group_ids}}
+        {{multi-select
+          allowAny=false
+          content=available
+          value=model.allowed_group_ids
+        }}
       </div>
       <div>
         <label for="title">{{i18n 'babble.admin.title'}}</label>
