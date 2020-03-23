@@ -15,7 +15,11 @@
     {{#if categoryPermissions}}
       <div>
         <label for="category">{{i18n 'babble.admin.category_label'}}</label>
-        {{category-selector categories=categories single=true canReceiveUpdates="true"}}
+        {{category-selector
+          categories=categories
+          maximum=1
+          onChange=(action (mut categories))
+        }}
       </div>
     {{else}}
       <div>
