@@ -47,7 +47,7 @@ export default Ember.Object.create({
   emojiButton() {
     return this.widget.attach('button', {
       className: 'babble-composer-action emoji-button',
-      icon: 'smile-o',
+      icon: 'far-smile',
       action: 'selectEmoji'
     })
   },

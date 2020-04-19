@@ -1,6 +1,6 @@
 import { withPluginApi } from 'discourse/lib/plugin-api'
 import Babble            from '../lib/babble'
-import { on }            from 'ember-addons/ember-computed-decorators'
+import { on }            from 'discourse-common/utils/decorators'
 import { wantsNewWindow } from 'discourse/lib/intercept-click';
 
 export default {
@@ -67,7 +67,7 @@ export default {
         initialize() {
           if (!this.site.isMobileDevice) { return }
 
-          this.appEvents.on('babble-has-topics', () => {            
+          this.appEvents.on('babble-has-topics', () => {
             api.decorateWidget('header-icons:before', (helper) => {
               return helper.attach('header-dropdown', {
                 title:         'babble.title',
@@ -93,6 +93,35 @@ export default {
           this.appEvents.on("babble-rerender", () => {
             this.queueRerender()
           })
+        }
+      })
+
+      api.modifyClass('component:emoji-picker', {
+        @on('didInsertElement')
+        listenForBabble() {
+          if (!this.babble) { return }
+
+          this.appEvents.on('babble-emoji-picker:open', () => this.set('active', true))
+          this.appEvents.on('babble-emoji-picker:close', () => this.set('active', false))
+
+          $('html').on('keydown.babble-emoji-picker', e => {
+            if (e.which != 27) { return }
+            this.appEvents.trigger('babble-emoji-picker:close')
+          })
+          $('html').on('click.babble-emoji-picker', e => {
+            if ($(e.target).closest('.babble-emoji-picker').length) { return }
+            this.appEvents.trigger('babble-emoji-picker:close')
+          })
+        },
+
+        @on('willDestroyElement')
+        cleanupBabble() {
+          if (!this.babble) { return }
+
+          this.appEvents.off('babble-emoji-picker:open')
+          this.appEvents.off('babble-emoji-picker:close')
+          $('html').off('keydown.babble-emoji-picker')
+          $('html').off('click.babble-emoji-picker')
         }
       })
     })
