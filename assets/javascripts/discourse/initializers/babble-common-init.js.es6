@@ -97,13 +97,13 @@ export default {
       })
 
       api.modifyClass('component:emoji-picker', {
-        @on('didInsertElement')
-        listenForBabble() {
-          if (!this.babble) { return }
 
-          this.appEvents.on('babble-emoji-picker:open', () => this.set('active', true))
-          this.appEvents.on('babble-emoji-picker:close', () => this.set('active', false))
+        @on("didInsertElement")
+        _setup() {
+          if (!this.attrs.babble) { return }
 
+          this.appEvents.on('babble-emoji-picker:open', this, () => this.set('active', true))
+          // this.appEvents.on("babble-emoji-picker:close", this, () => this.set('active', false))
           $('html').on('keydown.babble-emoji-picker', e => {
             if (e.which != 27) { return }
             this.appEvents.trigger('babble-emoji-picker:close')
@@ -115,8 +115,8 @@ export default {
         },
 
         @on('willDestroyElement')
-        cleanupBabble() {
-          if (!this.babble) { return }
+        _teardown() {
+          if (!this.attrs.babble) { return }
 
           this.appEvents.off('babble-emoji-picker:open')
           this.appEvents.off('babble-emoji-picker:close')

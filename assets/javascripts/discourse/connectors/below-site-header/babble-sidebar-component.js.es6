@@ -1,10 +1,9 @@
+const appEvents = Discourse.__container__.lookup('app-events:main')
+
 export default {
   setupComponent(args, component) {
-    component.emojiSelected = () => {
-      console.log('wark!')
-      const $textarea = $('.babble-composer-wrapper textarea')
-      $textarea.val($textarea.val() + ` :${code}:`)
-      Discourse.__container__.lookup('app-events:main').trigger('babble-emoji-picker:close')
+    component.emojiSelected = code => {
+      appEvents.trigger('babble-emoji-picker:select', code)
     }
   }
 }

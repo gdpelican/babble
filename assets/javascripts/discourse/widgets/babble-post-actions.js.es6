@@ -5,12 +5,12 @@ import { positionDropdown } from '../lib/chat-element-utils'
 
 export default createWidget('babble-post-actions', {
 
-  buildKey(attrs) {
-    return `babble-post-actions-${attrs.post.id}`
+  buildKey({ post }) {
+    return `babble-post-actions-${post.id}`
   },
 
-  defaultState(attrs) {
-    return { topic: attrs.topic, post: attrs.post, open: false }
+  defaultState({ topic, post }) {
+    return { topic, post, open: false }
   },
 
   open(e) {
