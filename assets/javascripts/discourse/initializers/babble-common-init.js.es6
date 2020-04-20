@@ -95,35 +95,6 @@ export default {
           })
         }
       })
-
-      api.modifyClass('component:emoji-picker', {
-
-        @on("didInsertElement")
-        _setup() {
-          if (!this.attrs.babble) { return }
-
-          this.appEvents.on('babble-emoji-picker:open', this, () => this.set('active', true))
-          // this.appEvents.on("babble-emoji-picker:close", this, () => this.set('active', false))
-          $('html').on('keydown.babble-emoji-picker', e => {
-            if (e.which != 27) { return }
-            this.appEvents.trigger('babble-emoji-picker:close')
-          })
-          $('html').on('click.babble-emoji-picker', e => {
-            if ($(e.target).closest('.babble-emoji-picker').length) { return }
-            this.appEvents.trigger('babble-emoji-picker:close')
-          })
-        },
-
-        @on('willDestroyElement')
-        _teardown() {
-          if (!this.attrs.babble) { return }
-
-          this.appEvents.off('babble-emoji-picker:open')
-          this.appEvents.off('babble-emoji-picker:close')
-          $('html').off('keydown.babble-emoji-picker')
-          $('html').off('click.babble-emoji-picker')
-        }
-      })
     })
   }
 }

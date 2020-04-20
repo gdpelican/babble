@@ -1,10 +1,11 @@
 import { h } from 'virtual-dom'
+import User from 'discourse/models/user'
 
 export default Ember.Object.create({
   render(widget) {
     this.widget = widget
     this.state  = widget.state
-    if (Discourse.User.current()) {
+    if (User.current()) {
       return this.composer()
     } else {
       return this.loggedOutView()
