@@ -65,7 +65,7 @@ export default Ember.Object.create({
     } else if (this.post.user_id) {
       return avatarImg('medium', {template: this.post.avatar_template, username: this.post.username})
     } else {
-      return iconNode('trash-o', { class: 'deleted-user-avatar'} )
+      return iconNode('far-trash-alt', { class: 'deleted-user-avatar'} )
     }
   },
 
