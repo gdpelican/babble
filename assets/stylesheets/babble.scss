@@ -126,6 +126,14 @@ $default-chat-width: 300px;
 /* Post styles */
 .babble-posts {
   margin: 0;
+  min-height: calc(100% - 10px);
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+
+  > :first-child {
+    margin-top: auto;
+  }
 }
 
 .babble-post {

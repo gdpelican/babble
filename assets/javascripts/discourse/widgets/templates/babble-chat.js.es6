@@ -54,16 +54,13 @@ export default Ember.Object.create({
         break
     }
 
-    if (this.topic.loadingPosts) {
-      return h('span.babble-load-message', I18n.t('babble.loading_messages'))
-    } else if (canLoadMore) {
+    if (canLoadMore) {
       return this.widget.attach('button', {
-        label:     'babble.load_more',
+        label:     this.topic.loadingPosts ? 'babble.loading_messages' : 'babble.load_more',
         className: `babble-load-message babble-pressure-plate ${order}`,
+        disabled:  this.topic.loadingPosts,
         action:    actionName
       })
-    } else {
-      return h('span.babble-load-message', I18n.t('babble.no_more_messages'))
     }
   },
 
