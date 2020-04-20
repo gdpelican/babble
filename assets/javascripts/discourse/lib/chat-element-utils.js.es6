@@ -24,12 +24,16 @@ let scrollToPost = function(topic, postNumber, speed = 400, offset = 60) {
         let fullHeight = parseInt(img.attributes.height.value)
         let fullWidth  = parseInt(img.attributes.width.value)
         var viewHeight
+        var viewWidth
         if (fullHeight <= postWidth && fullWidth <= postWidth) {
           viewHeight = fullHeight
+          viewWidth = fullWidth
         } else {
           viewHeight = postWidth * fullHeight / fullWidth
+          viewWidth = postWidth
         }
         img.style.height = `${viewHeight}px`
+        img.style.width = `${viewWidth}px`
       })
 
       let animateTarget = $post.position().top + $scrollContainer.scrollTop() - offset
