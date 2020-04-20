@@ -1,6 +1,7 @@
 import { createWidget } from 'discourse/widgets/widget'
 import template from '../widgets/templates/babble-channels'
 import Babble from '../lib/babble'
+import User from 'discourse/models/user'
 import userSearch from 'discourse/lib/user-search'
 import { setupChannelAutocomplete } from '../lib/chat-element-utils'
 
@@ -11,7 +12,7 @@ export default createWidget('babble-channels', {
   defaultState(attrs) { return { search: {} } },
 
   changeTopic(model) {
-    Babble.loadTopic(model.id, { pm: model.constructor == Discourse.User }).then((topic) => {
+    Babble.loadTopic(model.id, { pm: model.constructor == User }).then((topic) => {
       this.sendWidgetAction('open', topic)
     }, console.log)
   },
@@ -22,12 +23,12 @@ export default createWidget('babble-channels', {
       type: 'pms',
       template: 'user-selector-autocomplete',
       onSelect: (item) => {
-        this.changeTopic(Discourse.User.create({ id: item.username }))
+        this.changeTopic(User.create({ id: item.username }))
       },
       source: (term) => {
         return userSearch({
           term: term,
-          exclude: ['discobot', 'system', Discourse.User.current().get('username')]
+          exclude: ['discobot', 'system', User.current().get('username')]
         })
       }
     })

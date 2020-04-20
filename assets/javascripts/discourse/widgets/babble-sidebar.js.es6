@@ -3,13 +3,13 @@ import template from '../widgets/templates/babble-sidebar'
 
 export default createWidget('babble-sidebar', {
   tagName: 'div.babble-sidebar-wrapper',
-  buildKey(attrs) {
-    if (!attrs.topic) { return 'babbleSidebar' }
-    return `babbleSidebar${attrs.topic.id}`
+  buildKey({ topic }) {
+    if (!topic) { return 'babbleSidebar' }
+    return `babbleSidebar${topic.id}`
   },
 
-  defaultState(attrs) {
-    return { view: attrs.topic ? 'chat' : 'channels' }
+  defaultState({ topic }) {
+    return { view: topic ? 'chat' : 'channels' }
   },
 
   html() {

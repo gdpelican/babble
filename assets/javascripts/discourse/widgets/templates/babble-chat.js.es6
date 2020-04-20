@@ -89,7 +89,7 @@ export default Ember.Object.create({
   closeButton() {
     return h('div.babble-context-toggle', this.widget.attach('button', {
       className: 'normalized',
-      icon:      'close',
+      icon:      'times',
       action:    'closeChat',
       title:     'babble.close_chat'
     }))

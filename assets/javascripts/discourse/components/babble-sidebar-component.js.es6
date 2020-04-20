@@ -1,6 +1,6 @@
 import MountWidget from 'discourse/components/mount-widget'
 import Babble from '../lib/babble'
-import { on, observes } from 'ember-addons/ember-computed-decorators'
+import { on, observes } from 'discourse-common/utils/decorators'
 var whosOnline
 
 if (Discourse.SiteSettings.whos_online_enabled) {

@@ -34,7 +34,7 @@ export default Ember.Object.create({
 
   edit() {
     if (this.post.can_edit) {
-      return this.widget.attach('link', { className: 'btn', icon: 'pencil', action: 'edit', label: 'post.controls.edit_action' })
+      return this.widget.attach('link', { className: 'btn', icon: 'pencil-alt', action: 'edit', label: 'post.controls.edit_action' })
     }
   },
 

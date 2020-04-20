@@ -7,31 +7,22 @@ export default createWidget('babble-post', {
   tagName: 'li.babble-post',
   shadowTree: true,
 
-  buildKey(attrs) {
-    return `babble-post-${attrs.post.id}`
+  buildKey({ post }) {
+    return `babble-post-${post.id}`
   },
 
   buildAttributes() {
-    let post = this.state.post
-    let attrs = {
-      'data-post-id':     post.id,
-      'data-user-id':     post.user_id,
-      'data-post-number': post.post_number
+    const { id, user_id, post_number } = this.state.post
+    return {
+      'data-post-id':     id,
+      'data-user-id':     user_id,
+      'data-post-number': post_number,
+      'data-my-post':     user_id === User.currentProp('id')
     }
-    if (post.user_id == User.currentProp('id')) {
-      attrs['data-my-post'] = true
-    }
-    return attrs
   },
 
-  defaultState(attrs) {
-    return {
-      post:       attrs.post,
-      topic:      attrs.topic,
-      isFollowOn: attrs.isFollowOn,
-      isNewDay:   attrs.isNewDay,
-      editedRaw:  attrs.post.raw
-    }
+  defaultState({ post, topic, isFollowOn, isNewDay }) {
+    return { post, topic, isFollowOn, isNewDay, editedRaw: post.raw }
   },
 
   html() { return template.render(this) }

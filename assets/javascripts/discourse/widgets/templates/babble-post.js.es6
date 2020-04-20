@@ -14,7 +14,6 @@ export default Ember.Object.create({
     this.isNewDay   = widget.state.isNewDay
     this.staged     = this.topic.get('loadingEditId') === this.post.id || this.post.id == -1
     this.editing    = this.topic.get('editingPostId') === this.post.id
-    this.post.set('usernameUrl', widget.state.post.get('usernameUrl')) // :(
     return this.container()
   },
 

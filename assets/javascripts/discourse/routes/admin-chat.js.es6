@@ -1,10 +1,11 @@
-import Babble from "../../discourse/lib/babble"
+import Route from '@ember/routing/route'
+import Babble from '../../discourse/lib/babble'
 import Topic from 'discourse/models/topic'
 import Group from 'discourse/models/group'
 import Category from 'discourse/models/category'
 import { ajax } from 'discourse/lib/ajax'
 
-export default Discourse.Route.extend({
+export default Route.extend({
 
   setupController: function(controller) {
     if (Babble.disabled()) { return }

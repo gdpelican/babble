@@ -1,6 +1,6 @@
 import { withPluginApi } from 'discourse/lib/plugin-api'
 import Babble            from '../lib/babble'
-import { on }            from 'ember-addons/ember-computed-decorators'
+import { on }            from 'discourse-common/utils/decorators'
 import { wantsNewWindow } from 'discourse/lib/intercept-click';
 
 export default {
@@ -67,7 +67,7 @@ export default {
         initialize() {
           if (!this.site.isMobileDevice) { return }
 
-          this.appEvents.on('babble-has-topics', () => {            
+          this.appEvents.on('babble-has-topics', () => {
             api.decorateWidget('header-icons:before', (helper) => {
               return helper.attach('header-dropdown', {
                 title:         'babble.title',

@@ -1,5 +1,6 @@
 import { rerender } from './chat-component-utils'
 import PostStream from 'discourse/models/post-stream'
+import User from 'discourse/models/user'
 
 let syncWithPostStream = function(topic) {
   let postNumbers = topic.postStream.posts.map(function(post) { return post.post_number })
@@ -19,7 +20,7 @@ let latestPostFor = function(topic) {
 
 let latestPostIsMine = function(topic) {
   let latestPost  = latestPostFor(topic)
-  let currentUser = Discourse.User.current()
+  let currentUser = User.current()
   if (!currentUser || !latestPost) { return false }
   return latestPostFor(topic).user_id == currentUser.id
 }
