@@ -47,6 +47,7 @@ export default Ember.Object.create({
         setupScrollContainer(topic)
         setupComposer(topic)
         scrollToPost(topic, postNumber, 0)
+        component.appEvents.trigger('babble-chat-bound', component.element)
       }
     })
 
@@ -62,6 +63,7 @@ export default Ember.Object.create({
 
     if (hasChatElements(component.element)) {
       teardownPresence(topic)
+      component.appEvents.trigger('babble-chat-unbound', component.element)
     }
 
     BabbleRegistry.unbind(component)

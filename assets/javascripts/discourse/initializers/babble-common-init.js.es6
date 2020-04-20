@@ -38,27 +38,29 @@ export default {
 
       api.modifyClass("component:user-card-contents", {
         @on('didInsertElement')
-        listenForBabble() {
-          this.appEvents.on("babble-toggle-chat", () => {
-            Ember.run.scheduleOnce('afterRender', () => {
-              if ($('.babble-sidebar').length) {
-                $('.babble-sidebar').on('click.discourse-user-card', '[data-user-card]', (e) => {
-                  if (wantsNewWindow(e)) { return }
-                  if (this.site.isMobileDevice) { this.appEvents.trigger('babble-toggle-chat') }
-                  const $target = $(e.currentTarget)
-                  return this._show($target.data('user-card'), $target)
-                })
-                $('.babble-sidebar').on('click.discourse-user-mention', 'a.mention', (e) => {
-                  if (wantsNewWindow(e)) { return }
-                  const $target = $(e.target)
-                  return this._show($target.text().replace(/^@/, ''), $target)
-                })
-
-              } else {
-                $('.babble-sidebar').off('click.discourse-user-card')
-              }
+        _setupBabble() {
+          this.appEvents.on('babble-chat-bound', $element => {
+            $($element).on('click.discourse-user-card', '[data-user-card]', e => {
+              if (wantsNewWindow(e)) { return }
+              const $target = $(e.currentTarget)
+              return this._show($target.data('user-card'), $target)
+            })
+            $($element).on('click.discourse-user-mention', 'a.mention', e => {
+              if (wantsNewWindow(e)) { return }
+              const $target = $(e.target)
+              return this._show($target.text().replace(/^@/, ''), $target)
             })
           })
+          this.appEvents.on('babble-chat-unbound', $element => {
+            $($element).off('click.discourse-user-card', '[data-user-card]')
+            $($element).off('click.discourse-user-mention', 'a.mention')
+          })
+        },
+
+        @on('willDestroyElement')
+        _teardownBabble() {
+          this.appEvents.off('babble-chat-bound')
+          this.appEvents.off('babble-chat-unbound')
         }
       })
 
