@@ -1,22 +1,24 @@
 import { h } from 'virtual-dom'
+import { avatarImg } from 'discourse/widgets/post'
 
 export default Ember.Object.create({
   render(widget) {
     this.widget = widget
-    return h('div.babble-typing.clearfix', this.typingSentence(widget.state.topic.typing))
-  },
 
-  typingSentence(typing) {
-    let usernames = _.filter(_.keys(typing), function(username) {
-      return typing[username].lastTyped > moment().add(-1, 'second')
-    })
+    const typing = widget.state.topic.typing
+    const now = moment().add(-3, 'second')
 
-    if (!usernames.length) { return }
+    const typers = Object.values(widget.state.topic.typing).filter(({ lastTyped }) => lastTyped > now)
+    if (!typers.length) { return }
     setTimeout(() => { this.widget.scheduleRerender() }, 2000)
-    switch(usernames.length) {
-      case 1: return I18n.t("babble.typing.single", { first: usernames[0] })
-      case 2: return I18n.t("babble.typing.double", { first: usernames[0], second: usernames[1] })
-      case 3: return I18n.t("babble.typing.several")
-    }
+
+    return typers.map(({ user: { username, avatar_template } }) => (
+      h('div.babble-post-container.babble-typing-container', [
+        h('a.babble-avatar-wrapper', {
+          attributes: { 'data-user-card': username, 'href': `/u/${username}` }
+        }, avatarImg('medium', { username, template: avatar_template })),
+        h('div.babble-typing', [h('span'), h('span'), h('span')])
+      ])
+    ))
   }
 })

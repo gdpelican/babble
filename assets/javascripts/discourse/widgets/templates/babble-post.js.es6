@@ -1,6 +1,6 @@
 import { h } from 'virtual-dom'
 import RawHtml from 'discourse/widgets/raw-html';
-import { relativeAge } from 'discourse/lib/formatter'
+import { relativeAge, longDate } from 'discourse/lib/formatter'
 import { avatarImg } from 'discourse/widgets/post'
 import { emojiUnescape } from 'discourse/lib/text'
 import { iconNode } from "discourse-common/lib/icon-library";
@@ -29,14 +29,12 @@ export default Ember.Object.create({
 
   contents() {
     return [
-      h('a.babble-avatar-wrapper', { attributes: {
-            'data-user-card': this.post.username,
-            'href': `/u/${this.post.username}`
-      } }, this.avatar()),
+      this.avatarWrapper(),
       h('div.babble-post-content-wrapper', [
         this.title(),
-        this.body()
-      ])
+        this.body(),
+      ]),
+      this.post.yours ? null : this.actions()
     ]
   },
 
@@ -59,13 +57,22 @@ export default Ember.Object.create({
     }
   },
 
+  avatarWrapper() {
+    if (this.post.yours) { return }
+
+    return h('a.babble-avatar-wrapper', { attributes: {
+      'data-user-card': this.post.username,
+      'href': `/u/${this.post.username}`
+    } }, this.avatar())
+  },
+
   avatar() {
     if (this.isFollowOn) {
       return h('div.babble-avatar-placeholder')
     } else if (this.post.user_id) {
       return avatarImg('medium', {template: this.post.avatar_template, username: this.post.username})
     } else {
-      return iconNode('trash-o', { class: 'deleted-user-avatar'} )
+      return iconNode('far-trash-alt', { class: 'deleted-user-avatar'} )
     }
   },
 
@@ -74,29 +81,42 @@ export default Ember.Object.create({
   },
 
   postDate() {
-    return h('div.babble-post-date', relativeAge(new Date(this.post.created_at)))
+    const timestamp = new Date(this.post.created_at)
+    return h('div.babble-post-date',
+      { attributes: { title: longDate(timestamp) } },
+      relativeAge(timestamp)
+    )
   },
 
   postEdited() {
-    if (!(this.post.self_edits > 0)) { return }
-    return h('div.babble-post-explainer', I18n.t('babble.post_edited'))
+    if (this.post.yours || !(this.post.self_edits > 0)) { return }
+
+    return h('div.babble-post-explainer',
+      { attributes: { title: I18n.t('babble.post_edited') } },
+      iconNode('pencil-alt')
+    )
   },
 
   postFlagged() {
     if (!this.post.has_flagged) { return }
-    return h('div.babble-post-explainer', `(${I18n.t('babble.flagged').toLowerCase()})`)
+
+    return h('div.babble-post-explainer',
+      { attributes: { title: I18n.t('babble.flagged') } },
+      iconNode('flag')
+    )
   },
 
   title() {
+    const actions = this.post.yours ? this.actions() : null
     if (this.isFollowOn) {
-      return h('div.babble-post-meta-data', this.actions())
+      return h('div.babble-post-meta-data', actions)
     } else {
       return h('div.babble-post-meta-data', [
         this.postName(),
         this.postDate(),
         this.postFlagged(),
         this.postEdited(),
-        this.actions()
+        actions
       ])
     }
   },

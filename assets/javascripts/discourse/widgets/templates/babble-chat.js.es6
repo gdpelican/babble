@@ -18,7 +18,6 @@ export default Ember.Object.create({
         h('ul', {className: 'babble-posts'}, this.chatView()),
         this.pressurePlate('asc')
       ]),
-      this.widget.attach('babble-typing', { topic: this.topic }),
       this.widget.attach('babble-composer', { topic: this.topic, csrf: this.csrf })
     ]
     if (!this.widget.attrs.fullpage) {
@@ -54,16 +53,13 @@ export default Ember.Object.create({
         break
     }
 
-    if (this.topic.loadingPosts) {
-      return h('span.babble-load-message', I18n.t('babble.loading_messages'))
-    } else if (canLoadMore) {
+    if (canLoadMore) {
       return this.widget.attach('button', {
-        label:     'babble.load_more',
+        label:     this.topic.loadingPosts ? 'babble.loading_messages' : 'babble.load_more',
         className: `babble-load-message babble-pressure-plate ${order}`,
+        disabled:  this.topic.loadingPosts,
         action:    actionName
       })
-    } else {
-      return h('span.babble-load-message', I18n.t('babble.no_more_messages'))
     }
   },
 
@@ -118,7 +114,7 @@ export default Ember.Object.create({
           isFollowOn: isFollowOn(post, posts[index-1]),
           isNewDay: isNewDay(post, posts[index-1])
         })
-      })
+      }).concat(this.widget.attach('babble-typing', { topic: this.topic }))
     } else {
       return h('li.babble-empty-topic-message', I18n.t('babble.empty_topic_message'))
     }

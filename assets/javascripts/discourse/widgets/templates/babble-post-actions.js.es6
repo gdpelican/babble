@@ -50,7 +50,7 @@ export default Ember.Object.create({
 
   delete() {
     if (this.post.can_delete) {
-      return this.widget.attach('link', { className: 'btn', icon: 'trash-o', action: 'delete', label: 'user.admin_delete' })
+      return this.widget.attach('link', { className: 'btn', icon: 'far-trash-alt', action: 'delete', label: 'user.admin_delete' })
     }
   }
 
