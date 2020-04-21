@@ -294,6 +294,8 @@ export default Ember.Object.create({
       post.created_at = moment(post.created_at.replace(' UTC', 'Z')).local().toString()
     }
 
+    post.yours = post.user_id == User.currentProp('id')
+
     if (data.is_edit || data.is_delete) {
       topic.postStream.storePost(post)
       if (topic.get('loadingEditId') == data.id) {
@@ -332,6 +334,14 @@ export default Ember.Object.create({
   handleTyping(topic, data) {
     if (data.id == User.currentProp('id')) { return }
     topic.typing[data.username] = { user: data, lastTyped: moment() }
+
+    forEachTopicContainer(topic, $container => {
+      const postNumber = lastVisibleElement($container.find('.babble-chat'), '.babble-post', 'post-number')
+      if (postNumber === topic.highest_post_number) {
+        scrollToPost(topic, postNumber, 400, 80)
+      }
+    })
+
     rerender(topic)
   },
 

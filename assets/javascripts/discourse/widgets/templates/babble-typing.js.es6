@@ -5,12 +5,14 @@ export default Ember.Object.create({
   render(widget) {
     this.widget = widget
 
-    // TODO get users properly
-    const users = [{ username: 'gdpelican', avatar_template: '/letter_avatar_proxy/v4/letter/g/919ad9/{size}.png' }]
-    if (!users.length) { return }
+    const typing = widget.state.topic.typing
+    const now = moment().add(-3, 'second')
+
+    const typers = Object.values(widget.state.topic.typing).filter(({ lastTyped }) => lastTyped > now)
+    if (!typers.length) { return }
     setTimeout(() => { this.widget.scheduleRerender() }, 2000)
 
-    return users.map(({ username, avatar_template }) => (
+    return typers.map(({ user: { username, avatar_template } }) => (
       h('div.babble-post-container.babble-typing-container', [
         h('a.babble-avatar-wrapper', {
           attributes: { 'data-user-card': username, 'href': `/u/${username}` }

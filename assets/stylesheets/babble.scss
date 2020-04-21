@@ -134,6 +134,10 @@ $default-chat-width: 300px;
   > :first-child {
     margin-top: auto;
   }
+
+  > :last-child {
+    margin-bottom: 8px;
+  }
 }
 
 .babble-post {
@@ -210,7 +214,7 @@ $default-chat-width: 300px;
 
 [data-my-post=true] .babble-post-container .babble-post-content-wrapper {
   margin-left: auto;
-  background: dark-light-choose($tertiary-low, $primary-very-low);
+  background: dark-light-choose($tertiary-low, $tertiary-high);
 }
 
 
@@ -262,7 +266,7 @@ $default-chat-width: 300px;
   }
 
   .babble-post-content-wrapper {
-    background: dark-light-choose($primary-very-low, $secondary-low);
+    background: dark-light-choose($primary-very-low, $primary-very-low);
     border-radius: 5px;
     max-width: 80%;
     padding: 7px;
