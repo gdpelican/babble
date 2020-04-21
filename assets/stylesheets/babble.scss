@@ -208,13 +208,25 @@ $default-chat-width: 300px;
   border-radius: 100%;
 }
 
+[data-my-post=true] .babble-post-container .babble-post-content-wrapper {
+  margin-left: auto;
+  background: dark-light-choose($tertiary-low, $primary-very-low);
+}
+
+
 .babble-post-container {
-  margin: 8px 0;
+  margin-top: 8px;
   position: relative;
   display: flex;
+  align-items: flex-start;
+
+  &.babble-typing-container {
+    align-items: center;
+    margin-bottom: 4px;
+  }
 
   &.babble-follow-on {
-    margin: 4px 0;
+    margin-top: 4px;
     .babble-post-content-wrapper {
       flex-direction: row;
       justify-content: space-between;
@@ -236,18 +248,29 @@ $default-chat-width: 300px;
 
   .babble-post-date {
     flex-grow: 1;
+    font-size: 14px;
   }
 
   .babble-post-explainer {
+    position: absolute;
+    height: 16px;
+    width: 16px;
     font-size: 12px;
-    flex-grow: 10;
+    top: 8px;
+    right: 4px;
+    opacity: 0.4;
   }
 
   .babble-post-content-wrapper {
+    background: dark-light-choose($primary-very-low, $secondary-low);
+    border-radius: 5px;
+    max-width: 80%;
+    padding: 7px;
     display: flex;
     flex-direction: column;
     flex-grow: 1;
     word-break: break-word;
+    position: relative;
     a.mention {
       display: inline;
     }
@@ -262,11 +285,21 @@ $default-chat-width: 300px;
     min-height: 26px;
     display: flex;
     flex-direction: row;
+    align-items: baseline;
     justify-content: space-between;
   }
 
   .babble-post-actions-ellipsis .fa {
     margin: 5px 0 0 0 !important;
+  }
+
+  .babble-post-actions.closed {
+    opacity: 0;
+    transition: opacity 0.3s ease-in-out;
+  }
+
+  &:hover .babble-post-actions.closed {
+    opacity: 1;
   }
 
   .babble-post-actions-menu {
@@ -347,7 +380,37 @@ $default-chat-width: 300px;
   font-size: 12px;
   line-height: 14px;
   min-height: 14px;
-  padding: 5px 8px;
+  width: auto;
+  border-radius: 50px;
+  padding: 4px 0;
+  margin: 0 4px;
+  display: table;
+  position: relative;
+  span {
+    height: 8px;
+    width: 8px;
+    float: left;
+    margin-right: 4px;
+    background-color: #9E9EA1;
+    display: block;
+    border-radius: 50%;
+    opacity: 0.4;
+    position: relative;
+    top: 0;
+    @for $i from 1 through 3 {
+      &:nth-of-type(#{$i}) {
+        animation: 1s blink infinite ($i * .3333s);
+      }
+    }
+  }
+}
+
+@keyframes blink {
+  25% { top: 0; }
+  33% { top: 1px; }
+  50% { top: 2px; }
+  66% { top: 1px; }
+  75% { top: 0; }
 }
 
 /* Composer styles */

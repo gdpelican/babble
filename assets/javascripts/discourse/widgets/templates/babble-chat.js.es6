@@ -18,7 +18,6 @@ export default Ember.Object.create({
         h('ul', {className: 'babble-posts'}, this.chatView()),
         this.pressurePlate('asc')
       ]),
-      this.widget.attach('babble-typing', { topic: this.topic }),
       this.widget.attach('babble-composer', { topic: this.topic, csrf: this.csrf })
     ]
     if (!this.widget.attrs.fullpage) {
@@ -115,7 +114,7 @@ export default Ember.Object.create({
           isFollowOn: isFollowOn(post, posts[index-1]),
           isNewDay: isNewDay(post, posts[index-1])
         })
-      })
+      }).concat(this.widget.attach('babble-typing', { topic: this.topic }))
     } else {
       return h('li.babble-empty-topic-message', I18n.t('babble.empty_topic_message'))
     }
