@@ -4,6 +4,7 @@ import template from "../widgets/templates/babble-composer"
 import { ajax } from 'discourse/lib/ajax'
 import { messageBus } from '../lib/chat-live-update-utils'
 import { getUploadMarkdown } from 'discourse/lib/uploads'
+import getURL from "discourse-common/lib/get-url";
 import User from 'discourse/models/user'
 
 export default createWidget('babble-composer', {
@@ -41,7 +42,7 @@ export default createWidget('babble-composer', {
     const $input = $('#babble-file-input')
 
     $element.fileupload({
-      url: Discourse.getURL(`/uploads.json?client_id=${messageBus().clientId}&authenticity_token=${this.state.csrf}`),
+      url: getURL(`/uploads.json?client_id=${messageBus().clientId}&authenticity_token=${this.state.csrf}`),
       dataType: "json",
       pasteZone: $element
     })
