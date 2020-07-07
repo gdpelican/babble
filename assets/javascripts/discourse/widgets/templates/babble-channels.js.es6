@@ -1,6 +1,7 @@
 import { h } from 'virtual-dom'
 import { avatarImg } from 'discourse/widgets/post'
 import { iconNode } from "discourse-common/lib/icon-library";
+import getURL from "discourse-common/lib/get-url";
 import Babble from '../../lib/babble'
 
 export default Ember.Object.create({
@@ -109,7 +110,7 @@ export default Ember.Object.create({
       case 'category':
         return h('span.babble-topic-avatar', { style: { 'background-color': `#${item.category.color}` } })
       case 'group':
-        return h('img.babble-topic-avatar', { src: Discourse.getURL('/images/avatar.png') })
+        return h('img.babble-topic-avatar', { src: getURL('/images/avatar.png') })
       case 'user':
         let css = this.widget.attrs.isOnline(item.id) ? '.user-online' : ''
         return h(`span.babble-topic-avatar.topic-avatar${css}`, avatarImg('small', { template: item.avatar_template, username: item.username}))
