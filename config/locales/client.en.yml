@@ -16,6 +16,7 @@ en:
       placeholder: "Say something..."
       send: "Send"
       save: "Save"
+      flag: "Flag"
       flagged: "Flagged"
       cancel: "Cancel"
       title: "open a chat window for a quick conversation"
