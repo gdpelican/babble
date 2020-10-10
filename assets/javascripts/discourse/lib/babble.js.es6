@@ -96,9 +96,9 @@ export default Ember.Object.create({
   loadBoot(component) {
     this.set('loadingBoot', true)
     return ajax(`/babble/boot.json`).then((data) => {
-      _.each(data.notifications, (n) => { BabbleRegistry.storeNotification(n) })
-      _.each(data.users,         (u) => { BabbleRegistry.storeUser(User.create(u)) })
-      _.each(data.topics,        (t) => { this.setupTopicListener(t, component) })
+      data.notifications.forEach((n) => { BabbleRegistry.storeNotification(n) })
+      data.users.forEach((u) => { BabbleRegistry.storeUser(User.create(u)) })
+      data.topics.forEach((t) => { this.setupTopicListener(t, component) })
     }).finally(() => {
       component.appEvents.trigger('babble-rerender')
       this.set('booted', true)
@@ -267,16 +267,16 @@ export default Ember.Object.create({
       delete data.can_delete
     }
 
-    if(!_.keys(data).includes('can_edit')) {
+    if(!Object.keys(data).includes('can_edit')) {
       data.can_edit = user.staff ||
                       data.user_id == user.id ||
                       user.trust_level >= 4
     }
-    if(!_.keys(data).includes('can_flag')) {
+    if(!Object.keys(data).includes('can_flag')) {
       data.can_flag = !data.user_id != user.id &&
                       (user.staff || user.trust_level >= 1)
     }
-    if(!_.keys(data).includes('can_delete')) {
+    if(!Object.keys(data).includes('can_delete')) {
       data.can_delete = user.staff || data.user_id == user.id
     }
 
@@ -305,7 +305,7 @@ export default Ember.Object.create({
 
       let performScroll = forEachTopicContainer(topic, ($container) => {
         return lastVisibleElement($container.find('.babble-chat'), '.babble-post', 'post-number') == topic.lastLoadedPostNumber
-      }).some(_.identity)
+      }).some(c => c)
       let performNotification = BabbleRegistry.componentsForTopic(topic).length &&
                                 post.user_id != User.currentProp('id')
 

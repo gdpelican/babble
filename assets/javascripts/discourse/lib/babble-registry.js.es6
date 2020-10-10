@@ -14,8 +14,7 @@ export default Ember.Object.create({
   },
 
   unbind(component) {
-    let componentBinding = _.find(this._bindings, ([x, elementId]) => { return elementId == component.elementId })
-    this._bindings = _.without(this._bindings, componentBinding)
+    this._bindings = this._bindings.filter(([x, elementId]) => { return elementId == component.elementId });
   },
 
   store(model, cache, field, force = false) {
@@ -51,15 +50,15 @@ export default Ember.Object.create({
   },
 
   allTopics() {
-    return _.values(this._topics)
+    return Object.values(this._topics)
   },
 
   allUsers() {
-    return _.values(this._users)
+    return Object.values(this._users)
   },
 
   allNotifications() {
-    return _.values(this._notifications)
+    return Object.values(this._notifications)
   },
 
   removeNotification(id) {
@@ -67,13 +66,12 @@ export default Ember.Object.create({
   },
 
   componentsForTopic(topic) {
-    let elementIds = _.filter(this._bindings, ([topicId, x]) => { return topicId == topic.id })
-                      .map((c) => { return c[1] })
-    return _.values(_.pick(this._components, elementIds))
+    return this._bindings.filter(([topicId, x]) => { return topicId == topic.id })
+      .map((c) => this._components[c[1]]);
   },
 
   topicForComponent(component) {
-    let [topicId, x] = _.find(this._bindings, ([x, elementId]) => { return elementId == component.elementId }) || []
+    let [topicId, x] = this._bindings.find(([x, elementId]) => { return elementId == component.elementId }) || []
     return this._topics[topicId]
   }
 })

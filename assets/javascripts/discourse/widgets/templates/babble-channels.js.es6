@@ -3,6 +3,7 @@ import { avatarImg } from 'discourse/widgets/post'
 import { iconNode } from "discourse-common/lib/icon-library";
 import getURL from "discourse-common/lib/get-url";
 import Babble from '../../lib/babble'
+import { flatten, compact } from '../../lib/babble-utils';
 
 export default Ember.Object.create({
   render(widget) {
@@ -67,7 +68,7 @@ export default Ember.Object.create({
   availableCategories() {
     let categories = this.availableTopics.filter(t => { return t.permissions == 'category' })
     if (!categories.length) { return }
-    return _.flatten([
+    return flatten([
       h('h5.babble-topic-section-header', I18n.t('babble.categories_title')),
       categories.map(t => { return this.availableTopicListItem(t, 'category') })
     ])
@@ -76,17 +77,17 @@ export default Ember.Object.create({
   availableGroups() {
     let groups = this.availableTopics.filter(t => { return t.permissions == 'group' })
     if (!groups.length) { return }
-    return _.flatten([
+    return flatten([
       h('h5.babble-topic-section-header', I18n.t('babble.groups_title')),
       groups.map(t => { return this.availableTopicListItem(t, 'group') })
     ])
   },
 
   availablePMs() {
-    let users = _.sortBy(this.availableUsers, (user) => { return user.last_posted_at || "" }).reverse()
+    let users = this.availableUsers.sort((a, b) => (new Date(b.last_posted_at) - new Date(a.last_posted_at))).reverse()
     if (!users.length) { return }
-    return _.compact(_.flatten([
-      h('.babble-topic-section-header-wrapper', _.compact([
+    return compact(flatten([
+      h('.babble-topic-section-header-wrapper', compact([
         h('h5.babble-topic-section-header', I18n.t('babble.pms_title')),
         this.searchButton('pms')
       ])),

@@ -9,6 +9,7 @@ import autosize from 'discourse/lib/autosize'
 import User from 'discourse/models/user'
 import Site from 'discourse/models/site'
 import Babble from '../lib/babble'
+import { flatten } from './babble-utils';
 
 let scrollToPost = function(topic, postNumber, speed = 400, offset = 60) {
   Ember.run.scheduleOnce('afterRender', () => {
@@ -49,10 +50,12 @@ let setupScrollContainer = function(topic) {
     let $scrollContainer = $($container).find('.babble-list[scroll-container=inactive]')
     if (!$scrollContainer.length) { console.warn("Babble scroll container already active or could not be found"); return }
 
-    $($scrollContainer).on('scroll.discourse-babble-scroll', debounce(() => {
-      $container.find('.babble-post-actions-menu').hide()
-      Babble.ensureRead(topic, $container)
-    }, 500))
+    $($scrollContainer).on('scroll.discourse-babble-scroll', () => {
+      debounce(this, () => {
+        $container.find('.babble-post-actions-menu').hide()
+        Babble.ensureRead(topic, $container)
+      }, 500);
+    });
     Babble.ensureRead(topic, $container)
 
     // Mark scroll container as activated
@@ -87,7 +90,7 @@ let setupComposer = function(topic, opts = { emojis: true, mentions: true }) {
                             translations[`:${term}`] ||
                             emojiSearch(term, {maxResults: 5})
               return resolve(options)
-            }).then(list => _.flatten([list]).map(code => {
+            }).then(list => flatten([list]).map(code => {
               return {code, src: emojiUrlFor(code)};
             }))
           }

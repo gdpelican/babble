@@ -38,7 +38,7 @@ export default Ember.Controller.extend({
       }).then(function(saved) {
         saved = Topic.create(saved)
         if (topic.id) {
-          var topicIndex = _.map(allTopics, 'id').indexOf(topic.id)
+          var topicIndex = allTopics.mapBy('id').indexOf(topic.id)
           Ember.set(allTopics.objectAt(topicIndex), 'title', saved.title)
         } else {
           allTopics.addObject(saved)
@@ -67,7 +67,7 @@ export default Ember.Controller.extend({
         function(confirmed) {
           if (confirmed) {
             ajax(`/babble/topics/${topic.id}.json`, { type: "DELETE" }).then(function() {
-              var deleted = _.find(allTopics, function(t) { return t.id === topic.id })
+              var deleted = allTopics.find((t) => { return t.id === topic.id });
               allTopics.removeObject(deleted)
               self.transitionToRoute('adminChats.index')
             }).catch(function() {

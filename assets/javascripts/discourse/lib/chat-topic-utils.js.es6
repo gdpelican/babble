@@ -3,9 +3,9 @@ import PostStream from 'discourse/models/post-stream'
 import User from 'discourse/models/user'
 
 let syncWithPostStream = function(topic) {
-  let postNumbers = topic.postStream.posts.map(function(post) { return post.post_number })
-  topic.set('firstLoadedPostNumber', _.min(postNumbers))
-  topic.set('lastLoadedPostNumber',  _.max(postNumbers))
+  let postNumbers = topic.postStream.posts.map((p) => p.post_number);
+  topic.set('firstLoadedPostNumber', Math.min.apply(Math, postNumbers))
+  topic.set('lastLoadedPostNumber',  Math.max.apply(Math, postNumbers))
   topic.set('unreadCount',           unreadCount(topic))
   return rerender(topic)
 }
@@ -15,7 +15,7 @@ let unreadCount = function(topic) {
 }
 
 let latestPostFor = function(topic) {
-  return _.max(topic.postStream.posts, function(p) { return p.post_number })
+  return Math.max.apply(Math, topic.postStream.posts.map((p) => p.post_number));
 }
 
 let latestPostIsMine = function(topic) {

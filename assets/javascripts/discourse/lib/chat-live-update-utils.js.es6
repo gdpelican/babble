@@ -11,11 +11,11 @@ let apiPath = function(topic, action) {
 }
 
 let setupLiveUpdate = function(topic, fns) {
-  _.each(fns, (fn, action) => { messageBus().subscribe(apiPath(topic, action), fn) })
+  Object.entries(fns).forEach((x) => messageBus().subscribe(apiPath(topic, x[0]), x[1]));
 }
 
 let teardownLiveUpdate = function(topic, ...actions) {
-  _.each(actions, (action) => { messageBus().unsubscribe(apiPath(topic, action)) })
+  actions.forEach((action) => { messageBus().unsubscribe(apiPath(topic, action)) })
 }
 
 export { setupLiveUpdate, teardownLiveUpdate, messageBus }

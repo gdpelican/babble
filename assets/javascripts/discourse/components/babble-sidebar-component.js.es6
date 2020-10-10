@@ -1,6 +1,8 @@
 import MountWidget from 'discourse/components/mount-widget'
 import Babble from '../lib/babble'
 import { on, observes } from 'discourse-common/utils/decorators'
+import { debounce, throttle } from "@ember/runloop";
+
 var whosOnline
 
 if (Discourse.SiteSettings.whos_online_enabled) {
@@ -37,14 +39,10 @@ export default MountWidget.extend({
 
     this.set('targetObject', this)
 
-    $(window).on('resize.babble-window-resize', _.debounce(() => {
-      this.appEvents.trigger('babble-rerender')
-    }, 250))
+    $(window).on('resize.babble-window-resize', () => debounce(this, this.triggerRerender, 250))
 
     if (Discourse.SiteSettings.babble_adaptive_height) {
-      $(window).on('scroll.babble-scroll', _.throttle(() => {
-        this.appEvents.trigger('babble-rerender')
-      }, 250))
+      $(window).on('scroll.babble-scroll', () => throttle(this, this.triggerRerender, 250))
     }
 
     this.appEvents.on("babble-toggle-chat", () => {
@@ -89,6 +87,10 @@ export default MountWidget.extend({
     this.set('initialized', true)
 
     Babble.loadBoot(this).then(() => { this.openChat(topic) })
+  },
+  
+  triggerRerender() {
+    this.appEvents.trigger('babble-rerender');
   },
 
   openChat(topic) {

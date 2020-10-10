@@ -1,13 +1,14 @@
 
 import { h } from 'virtual-dom'
 import { iconNode } from "discourse-common/lib/icon-library";
+import { compact } from '../../lib/babble-utils';
 
 export default Ember.Object.create({
   render(widget) {
     this.widget     = widget
     this.post       = widget.state.post
     this.topic      = widget.state.topic
-    if (this.post.deleted_at || !_.compact(this.actions()).length) { return }
+    if (this.post.deleted_at || !compact(this.actions()).length) { return }
 
     let status = this.widget.state.open ? '.opened' : '.closed'
 

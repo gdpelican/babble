@@ -1,4 +1,5 @@
 import { h } from 'virtual-dom'
+import { compact } from '../../lib/babble-utils';
 
 export default Ember.Object.create({
   render(widget) {
@@ -7,9 +8,10 @@ export default Ember.Object.create({
   },
 
   whosOnline(online) {
-    let users = _.compact(_.map(_.filter(_.keys(online), function(username) {
-      return online[username].lastSeen > moment().add(-1, 'minute')
-    }), 'user'))
-    return _.map(users, 'username')
+    return compact(
+      Object.keys(online).filter((username) => {
+        return online[username].lastSeen > moment().add(-1, 'minute');
+      })
+    );
   }
 })

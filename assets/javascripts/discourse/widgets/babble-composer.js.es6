@@ -6,6 +6,7 @@ import { messageBus } from '../lib/chat-live-update-utils'
 import { getUploadMarkdown } from 'discourse/lib/uploads'
 import getURL from "discourse-common/lib/get-url";
 import User from 'discourse/models/user'
+import { throttle } from "@ember/runloop";
 
 export default createWidget('babble-composer', {
   tagName: 'div.babble-post-composer',
@@ -135,9 +136,9 @@ export default createWidget('babble-composer', {
     if (event.keyCode == 38 &&                               // key pressed is up key
         !this.state.editing &&                               // post is not being edited
         !$(event.target).siblings('.autocomplete').length) { // autocomplete is not active
-      let myLastPost = _.last(_.filter(this.state.topic.postStream.posts, function(post) {
+      let myLastPost = this.state.topic.postStream.posts.filter(function(post) {
         return post.user_id == User.currentProp('id')
-      }))
+      })[0];
       if (myLastPost && !event.target.value) {
         Babble.editPost(this.state.topic, myLastPost)
         this.appEvents.trigger('babble-rerender')
@@ -150,9 +151,13 @@ export default createWidget('babble-composer', {
     if (event.key && event.key.length === 1) { this.announceTyping() }
   },
 
-  announceTyping: _.throttle(function() {
-    ajax(`/babble/topics/${this.state.topic.id}/typing`, { type: 'POST' })
-  }, 2000, { leading: true, trailing: false }),
+  announceTyping() {
+    throttle(this, this.postTyping, 2000, { leading: true, trailing: false });
+  },
+  
+  postTyping() {
+    ajax(`/babble/topics/${this.state.topic.id}/typing`, { type: 'POST' });
+  },
 
   html() { return template.render(this) }
 })

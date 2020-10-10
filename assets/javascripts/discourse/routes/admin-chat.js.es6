@@ -13,7 +13,8 @@ export default Route.extend({
       const id = this.paramsFor('adminChat').id
 
       // don't include the everyone group, and set automatic to false so groups can be removed
-      let groups = _.reject(groupsResponse.map((g) => { g.automatic = false; return g; }), (g) => { return g.id == 0 })
+      let groups = groupsResponse.map((g) => { g.automatic = false; return g; })
+        .filter((g) => { return g.id != 0 })
 
       if (id === 'new') {
         controller.setProperties({ model: Topic.create({ permissions: 'category'}), available: groups, selected: [], categories: [] })
@@ -28,7 +29,7 @@ export default Route.extend({
           } else {
             ajax(`/babble/topics/${id}/groups.json`).then((response) => {
               let selected = response.topics.map((g) => { g.automatic = false; return g }) // ...yeah whoops. This should be in a separate controller.
-              topic.allowed_group_ids = _.map(selected, 'id')
+              topic.allowed_group_ids = selected.map(s => s.id);
               controller.setProperties({ model: topic, available: groups, selected: selected, categories: [] })
             })
           }
