@@ -64,10 +64,10 @@ export default createWidget('babble-composer', {
     })
 
     $element.on("fileuploaddone", (e, data) => {
-      $element.fileupload('destroy')
       this.state.submitDisabled = undefined
       let upload = data.result
       if (upload && upload.url) {
+        $element.fileupload('destroy')
         Babble.createPost(this.state.topic, getUploadMarkdown(upload))
       } else {
         // failure :(
