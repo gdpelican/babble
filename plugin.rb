@@ -21,9 +21,16 @@ end
 babble_require 'extras/position_options'
 
 after_initialize do
-
-  babble_require 'initializers/babble'
-
+  
+  module ::Babble
+    BABBLE_PLUGIN_NAME ||= 'babble'
+    
+    class Engine < ::Rails::Engine
+      engine_name BABBLE_PLUGIN_NAME
+      isolate_namespace Babble
+    end
+  end
+  
   babble_require 'routes/babble'
   babble_require 'routes/discourse'
 
