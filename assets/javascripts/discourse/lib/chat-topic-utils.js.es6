@@ -15,14 +15,14 @@ let unreadCount = function(topic) {
 }
 
 let latestPostFor = function(topic) {
-  return Math.max.apply(Math, topic.postStream.posts.map((p) => p.post_number));
+  return topic.postStream.posts.sort((a, b) => parseFloat(b.post_number) - parseFloat(a.post_number))[0];
 }
 
 let latestPostIsMine = function(topic) {
   let latestPost  = latestPostFor(topic)
-  let currentUser = User.current()
+  let currentUser = User.current();
   if (!currentUser || !latestPost) { return false }
-  return latestPostFor(topic).user_id == currentUser.id
+  return latestPost.username == currentUser.username;
 }
 
 // a post is a 'follow-on' if it's another post by the same author within 2 minutes.
