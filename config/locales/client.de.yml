@@ -5,6 +5,7 @@ de:
         title: Babble
         babble_disabled: Babble-Chat vollständig deaktivieren
         babble_sound: Browser-Töne für neue Chat-Benachrichtigungen aktivieren
+        babble_open_by_default: Babble-Sidebar beim Besuchen dieser Seite automatisch öffnen
       typing:
         single: "%{first} tippt gerade..."
         double: "%{first} und %{second} tippen gerade..."
